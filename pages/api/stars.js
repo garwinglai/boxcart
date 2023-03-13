@@ -8,6 +8,7 @@ export default async function assetHandler(req, res) {
 			try {
 				const stars = await prisma.star.findMany();
 				res.status(200).json(stars);
+				console.log(stars);
 			} catch (e) {
 				console.error("Request error", e);
 				res.status(500).json({ error: "Error fetching posts" });
