@@ -14,11 +14,9 @@ import appleLogo from "../../public/images/applelogo.png";
 import facebookLogo from "../../public/images/facebooklogo.png";
 import googleLogo from "../../public/images/googlelogo.png";
 
-export const signin = (props) => {
+export const Signin = (props) => {
 	const count = useSelector(selectEmail);
 	const dispatch = useDispatch();
-
-	
 
 	const [email, setEmail] = useState("");
 	const [pass, setPass] = useState("");
