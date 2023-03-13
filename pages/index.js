@@ -8,7 +8,7 @@ export default function Home() {
 	return (
 		<>
 			<Head>
-				<title>Box Cart</title>
+				<title>BoxCart | Simple Storefront</title>
 				<meta
 					name="description"
 					content="Create your next website in minutes."
