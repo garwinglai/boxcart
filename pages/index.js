@@ -3,8 +3,27 @@ import Image from "next/image";
 import { Inter } from "@next/font/google";
 import styles from "@/styles/Home.module.css";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function Home() {
+	useEffect(() => {
+		getData();
+	}, []);
+
+	const getData = async () => {
+		try {
+			const response = await fetch("/api/stars", {
+				method: "GET",
+			});
+
+			if (response.status === 200) {
+				console.log(await response.json());
+			}
+		} catch (e) {
+			console.log("error", e);
+		}
+	};
+
 	return (
 		<>
 			<Head>
