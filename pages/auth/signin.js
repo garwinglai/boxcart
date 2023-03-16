@@ -1,29 +1,22 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
-import { useSelector, useDispatch } from "react-redux";
-import {
-	setEmail,
-	setPassword,
-	selectEmail,
-	selectPassword,
-} from "../../slices/userSlice";
-import styles from "@/styles/account/signin.module.css";
+import styles from "@/styles/auth/signin.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import appleLogo from "../../public/images/applelogo.png";
 import facebookLogo from "../../public/images/facebooklogo.png";
 import googleLogo from "../../public/images/googlelogo.png";
+import {
+	getProviders,
+	signIn,
+	getSession,
+	getCsrfToken,
+} from "next-auth/react";
 
-export const Signin = (props) => {
-	const count = useSelector(selectEmail);
-	const dispatch = useDispatch();
-
+const Signin = ({ providers }) => {
 	const [email, setEmail] = useState("");
-	const [pass, setPass] = useState("");
+	const [password, setPassword] = useState("");
 
-	const handleChange = (e) => {
-		dispatch(e.target.value);
-	};
+	const handleChange = (e) => {};
 
 	return (
 		<div className={`${styles.signin}`}>
@@ -46,12 +39,14 @@ export const Signin = (props) => {
 							onChange={handleChange}
 							placeholder="Email"
 							autoFocus
+							value={email}
 						/>
 						<input
 							className={`${styles.inputStyle}`}
 							type="password"
 							onChange={handleChange}
 							placeholder="Password"
+							value={password}
 						/>
 
 						<button className={`${styles.btn} ${styles.loginBtn}`}>
@@ -66,6 +61,31 @@ export const Signin = (props) => {
 						<p>----</p>
 					</div>
 					<div className={`${styles.flexCol}`}>
+						{Object.values(providers).map((provider) => {
+							console.log("provider_2", provider);
+							return (
+								<div key={provider.name}>
+									<button
+										className={`${styles.btn}`}
+										onClick={() => signIn(provider.id)}
+									>
+										{" "}
+										<div
+											className={`${styles.flexRow} ${styles.loginOthersBtn}`}
+										>
+											<Image
+												src={googleLogo}
+												alt="Google Logo"
+												width={15}
+												height={15}
+											/>
+											<p>Login with {provider.name}</p>
+										</div>
+									</button>
+								</div>
+							);
+						})}
+
 						<button className={`${styles.btn}`}>
 							<div className={`${styles.flexRow} ${styles.loginOthersBtn}`}>
 								<Image
@@ -120,8 +140,24 @@ export const Signin = (props) => {
 	);
 };
 
-const mapStateToProps = (state) => ({});
+export default Signin;
 
-const mapDispatchToProps = {};
+export const getServerSideProps = async (ctx) => {
+	const providers = await getProviders(ctx);
+	const { req } = ctx;
+	const session = await getSession({ req });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Signin);
+	console.log("providers", providers);
+
+	if (session) {
+		return {
+			redirect: { destination: "/" },
+		};
+	}
+
+	return {
+		props: {
+			providers: providers,
+		},
+	};
+};

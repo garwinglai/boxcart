@@ -1,11 +1,27 @@
 import "@/styles/globals.css";
-import { store } from "../reduxStore";
-import { Provider } from "react-redux";
+import { SessionProvider } from "next-auth/react";
+import { Roboto_Flex, Archivo } from "@next/font/google";
 
-export default function App({ Component, pageProps }) {
+const robotoFlex = Roboto_Flex({ subsets: ["latin"] });
+const archivo = Archivo({ subsets: ["latin"] });
+
+export default function App({
+	Component,
+	pageProps: { session, ...pageProps },
+}) {
 	return (
-		<Provider store={store}>
-			<Component {...pageProps} />
-		</Provider>
+		<>
+			<style jsx global>
+				{`
+					:root {
+						--robotoFlex-font: ${robotoFlex.style.fontFamily};
+						--archivo-font: ${archivo.style.fontFamily};
+					}
+				`}
+			</style>
+			<SessionProvider session={session}>
+				<Component {...pageProps} />
+			</SessionProvider>
+		</>
 	);
 }

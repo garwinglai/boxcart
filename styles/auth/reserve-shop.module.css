@@ -1,0 +1,84 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	flex-direction: column;
+}
+
+.shop {
+	gap: 6rem;
+	margin: 1.5rem;
+	padding-top: 3rem;
+}
+
+/* all p tags inside .shop */
+.shop p {
+	color: var(--gray);
+}
+
+/* p tag with .header as parent*/
+.header > p {
+	margin-top: 1.5rem;
+}
+
+.form_group > label {
+	margin-bottom: 0.5rem;
+	color: var(--gray);
+	font-size: 1rem;
+}
+
+.input_group > input {
+	background-color: var(--primary-light);
+	border: none;
+	height: 3rem;
+	/* opacity: 50%; */
+	width: 50%;
+}
+
+.input_group > input:focus {
+	outline: none;
+}
+
+.input_editable {
+	text-indent: 2rem;
+	border-top-left-radius: 1.5rem;
+	border-bottom-left-radius: 1.5rem;
+	color: var(--primary-med-dark);
+	font-size: 1rem;
+}
+
+.input_readable {
+	border-top-right-radius: 1.5rem;
+	border-bottom-right-radius: 1.5rem;
+	font-size: 1rem;
+}
+
+.input_readable::placeholder {
+	color: var(--gray);
+	font-size: 1rem;
+}
+
+.input_readable::-webkit-input-placeholder {
+	color: var(--gray);
+	font-size: 1rem;
+}
+
+.input_readable::-moz-placeholder {
+	color: var(--gray);
+	font-size: 1rem;
+}
+
+.input_readable::-ms-placeholder {
+	color: var(--gray);
+	font-size: 1rem;
+}
+
+.form_group > button {
+	margin-top: 0.5rem;
+	border: none;
+	background-color: var(--primary);
+	color: var(--white);
+	height: 3rem;
+	border-radius: 1.5rem;
+}
