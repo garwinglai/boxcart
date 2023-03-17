@@ -22,7 +22,7 @@ export default function Home() {
 			{!session ? (
 				<>
 					<h1>User Logged out.</h1>
-					<button onClick={() => router.push("/auth/create-account")}>
+					<button onClick={() => router.push("/auth/reserve-shop")}>
 						Sign in.
 					</button>
 					<br />
