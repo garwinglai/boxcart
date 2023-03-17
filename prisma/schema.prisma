@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  // previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
@@ -22,11 +21,11 @@ model User {
   updatedAt     DateTime     @updatedAt
   accounts      Account[]
   sessions      Session[]
-  boxAccount    boxAccount[]
+  boxAccount    BoxAccount[]
   role          Role         @default(OWNER)
 }
 
-model boxAccount {
+model BoxAccount {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

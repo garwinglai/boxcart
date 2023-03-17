@@ -6,7 +6,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 export default function Home() {
 	const { data: session, status } = useSession();
 
-	console.log("data session", session, status);
+	// console.log("data session", session, status);
 	return (
 		<>
 			<Head>
@@ -40,7 +40,11 @@ export default function Home() {
 			) : (
 				<main>
 					<h1>User Logged in</h1>
-					<button onClick={() => signOut()}>Sign out.</button>
+					<button
+						onClick={() => signOut({ callbackUrl: "/auth/create-account" })}
+					>
+						Sign out.
+					</button>
 				</main>
 			)}
 		</>

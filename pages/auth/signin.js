@@ -9,7 +9,7 @@ import {
 	getProviders,
 	signIn,
 	getSession,
-	getCsrfToken,
+getCsrfToken,
 } from "next-auth/react";
 
 const Signin = ({ providers }) => {

@@ -10,7 +10,6 @@
 	},
 	"dependencies": {
 		"@next-auth/prisma-adapter": "^1.0.5",
-		"@next/font": "^13.2.4",
 		"@prisma/client": "^4.11.0",
 		"eslint": "8.32.0",
 		"eslint-config-next": "^13.2.4",

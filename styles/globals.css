@@ -1,11 +1,17 @@
 :root {
 	--black: #000000;
 	--white: #ffffff;
-	--primary: #8952ff;
-	--primary-med-light: #c4a9ff;
+	--primary-light-soft: #eae0fe;
 	--primary-light: #d8c5ff;
-	--primary-med-dark: #5b37aa;
+	--primary-light-med: #c4a9ff;
+	--primary: #8952ff;
+	--primary-dark-med: #5b37aa;
 	--primary-dark: #2e1b55;
+	--secondary-light: #c3d9ff;
+	--secondary-light-med: #a5c7ff;
+	--secondary: #4a8eff;
+	--secondary-dark-med: #315faa;
+	--secondary-dark: #192f55;
 	--gray: #666666;
 }
 
@@ -25,8 +31,16 @@ h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+input,
+button,
+label,
+span {
 	font-family: var(--robotoFlex-font), sans-serif;
+}
+
+p {
+	font-family: var(--archivo-font), sans-serif;
 }
 
 /* 0.5rem = 8px, 1rem = 16px */
@@ -60,7 +74,4 @@ h6 {
 	font-size: 0.75rem;
 }
 
-p {
-	font-family: var(--archivo-font), sans-serif;
-	font-size: 1.25rem;
-} */
+ */

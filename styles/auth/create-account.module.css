@@ -1,0 +1,228 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	flex-direction: column;
+}
+
+.back_button {
+	border: none;
+	background-color: var(--white);
+	width: fit-content;
+	margin-top: 1rem;
+	padding: 0.5rem;
+	border-radius: 0.25rem;
+	border: 1px solid var(--white);
+}
+
+.back_button:active {
+	border: 1px solid var(--primary-dark-med);
+	background-color: var(--primary);
+}
+
+.container {
+	gap: 2rem;
+	align-items: center;
+	padding: 3rem 1.5rem 0;
+}
+
+.container button {
+	border-radius: 1.5rem;
+	height: 3rem;
+	border: none;
+}
+
+.create_account {
+	gap: 3rem;
+}
+
+.header > h4 {
+	color: var(--primary);
+}
+
+.header > h3 {
+	margin-top: 1.5rem;
+}
+
+.form_group {
+	gap: 0.5rem;
+}
+
+/* .form_group label {
+	color: var(--gray);
+	margin-left: 0.5rem;
+} */
+
+.form_group_name {
+	gap: 0.5rem;
+}
+
+.input_group {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+}
+
+.input_group label {
+	position: absolute;
+	top: 50%;
+	left: 1rem;
+	transition: transform ease 0.2s;
+	transform: translate(0%, -50%);
+	user-select: none;
+	pointer-events: none;
+	color: var(--primary);
+	font-size: 1rem;
+}
+
+.form_group input {
+	height: 3rem;
+	text-indent: 1rem;
+	border-radius: 1.5rem;
+	width: 100%;
+	color: var(--primary-dark-med);
+	border: none;
+	border: none;
+	background-color: var(--primary-light-soft);
+	outline: none;
+	transition: box-shadow ease 0.2s;
+	box-shadow: inset 1px 1px 1px var(--primary),
+		inset -1px -1px 1px var(--primary-light);
+}
+
+.form_group input:-webkit-autofill,
+.form_group input:-webkit-autofill:hover,
+.form_group input:-webkit-autofill:focus,
+.form_group input:-webkit-autofill:active {
+	transition: background-color 9999s ease-in-out 0s;
+	-webkit-text-fill-color: var(--primary-dark-med);
+}
+
+.form_group input:focus {
+	box-shadow: inset 3px 3px 3px var(--primary),
+		inset -2px -2px 2px var(--primary-light);
+}
+
+.input_group > input:focus + label,
+.input_group > input:valid + label {
+	transform: translate(-150%, -50%);
+}
+
+.form_group > button {
+	font-size: 1rem;
+	margin-top: 0.5rem;
+	color: var(--white);
+	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	transition: all 250ms;
+	background: var(--primary);
+}
+
+.form_group > button:active {
+	background-color: var(--primary-dark-med);
+	background-size: 100%;
+	box-shadow: 0px 0px 0px #0e0e0e, 0px 0px 0px rgb(95 94 94 / 25%),
+		inset 3px 3px 4px #0e0e0e, inset -3px -3px 4px #5f5e5e;
+}
+
+.oauth_group {
+	width: 100%;
+	gap: 1.2rem;
+	margin-bottom: 3rem;
+}
+
+.oauth_group button {
+	width: 100%;
+	font-size: 1rem;
+	-webkit-box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+	box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+	transition: all 250ms;
+	background: #e8e8e8;
+}
+
+.oauth_group button:active {
+	background-color: var(--gray);
+	background-size: 100%;
+	box-shadow: 0px 0px 0px #0e0e0e, 0px 0px 0px rgb(95 94 94 / 25%),
+		inset 3px 3px 4px #0e0e0e, inset -3px -3px 4px #5f5e5e;
+}
+
+.oauth_group button > div {
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+}
+
+@media screen and (min-width: 480px) {
+	.outmost_container {
+		/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	.outmost_container {
+		height: 100vh;
+		background: #a770ef; /* fallback for old browsers */
+		background: -webkit-linear-gradient(
+			to right,
+			#fdb99b,
+			#cf8bf3,
+			#a770ef
+		); /* Chrome 10-25, Safari 5.1-6 */
+		background: linear-gradient(
+			to right,
+			#fdb99b,
+			#cf8bf3,
+			#a770ef
+		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.container {
+		flex-direction: row;
+		align-items: flex-start;
+
+		width: 80vw;
+		overflow-y: scroll;
+		gap: 3.75rem;
+		background-color: var(--white);
+		border-radius: 15px;
+		padding: 2rem;
+		height: 75%;
+		box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+			rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+	}
+
+	.create_account {
+		width: 50%;
+		padding-top: unset;
+	}
+
+	.divider {
+		align-self: center;
+	}
+
+	.oauth_group {
+		width: 50%;
+		/* height: 100%; */
+		align-self: center;
+	}
+}
+
+@media (hover: hover) {
+	.back_button:hover {
+		border: 1px solid var(--primary-dark-med);
+	}
+
+	.back_button:hover,
+	.container button:hover {
+		cursor: pointer;
+	}
+}

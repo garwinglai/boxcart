@@ -19,7 +19,7 @@ export default NextAuth({
 	],
 	pages: {
 		signIn: "/auth/signin",
-		signOut: "/auth/signin",
+		// signOut: "/auth/signin",
 		//newUser : can set a page for first time sign in
 	},
 });
