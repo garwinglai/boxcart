@@ -18,7 +18,7 @@ export default NextAuth({
 		//...more providers  here.
 	],
 	pages: {
-		signIn: "/auth/signin",
+		signIn: "/auth/create-account",
 		// signOut: "/auth/signin",
 		//newUser : can set a page for first time sign in
 	},

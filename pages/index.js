@@ -2,10 +2,11 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function Home() {
 	const { data: session, status } = useSession();
-
+	const router = useRouter();
 	// console.log("data session", session, status);
 	return (
 		<>
@@ -21,7 +22,9 @@ export default function Home() {
 			{!session ? (
 				<>
 					<h1>User Logged out.</h1>
-					<button onClick={() => signIn()}>Sign in.</button>
+					<button onClick={() => router.push("/auth/create-account")}>
+						Sign in.
+					</button>
 					<br />
 					<br />
 					<br />
