@@ -19,10 +19,27 @@ model User {
   image         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+  waitlist      Waitlist?
+  boxAccount    BoxAccount[]
   accounts      Account[]
   sessions      Session[]
-  boxAccount    BoxAccount[]
   role          Role         @default(OWNER)
+}
+
+model Waitlist {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  fName     String?
+  lName     String?
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subdomain String
+  userId    Int
+
+  User User @relation(fields: [userId], references: [id])
+
+  @@unique([userId])
 }
 
 model BoxAccount {
@@ -82,5 +99,6 @@ model VerificationToken {
 enum Role {
   ADMIN
   OWNER
+  MEMBER
   CLIENT
 }

@@ -56,14 +56,21 @@ function CreateAccount({ providers }) {
 		return firstCharUpperString;
 	}
 
+	async function handleCredentialsLogin() {
+		// const signInDestinationCallback = "/";
+		// const res = signIn(
+		// 	id,
+		// 	{ callbackUrl: signInDestinationCallback },
+		// 	{ redirect: false } //Do not redirect if error. Handle error on same page. Avail for 'credentials' & 'email' only.
+		// );
+	}
+
 	async function handleOAuthLogin(e, provider) {
 		const { id } = provider;
 		const signInDestinationCallback = "/";
-		const res = signIn(
-			id,
-			{ callbackUrl: signInDestinationCallback }
-			// { redirect: false } //Do not redirect if error. Handle error on same page.
-		);
+		const res = await signIn(id, { callbackUrl: signInDestinationCallback });
+
+		console.log("OAuth Google Response:", res);
 
 		// if signIn failed, returns res
 		// const { error, status, ok, url } = res;
@@ -157,7 +164,7 @@ function CreateAccount({ providers }) {
 								<button onClick={(e) => handleOAuthLogin(e, provider)}>
 									<div className={`${styles.flex}`}>
 										<Image
-											alg="google loco"
+											alt="google logo"
 											src="/images/googlelogo.png"
 											width={20}
 											height={20}
@@ -179,7 +186,7 @@ export default CreateAccount;
 export async function getServerSideProps(context) {
 	// console.log("context", context);
 	const providers = await getProviders();
-	console.log("providers", providers);
+	// console.log("providers", providers);
 	return {
 		props: {
 			providers: providers,

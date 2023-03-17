@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 
-export default NextAuth({
+const options = {
 	adapter: PrismaAdapter(prisma),
 	secret: process.env.NEXTAUTH_SECRET,
 	session: {
@@ -14,12 +14,32 @@ export default NextAuth({
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+			authorization: {
+				params: {
+					prompt: "consent",
+					access_type: "offline",
+					response_type: "code",
+				},
+			},
 		}),
 		//...more providers  here.
 	],
+	callbacks: {
+		async signIn({ account, profile, metadata }) {
+			if (account.provider === "google") {
+				console.log("server side google Account:", account);
+				console.log("server side google Arofile:", profile);
+
+				return profile.email_verified && profile.email.endsWith("gmail.com");
+			}
+			return true;
+		},
+	},
 	pages: {
 		signIn: "/auth/create-account",
 		// signOut: "/auth/signin",
 		//newUser : can set a page for first time sign in
 	},
-});
+};
+
+export default NextAuth(options);
