@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 
-function ReserveShop({ waitlistCount }) {
+function ReserveShop({ waitListJSON }) {
 	// * check session for subdomain storage
 	let storedSessionDomain;
 	if (typeof window !== "undefined") {
@@ -91,7 +91,7 @@ function ReserveShop({ waitlistCount }) {
 				</div>
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
-					<p>{waitlistCount + 137} out of 500 early applicants accepted.</p>
+					<p>{waitListJSON + 137} out of 500 early applicants accepted.</p>
 				</div>
 				<form
 					onSubmit={handleReserveShop}
@@ -152,10 +152,11 @@ export default ReserveShop;
 
 export async function getServerSideProps(ctx) {
 	const waitlistCount = await prisma.waitlist.count();
+	const waitListJSON = await waitlistCount.json();
 
 	console.log("waitlist count servsideProps:", waitlistCount);
 
 	return {
-		props: { waitlistCount },
+		props: { waitListJSON },
 	};
 }
