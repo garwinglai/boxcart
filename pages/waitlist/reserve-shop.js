@@ -91,7 +91,7 @@ function ReserveShop({ waitlistCount }) {
 				</div>
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
-					{/* <p>{waitlistCount + 137} out of 500 early applicants accepted.</p> */}
+					<p>{waitlistCount + 137} out of 500 early applicants accepted.</p>
 				</div>
 				<form
 					onSubmit={handleReserveShop}
@@ -150,12 +150,12 @@ function ReserveShop({ waitlistCount }) {
 
 export default ReserveShop;
 
-// export async function getServerSideProps(ctx) {
-// 	const waitlistCount = await prisma.waitlist.count();
+export async function getServerSideProps(ctx) {
+	const waitlistCount = await prisma.waitlist.count();
 
-// 	console.log("waitlist count servsideProps:", waitlistCount);
+	console.log("waitlist count servsideProps:", waitlistCount);
 
-// 	return {
-// 		props: { waitlistCount },
-// 	};
-// }
+	return {
+		props: { waitlistCount },
+	};
+}
