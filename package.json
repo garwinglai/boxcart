@@ -1,7 +1,8 @@
 {
-	"name": "boxcart-code",
+	"name": "boxcart",
 	"version": "0.1.0",
 	"private": true,
+	"main": "index.js"
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
