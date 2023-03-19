@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/waitlist/create-account.module.css";
 import { useRouter } from "next/router";
+import Router from "next/router";
 import Image from "next/image";
 
 function CreateAccount({ providers }) {
@@ -31,7 +32,7 @@ function CreateAccount({ providers }) {
 		if (typeof window !== "undefined") {
 			const storedSessionDomain = sessionStorage.getItem("subdomain");
 			if (!storedSessionDomain) {
-				router.push("/waitlist/reserve-shop");
+				Router.push("/waitlist/reserve-shop");
 			} else {
 				setStoredSubdomainSession(storedSessionDomain);
 			}
