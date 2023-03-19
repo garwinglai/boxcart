@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import styles from "@/styles/auth/signin.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import appleLogo from "../../public/images/applelogo.png";
-import facebookLogo from "../../public/images/facebooklogo.png";
-import googleLogo from "../../public/images/googlelogo.png";
+import appleLogo from "../../public/images/logos/applelogo.png";
+import facebookLogo from "../../public/images/logos/facebooklogo.png";
+import googleLogo from "../../public/images/logos/googlelogo.png";
 import {
 	getProviders,
 	signIn,
