@@ -8,6 +8,8 @@ function ReserveConfirm() {
 	useEffect(() => {
 		const sessionStoredSubdomain = sessionStorage.getItem("subdomain");
 		setSubdomain(sessionStoredSubdomain);
+
+		// TODO: reroute to rserve-shop.js if no sessionStorage domain
 	}, []);
 
 	return (
