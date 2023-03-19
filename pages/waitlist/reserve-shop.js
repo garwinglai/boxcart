@@ -151,12 +151,16 @@ function ReserveShop({ count }) {
 export default ReserveShop;
 
 export async function getServerSideProps(ctx) {
-	const waitlistCount = await prisma.waitlist.findMany();
-	console.log("SSR waitlistCount", waitlistCount);
-	let count = waitlistCount.length;
-	return {
-		props: { count },
-	};
+	try {
+		const waitlistCount = await prisma.waitlist.findMany();
+		console.log("SSR waitlistCount", waitlistCount);
+		let count = waitlistCount.length;
+		return {
+			props: { count },
+		};
+	} catch (error) {
+		console.log("SSR error:", error);
+	}
 	// if (!waitlistCount) {
 	// 	console.log("count doesn't exist", count);
 
