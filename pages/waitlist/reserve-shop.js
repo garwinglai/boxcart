@@ -152,20 +152,18 @@ export default ReserveShop;
 
 export async function getServerSideProps(ctx) {
 	const waitlistCount = await prisma.waitlist.count();
-	let data = {
-		count: 0,
-	};
+	let count = 0;
 
 	if (!waitlistCount) {
 		console.log("count doesn't exist", count);
 		return {
-			props: { data },
+			props: { count },
 		};
 	} else {
-		data.count = waitlistCount;
+		count = waitlistCount;
 		console.log("waitlist exists", count);
 		return {
-			props: { data },
+			props: { count },
 		};
 	}
 }
