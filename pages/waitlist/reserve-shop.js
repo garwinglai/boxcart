@@ -151,7 +151,9 @@ export default ReserveShop;
 
 export async function getServerSideProps() {
 	const stuff = await prisma.waitlist.findMany();
-	const waitlist = JSON.stringify(stuff);
+	const waitlist = JSON.parse(JSON.stringify(stuff));
+
+	console.log(stuff, waitlist);
 
 	return {
 		props: {
