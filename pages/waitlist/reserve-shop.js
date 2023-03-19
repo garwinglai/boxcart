@@ -91,7 +91,7 @@ function ReserveShop({ count }) {
 				</div>
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
-					<p>{count + 137} out of 500 early applicants accepted.</p>
+					<p>{count + 136} out of 500 early applicants accepted.</p>
 				</div>
 				<form
 					onSubmit={handleReserveShop}
@@ -151,19 +151,20 @@ function ReserveShop({ count }) {
 export default ReserveShop;
 
 export async function getServerSideProps(ctx) {
-	const waitlistCount = await prisma.waitlist.count();
-	let count = 0;
+	const waitlistCount = await prisma.waitlist.findMany();
+	console.log("SSR waitlistCount", waitlistCount);
+	let count = waitlistCount.length;
+	return {
+		props: { count },
+	};
+	// if (!waitlistCount) {
+	// 	console.log("count doesn't exist", count);
 
-	if (!waitlistCount) {
-		console.log("count doesn't exist", count);
-		return {
-			props: { count },
-		};
-	} else {
-		count = waitlistCount;
-		console.log("waitlist exists", count);
-		return {
-			props: { count },
-		};
-	}
+	// } else {
+	// 	count = waitlistCount;
+	// 	console.log("waitlist exists", count);
+	// 	return {
+	// 		props: { count },
+	// 	};
+	// }
 }
