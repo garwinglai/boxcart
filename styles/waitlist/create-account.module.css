@@ -23,8 +23,12 @@
 
 .container {
 	gap: 2rem;
-	align-items: center;
 	padding: 3rem 1.5rem 0;
+	width: 100vw;
+}
+
+.container > p {
+	color: var(--error);
 }
 
 .container button {
@@ -34,19 +38,21 @@
 }
 
 .create_account {
-	gap: 3rem;
+	gap: 4rem;
 }
 
-.header > h4 {
+.subdomain {
 	color: var(--primary);
+	font-size: 1.15rem;
 }
 
-.header > h3 {
+.header > h2 {
 	margin-top: 1.5rem;
 }
 
 .form_group {
 	gap: 0.5rem;
+	margin-top: 2rem;
 }
 
 /* .form_group label {
@@ -126,10 +132,20 @@
 		inset 3px 3px 4px #0e0e0e, inset -3px -3px 4px #5f5e5e;
 }
 
+.divider {
+	margin: 0 auto;
+}
+
 .oauth_group {
-	width: 100%;
 	gap: 1.2rem;
 	margin-bottom: 3rem;
+	width: 100%;
+	align-items: center;
+}
+
+.oauth_group > div {
+	/* padding: 0 1.5rem; */
+	width: 100%;
 }
 
 .oauth_group button {
@@ -154,30 +170,23 @@
 	gap: 1rem;
 }
 
-@media screen and (min-width: 480px) {
-	.outmost_container {
-		/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-}
-
 @media screen and (min-width: 768px) {
 	.outmost_container {
 		height: 100vh;
 		background: #a770ef; /* fallback for old browsers */
 		background: -webkit-linear-gradient(
-			to right,
-			#fdb99b,
-			#cf8bf3,
-			#a770ef
+			85deg,
+			var(--secondary-light),
+			var(--secondary-light-med),
+			var(--primary-light-med),
+			var(--primary)
 		); /* Chrome 10-25, Safari 5.1-6 */
 		background: linear-gradient(
-			to right,
-			#fdb99b,
-			#cf8bf3,
-			#a770ef
+			85deg,
+			var(--secondary-light),
+			var(--secondary-light-med),
+			var(--primary-light-med),
+			var(--primary)
 		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 		display: flex;
@@ -186,31 +195,27 @@
 	}
 
 	.container {
-		flex-direction: row;
-		align-items: flex-start;
-
-		width: 80vw;
+		justify-content: flex-start;
+		min-width: 380px;
+		max-width: 30%;
 		overflow-y: scroll;
-		gap: 3.75rem;
+		gap: 1.5rem;
 		background-color: var(--white);
 		border-radius: 15px;
-		padding: 2rem;
-		height: 75%;
+		padding: 3rem 2rem;
+		max-height: 75%;
 		box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
 			rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 	}
 
 	.create_account {
-		width: 50%;
+		/* width: 50%; */
+		gap: 1rem;
 		padding-top: unset;
 	}
 
-	.divider {
-		align-self: center;
-	}
-
 	.oauth_group {
-		width: 50%;
+		/* width: 50%; */
 		/* height: 100%; */
 		align-self: center;
 	}

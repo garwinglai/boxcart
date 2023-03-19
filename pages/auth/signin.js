@@ -9,7 +9,7 @@ import {
 	getProviders,
 	signIn,
 	getSession,
-getCsrfToken,
+	getCsrfToken,
 } from "next-auth/react";
 
 const Signin = ({ providers }) => {
@@ -151,7 +151,7 @@ export const getServerSideProps = async (ctx) => {
 
 	if (session) {
 		return {
-			redirect: { destination: "/" },
+			redirect: { destination: "/auth/signin" },
 		};
 	}
 
@@ -161,3 +161,32 @@ export const getServerSideProps = async (ctx) => {
 		},
 	};
 };
+
+// * OAuth
+
+{
+	/* <div className={`${styles.divider}`}>
+					<h4>OR</h4>
+				</div>
+				<div
+					className={`${styles.oauth_group} ${styles.flex} ${styles.flexCol}`}
+				>
+					{Object.values(providers).map((provider) => {
+						return (
+							<div key={provider.name}>
+								<button onClick={(e) => handleOAuthLogin(e, provider)}>
+									<div className={`${styles.flex}`}>
+										<Image
+											alt="google logo"
+											src="/images/googlelogo.png"
+											width={20}
+											height={20}
+										/>
+										<p>Sign in with {provider.name}</p>
+									</div>
+								</button>
+							</div>
+						);
+					})}
+				</div> */
+}

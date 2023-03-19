@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 export default function Home() {
 	const { data: session, status } = useSession();
 	const router = useRouter();
-	// console.log("data session", session, status);
+	console.log("data session", session, status);
 	return (
 		<>
 			<Head>
@@ -19,10 +19,13 @@ export default function Home() {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			{!session ? (
+
+			{status === "loading" ? (
+				<p>Loading...</p>
+			) : status !== "authenticated" ? (
 				<>
 					<h1>User Logged out.</h1>
-					<button onClick={() => router.push("/auth/reserve-shop")}>
+					<button onClick={() => router.push("/waitlist/reserve-shop")}>
 						Sign in.
 					</button>
 					<br />
@@ -44,7 +47,7 @@ export default function Home() {
 				<main>
 					<h1>User Logged in</h1>
 					<button
-						onClick={() => signOut({ callbackUrl: "/auth/create-account" })}
+						onClick={() => signOut({ callbackUrl: "/waitlist/create-account" })}
 					>
 						Sign out.
 					</button>

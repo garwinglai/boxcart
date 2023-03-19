@@ -13,6 +13,8 @@
 	--secondary-dark-med: #315faa;
 	--secondary-dark: #192f55;
 	--gray: #666666;
+	--error: rgb(254, 78, 78);
+	--success: rgb(75, 255, 126);
 }
 
 html,

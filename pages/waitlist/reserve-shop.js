@@ -1,29 +1,70 @@
 import React, { useState, useRef } from "react";
-import styles from "../../styles/auth/reserve-shop.module.css";
+import styles from "../../styles/waitlist/reserve-shop.module.css";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import prisma from "@/lib/prisma";
 
-function ReserveShop() {
-	const [subdomain, setSubdomain] = useState("");
+function ReserveShop({ waitlistCount }) {
+	// * check session for subdomain storage
+	let storedSessionDomain;
+	if (typeof window !== "undefined") {
+		const getSessionDomain = sessionStorage.getItem("subdomain");
+		if (getSessionDomain) storedSessionDomain = getSessionDomain.split(".")[0];
+	}
 
+	// * state variables
+	const [subdomain, setSubdomain] = useState(
+		storedSessionDomain ? storedSessionDomain : ""
+	);
+	const [isDomainAvailable, setIsDomainAvailable] = useState(true);
+	const [errorResponse, setErrorResponse] = useState({
+		hasError: false,
+		errorMessage: "",
+	});
+
+	// * Dob
+	const { hasError, errorMessage } = errorResponse;
+
+	// * Hooks setup
 	const router = useRouter();
 	const subdomainInputRef = useRef(null);
 
+	// * Handlers
 	function handleInput(e) {
-		const { value, name } = e.target;
+		const { value } = e.target;
 		setSubdomain(value);
 	}
 
-	function handleReserveShop(e) {
+	async function handleReserveShop(e) {
 		e.preventDefault();
 		const domain = ".boxcart.shop";
-		const userSubDomain = subdomain + domain;
+		const selectedSubdomain = subdomain + domain;
 
-		// * 1. check if subdomain is taken
-		// * 2. if yes, return error
-		// * 3. if not, save to session storage and navigate to next page
-		console.log("sub", userSubDomain);
-		router.push("/auth/create-account");
+		const fetchWaitlistUrl = `/api/crud/waitlist/${selectedSubdomain}`;
+
+		const waitlistResponse = await fetch(fetchWaitlistUrl, { method: "GET" });
+		const responseJSON = await waitlistResponse.json();
+
+		const { value, error } = responseJSON;
+
+		if (error) {
+			setErrorResponse({
+				hasError: true,
+				errorMessage: "Unknown error: contact us.",
+			});
+		} else {
+			setErrorResponse({
+				hasError: false,
+				errorMessage: "",
+			});
+		}
+
+		// If domain not available...
+		if (value) return setIsDomainAvailable(false);
+
+		// If domain available...
+		sessionStorage.setItem("subdomain", selectedSubdomain);
+		router.push("/waitlist/create-account");
 	}
 
 	function handleBack() {
@@ -41,7 +82,7 @@ function ReserveShop() {
 					<h3>BoxCart</h3>
 					<button onClick={handleBack} className={`${styles.back_button}`}>
 						<Image
-							src={"/images/back_arrow.png"}
+							src={"/images/icons/back_arrow.png"}
 							width={20}
 							height={20}
 							alt="back arrow"
@@ -50,7 +91,7 @@ function ReserveShop() {
 				</div>
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
-					<p>237 out of 500 early applicants accepted.</p>
+					<p>{waitlistCount + 137} out of 500 early applicants accepted.</p>
 				</div>
 				<form
 					onSubmit={handleReserveShop}
@@ -58,7 +99,8 @@ function ReserveShop() {
 				>
 					<div className={`${styles.flex} ${styles.label_group}`}>
 						<span htmlFor="subdomain">Shop name:</span>
-						{/* <p>Shop name has been taken.</p> */}
+						{hasError && <p>{errorMessage}</p>}
+						{!isDomainAvailable && <p>Shop name taken.</p>}
 					</div>
 					<div className={`${styles.input_pair} ${styles.flex}`}>
 						<div className={`${styles.input_group}`}>
@@ -107,3 +149,13 @@ function ReserveShop() {
 }
 
 export default ReserveShop;
+
+export async function getServerSideProps(ctx) {
+	const waitlistCount = await prisma.waitlist.count();
+
+	console.log("waitlist count servsideProps:", waitlistCount);
+
+	return {
+		props: { waitlistCount },
+	};
+}
