@@ -98,8 +98,6 @@ function CreateAccount({ providers }) {
 				errorMessage: "Unknown error: contact us.",
 			});
 		} else {
-			// TODO: Navigate to success page.
-			console.log("client side: successfully saved new waitlist user.");
 			router.push("/waitlist/reserve-confirm");
 		}
 	}

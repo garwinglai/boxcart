@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/waitlist/reserve-confirm.module.css";
 import Image from "next/image";
+import Router from "next/router";
 
 function ReserveConfirm() {
 	const [subdomain, setSubdomain] = useState("");
 
 	useEffect(() => {
 		const sessionStoredSubdomain = sessionStorage.getItem("subdomain");
-		setSubdomain(sessionStoredSubdomain);
 
-		// TODO: reroute to rserve-shop.js if no sessionStorage domain
+		if (!sessionStoredSubdomain) {
+			Router.push("/waitlist/reserve-shop");
+		} else {
+			setSubdomain(sessionStoredSubdomain);
+		}
 	}, []);
 
 	return (
