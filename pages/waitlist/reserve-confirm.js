@@ -32,7 +32,7 @@ function ReserveConfirm() {
 					<h3>You secured your shop name.</h3>
 				</div>
 				<p>
-					Check your <b>email/spam</b> to see what `&apos;` next. <br /> We also
+					Check your <b>email/spam</b> to see what&apos;s next. <br /> We also
 					sent some goodies!
 				</p>
 			</div>
