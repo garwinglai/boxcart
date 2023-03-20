@@ -156,6 +156,7 @@ export async function getServerSideProps() {
 	const waitlistCount = await prisma.waitlist.count();
 
 	console.log("waitlistCount SSR", waitlistCount);
+	console.log("db url", process.env.DATABASE_URL);
 
 	return {
 		props: {
