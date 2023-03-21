@@ -14,8 +14,16 @@
 	overflow-y: scroll;
 }
 
-/* all p tags inside .shop */
-.confirm_page p {
+.header_group {
+	text-align: center;
+}
+
+.header_group > p {
+	margin-top: 2rem;
+}
+
+/* all p tags with parent .confirm_page */
+.confirm_page > p {
 	/* color: var(--gray); */
 	text-align: center;
 	margin-top: 3rem;

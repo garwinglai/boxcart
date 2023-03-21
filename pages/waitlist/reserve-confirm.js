@@ -5,14 +5,17 @@ import Router from "next/router";
 
 function ReserveConfirm() {
 	const [subdomain, setSubdomain] = useState("");
+	const [waitlistCount, setWaitlistCount] = useState(0);
 
 	useEffect(() => {
 		const sessionStoredSubdomain = sessionStorage.getItem("subdomain");
+		const sessionStoredWaitlistCount = sessionStorage.getItem("waitlistCount");
 
 		if (!sessionStoredSubdomain) {
 			Router.push("/waitlist/reserve-shop");
 		} else {
 			setSubdomain(sessionStoredSubdomain);
+			setWaitlistCount(sessionStoredWaitlistCount);
 		}
 	}, []);
 
@@ -21,7 +24,13 @@ function ReserveConfirm() {
 			<div
 				className={`${styles.confirm_page} ${styles.flex} ${styles.flexCol}`}
 			>
-				<h1>Success!</h1>
+				<div className={`${styles.header_group}`}>
+					<h1>Success!</h1>
+					<p>
+						You&apos;re number <b>{parseInt(waitlistCount) + 136}</b> on the
+						waitlist.
+					</p>
+				</div>
 				<Image
 					src="/images/icons/confetti.png"
 					alt="congrats gift box icons"

@@ -63,7 +63,10 @@ function ReserveShop({ waitlistCount }) {
 		if (value) return setIsDomainAvailable(false);
 
 		// If domain available...
-		sessionStorage.setItem("subdomain", selectedSubdomain);
+		const toLowerCaseSubdomain = selectedSubdomain.toLocaleLowerCase();
+
+		sessionStorage.setItem("subdomain", toLowerCaseSubdomain);
+		sessionStorage.setItem("waitlistCount", waitlistCount);
 		router.push("/waitlist/create-account");
 	}
 

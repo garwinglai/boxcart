@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Router from "next/router";
 import Image from "next/image";
 
-function CreateAccount({ providers }) {
+function CreateAccount() {
 	// * State variables
 	const [storedSubdomainSession, setStoredSubdomainSession] =
 		useState("{your-shop-name}");
@@ -133,7 +133,8 @@ function CreateAccount({ providers }) {
 		const firstCharUpper = string.charAt(0).toUpperCase();
 		const stringArr = string.split("");
 		stringArr.shift();
-		const firstCharUpperString = firstCharUpper + stringArr.join("");
+		const lowerCaseRestOfName = stringArr.join("").toLowerCase();
+		const firstCharUpperString = firstCharUpper + lowerCaseRestOfName;
 
 		return firstCharUpperString;
 	}
