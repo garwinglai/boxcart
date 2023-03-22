@@ -3,6 +3,8 @@ import styles from "../../styles/waitlist/reserve-shop.module.css";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
+import ButtonLoader from "@/components/helper/loaders/ButtonLoader";
+import PageLoader from "@/components/helper/loaders/PageLoader";
 
 function ReserveShop({ waitlistCount }) {
 	// * check session for subdomain storage
@@ -14,6 +16,7 @@ function ReserveShop({ waitlistCount }) {
 	}
 
 	// * state variables
+	const [isButtonLoading, setIsButtonLoading] = useState(false);
 	const [subdomain, setSubdomain] = useState(
 		storedSessionDomain ? storedSessionDomain : ""
 	);
@@ -38,6 +41,7 @@ function ReserveShop({ waitlistCount }) {
 
 	async function handleReserveShop(e) {
 		e.preventDefault();
+		setIsButtonLoading(true);
 		const domain = ".boxcart.shop";
 		const selectedSubdomain = subdomain + domain;
 
@@ -53,6 +57,7 @@ function ReserveShop({ waitlistCount }) {
 				hasError: true,
 				errorMessage: "Unknown error: contact us.",
 			});
+			setIsButtonLoading(false);
 		} else {
 			setErrorResponse({
 				hasError: false,
@@ -61,7 +66,10 @@ function ReserveShop({ waitlistCount }) {
 		}
 
 		// If domain not available...
-		if (value) return setIsDomainAvailable(false);
+		if (value) {
+			setIsButtonLoading(false);
+			return setIsDomainAvailable(false);
+		}
 
 		// If domain available...
 		const toLowerCaseSubdomain = selectedSubdomain.toLocaleLowerCase();
@@ -138,13 +146,22 @@ function ReserveShop({ waitlistCount }) {
 							<label htmlFor="domain">.boxcart.shop</label>
 						</div>
 					</div>
-					<button
-						type="submit"
-						// disabled={!subdomain}
-						// style={{ visibility: !subdomain && "hidden" }}
-					>
-						Reserve Shop Name
-					</button>
+					{isButtonLoading ? (
+						<div className={`${styles.button_container}`}>
+							{/* <button style={{ visibility: "hidden" }}></button> */}
+							<ButtonLoader />
+						</div>
+					) : (
+						<div className={`${styles.button_container}`}>
+							<button
+								type="submit"
+								// disabled={!subdomain}
+								// style={{ visibility: !subdomain && "hidden" }}
+							>
+								Reserve Shop Name
+							</button>
+						</div>
+					)}
 				</form>
 				<p>
 					Custom domains can be connected later. Reserve shop name now to
@@ -157,12 +174,7 @@ function ReserveShop({ waitlistCount }) {
 export default ReserveShop;
 
 export async function getServerSideProps() {
-	// const stuff = await prisma.waitlist.findMany();
-	// const waitlist = JSON.parse(JSON.stringify(stuff));
-
 	const waitlistCount = await prisma.waitlist.count();
-
-	console.log("waitlistCount SSR", waitlistCount);
 
 	return {
 		props: {

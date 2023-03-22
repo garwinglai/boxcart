@@ -128,8 +128,15 @@
 	font-size: 1rem;
 }
 
-.form_group > button {
+.button_container {
+	width: 100%;
+	margin-top: 10px;
+	height: 3rem;
+}
+
+.form_group button {
 	margin-top: 0.5rem;
+	width: 100%;
 	border: none;
 	color: var(--white);
 	height: 3rem;
@@ -141,7 +148,7 @@
 	background: var(--primary);
 }
 
-.form_group > button:active {
+.form_group button:active {
 	background-color: var(--primary-dark-med);
 	background-size: 100%;
 	box-shadow: 0px 0px 0px #0e0e0e, 0px 0px 0px rgb(95 94 94 / 25%),

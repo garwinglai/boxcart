@@ -3,9 +3,13 @@ import styles from "../../styles/waitlist/create-account.module.css";
 import { useRouter } from "next/router";
 import Router from "next/router";
 import Image from "next/image";
+import ButtonLoader from "@/components/helper/loaders/ButtonLoader";
+import PageLoader from "@/components/helper/loaders/PageLoader";
 
 function CreateAccount() {
 	// * State variables
+	const [isPageLoading, setIsPageLoading] = useState(true);
+	const [isButtonLoading, setIsButtonLoading] = useState(false);
 	const [storedSubdomainSession, setStoredSubdomainSession] =
 		useState("{your-shop-name}");
 	const [isEmailInUse, setIsEmailInUse] = useState(false);
@@ -33,11 +37,21 @@ function CreateAccount() {
 			const storedSessionDomain = sessionStorage.getItem("subdomain");
 			const sessionStoredWaitlistCount =
 				sessionStorage.getItem("waitlistCount");
+			const isShopConfirmed = sessionStorage.getItem("isShopConfirmed");
+
 			if (!storedSessionDomain) {
 				Router.push("/waitlist/reserve-shop");
 			} else {
+				if (isShopConfirmed) {
+					sessionStorage.clear("subdomain");
+					sessionStorage.clear("waitlistCount");
+					sessionStorage.clear("isShopConfirmed");
+
+					Router.push("/waitlist/reserve-shop");
+				}
 				setStoredSubdomainSession(storedSessionDomain);
 				setWaitlistCount(sessionStoredWaitlistCount);
+				setIsPageLoading(false);
 			}
 		}
 	}, []);
@@ -54,6 +68,7 @@ function CreateAccount() {
 
 	async function handleCreateAccount(e) {
 		e.preventDefault();
+		setIsButtonLoading(true);
 
 		const fNameUpperFirst = firstCharCapitlize(fName);
 		const lNameUpperFirst = firstCharCapitlize(lName);
@@ -67,6 +82,7 @@ function CreateAccount() {
 				hasError: true,
 				errorMessage: "Unknown error: contact us.",
 			});
+			setIsButtonLoading(false);
 		} else {
 			setErrorResponse({
 				hasError: false,
@@ -75,6 +91,7 @@ function CreateAccount() {
 		}
 		// Return "Email in use." error if email is used.
 		if (value) {
+			setIsButtonLoading(false);
 			return setIsEmailInUse(true);
 		}
 
@@ -84,7 +101,7 @@ function CreateAccount() {
 		const finalValues = {
 			fName: fNameUpperFirst,
 			lName: lNameUpperFirst,
-			email,
+			email: email.toLocaleLowerCase(),
 			name,
 			subdomain,
 			earlyBirdCode,
@@ -101,9 +118,11 @@ function CreateAccount() {
 				hasError: true,
 				errorMessage: "Unknown error: contact us.",
 			});
+			setIsButtonLoading(false);
 		} else {
-			// TODO: send email
-			const isEmailSent = await sendEmail(finalValues);
+			await sendEmail(finalValues);
+			// Create session key of confirmed to prevent user from accessing page when nav -> back();
+			sessionStorage.setItem("isShopConfirmed", true);
 			router.push("/waitlist/reserve-confirm");
 		}
 	}
@@ -168,6 +187,20 @@ function CreateAccount() {
 		return earlyBirdCode;
 	}
 
+	// * Return page loader
+	if (isPageLoading)
+		return (
+			<div className={`${styles.outmost_container}`}>
+				<div className={`${styles.container} ${styles.flex} ${styles.flexCol}`}>
+					<div className={`${styles.page_loader}`}>
+						<PageLoader />
+						<h1>BoxCart</h1>
+					</div>
+				</div>
+			</div>
+		);
+
+	// * Return page content
 	return (
 		<div className={`${styles.outmost_container} ${styles.flex}`}>
 			<div className={`${styles.container} ${styles.flex} ${styles.flexCol}`}>
@@ -231,7 +264,15 @@ function CreateAccount() {
 							/>
 							<label htmlFor="email">Email:</label>
 						</div>
-						<button type="submit">Lock in</button>
+						{isButtonLoading ? (
+							<div className={`${styles.button_container}`}>
+								<ButtonLoader />
+							</div>
+						) : (
+							<div className={`${styles.button_container}`}>
+								<button type="submit">Lock in</button>
+							</div>
+						)}
 					</form>
 				</div>
 				<p>{hasError ? errorMessage : isEmailInUse ? "Email in use." : ""}</p>

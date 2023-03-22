@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/waitlist/reserve-confirm.module.css";
 import Image from "next/image";
 import Router from "next/router";
+import PageLoader from "@/components/helper/loaders/PageLoader";
 
 function ReserveConfirm() {
+	const [isPageLoading, setIsPageLoading] = useState(true);
 	const [subdomain, setSubdomain] = useState("");
 	const [waitlistCount, setWaitlistCount] = useState(0);
 
@@ -16,9 +18,27 @@ function ReserveConfirm() {
 		} else {
 			setSubdomain(sessionStoredSubdomain);
 			setWaitlistCount(sessionStoredWaitlistCount);
+			setIsPageLoading(false);
 		}
 	}, []);
 
+	// * Return page loader
+	// * Return page loader
+	if (isPageLoading)
+		return (
+			<div className={`${styles.container}`}>
+				<div
+					className={`${styles.confirm_page} ${styles.flex} ${styles.flexCol}`}
+				>
+					<div className={`${styles.page_loader}`}>
+						<PageLoader />
+						<h1>BoxCart</h1>
+					</div>
+				</div>
+			</div>
+		);
+
+	// * Return page content
 	return (
 		<div className={`${styles.container}`}>
 			<div
