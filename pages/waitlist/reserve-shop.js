@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 
 function ReserveShop({ waitlistCount }) {
 	// * check session for subdomain storage
+	const defaultCount = 137;
 	let storedSessionDomain;
 	if (typeof window !== "undefined") {
 		const getSessionDomain = sessionStorage.getItem("subdomain");
@@ -64,9 +65,10 @@ function ReserveShop({ waitlistCount }) {
 
 		// If domain available...
 		const toLowerCaseSubdomain = selectedSubdomain.toLocaleLowerCase();
+		const totalCount = waitlistCount + defaultCount + 1;
 
 		sessionStorage.setItem("subdomain", toLowerCaseSubdomain);
-		sessionStorage.setItem("waitlistCount", waitlistCount);
+		sessionStorage.setItem("waitlistCount", totalCount);
 		router.push("/waitlist/create-account");
 	}
 
@@ -94,7 +96,9 @@ function ReserveShop({ waitlistCount }) {
 				</div>
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
-					<p>{waitlistCount + 136} out of 500 early applicants accepted.</p>
+					<p>
+						{waitlistCount + defaultCount} out of 500 early applicants accepted.
+					</p>
 				</div>
 				<form
 					onSubmit={handleReserveShop}

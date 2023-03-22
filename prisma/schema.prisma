@@ -12,14 +12,17 @@ datasource db {
 }
 
 model Waitlist {
-  id        Int      @id @default(autoincrement())
-  name      String?
-  fName     String?
-  lName     String?
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  subdomain String   @unique
+  id            Int      @id @default(autoincrement())
+  name          String?
+  fName         String?
+  lName         String?
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  subdomain     String   @unique
+  earlyBird     Boolean  @default(true)
+  earlyBirdCode String?   @unique
+  reservationNo Int?      @unique
 
   // userId    Int
   // User User @relation(fields: [userId], references: [id])

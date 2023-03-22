@@ -27,8 +27,7 @@ function ReserveConfirm() {
 				<div className={`${styles.header_group}`}>
 					<h1>Success!</h1>
 					<p>
-						You&apos;re number <b>{parseInt(waitlistCount) + 136}</b> on the
-						waitlist.
+						You&apos;re number <b>{waitlistCount}</b> on the waitlist.
 					</p>
 				</div>
 				<Image
