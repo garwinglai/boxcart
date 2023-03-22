@@ -21,8 +21,8 @@ model Waitlist {
   updatedAt     DateTime @updatedAt
   subdomain     String   @unique
   earlyBird     Boolean  @default(true)
-  earlyBirdCode String?   @unique
-  reservationNo Int?      @unique
+  earlyBirdCode String?  @unique
+  reservationNo Int?     @unique
 
   // userId    Int
   // User User @relation(fields: [userId], references: [id])
