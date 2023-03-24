@@ -3,8 +3,19 @@ import styles from "../../styles/waitlist/create-account.module.css";
 import { useRouter } from "next/router";
 import Router from "next/router";
 import Image from "next/image";
-import ButtonLoader from "@/components/helper/loaders/ButtonLoader";
-import PageLoader from "@/components/helper/loaders/PageLoader";
+import ButtonLoader from "@/components/loaders/ButtonLoader";
+import PageLoader from "@/components/loaders/PageLoader";
+import firstCharCapitlize from "@/utils/string-manipulate";
+import { createEarlyBirdCode, createPersonalCode } from "@/utils/promo-codes";
+import {
+	sendWaitlistConfirmedEmail,
+	checkEmailInUse,
+	sendEmailReferUsed,
+} from "@/helper/api/client/email";
+import {
+	checkReferralCode,
+	logReferUsed,
+} from "@/helper/api/client/promo-codes";
 
 function CreateAccount() {
 	// * State variables
@@ -18,6 +29,8 @@ function CreateAccount() {
 		fName: "",
 		lName: "",
 		email: "",
+		password: "",
+		codeUsed: "",
 	});
 	const [errorResponse, setErrorResponse] = useState({
 		hasError: false,
@@ -25,7 +38,7 @@ function CreateAccount() {
 	});
 
 	// * Dob state variables
-	const { fName, lName, email } = formValues;
+	const { fName, lName, email, codeUsed } = formValues;
 	const { hasError, errorMessage } = errorResponse;
 
 	// * Hooks setup
@@ -70,6 +83,35 @@ function CreateAccount() {
 		e.preventDefault();
 		setIsButtonLoading(true);
 
+		// codeUsed 1 is default code. If user enters a different code, must check if it is a valid code.
+		if (codeUsed != 1) {
+			console.log("check referral code");
+			const resCheckReferral = await checkReferralCode(codeUsed);
+			const { success, value } = resCheckReferral;
+
+			console.log(resCheckReferral);
+
+			// status 200 && value = false, no referral code found.
+			if (success && !value) {
+				setIsButtonLoading(false);
+				setErrorResponse({
+					hasError: true,
+					errorMessage: "Invalid referral code.",
+				});
+				return;
+			}
+
+			// status != 200
+			if (!success) {
+				setIsButtonLoading(false);
+				setErrorResponse({
+					hasError: true,
+					errorMessage: "Something went wrong. Contact us.",
+				});
+				return;
+			}
+		}
+
 		const fNameUpperFirst = firstCharCapitlize(fName);
 		const lNameUpperFirst = firstCharCapitlize(lName);
 		const name = fNameUpperFirst + " " + lNameUpperFirst;
@@ -98,6 +140,8 @@ function CreateAccount() {
 		// If email not in use, create user in waitlist db.
 		// Create earlyBird code to access benefits upon register.
 		const earlyBirdCode = createEarlyBirdCode(lName);
+		const referralCode = createPersonalCode(fName, lName, waitlistCount);
+
 		const finalValues = {
 			fName: fNameUpperFirst,
 			lName: lNameUpperFirst,
@@ -106,6 +150,8 @@ function CreateAccount() {
 			subdomain,
 			earlyBirdCode,
 			reservationNo: parseInt(waitlistCount),
+			referralCode,
+			codeUsed,
 		};
 
 		const createWaitlistResponse = await createNewWaitlistUser(
@@ -120,7 +166,13 @@ function CreateAccount() {
 			});
 			setIsButtonLoading(false);
 		} else {
-			await sendEmail(finalValues);
+			sendWaitlistConfirmedEmail(finalValues);
+
+			if (codeUsed != 1) {
+				const referrer = await logReferUsed(codeUsed);
+				// finalValues = referred user
+				sendEmailReferUsed(referrer, finalValues);
+			}
 			// Create session key of confirmed to prevent user from accessing page when nav -> back();
 			sessionStorage.setItem("isShopConfirmed", true);
 			router.push("/waitlist/reserve-confirm");
@@ -128,33 +180,6 @@ function CreateAccount() {
 	}
 
 	// * API
-	async function sendEmail(finalValues) {
-		console.log("client, sending email.", finalValues);
-		const { fName, email, subdomain, earlyBirdCode, reservationNo } =
-			finalValues;
-		const body = {
-			email,
-			earlyBirdCode,
-			fName,
-			reservationNo,
-			subdomain,
-		};
-		const resSendgrid = await fetch("/api/sendgrid", {
-			method: "POST",
-			body: JSON.stringify(body),
-		});
-	}
-
-	async function checkEmailInUse(subdomain, email) {
-		const checkEmailUrl = `/api/crud/waitlist/${subdomain}/${email}`;
-		const checkEmailResponse = await fetch(checkEmailUrl, {
-			method: "GET",
-		});
-		const responseJSON = await checkEmailResponse.json();
-
-		return responseJSON;
-	}
-
 	async function createNewWaitlistUser(subdomain, finalValues) {
 		const postURL = `/api/crud/waitlist/${subdomain}`;
 		const waitlistResponse = await fetch(postURL, {
@@ -168,23 +193,6 @@ function CreateAccount() {
 		const waitlistResopnseJSON = await waitlistResponse.json();
 		const { success, error } = waitlistResopnseJSON;
 		return { success, error2: error };
-	}
-
-	// * Helper Functions
-	function firstCharCapitlize(string) {
-		const firstCharUpper = string.charAt(0).toUpperCase();
-		const stringArr = string.split("");
-		stringArr.shift();
-		const lowerCaseRestOfName = stringArr.join("").toLowerCase();
-		const firstCharUpperString = firstCharUpper + lowerCaseRestOfName;
-
-		return firstCharUpperString;
-	}
-
-	function createEarlyBirdCode(lName) {
-		const fiveRandomDigits = Math.floor(Math.random() * 90000) + 10000;
-		const earlyBirdCode = lName + fiveRandomDigits.toString();
-		return earlyBirdCode;
 	}
 
 	// * Return page loader
@@ -224,6 +232,9 @@ function CreateAccount() {
 							<b>{storedSubdomainSession}</b>
 						</p>
 						<h2>Lock in your shop name.</h2>
+						<p style={{ color: "var(--gray)", marginTop: "0.25rem" }}>
+							Enter 1 for referral code if you do not have one.
+						</p>
 					</div>
 					<form
 						onSubmit={handleCreateAccount}
@@ -263,6 +274,17 @@ function CreateAccount() {
 								onChange={handleInput}
 							/>
 							<label htmlFor="email">Email:</label>
+						</div>
+						<div className={`${styles.input_group}`}>
+							<input
+								required
+								id="codeUsed"
+								name="codeUsed"
+								value={codeUsed}
+								type="codeUsed"
+								onChange={handleInput}
+							/>
+							<label htmlFor="email">Refferal code:</label>
 						</div>
 						{isButtonLoading ? (
 							<div className={`${styles.button_container}`}>

@@ -1,6 +1,6 @@
 import React from "react";
-import ButtonLoader from "@/components/helper/loaders/ButtonLoader";
-import PageLoader from "@/components/helper/loaders/PageLoader";
+import ButtonLoader from "@/components/loaders/ButtonLoader";
+import PageLoader from "@/components/loaders/PageLoader";
 
 function Test() {
 	return (

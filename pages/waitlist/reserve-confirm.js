@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/waitlist/reserve-confirm.module.css";
 import Image from "next/image";
 import Router from "next/router";
-import PageLoader from "@/components/helper/loaders/PageLoader";
+import PageLoader from "@/components/loaders/PageLoader";
 
 function ReserveConfirm() {
 	const [isPageLoading, setIsPageLoading] = useState(true);

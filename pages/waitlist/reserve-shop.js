@@ -3,12 +3,12 @@ import styles from "../../styles/waitlist/reserve-shop.module.css";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-import ButtonLoader from "@/components/helper/loaders/ButtonLoader";
-import PageLoader from "@/components/helper/loaders/PageLoader";
+import ButtonLoader from "@/components/loaders/ButtonLoader";
+import { checkSubdomainAvail } from "@/helper/api/client/waitlist";
 
 function ReserveShop({ waitlistCount }) {
 	// * check session for subdomain storage
-	const defaultCount = 137;
+	const defaultCount = 139;
 	let storedSessionDomain;
 	if (typeof window !== "undefined") {
 		const getSessionDomain = sessionStorage.getItem("subdomain");
@@ -37,6 +37,19 @@ function ReserveShop({ waitlistCount }) {
 	function handleInput(e) {
 		const { value } = e.target;
 		setSubdomain(value);
+		e.target.setCustomValidity("");
+	}
+
+	function handleBack() {
+		router.back();
+	}
+
+	function handleInputFocus() {
+		subdomainInputRef.current.focus();
+	}
+
+	function handleInvalidSubDomain(e) {
+		e.target.setCustomValidity("Please enter a valid domain name");
 	}
 
 	async function handleReserveShop(e) {
@@ -45,12 +58,8 @@ function ReserveShop({ waitlistCount }) {
 		const domain = ".boxcart.shop";
 		const selectedSubdomain = subdomain + domain;
 
-		const fetchWaitlistUrl = `/api/crud/waitlist/${selectedSubdomain}`;
-
-		const waitlistResponse = await fetch(fetchWaitlistUrl, { method: "GET" });
-		const responseJSON = await waitlistResponse.json();
-
-		const { value, error } = responseJSON;
+		const user = checkSubdomainAvail(selectedSubdomain);
+		const { value, error } = user;
 
 		if (error) {
 			setErrorResponse({
@@ -78,14 +87,6 @@ function ReserveShop({ waitlistCount }) {
 		sessionStorage.setItem("subdomain", toLowerCaseSubdomain);
 		sessionStorage.setItem("waitlistCount", totalCount);
 		router.push("/waitlist/create-account");
-	}
-
-	function handleBack() {
-		router.back();
-	}
-
-	function handleInputFocus() {
-		subdomainInputRef.current.focus();
 	}
 
 	return (
@@ -128,6 +129,10 @@ function ReserveShop({ waitlistCount }) {
 								name="subdomain"
 								value={subdomain}
 								ref={subdomainInputRef}
+								pattern="[A-Za-z0-9]+([-][A-Za-z0-9]+)*"
+								minLength="1"
+								maxLength="63"
+								onInvalid={handleInvalidSubDomain}
 							/>
 							<label
 								htmlFor="subdomain"
