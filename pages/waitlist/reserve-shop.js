@@ -82,7 +82,7 @@ function ReserveShop({ waitlistCount }) {
 
 		// If domain available...
 		const toLowerCaseSubdomain = selectedSubdomain.toLocaleLowerCase();
-		const totalCount = waitlistCount + defaultCount + 1;
+		const totalCount = waitlistCount + defaultCount;
 
 		sessionStorage.setItem("subdomain", toLowerCaseSubdomain);
 		sessionStorage.setItem("waitlistCount", totalCount);
