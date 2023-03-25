@@ -23,9 +23,10 @@ model Waitlist {
   earlyBird      Boolean  @default(true)
   earlyBirdCode  String?  @unique
   reservationNo  Int?     @unique
-  codeUsed   String
+  codeUsed       String
   numberReferred Int      @default(0)
   referralCode   String   @unique
+  testKey        String   @default("key")
 
   // userId    Int
   // User User @relation(fields: [userId], references: [id])
