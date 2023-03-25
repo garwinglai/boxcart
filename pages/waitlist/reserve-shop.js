@@ -108,7 +108,7 @@ function ReserveShop({ waitlistCount }) {
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
 					<p>
-						You'll be #{waitlistCount + defaultCount} out of 500 early
+						You&apos;ll be #{waitlistCount + defaultCount} out of 500 early
 						applicants.
 					</p>
 				</div>
