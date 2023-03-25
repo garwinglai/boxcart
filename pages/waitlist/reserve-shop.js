@@ -54,11 +54,12 @@ function ReserveShop({ waitlistCount }) {
 
 	async function handleReserveShop(e) {
 		e.preventDefault();
+		console.log("clicked");
 		setIsButtonLoading(true);
 		const domain = ".boxcart.shop";
 		const selectedSubdomain = subdomain + domain;
 
-		const user = checkSubdomainAvail(selectedSubdomain);
+		const user = await checkSubdomainAvail(selectedSubdomain);
 		const { value, error } = user;
 
 		if (error) {
@@ -77,7 +78,8 @@ function ReserveShop({ waitlistCount }) {
 		// If domain not available...
 		if (value) {
 			setIsButtonLoading(false);
-			return setIsDomainAvailable(false);
+			setIsDomainAvailable(false);
+			return;
 		}
 
 		// If domain available...
@@ -106,7 +108,8 @@ function ReserveShop({ waitlistCount }) {
 				<div className={`${styles.header}`}>
 					<h2>Reserve your shop link.</h2>
 					<p>
-						{waitlistCount + defaultCount} out of 500 early applicants accepted.
+						You'll be #{waitlistCount + defaultCount} out of 500 early
+						applicants.
 					</p>
 				</div>
 				<form
