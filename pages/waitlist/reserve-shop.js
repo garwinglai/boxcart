@@ -13,6 +13,11 @@ function ReserveShop({ waitlistCount }) {
 	if (typeof window !== "undefined") {
 		const getSessionDomain = sessionStorage.getItem("subdomain");
 		if (getSessionDomain) storedSessionDomain = getSessionDomain.split(".")[0];
+
+		// * clear previous session memory if user signs up again without leaving current session.
+		// sessionStorage.clear("waitlistCount");
+		const isShopConfirmedSession = sessionStorage.getItem("isShopConfirmed");
+		if (isShopConfirmedSession) sessionStorage.clear();
 	}
 
 	// * state variables

@@ -56,10 +56,7 @@ function CreateAccount() {
 				Router.push("/waitlist/reserve-shop");
 			} else {
 				if (isShopConfirmed) {
-					sessionStorage.clear("subdomain");
-					sessionStorage.clear("waitlistCount");
-					sessionStorage.clear("isShopConfirmed");
-
+					sessionStorage.clear();
 					Router.push("/waitlist/reserve-shop");
 				}
 				setStoredSubdomainSession(storedSessionDomain);
@@ -232,8 +229,8 @@ function CreateAccount() {
 							<b>{storedSubdomainSession}</b>
 						</p>
 						<h2>Lock in your shop name.</h2>
-						<p style={{ color: "var(--gray)", marginTop: "0.25rem" }}>
-							Enter 1 for referral code if you do not have one.
+						<p style={{ color: "var(--gray)", marginTop: "1rem" }}>
+							{`{Referral code = 1, if you do not have one}`}
 						</p>
 					</div>
 					<form

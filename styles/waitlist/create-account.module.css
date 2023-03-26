@@ -60,13 +60,8 @@
 
 .form_group {
 	gap: 0.5rem;
-	margin-top: 2rem;
+	margin-top: 1rem;
 }
-
-/* .form_group label {
-	color: var(--gray);
-	margin-left: 0.5rem;
-} */
 
 .form_group_name {
 	gap: 0.5rem;
