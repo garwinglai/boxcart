@@ -46,8 +46,12 @@ function ReserveConfirm() {
 			>
 				<div className={`${styles.header_group}`}>
 					<h1>Success!</h1>
-					<p>
-						You&apos;re number <b>{waitlistCount}</b> on the waitlist.
+					<p className={`${styles.waitlist}`}>
+						You&apos;re #<b>{waitlistCount}</b> on the waitlist.
+					</p>
+					<p className={`${styles.email}`}>
+						Check your <b>email/spam</b> to see what&apos;s next. <br /> We also
+						sent some goodies!
 					</p>
 				</div>
 				<Image
@@ -63,10 +67,6 @@ function ReserveConfirm() {
 					</div>
 					<h3>You secured your shop name.</h3>
 				</div>
-				<p>
-					Check your <b>email/spam</b> to see what&apos;s next. <br /> We also
-					sent some goodies!
-				</p>
 			</div>
 		</div>
 	);

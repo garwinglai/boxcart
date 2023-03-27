@@ -26,16 +26,15 @@
 	text-align: center;
 }
 
-.header_group > p {
+p.waitlist {
 	margin-top: 2rem;
 }
 
-/* all p tags with parent .confirm_page */
-.confirm_page > p {
-	/* color: var(--gray); */
-	text-align: center;
-	margin-top: 3rem;
+p.email {
+	margin-top: 1rem;
 }
+
+
 
 .domain_group {
 	width: 100%;
