@@ -239,6 +239,7 @@ function Signup() {
 		fulfillmentMethodInt,
 		deliveryTypeInt,
 		enableTips,
+		isStepsSkipped,
 	]);
 
 	//* Next, Skip, Back buttons.
@@ -346,7 +347,7 @@ function Signup() {
 					if (!value) {
 						setOpenError(true);
 						setErrorMessage(
-							"Access code not found. Please leave empty if you don't have a code."
+							"Access code not found. Please leave empty if you do not have a code."
 						);
 						setIsLoading(false);
 						return;
@@ -1135,8 +1136,9 @@ function Signup() {
 						<p>
 							Access code was emailed to those who joined our waitlist early.
 							Please check email.
-							<br /> <br />
-							Skip if you don't have an access code.
+							<br />
+							<br />
+							Skip if you don&apos;t have an access code.
 						</p>
 					</div>
 				)}
@@ -1147,7 +1149,7 @@ function Signup() {
 						className={`${styles.biz_name_group} ${styles.form_section_group}`}
 					>
 						<label htmlFor="biz_name_input" className={`${styles.title}`}>
-							What's your business name?
+							What&apos;s your business name?
 						</label>
 						<input
 							id="biz_name_input"
@@ -1208,7 +1210,7 @@ function Signup() {
 						className={`${styles.form_section_group} ${styles.business_type}`}
 					>
 						<label htmlFor="select business type" className={`${styles.title}`}>
-							What's your business type?
+							What&apos;s your business type?
 						</label>
 						{businessTypesArr.map((type) => {
 							const { uniqueId, id, name, label, imgSrc, imgAlt } = type;
