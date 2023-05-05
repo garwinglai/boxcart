@@ -1,0 +1,39 @@
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.button_group {
+	margin-top: 1rem;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.title {
+	margin-bottom: 2rem;
+	display: inline-block;
+	font-size: 2rem;
+	font-weight: 700;
+}
+
+.tip_buttons {
+	padding: 10px 15px;
+	font-size: 1.25rem;
+	border-radius: 1.5rem;
+	border: none;
+	transition: all 250ms;
+	width: 70%;
+	color: var(--white);
+}
+
+.yes_button {
+	background: var(--primary);
+	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+}
+
+.no_button {
+	background: var(--primary-light-med);
+	-webkit-box-shadow: 4px 8px 19px -3px var(--primary);
+	box-shadow: 4px 8px 19px -3px var(--primary);
+}

@@ -1,0 +1,29 @@
+.checkbox_group {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid var(--primary-dark-med);
+	padding: 10px 20px;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.input_group {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.checkbox_group input {
+	width: 20px;
+	height: 20px;
+}
+
+.checkbox_group input:checked {
+	accent-color: var(--primary);
+}
+
+.checkbox_group label {
+	font-size: 1.25rem;
+	color: var(--primary-dark);
+}

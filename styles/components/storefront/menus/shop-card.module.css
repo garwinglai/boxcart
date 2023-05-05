@@ -1,0 +1,50 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.card_box {
+	flex: 0 1 50%;
+	padding: 4px;
+	margin-bottom: 8px;
+}
+
+.card_button_box_link {
+	border: transparent;
+	background-color: transparent;
+	text-decoration: none;
+	color: var(--black);
+}
+
+.card_button_box_link:visited {
+	color: var(--black);
+}
+
+.card_img {
+	width: 47vw;
+	height: 47vw;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.card_context_box {
+	gap: 4px;
+}
+
+.sold_out_text {
+	color: red;
+}
+
+.rating_box {
+	align-items: center;
+	gap: 4px;
+}
+
+.rating_box p {
+	font-size: 12px;
+	color: var(--gray);
+}

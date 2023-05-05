@@ -23,50 +23,81 @@ model Waitlist {
   earlyBird      Boolean  @default(true)
   earlyBirdCode  String?  @unique
   reservationNo  Int?     @unique
-  codeUsed       String
+  // codeUsed       String
   numberReferred Int      @default(0)
-  referralCode   String   @unique
-
-  // userId    Int
-  // User User @relation(fields: [userId], references: [id])
-
-  // @@unique([userId])
+  // referralCode   String   @unique
 }
 
-// model User {
-//   id            Int       @id @default(autoincrement())
-//   name          String?
-//   email         String?   @unique
-//   fName         String?
-//   lName         String?
-//   emailVerified DateTime?
-//   image         String?
-//   createdAt     DateTime  @default(now())
-//   updatedAt     DateTime  @updatedAt
-//   waitlist      Waitlist?
-//   accounts      Account[]
-//   sessions      Session[]
-//   role          Role      @default(OWNER)
-// }
+model User {
+  id                   Int       @id @default(autoincrement())
+  name                 String?
+  firstName            String?
+  lastName             String?
+  email                String    @unique
+  emailVerified        Boolean   @default(false)
+  isActive             Boolean   @default(false)
+  password             String
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  accounts             Account[]
+  freePeriod           Boolean   @default(true)
+  freePeriodEndDateStr String?
+  // sessions      Session[]
+  role                 Role      @default(OWNER)
+  subscriptionPlanId   Int?
 
-// model Account {
-//   id                Int     @id @default(autoincrement())
-//   userId            Int
-//   type              String
-//   provider          String
-//   providerAccountId String
-//   refresh_token     String? @db.Text
-//   access_token      String? @db.Text
-//   expires_at        Int?
-//   token_type        String?
-//   scope             String?
-//   id_token          String? @db.Text
-//   session_state     String?
-//   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([subscriptionPlanId])
+}
 
-//   @@unique([provider, providerAccountId])
-//   @@index([userId])
-// }
+model Account {
+  id                       Int             @id @default(autoincrement())
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  userId                   Int
+  // type                     String
+  // provider                 String
+  // providerAccountId        String
+  // refresh_token            String?         @db.Text
+  // access_token             String?         @db.Text
+  // expires_at               Int?
+  // token_type               String?
+  // scope                    String?
+  // id_token                 String?         @db.Text
+  // session_state            String?
+  isActive                 Boolean         @default(false)
+  email                    String          @unique
+  name                     String?
+  firstName                String?
+  lastName                 String?
+  accessCode               String?
+  businessName             String
+  subdomain                String          @unique
+  businessTypes            BusinessTypes[]
+  logoImgStr               String?
+  businessBio              String?
+  socials                  Socials[]
+  fulfillmentMethodInt     Int
+  fulfillmentMethods       Fulfillment[]
+  deliveryTypeInt          Int?
+  deliveryTypeStr          String?
+  localDeliveryDistanceStr String?
+  localDeliveryDistanceMi  Int?
+  localDeliveryDistanceKm  Int?
+  pickupNote               String?
+  address_1                String
+  address_2                String?
+  city                     String
+  state                    String
+  zip                      String
+  fullAddress              String
+  enableTips               Boolean         @default(false)
+  typeOfTip                String?
+  tipValues                Tips[]
+  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // @@unique([provider, providerAccountId])
+  @@index([userId])
+}
 
 // model Session {
 //   id           Int      @id @default(autoincrement())
@@ -86,9 +117,94 @@ model Waitlist {
 //   @@unique([identifier, token])
 // }
 
-// enum Role {
-//   ADMIN
-//   OWNER
-//   MEMBER
-//   CLIENT
+model BusinessTypes {
+  id        Int      @id @default(autoincrement())
+  type      String?
+  Account   Account? @relation(fields: [accountId], references: [id])
+  accountId Int?
+
+  @@index([accountId])
+}
+
+model Socials {
+  id        Int      @id @default(autoincrement())
+  platform  String?
+  url       String?
+  Account   Account? @relation(fields: [accountId], references: [id])
+  accountId Int?
+
+  @@index([accountId])
+}
+
+model Fulfillment {
+  id        Int      @id @default(autoincrement())
+  method    String
+  Account   Account? @relation(fields: [accountId], references: [id])
+  accountId Int?
+
+  @@index([accountId])
+}
+
+model Tips {
+  id        Int      @id @default(autoincrement())
+  tipStr    String?
+  tipInt    Int?
+  Account   Account? @relation(fields: [accountId], references: [id])
+  accountId Int?
+
+  @@index([accountId])
+}
+
+enum Role {
+  // BoxCart Admin
+  SUPERADMIN
+  // BoxCart Staff
+  SUPERSTAFF
+  // Business owners - users
+  OWNER
+  // User's staff
+  STAFF
+  // Customers - of Users
+  CUSTOMER
+}
+
+// BoxCart business account information.
+// model BoxAccount {
+//   createdAt                DateTime        @default(now())
+//   updatedAt                DateTime        @updatedAt
+//   id                       Int             @id @default(autoincrement())
+//   email                    String          @unique
+//   password                 String
+//   name                     String?
+//   fName                    String?
+//   lName                    String?
+//   accessCode               String?
+//   businessName             String
+//   subdomain                String
+//   businessType             BusinessTypes[]
+//   logoImgStr               String?
+//   businessBio              String?
+//   socials                  Socials[]
+//   fulfillmentMethodInt     Int
+//   fulfillmentMethods       Fulfillment[]
+//   deliveryTypeInt          Int?
+//   deliveryTypeStr          String?
+//   localDeliveryDistanceStr String?
+//   localDeliveryDistanceMi  Int?
+//   localDeliveryDistanceKm  Int?
+//   pickupNote               String?
+//   address_1                String
+//   address_2                String?
+//   city                     String
+//   state                    String
+//   zip                      String
+//   fullAddress              String
+//   enableTips               Boolean         @default(false)
+//   typeOfTip                String?
+//   tipValues                Tips[]
+
+//   User   User? @relation(fields: [userId], references: [id])
+//   userId Int?
+
+//   @@index([userId])
 // }

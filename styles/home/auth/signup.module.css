@@ -1,0 +1,275 @@
+/* *Global */
+.signup {
+	padding: 20px;
+}
+
+.signup input:-webkit-autofill,
+.signup input:-webkit-autofill:hover,
+.signup input:-webkit-autofill:focus,
+.signup input:-webkit-autofill:active {
+	transition: background-color 9999s ease-in-out 0s;
+	-webkit-text-fill-color: var(--primary-dark-med);
+	-webkit-text-size-adjust: 1.25rem;
+}
+
+.boxcart_logo {
+	margin-bottom: 16px;
+}
+
+.form_section_group {
+	margin: 3rem 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.title {
+	margin-bottom: 2rem;
+	display: inline-block;
+	font-size: 2rem;
+	font-weight: 700;
+}
+
+.signup_input {
+	height: 3.5rem;
+	text-indent: 2rem;
+	border-radius: 15px;
+	font-size: 1.25rem;
+	width: 100%;
+	color: var(--primary-dark-med);
+	border: none;
+	border: none;
+	background-color: var(--primary-light-soft);
+	outline: none;
+	transition: box-shadow ease 0.2s;
+	box-shadow: inset 1px 1px 1px var(--primary),
+		inset -1px -1px 1px var(--primary-light);
+}
+
+.signup_input:focus {
+	box-shadow: inset 3px 3px 3px var(--primary),
+		inset -2px -2px 2px var(--primary-light);
+}
+
+.signup_input::placeholder {
+	color: var(--primary-dark-med);
+	font-size: 1.25rem;
+}
+
+/* *Target specific form section groups */
+/* *Access Group */
+.access_code_group > p {
+	margin: 2rem 0;
+	color: var(--gray);
+}
+
+/* *Domain */
+.input_pair {
+	position: relative;
+	display: flex;
+	align-items: center;
+	background-color: var(--primary-light-soft);
+	border-radius: 15px;
+	height: fit-content;
+	transition: box-shadow ease 0.2s;
+	box-shadow: inset 1px 1px 1px var(--primary),
+		inset -1px -1px 1px var(--primary-light);
+}
+
+.input_group {
+	width: 100%;
+}
+
+.input_pair input {
+	font-size: 1.25rem;
+	background: transparent;
+	border: none;
+	height: 4rem;
+	width: 100%;
+	color: var(--primary-dark-med);
+	outline: none;
+	overflow: scroll;
+}
+
+.input_pair:focus-within {
+	box-shadow: inset 3px 3px 3px var(--primary),
+		inset -2px -2px 2px var(--primary-light);
+}
+
+.input_editable {
+	text-indent: 1rem;
+}
+
+.input_editable::placeholder {
+	color: var(--primary);
+}
+
+.input_readable::placeholder {
+	color: var(--primary-dark-med);
+}
+
+/* * Business Type */
+.business_type > label {
+	margin-bottom: 1rem;
+}
+
+.business_type_other {
+	border: 1px solid var(--primary-dark-med);
+	padding: 10px 20px;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.business_type_other > input {
+	height: 3rem;
+	width: 100%;
+	box-sizing: border-box;
+	border: none;
+	border-bottom: 1px solid var(--primary);
+	font-size: 1.25rem;
+}
+
+.business_type_other > input:focus {
+	outline: transparent;
+}
+
+.business_type_other input::placeholder {
+	font-size: 1.25rem;
+}
+
+/* * Upload logo */
+.logo_placeholder_image {
+	margin: 2rem auto 0;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.logo_image {
+	border-radius: 50%;
+	object-fit: contain;
+	margin: 2rem auto 0;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.upload_logo_button {
+	margin: 2rem auto 0;
+	border: none;
+	color: var(--white);
+	padding: 10px 15px;
+	font-size: 1.25rem;
+	border-radius: 50px;
+	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	transition: all 250ms;
+	background: var(--primary);
+}
+
+.upload_logo_button:active {
+	background-color: var(--primary-dark-med);
+	background-size: 100%;
+	box-shadow: 0px 0px 0px #0e0e0e, 0px 0px 0px rgb(95 94 94 / 25%),
+		inset 3px 3px 4px #0e0e0e, inset -3px -3px 4px #5f5e5e;
+}
+
+.upload_logo_input {
+	display: none;
+}
+
+/* *Enter business bio. */
+.bio_group textarea {
+	border-radius: 10px;
+	padding: 1.5rem;
+	background-color: var(--primary-light-soft);
+	border: transparent;
+	font-size: 1.25rem;
+	color: var(--primary-dark-med);
+	transition: box-shadow ease 0.2s;
+	box-shadow: inset 1px 1px 1px var(--primary),
+		inset -1px -1px 1px var(--primary-light);
+}
+
+.bio_group textarea::placeholder {
+	color: var(--primary-dark-med);
+	font-size: 1.25rem;
+}
+
+.bio_group textarea:focus {
+	/* border: none; */
+	outline: none;
+	box-shadow: inset 3px 3px 3px var(--primary),
+		inset -2px -2px 2px var(--primary-light);
+}
+
+.bio_group p {
+	color: var(--gray);
+	margin-top: 1rem;
+	text-align: right;
+}
+
+/* *Socials */
+.socials_group {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.socials_group + p {
+	color: var(--gray);
+	margin: 2rem auto 0;
+}
+
+/* *Fulfillment */
+.fulfillment > label {
+	margin-bottom: 1rem;
+}
+
+/* *Pickup Note */
+.pickup_note_group textarea {
+	border-radius: 10px;
+	padding: 1.5rem;
+	background-color: var(--primary-light-soft);
+	border: transparent;
+	font-size: 1.05rem;
+	color: var(--primary-dark-med);
+	transition: box-shadow ease 0.2s;
+	box-shadow: inset 1px 1px 1px var(--primary),
+		inset -1px -1px 1px var(--primary-light);
+}
+
+.pickup_note_group textarea::placeholder {
+	color: var(--primary-dark-med);
+	font-size: 1.05rem;
+}
+
+.pickup_note_group textarea:focus {
+	/* border: none; */
+	outline: none;
+	box-shadow: inset 3px 3px 3px var(--primary),
+		inset -2px -2px 2px var(--primary-light);
+}
+
+.pickup_note_group p {
+	color: var(--gray);
+	margin-top: 1rem;
+	text-align: right;
+}
+
+@media (hover: hover) {
+	.upload_logo_button:hover {
+		cursor: pointer;
+	}
+}
+
+@media screen and (min-width: 769px) {
+	.signup {
+		/* width: 65%; */
+		padding-right: 200px;
+		padding-left: 200px;
+		height: 100vh;
+		margin: 0 auto;
+		/* background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%); */
+	}
+
+	.form_box {
+		width: 60%;
+		margin: 0 auto;
+	}
+}

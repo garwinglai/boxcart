@@ -1,10 +1,22 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
+import bcrypt from "bcrypt";
+import { findUser } from "@/helper/server/db/crud/auth/login";
+
+const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
+	return new Promise((resolve) => {
+		bcrypt.compare(plainPassword, hashedPassword, function (err, res) {
+			resolve(res);
+		});
+	});
+};
 
 const options = {
+	cookie: {
+		secure: process.env.NODE_ENV && process.env.NODE_ENV === "production",
+	},
 	adapter: PrismaAdapter(prisma),
 	secret: process.env.NEXTAUTH_SECRET,
 	session: {
@@ -13,10 +25,6 @@ const options = {
 		strategy: "jwt",
 	},
 	providers: [
-		GoogleProvider({
-			clientId: process.env.GOOGLE_CLIENT_ID,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-		}),
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
@@ -30,97 +38,84 @@ const options = {
 			async authorize(credentials, req) {
 				const { email, password } = credentials;
 
-				const user = await loginUser(email, password);
+				console.log("authorize", email, password);
 
-				if (user) {
-					return user;
-				} else {
+				const userResponse = await findUser(email);
+				const { success, user, error } = userResponse;
+
+				if (!success || (success && !user)) {
+					console.log("authorization error, [...nextauth]:", error);
 					return null;
+				}
+
+				if (success) {
+					if (user) {
+						const hash = user.password;
+
+						try {
+							const isPasswordValid = await confirmPasswordHashpassword(
+								password,
+								hash
+							);
+							console.log("isPasswordValid", isPasswordValid);
+
+							if (isPasswordValid) {
+								const userData = {
+									userId: user.id,
+									firstName: user.firstName,
+									lastName: user.lastName,
+									name: user.name,
+									email: user.email,
+									emailVerified: user.emailVerified,
+									isActive: user.isActive,
+								};
+								console.log("userdata authorized:", userData);
+								return userData;
+							}
+
+							if (!isPasswordValid) {
+								console.log("[...nextauth] hash not matched logging in.");
+								return null;
+							}
+						} catch (error) {
+							console.log("error checking hash.");
+							return null;
+						}
+					}
 				}
 			},
 		}),
 		// * ...more providers  here.
 	],
 	callbacks: {
-		async signIn({ account, profile }) {
-			const { provider } = account;
-			const googleProvider = "google";
-			const appleProvider = "apple";
-			const facebookProvider = "facebook";
-
-			// find user on signin
-			const user = await prisma.user.findUnique({
-				where: {
-					email: "garwinglai@gmail.com",
-				},
-			});
-
-			switch (provider) {
-				case googleProvider:
-					// user.fName is created during signup. user.fName ? signin : signup.
-					if (!user.fName) {
-						const signupResponse = await handleGoogleSignup(provider);
-					} else {
-						const signinResponse = await handleGoogleSignin(provider);
-					}
-
-					break;
-				case appleProvider:
-					break;
-				case facebookProvider:
-					break;
-
-				default:
-					break;
+		async signIn({ user, account }) {
+			if (user) {
+				return true;
+			} else {
+				return false;
 			}
-
-			return true;
 		},
-		async jwt({ token, account, profile }) {
-			if (account) {
-				console.log("jwt account", account);
-				token.accessToken = account.access_token;
-				token.id = profile.id;
+		async jwt({ token, user, account }) {
+			console.log("jwt callback", token, user, account);
+			if (user) {
+				return user;
 			}
-			return token;
+		},
+		async session({ session }) {
+			console.log("session callback", session);
+			const user = session.user;
+
+			if (user) {
+				return session;
+			}
 		},
 	},
 	pages: {
 		signIn: "/waitlist/create-account",
+		signUp: "/account/signup",
 		// signOut: "/auth/signin",
 		// newUser: "/auth/signin",
 	},
 };
 
 export default NextAuth(options);
-
-async function handleGoogleSignup(profile) {
-	const { given_name, family_name, email, name } = profile;
-
-	try {
-		const userUpdate = await prisma.user.update({
-			where: {
-				email: email,
-			},
-			data: {
-				fName: given_name,
-				lName: family_name,
-				waitlist: {
-					create: {
-						name: name,
-						fName: given_name,
-						lName: family_name,
-						email: email,
-						subdomain: "test.boxcart.shop",
-					},
-				},
-			},
-		});
-
-		console.log("userUpdate:", userUpdate);
-	} catch (error) {
-		console.log("error update prisma:", error);
-	}
-}
-
-async function handleGoogleSignin(provider) {}

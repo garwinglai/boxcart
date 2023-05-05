@@ -1,0 +1,27 @@
+.fulfillment {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid var(--primary-dark-med);
+	padding: 10px 20px;
+	border-radius: 5px;
+	width: 100%;
+  min-height: 70px;
+}
+
+.radio_group {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.radio_group input {
+	width: 20px;
+	height: 20px;
+	accent-color: var(--primary);
+}
+
+.radio_group label {
+	font-size: 1.25rem;
+	color: var(--primary-dark);
+}

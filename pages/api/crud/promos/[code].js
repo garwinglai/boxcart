@@ -1,7 +1,7 @@
 import {
 	findUserReferralCode,
 	updateReferralUser,
-} from "@/helper/db/server/promo-codes";
+} from "@/helper/server/db/crud/promos/promo-codes";
 
 // * API Handler
 export default async function handler(req, res) {

@@ -1,8 +1,8 @@
 import {
 	checkSubdomainInUse,
-	checkEmailInUse,
+	checkEmailInUseAPI,
 	createWaitlistUser,
-} from "@/helper/db/server/waitlist";
+} from "@/helper/server/db/crud/waitlist/waitlist-crud";
 
 // * API Handler
 export default async function handler(req, res) {
@@ -19,19 +19,17 @@ export default async function handler(req, res) {
 			const checkSubDomainResponse = await checkSubdomainInUse(subdomain);
 			const { success, value, error } = checkSubDomainResponse;
 
-			const response = { value, error };
-
 			if (success) {
-				res.status(200).json(response);
+				res.status(200).json(checkSubDomainResponse);
 			} else {
-				res.status(500).json(response);
+				res.status(500).json(checkSubDomainResponse);
 			}
 		}
 
 		// Check email in use.
 		if (slugLength == 2) {
 			const email = slug[1];
-			const checkEmailResponse = await checkEmailInUse(email);
+			const checkEmailResponse = await checkEmailInUseAPI(email);
 			const { success, value, error } = checkEmailResponse;
 
 			const response = { value, error };

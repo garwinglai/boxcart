@@ -1,0 +1,28 @@
+.flex {
+	display: flex;
+}
+
+.title_box {
+	align-items: center;
+	justify-content: space-between;
+}
+
+.subtitle_info {
+	font-size: 16px;
+	color: var(--gray-light-med);
+}
+
+.option_box {
+	width: 100%;
+}
+
+.group_checkbox_box {
+	margin-left: -16px;
+	margin-right: 11px;
+}
+
+.checkbox_box {
+	width: 100%;
+	justify-content: space-between;
+	color: var(--gray-light-med);
+}

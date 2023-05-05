@@ -13,8 +13,25 @@
 	--secondary-dark-med: #315faa;
 	--secondary-dark: #192f55;
 	--gray: #666666;
+	--gray-light-med: #a3a3a3;
+	--gray-light: #efefef;
 	--error: rgb(254, 78, 78);
 	--success: rgb(75, 255, 126);
+}
+
+* {
+	padding: 0;
+	margin: 0;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: inherit;
+}
+
+html {
+	box-sizing: border-box;
 }
 
 html,
@@ -41,6 +58,22 @@ span {
 	font-family: var(--robotoFlex-font), sans-serif;
 }
 
-p {
+p,
+input::placeholder,
+textarea::placeholder,
+input,
+textarea {
 	font-family: var(--archivo-font), sans-serif;
+}
+
+/* Chrome, Safari, Edge, Opera remove input number arrow */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+	-moz-appearance: textfield;
 }
