@@ -7,7 +7,7 @@ function SignupFormAddress({ handleChange, signupValues }) {
 	return (
 		<div className={`${styles.address_form}`}>
 			<label htmlFor="address_1" className={`${styles.address_label}`}>
-				What's your address?
+				What&apos;s your address?
 			</label>
 			<div className={`${styles.flexCol}`}>
 				<input

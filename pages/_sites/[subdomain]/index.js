@@ -58,7 +58,7 @@ function Sites({ subdomain }) {
 					/>
 					<div className={`${styles.business_bio_box} ${styles.flexCol}`}>
 						<p>
-							The best bakery you're find in town. Contact us for customer
+							The best bakery you&apos;re find in town. Contact us for customer
 							orders, or select your favorite baked goods.
 						</p>
 						<div className={`${styles.flex} ${styles.socials_box}`}>

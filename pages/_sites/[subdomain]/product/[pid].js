@@ -78,11 +78,21 @@ function Product() {
 						const selectMany = currOption.selectMany;
 
 						if (selectOne) {
-							return <RadioGroupComponent currOption={currOption} />;
+							return (
+								<RadioGroupComponent
+									key={currOption.id}
+									currOption={currOption}
+								/>
+							);
 						}
 
 						if (selectMany) {
-							return <CheckGroupComponent currOption={currOption} />;
+							return (
+								<CheckGroupComponent
+									key={currOption.id}
+									currOption={currOption}
+								/>
+							);
 						}
 					});
 				})}
@@ -183,7 +193,10 @@ function Product() {
 				<div className={`${styles.flex} ${styles.example_images_box}`}>
 					{exampleImages.length !== 0 &&
 						exampleImages.map((item, idx) => (
-							<div className={`${styles.example_image_box} ${styles.flexCol}`}>
+							<div
+								key={idx}
+								className={`${styles.example_image_box} ${styles.flexCol}`}
+							>
 								<DeleteForeverIcon
 									fontSize="medium"
 									sx={{ color: "var(--gray)" }}

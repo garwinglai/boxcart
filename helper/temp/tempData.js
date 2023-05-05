@@ -66,6 +66,7 @@ export const products = [
 		options: [
 			{
 				option1: {
+					id: 1,
 					optionName: "Size",
 					selectOne: true,
 					selectMany: false,
@@ -93,6 +94,7 @@ export const products = [
 			},
 			{
 				option2: {
+					id: 2,
 					optionName: "Freebies",
 					selectOne: false,
 					selectMany: true,

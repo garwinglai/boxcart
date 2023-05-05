@@ -27,7 +27,11 @@ function CheckGroupComponent({ currOption }) {
 	return (
 		<FormControl
 			className={`${styles.option_box}`}
-			sx={{ paddingLeft: "1.5rem", paddingRight: "1.5rem", paddingTop: "1.25rem" }}
+			sx={{
+				paddingLeft: "1.5rem",
+				paddingRight: "1.5rem",
+				paddingTop: "1.25rem",
+			}}
 			component="fieldset"
 			variant="standard"
 		>
@@ -47,6 +51,7 @@ function CheckGroupComponent({ currOption }) {
 				{variations.map((variant) => {
 					return (
 						<FormControlLabel
+							key={variant.id}
 							control={<Checkbox onChange={handleChange} name={variant.item} />}
 							label={`${variant.item} - ${variant.priceStr}`}
 							labelPlacement="start"
