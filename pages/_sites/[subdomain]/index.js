@@ -18,11 +18,19 @@ import { styled } from "@mui/material/styles";
 import { products } from "@/helper/temp/tempData";
 import ShopCard from "@/components/storefront/menus/ShopCard";
 import Cart from "@/components/storefront/Cart";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 function Sites({ subdomain }) {
 	console.log("subdomain:", subdomain);
 	const [alignment, setAlignment] = useState("");
 	const [menuSelected, setmenuSelected] = useState("shop");
+
+	const router = useRouter();
+
+	useEffect(() => {
+		router.push("https://www.home.boxcart.shop");
+	}, []);
 
 	const handleAlignment = (event, newAlignment) => {
 		setAlignment(newAlignment);
