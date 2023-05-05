@@ -239,7 +239,6 @@ function Signup() {
 		fulfillmentMethodInt,
 		deliveryTypeInt,
 		enableTips,
-		isStepsSkipped,
 	]);
 
 	//* Next, Skip, Back buttons.
