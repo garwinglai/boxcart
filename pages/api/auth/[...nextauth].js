@@ -13,7 +13,7 @@ const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
 	});
 };
 
-const options = {
+export const options = {
 	cookie: {
 		secure: process.env.NODE_ENV && process.env.NODE_ENV === "production",
 	},
