@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "../../../styles/subdomain/checkout.module.css";
+import styles from "../../../styles/site/checkout.module.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { IconButton } from "@mui/material";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";

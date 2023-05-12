@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../../../../styles/subdomain/order/orderid.module.css";
+import styles from "../../../../styles/site/order/orderid.module.css";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import mobile_order_placed_icon from "@/public/images/icons/mobile_order.png";

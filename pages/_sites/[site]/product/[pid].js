@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Cart from "@/components/storefront/cart";
-import styles from "../../../../styles/subdomain/product/pid.module.css";
+import styles from "../../../../styles/site/product/pid.module.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Link from "next/link";
 import ShareIcon from "@mui/icons-material/Share";
