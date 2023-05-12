@@ -21,9 +21,15 @@ export function middleware(req) {
 	// Get hostname of request (e.g. example.boxcart.shop, example.localhost:3000)
 	const hostname = req.headers.get("host") || "test.boxcart.shop";
 	console.log("middleware hostname:", hostname);
+
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
 	const path = url.pathname;
 	console.log("middleware pathname:", path);
+
+	// Only for demo purposes - remove this if you want to use your root domain as the landing page
+	// if (hostname === "boxcart.shop" || hostname === "boxcart.vercel.app") {
+	// 	return NextResponse.redirect("https://home.boxcart.shop");
+	// }
 
 	/*  You have to replace ".vercel.pub" with your own domain if you deploy this example under your domain.
       You can also use wildcard subdomains on .vercel.app links that are associated with your Vercel team slug
@@ -38,6 +44,7 @@ export function middleware(req) {
 
 	// rewrites for app pages
 	if (currentHost == "app") {
+		console.log("inside app folder");
 		// if (
 		// 	url.pathname === "/login" &&
 		// 	(req.cookies.get("next-auth.session-token") ||
@@ -54,9 +61,10 @@ export function middleware(req) {
 	// rewrite root application to `/home` folder
 	if (
 		hostname === "localhost:3000" ||
-		hostname === "boxcart.vercel.app" ||
-		hostname === "boxcart.shop"
+		hostname === "boxcart.shop" ||
+		hostname === "platformize.vercel.app"
 	) {
+		console.log("inside home folder");
 		return NextResponse.rewrite(new URL(`/home${path}`, req.url));
 	}
 

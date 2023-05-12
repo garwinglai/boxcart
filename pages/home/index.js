@@ -1,3 +1,4 @@
+import { redirect } from "next/dist/server/api-utils";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -24,3 +25,12 @@ export default function Home() {
 		</>
 	);
 }
+
+// export async function getServerSideProps(ctx) {
+// 	return {
+// 		redirect: {
+// 			permanent: false,
+// 			destination: "https://home.boxcart.shop",
+// 		},
+// 	};
+// }
