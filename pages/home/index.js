@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
-	const router = useRouter();
+	// const router = useRouter();
 
 	// useEffect(() => {
 	// 	router.push("https://www.home.boxcart.shop");
@@ -14,14 +14,14 @@ export default function Home() {
 		<>
 			<Head>
 				<title>BoxCart | Simple Storefront</title>
-				<meta
+				{/* <meta
 					name="description"
 					content="Create your next website in minutes."
 				/>
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" /> */}
 				{/* <link rel="icon" href="/favicon.ico" /> */}
-				<h1>hello world - home/index</h1>
 			</Head>
+			<h1>hello world - home/index</h1>
 		</>
 	);
 }
