@@ -44,8 +44,7 @@ export function middleware(req) {
 	// 	hostname === "localhost:3000"
 	// ) {
 	// 	console.log("pathname", pathname);
-	// 	if (pathname === "/")
-	// 		return NextResponse.redirect("https://home.boxcart.shop");
+	// 	if (pathname === "/") return NextResponse.redirect("https://boxcart.shop");
 	// }
 
 	/*  You have to replace ".vercel.pub" with your own domain if you deploy this example under your domain.
@@ -78,7 +77,8 @@ export function middleware(req) {
 		if (
 			hostname === "localhost:3000" ||
 			hostname === "boxcart.vercel.app" ||
-			hostname === "boxcart.shop"
+			hostname === "boxcart.shop" ||
+			hostname === "www.boxcart.shop"
 		) {
 			console.log("rewrite to home/");
 			url.pathname = `/home${url.pathname}`;
