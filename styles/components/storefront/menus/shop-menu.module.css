@@ -1,0 +1,9 @@
+.flex {
+	display: flex;
+}
+
+.shop_menu_box {
+	flex-wrap: wrap;
+	box-sizing: border-box;
+	padding: 4px;
+}

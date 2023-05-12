@@ -1,0 +1,14 @@
+.gallery_card_box {
+	width: 33.33%;
+	outline: transparent;
+	border: transparent;
+}
+
+.gallery_image {
+	width: 33.33vw;
+	height: 33.33vw;
+	flex-grow: 1;
+	object-fit: cover;
+	display: block;
+	padding: 1px;
+}

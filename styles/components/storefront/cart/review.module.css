@@ -1,0 +1,32 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.review_box {
+	padding: 1.5rem;
+	background-color: var(--white);
+}
+
+.review_box h2 {
+	margin-bottom: 1rem;
+}
+
+.reivew_content_box {
+	gap: 1rem;
+}
+
+.review_context {
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.review_context_value {
+	text-align: right;
+	width: 55%;
+	color: var(--gray);
+}

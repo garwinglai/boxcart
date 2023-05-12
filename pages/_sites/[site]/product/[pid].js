@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import Cart from "@/components/storefront/Cart";
+import Cart from "@/components/storefront/cart";
 import styles from "../../../../styles/subdomain/product/pid.module.css";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Link from "next/link";
@@ -23,6 +23,7 @@ function Product() {
 		description,
 		priceStr,
 		reviewStr,
+		reviewDouble,
 		reviewCountStr,
 		quantity,
 		options,
@@ -164,7 +165,7 @@ function Product() {
 
 							<Rating
 								name="read-only"
-								defaultValue={reviewStr}
+								defaultValue={reviewDouble}
 								precision={0.5}
 								readOnly
 								size="small"

@@ -90,7 +90,6 @@
 	.skip_button:hover,
 	.back_button:hover {
 		cursor: pointer;
-		cursor: pointer;
 	}
 
 	.next_button:disabled:hover {

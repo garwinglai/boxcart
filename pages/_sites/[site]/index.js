@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "../../../styles/subdomain/subdomain.module.css";
+import styles from "../../../styles/site/site.module.css";
 import gar_img from "../../../public/images/temp/gar.jpg";
 import Image from "next/image";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -17,20 +17,19 @@ import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
 import { products } from "@/helper/temp/tempData";
 import ShopCard from "@/components/storefront/menus/ShopCard";
-import Cart from "@/components/storefront/Cart";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import Cart from "@/components/storefront/cart";
+import ShopMenu from "@/components/storefront/menus/ShopMenu";
+import Gallery from "@/components/storefront/menus/Gallery";
+import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
 
-function Sites({ subdomain }) {
-	console.log("subdomain:", subdomain);
+function Sites({ site }) {
+	console.log("subdomain:", site);
 	const [alignment, setAlignment] = useState("");
 	const [menuSelected, setmenuSelected] = useState("shop");
 
-	const router = useRouter();
-
-	useEffect(() => {
-		router.push("https://www.home.boxcart.shop");
-	}, []);
+	// useEffect(() => {
+	// 	router.push("https://www.home.boxcart.shop");
+	// }, []);
 
 	const handleAlignment = (event, newAlignment) => {
 		setAlignment(newAlignment);
@@ -43,8 +42,13 @@ function Sites({ subdomain }) {
 	}
 
 	function showMenuLayout(menuSelected) {
+		console.log("menu:", menuSelected);
 		if (menuSelected === "shop") {
-			return products.map((item) => <ShopCard key={item.id} product={item} />);
+			return <ShopMenu />;
+		}
+
+		if (menuSelected === "gallery") {
+			return <Gallery />;
 		}
 	}
 
@@ -52,15 +56,15 @@ function Sites({ subdomain }) {
 		<React.Fragment>
 			<div className={`${styles.site_box} ${styles.flexCol}`}>
 				<div className={`${styles.flex} ${styles.nav_bar_box}`}>
-					<h2 className={`${styles.business_name}`}>{subdomain}</h2>
+					<h2 className={`${styles.business_name}`}>{site}</h2>
 					<IconButton>
 						<MenuOutlinedIcon />
 					</IconButton>
 				</div>
 				<div className={`${styles.flex} ${styles.header_box}`}>
 					<Image
-						src={gar_img}
-						alt={`${subdomain} logo`}
+						src={candle_logo_temp}
+						alt={`${site} logo`}
 						className={`${styles.business_logo}`}
 						priority={true}
 					/>
@@ -155,7 +159,7 @@ function Sites({ subdomain }) {
 					>
 						<GridOnIcon />
 					</ToggleButton>
-					<ToggleButton
+					{/* <ToggleButton
 						value="customize"
 						aria-label="custom order icon"
 						className={`${styles.icon_box}`}
@@ -163,11 +167,9 @@ function Sites({ subdomain }) {
 						selected={menuSelected === "customize" ? true : false}
 					>
 						<AddShoppingCartIcon />
-					</ToggleButton>
+					</ToggleButton> */}
 				</StyledToggleButtonGroup>
-				<div className={`${styles.display_menu_box} ${styles.flex}`}>
-					{showMenuLayout(menuSelected)}
-				</div>
+				{showMenuLayout(menuSelected)}
 			</div>
 			{/* <p className={`${styles.boxcart_promo}`}>Powered by BoxCart</p> */}
 			<Cart />
@@ -178,11 +180,11 @@ function Sites({ subdomain }) {
 export default Sites;
 
 export async function getServerSideProps(context) {
-	const { subdomain } = context.query;
+	const { site } = context.query;
 
 	return {
 		props: {
-			subdomain,
+			site,
 		},
 	};
 }

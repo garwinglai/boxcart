@@ -12,6 +12,7 @@ function ShopCard({ subdomain, product }) {
 		imgDefaultStr,
 		priceStr,
 		reviewStr,
+		reviewDouble,
 		reviewCountStr,
 		quantity,
 		imgDefaultAlt,
@@ -42,7 +43,7 @@ function ShopCard({ subdomain, product }) {
 					<div className={`${styles.rating_box} ${styles.flex}`}>
 						<Rating
 							name="read-only"
-							defaultValue={reviewStr}
+							defaultValue={reviewDouble}
 							precision={0.5}
 							readOnly
 							size="small"

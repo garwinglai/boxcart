@@ -1,0 +1,31 @@
+.flex {
+	display: flex;
+}
+
+.gallery_menu_box {
+	flex-wrap: wrap;
+	box-sizing: border-box;
+}
+
+.image_full_size {
+	position: absolute;
+	top: 50%;
+	right: 50%;
+	transform: translate(50%, -50%);
+	width: 100%;
+	background-color: var(--white);
+	/* padding-top: 4rem; */
+	text-align: center;
+}
+
+.enlarged_image {
+	width: 100%;
+	height: auto;
+	object-fit: contain;
+}
+
+.image_link_box {
+	padding: 1rem 0;
+	justify-content: space-around;
+	align-items: center;
+}

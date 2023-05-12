@@ -1,0 +1,27 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.order_subtotal_box {
+	padding: 1.5rem;
+}
+
+.subtotal_box {
+	gap: 1rem;
+	justify-content: flex-end;
+}
+
+.subtotal_keys p,
+.subtotal_values p {
+	text-align: right;
+}
+
+.subtotal_keys,
+.subtotal_values {
+	gap: 0.25rem;
+}

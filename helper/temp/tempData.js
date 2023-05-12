@@ -5,6 +5,10 @@ import restaurant_icon from "../../public/images/icons/business_type/restaurant_
 import dessert_icon from "../../public/images/icons/business_type/dessert_icon.png";
 import custom_mug from "../../public/images/temp/custom_mug.jpg";
 import custom_sweater from "../../public/images/temp/custom_sweater.jpg";
+// import candle_1 from "@/public/images/temp/candle_1.jpeg";
+import candle_2 from "@/public/images/temp/candle_2.jpeg";
+// import candle_3 from "@/public/images/temp/candle_3.jpeg";
+import candle_4 from "@/public/images/temp/candle_4.jpeg";
 
 export const businessTypesArr = [
 	{
@@ -117,7 +121,529 @@ export const products = [
 		],
 		enableNote: true,
 		notePlaceHOlder: "Please share any links or images as an example.",
-		imgDefaultStr: custom_mug,
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
+		imgDefaultAlt: "Mug image",
+		imgArr: [
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+			{
+				imgStr: custom_sweater,
+				imgAlt: "Mug image",
+				isDefault: true,
+			},
+			{
+				imgStr: custom_mug,
+				imgAlt: "Mug image",
+				isDefault: false,
+			},
+		],
+	},
+	{
+		id: 1,
+		name: "Custom mug",
+		description: "Customize your a memorable mug for your favorite person.",
+		priceStr: "$12.99",
+		priceDouble: 12.0,
+		reviewStr: "4.67",
+		reviewDouble: 4.67,
+		reviewCountStr: "231",
+		reviewCountDouble: 231,
+		quantity: 0,
+		category: "mugs",
+		hasOptions: true,
+		options: [
+			{
+				option1: {
+					id: 1,
+					optionName: "Size",
+					selectOne: true,
+					selectMany: false,
+					variations: [
+						{
+							id: 1,
+							item: "small",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 2,
+							item: "medium",
+							priceStr: "$1.00",
+							priceDouble: 1.0,
+						},
+						{
+							id: 3,
+							item: "large",
+							priceStr: "$2.00",
+							priceDouble: 2.0,
+						},
+					],
+				},
+			},
+			{
+				option2: {
+					id: 2,
+					optionName: "Freebies",
+					selectOne: false,
+					selectMany: true,
+					variations: [
+						{
+							id: 4,
+							item: "cup",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+						{
+							id: 5,
+							item: "t-shirt",
+							priceStr: "$0.00",
+							priceDouble: 0.0,
+						},
+					],
+				},
+			},
+		],
+		enableNote: true,
+		notePlaceHOlder: "Please share any links or images as an example.",
+		imgDefaultStr: candle_2,
 		imgDefaultAlt: "Mug image",
 		imgArr: [
 			{
@@ -161,7 +687,7 @@ export const products = [
 			},
 		},
 		enableNote: true,
-		imgDefaultStr: custom_sweater,
+		imgDefaultStr: candle_2,
 		imgDefaultAlt: "Mug image",
 		imgArr: [
 			{
@@ -205,7 +731,7 @@ export const products = [
 			},
 		},
 		enableNote: true,
-		imgDefaultStr: custom_sweater,
+		imgDefaultStr: candle_4,
 		imgDefaultAlt: "Mug image",
 		imgArr: [
 			{
@@ -249,7 +775,7 @@ export const products = [
 			},
 		},
 		enableNote: true,
-		imgDefaultStr: custom_mug,
+		imgDefaultStr: candle_4,
 		imgDefaultAlt: "Mug image",
 		imgArr: [
 			{

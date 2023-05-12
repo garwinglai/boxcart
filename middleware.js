@@ -15,12 +15,15 @@ export const config = {
 
 export function middleware(req) {
 	const url = req.nextUrl;
+	console.log("middleware url:", url);
+	console.log("middleware req url:", req.url);
 
 	// Get hostname of request (e.g. example.boxcart.shop, example.localhost:3000)
 	const hostname = req.headers.get("host") || "test.boxcart.shop";
-
+	console.log("middleware hostname:", hostname);
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
 	const path = url.pathname;
+	console.log("middleware pathname:", path);
 
 	/*  You have to replace ".vercel.pub" with your own domain if you deploy this example under your domain.
       You can also use wildcard subdomains on .vercel.app links that are associated with your Vercel team slug
@@ -31,24 +34,23 @@ export function middleware(req) {
 			? hostname.replace(`.boxcart.shop`, "").replace(`.boxcart.vercel.app`, "")
 			: hostname.replace(`.localhost:3000`, "");
 
-	// console.log("currentHost", currentHost);
-	// console.log("req.url", req.url);
-	// console.log("path", path);
+	console.log("middleware currentHost", currentHost);
 
 	// rewrites for app pages
-	// if (currentHost == "app") {
-	// 	if (
-	// 		url.pathname === "/login" &&
-	// 		(req.cookies.get("next-auth.session-token") ||
-	// 			req.cookies.get("__Secure-next-auth.session-token"))
-	// 	) {
-	// 		url.pathname = "/";
-	// 		return NextResponse.redirect(url);
-	// 	}
+	if (currentHost == "app") {
+		// if (
+		// 	url.pathname === "/login" &&
+		// 	(req.cookies.get("next-auth.session-token") ||
+		// 		req.cookies.get("__Secure-next-auth.session-token"))
+		// ) {
+		// 	url.pathname = "/";
+		// 	return NextResponse.redirect(url);
+		// }
 
-	// 	url.pathname = `/app${url.pathname}`;
-	// 	return NextResponse.rewrite(url);
-	// }
+		url.pathname = `/app${url.pathname}`;
+		return NextResponse.rewrite(url);
+	}
+
 	// rewrite root application to `/home` folder
 	if (
 		hostname === "localhost:3000" ||
