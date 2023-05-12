@@ -38,9 +38,15 @@ export function middleware(req) {
 	console.log("middleware pathname:", pathname);
 
 	// Only for demo purposes - remove this if you want to use your root domain as the landing page
-	if (hostname === "boxcart.shop" || hostname === "boxcart.vercel.app") {
-		return NextResponse.redirect("https://home.boxcart.shop");
-	}
+	// if (
+	// 	hostname === "boxcart.shop" ||
+	// 	hostname === "boxcart.vercel.app" ||
+	// 	hostname === "localhost:3000"
+	// ) {
+	// 	console.log("pathname", pathname);
+	// 	if (pathname === "/")
+	// 		return NextResponse.redirect("https://home.boxcart.shop");
+	// }
 
 	/*  You have to replace ".vercel.pub" with your own domain if you deploy this example under your domain.
       You can also use wildcard subdomains on .vercel.app links that are associated with your Vercel team slug
@@ -69,7 +75,11 @@ export function middleware(req) {
 			return NextResponse.rewrite(url);
 		}
 
-		if (hostname === "localhost:3000" || hostname === "boxcart.vercel.app") {
+		if (
+			hostname === "localhost:3000" ||
+			hostname === "boxcart.vercel.app" ||
+			hostname === "boxcart.shop"
+		) {
 			console.log("rewrite to home/");
 			url.pathname = `/home${url.pathname}`;
 			return NextResponse.rewrite(url);

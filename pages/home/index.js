@@ -4,11 +4,11 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
-	// const router = useRouter();
+	const router = useRouter();
 
-	// useEffect(() => {
-	// 	router.push("https://www.home.boxcart.shop");
-	// }, []);
+	useEffect(() => {
+		router.push("https://www.home.boxcart.shop");
+	}, []);
 
 	return (
 		<>
@@ -21,7 +21,7 @@ export default function Home() {
 				<meta name="viewport" content="width=device-width, initial-scale=1" /> */}
 				{/* <link rel="icon" href="/favicon.ico" /> */}
 			</Head>
-			<h1>hello world - home/index</h1>
+			<h1>hello world - home/index, REDIRECTING...</h1>
 		</>
 	);
 }
