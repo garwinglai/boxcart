@@ -20,18 +20,22 @@ export const config = {
 };
 
 export function middleware(req) {
-	const url = req.nextUrl;
+	const url = req.nextUrl.clone();
+	const { pathname } = req.nextUrl;
+	const hostname = req.headers.get("host");
+
+	// const url = req.nextUrl;
 	console.log("middleware url:", url);
 	console.log("middleware req.url:", req.url);
 
 	// Get hostname of request (e.g. example.boxcart.shop, example.localhost:3000)
-	const hostname = req.headers.get("host") || "test.boxcart.shop";
+	// const hostname = req.headers.get("host") || "test.boxcart.shop";
 	// console.log(req.headers.get("host"));
 	console.log("middleware hostname:", hostname);
 
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
-	const path = url.pathname;
-	console.log("middleware pathname:", path);
+	// const path = url.pathname;
+	console.log("middleware pathname:", pathname);
 
 	// Only for demo purposes - remove this if you want to use your root domain as the landing page
 	if (hostname === "boxcart.shop" || hostname === "boxcart.vercel.app") {
