@@ -16,10 +16,11 @@ export const config = {
 export function middleware(req) {
 	const url = req.nextUrl;
 	console.log("middleware url:", url);
-	console.log("middleware req url:", req.url);
+	console.log("middleware req.url:", req.url);
 
 	// Get hostname of request (e.g. example.boxcart.shop, example.localhost:3000)
 	const hostname = req.headers.get("host") || "test.boxcart.shop";
+	console.log(req.headers.get("host"));
 	console.log("middleware hostname:", hostname);
 
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
@@ -62,7 +63,7 @@ export function middleware(req) {
 	if (
 		hostname === "localhost:3000" ||
 		hostname === "boxcart.shop" ||
-		hostname === "platformize.vercel.app"
+		hostname === "boxcart.vercel.app"
 	) {
 		console.log("inside home folder");
 		return NextResponse.rewrite(new URL(`/home${path}`, req.url));
