@@ -7,7 +7,7 @@ export default function Home() {
 	const router = useRouter();
 
 	useEffect(() => {
-		router.push("https://www.home.boxcart.shop");
+		router.push("https://www.boxcart.site");
 	}, []);
 
 	return (
