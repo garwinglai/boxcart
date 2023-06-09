@@ -66,8 +66,11 @@ function MyShop() {
 		<div className="bg-white pb-20">
 			<ShopHeader isOwner={true} />
 			<ShopBio isOwner={true} />
+			<div className="px-4 pt-4 pb-2">
+				<Divider light />
+			</div>
 			<ShopFulfillment />
-			<div className="px-4">
+			<div className="px-4 py-2">
 				<Divider light />
 			</div>
 			<ShopSearchBar isOwner={true} />
