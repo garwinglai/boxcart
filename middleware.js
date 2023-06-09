@@ -10,12 +10,6 @@ export const config = {
 		 * 4. all root files inside /public (e.g. /favicon.ico)
 		 */
 		"/((?!api/|_next/|_static/|examples/|[\\w-]+\\.\\w+).*)",
-		// "/",
-		// "/:path",
-		// "/site/:id",
-		// "/site/:id/:path",
-		// "/post/:id",
-		// "/post/:id/:path",
 	],
 };
 
@@ -25,17 +19,17 @@ export function middleware(req) {
 	const hostname = req.headers.get("host");
 
 	// const url = req.nextUrl;
-	console.log("middleware url:", url);
-	console.log("middleware req.url:", req.url);
+	// console.log("middleware url:", url);
+	// console.log("middleware req.url:", req.url);
 
 	// Get hostname of request (e.g. example.boxcart.shop, example.localhost:3000)
 	// const hostname = req.headers.get("host") || "test.boxcart.shop";
 	// console.log(req.headers.get("host"));
-	console.log("middleware hostname:", hostname);
+	// console.log("middleware hostname:", hostname);
 
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
 	// const path = url.pathname;
-	console.log("middleware pathname:", pathname);
+	// console.log("middleware pathname:", pathname);
 
 	// Only for demo purposes - remove this if you want to use your root domain as the landing page
 	// if (
@@ -57,7 +51,7 @@ export function middleware(req) {
 			? hostname.replace(`.boxcart.shop`, "").replace(`.boxcart.vercel.app`, "")
 			: hostname.replace(`.localhost:3000`, "");
 
-	console.log("middleware currentHost", currentHost);
+	// console.log("middleware currentHost", currentHost);
 
 	if (!url.pathname.includes(".") && !url.pathname.startsWith("/api")) {
 		if (currentHost == "app") {
@@ -80,12 +74,12 @@ export function middleware(req) {
 			hostname === "boxcart.shop" ||
 			hostname === "www.boxcart.shop"
 		) {
-			console.log("rewrite to home/");
+			// console.log("rewrite to home/");
 			url.pathname = `/home${url.pathname}`;
 			return NextResponse.rewrite(url);
 		}
 
-		console.log("rewrite to _site");
+		// console.log("rewrite to _site");
 		url.pathname = `/_sites/${currentHost}${url.pathname}`;
 		return NextResponse.rewrite(url);
 	}

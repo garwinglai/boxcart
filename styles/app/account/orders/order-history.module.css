@@ -1,0 +1,127 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.order_history_box {
+	padding-bottom: 3rem;
+}
+
+.calendar_box {
+	padding: 1rem 2rem;
+	background-color: var(--gray-light);
+	border-radius: 25px;
+}
+
+.calendar_header_group {
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid var(--gray-light-med);
+	padding-bottom: 0.5rem;
+}
+
+.search_group {
+	flex-direction: column;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 1rem;
+	/* border-top: 1px solid var(--gray-light); */
+	/* position: sticky; */
+	/* top: 55px; */
+	/* background-color: var(--white); */
+	/* box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px,
+		rgba(0, 0, 0, 0.05) 0px 4px 6px -2px; */
+	/* z-index: 999; */
+}
+
+.sort_box {
+	gap: 8px;
+	padding: 0.25rem 0;
+	justify-content: flex-end;
+}
+
+.filter_box {
+	border-top: 1px solid var(--primary-light-med);
+	/* padding: 12px 0 4px; */
+	padding: 0.75rem 0 0;
+	overflow-x: scroll;
+	gap: 8px;
+}
+
+/* .filter_btn {
+	background-color: var(--white);
+	padding: 4px 8px;
+	color: var(--gray);
+	border-top: 1px solid var(--gray-light-med);
+	border-bottom: 1px solid var(--gray-light-med);
+	border-right: 1px solid var(--gray-light-med);
+}
+
+.filter_btn_first {
+	border-left: 1px solid var(--gray-light-med);
+	border-top-left-radius: 25px;
+	border-end-start-radius: 25px;
+}
+
+.filter_btn_last {
+	border-top-right-radius: 25px;
+	border-end-end-radius: 25px;
+} */
+
+.order_grid_box {
+	background-color: var(--white);
+	border-radius: 25px;
+	box-sizing: border-box;
+	margin: 0 1rem;
+	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.pending_box > h3,
+.accepted_box > h3 {
+	padding: 1rem 0 0 1rem;
+}
+
+@media screen and (width > 768px) {
+	.order_history_box {
+		display: block;
+		padding: 1.5rem 2rem 3rem 2rem;
+		min-height: calc(100vh - 55px);
+		overflow: hidden;
+	}
+
+	.search_group {
+		flex-direction: row;
+		align-items: center;
+		column-gap: 3rem;
+		row-gap: 0.75rem;
+		flex-wrap: wrap;
+		padding: 0 0 0.5rem;
+		justify-content: flex-end;
+		/* position: sticky; */
+		/* top: 55px; */
+		/* top: 0; */
+		/* border-radius: 25px; */
+		/* box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px; */
+	}
+
+	.sort_box {
+		border-bottom: none;
+		padding: 0;
+		gap: 8px;
+	}
+
+	.filter_box {
+		width: 100%;
+		/* display: flex; */
+		/* padding-bottom: 1rem; */
+	}
+
+	.order_grid_box {
+		padding: 0.5rem;
+		margin: 1rem 0;
+	}
+}

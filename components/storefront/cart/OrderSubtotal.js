@@ -4,7 +4,7 @@ import styles from "../../../styles/components/storefront/cart/subtotal.module.c
 function OrderSubtotal() {
 	return (
 		<div className={`${styles.order_subtotal_box}`}>
-			<h2>Subtotal:</h2>
+			<h3>Subtotal:</h3>
 			<div className={`${styles.subtotal_box} ${styles.flex}`}>
 				<div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
 					<p>

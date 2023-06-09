@@ -4,7 +4,7 @@ import styles from "../../../styles/components/storefront/cart/review.module.css
 function OrderReview() {
 	return (
 		<div className={`${styles.review_box}`}>
-			<h2>Order Details:</h2>
+			<h3>Order Details:</h3>
 			<div className={`${styles.reivew_content_box} ${styles.flexCol}`}>
 				<div className={`${styles.flex} ${styles.review_context}`}>
 					<p>

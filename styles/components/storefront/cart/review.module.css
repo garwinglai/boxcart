@@ -10,9 +10,10 @@
 .review_box {
 	padding: 1.5rem;
 	background-color: var(--white);
+	border-bottom: 4px solid var(--gray-light);
 }
 
-.review_box h2 {
+.review_box h3 {
 	margin-bottom: 1rem;
 }
 
@@ -23,6 +24,10 @@
 .review_context {
 	justify-content: space-between;
 	align-items: flex-start;
+}
+
+.review_context > p {
+	font-size: 12px;
 }
 
 .review_context_value {

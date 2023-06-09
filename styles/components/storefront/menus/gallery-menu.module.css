@@ -2,6 +2,11 @@
 	display: flex;
 }
 
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+}
+
 .gallery_menu_box {
 	flex-wrap: wrap;
 	box-sizing: border-box;
@@ -12,10 +17,10 @@
 	top: 50%;
 	right: 50%;
 	transform: translate(50%, -50%);
-	width: 100%;
+	width: 80vw;
 	background-color: var(--white);
-	/* padding-top: 4rem; */
 	text-align: center;
+	border-radius: 8px;
 }
 
 .enlarged_image {

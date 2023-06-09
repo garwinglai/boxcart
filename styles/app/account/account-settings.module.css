@@ -1,0 +1,141 @@
+.flex {
+	display: flex;
+}
+
+.flexCol {
+	display: flex;
+	flex-direction: column;
+}
+
+.account_settings_box {
+	gap: 0.25rem;
+	padding-bottom: 5rem;
+}
+
+.section_box {
+	gap: 1rem;
+	padding: 1.5rem 2rem;
+}
+
+.section_left {
+	flex-direction: column;
+}
+
+.section_header_box {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.section_footer_group {
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 0.5rem;
+}
+
+.info_name_box {
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.email_verified_group {
+	align-items: center;
+	gap: 4px;
+}
+
+.email_verified_group p {
+	font-size: 12px;
+	color: var(--gray);
+}
+
+.change_password_btn {
+	background-color: transparent;
+	color: var(--primary);
+	text-decoration: underline;
+	width: fit-content;
+}
+
+.membership_context_box,
+.payment_context_box {
+	gap: 0.75rem;
+}
+
+.member_context_group,
+.payment_context_group {
+	align-items: center;
+	gap: 8px;
+}
+
+.membership_context_box p,
+.payment_context_box p {
+	font-size: 14px;
+	color: var(--gray);
+}
+
+.payment_option_box {
+	border: 2px solid var(--primary-dark-med);
+	padding: 1rem;
+	gap: 8px;
+	border-radius: 25px;
+	background-color: var(--primary-light-soft);
+}
+
+.user_info_box {
+	margin: 1rem;
+}
+
+.membership_info_box {
+	margin: 0 1rem;
+}
+
+.payment_info_box {
+	margin: 1rem;
+}
+
+.user_info_box,
+.membership_info_box,
+.payment_info_box {
+	height: fit-content;
+	background-color: var(--white);
+	border-radius: 25px;
+	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+@media screen and (min-width: 1024px) {
+	.account_settings_box {
+		flex-direction: row;
+		padding: 1.5rem;
+		gap: 1rem;
+		padding-bottom: 5rem;
+	}
+
+	.section_box,
+	.section_left {
+		width: 50%;
+	}
+
+	.section_left {
+		gap: 1rem;
+	}
+
+	.membership_info_box,
+	.payment_info_box {
+		width: 100%;
+	}
+
+	.payment_option_box {
+		width: fit-content;
+		padding-right: 2rem;
+	}
+
+	.user_info_box {
+		margin: 0;
+	}
+
+	.membership_info_box {
+		margin: 0;
+	}
+
+	.payment_info_box {
+		margin: 0;
+	}
+}

@@ -5,12 +5,15 @@ import styles from "@/styles/components/storefront/menus/shop-menu.module.css";
 
 // TODO: Pull Products for Shop Menu
 
-function ShopMenu() {
+function ShopMenu({ isOwner }) {
 	return (
-		<div className={`${styles.shop_menu_box} ${styles.flex}`}>
-			{products.map((item, idx) => (
-				<ShopCard key={idx} product={item} />
-			))}
+		<div className="px-4">
+			<h3 className="mb-4 font-light">All Products</h3>
+			<div className={`${styles.shop_menu_box} ${styles.grid}`}>
+				{products.map((item, idx) => (
+					<ShopCard key={idx} product={item} isOwner={isOwner} />
+				))}
+			</div>
 		</div>
 	);
 }

@@ -1,22 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
+	--black-design-extralight: #333333;
+	--black-design-light: #2b2b2b;
+	--black-design-med: #1f1f1f;
+	--black-design: #1b1c1e;
 	--black: #000000;
 	--white: #ffffff;
-	--primary-light-soft: #eae0fe;
-	--primary-light: #d8c5ff;
+	--white-design: #fbfbfb;
+	--white-med: #e1e1e1;
+	--white-light: #e0e0e0;
+	--primary-light-soft: #faf8ff;
+	--primary-light: #ddcffc;
 	--primary-light-med: #c4a9ff;
 	--primary: #8952ff;
 	--primary-dark-med: #5b37aa;
 	--primary-dark: #2e1b55;
-	--secondary-light: #c3d9ff;
+	--secondary-light-soft: #e8f0ff;
+	--secondary-light: #c8dcfe;
 	--secondary-light-med: #a5c7ff;
 	--secondary: #4a8eff;
 	--secondary-dark-med: #315faa;
 	--secondary-dark: #192f55;
-	--gray: #666666;
-	--gray-light-med: #a3a3a3;
-	--gray-light: #f6f6f6;
+	--gray: #5e5e5e;
+	--gray-light-med: #bdbdbd;
+	--gray-text: #8f8f8f;
+	--gray-light: #f7f7f780;
 	--error: rgb(254, 78, 78);
 	--success: rgb(75, 255, 126);
+	--desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+		rgba(0, 0, 0, 0.24) 0px 1px 2px;
+	--brown-bg: #f6eee4;
+	--brown-bg-switch: #dcbd98;
+	--brown-text: #7d3e1e;
 }
 
 * {
@@ -54,8 +72,18 @@ h6,
 input,
 button,
 label,
-span {
+span,
+td,
+th {
 	font-family: var(--robotoFlex-font), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-weight: 600;
 }
 
 p,
@@ -64,6 +92,10 @@ textarea::placeholder,
 input,
 textarea {
 	font-family: var(--archivo-font), sans-serif;
+}
+
+label {
+	/* color: var(--gray-text); */
 }
 
 /* Chrome, Safari, Edge, Opera remove input number arrow */
@@ -76,4 +108,19 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
 	-moz-appearance: textfield;
+}
+
+button {
+	transition: all 250ms;
+}
+
+@media (hover: hover) {
+	button:hover {
+		cursor: pointer;
+	}
+
+	button:disabled:hover {
+		background: unset;
+		cursor: not-allowed;
+	}
 }

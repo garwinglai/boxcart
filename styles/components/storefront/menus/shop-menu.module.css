@@ -1,9 +1,11 @@
-.flex {
-	display: flex;
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	column-gap: 0.5rem;
+	row-gap: 1.5rem;
 }
 
 .shop_menu_box {
-	flex-wrap: wrap;
-	box-sizing: border-box;
-	padding: 4px;
+	/* padding: 0.25rem; */
+	width: 100%;
 }

@@ -1,0 +1,22 @@
+.search_bar_box {
+	flex-grow: 1;
+}
+
+.search_input {
+	height: fit-content;
+	border-radius: 45px;
+	background-color: var(--white);
+}
+
+.search_btn {
+	padding: 8px 16px;
+	background-color: transparent;
+	color: var(--primary-dark-med);
+	font-size: 12px;
+}
+
+@media screen and (width > 768px) {
+	.search_input {
+		border-radius: 45px;
+	}
+}

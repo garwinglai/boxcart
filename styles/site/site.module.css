@@ -12,72 +12,100 @@
 }
 
 .nav_bar_box {
-	align-items: center;
-	justify-content: space-between;
-	padding: 0.5rem 1.5rem;
+	position: absolute;
+	right: 1rem;
+	top: 9.5rem;
 }
 
 .site_box {
-	padding-bottom: 48px;
+	padding-bottom: 6rem;
+}
+
+.banner_image_box {
+	position: absolute;
+	width: 100vw;
+	height: 9rem;
+	background-color: rebeccapurple;
+	z-index: -99;
+}
+
+.banner_img {
+	display: block;
+	width: 100vw;
+	height: 100%;
+	object-fit: cover;
 }
 
 .header_box {
-	gap: 1rem;
-	padding: 0 1.5rem;
 	align-items: center;
-	justify-content: space-between;
-}
-
-.business_bio_box {
-	align-items: flex-start;
-	width: 70%;
+	padding: 5rem 1.5rem 1rem;
+	gap: 1rem;
 }
 
 .business_logo {
-	width: 24vw;
-	height: 24vw;
+	width: 8rem;
+	height: 8rem;
 	object-fit: contain;
 	border-radius: 50%;
-	/* box-shadow: 0 0 1px 0 rgba(24, 94, 224, 0.15),
-		0 6px 12px 0 rgba(24, 94, 224, 0.15); */
+	box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
 	object-position: center;
 	border: 1px solid var(--gray-light-med);
 }
 
-.business_bio_box p {
-	font-size: 14px;
-	color: var(--gray);
-	padding-top: 12px;
-	padding-left: 10px;
+.business_name_group {
+	gap: 4px;
 }
 
-.header_sub_button_box {
-	gap: 1rem;
+.business_bio_box {
 	align-items: center;
-	padding: 1rem 2rem;
-	border-bottom: 1px solid var(--gray-light);
+	gap: 0.5rem;
+}
+
+.subscriber_count_box {
+	align-items: center;
+	gap: 4px;
 }
 
 .sub_number {
-	color: var(--gray-light-med);
+	color: var(--black);
 	font-size: 18px;
 }
 
 .sub_word {
 	font-size: 12px;
-	color: var(--gray-light-med);
+	color: var(--gray);
+}
+
+.socials_box {
+	gap: 1rem;
+}
+
+.bio_paragraph {
+	color: var(--gray);
+	font-weight: 300;
+	text-align: center;
+	width: 90%;
+}
+
+.header_sub_button_box {
+	gap: 1rem;
+	align-items: center;
+	padding: 1rem 1.5rem;
+	border-top: 2px solid var(--gray-light);
+	border-bottom: 2px solid var(--gray-light);
 }
 
 .btn {
-	padding: 4px 24px;
+	padding: 0.5rem 0;
 	border-radius: 4px;
+	width: 50%;
 }
 
 .contact_btn {
 	border: none;
 	color: var(--white);
 	transition: all 250ms;
-	background: var(--secondary);
+	background-color: var(--secondary);
 }
 
 .contact_btn:active {
@@ -86,8 +114,6 @@
 }
 
 .subscribe_btn {
-	padding: 9px 0;
-	flex-grow: 1;
 	border: 1px solid var(--secondary);
 	background-color: transparent;
 	color: var(--secondary);
@@ -101,10 +127,10 @@
 }
 
 .fulfillment_box {
-	padding: 24px 32px;
-	gap: 0.75rem;
-	border-bottom: 1px solid var(--gray-light);
-	background-color: var(--gray-light);
+	padding: 1rem 1.5rem 1.25rem;
+	gap: 1.5rem;
+	border-bottom: 2px solid var(--gray-light);
+	align-items: center;
 }
 
 .location_box {
@@ -114,18 +140,36 @@
 
 .location_box p {
 	text-decoration: underline;
-	color: var(--black);
+	color: var(--gray);
+	font-size: 14px;
+}
+
+.date_box {
+	gap: 1rem;
+	justify-content: center;
+	align-items: center;
+}
+
+.date_box p {
+	color: var(--gray);
+	font-size: 14px;
+}
+
+.date_box button {
+	font-size: 14px;
+	background-color: transparent;
+	border: transparent;
+	text-decoration: underline;
+	color: var(--secondary-dark-med);
 }
 
 .tabs {
 	display: flex;
 	position: relative;
-	background-color: #ffffff;
-	/* box-shadow: 0 0 1px 0 rgba(24, 94, 224, 0.15),
-		0 6px 12px 0 rgba(24, 94, 224, 0.15); */
-	/* border: 1px solid var(--gray-light-med); */
-	padding: 3%;
-	border-radius: 99px;
+	box-shadow: rgb(204, 219, 232) 1px 1px 3px 0px inset,
+		rgba(255, 255, 255, 0.5) 0px 0px 3px 1px inset;
+	border-radius: 5px;
+	width: 60%;
 }
 
 .tabs * {
@@ -133,8 +177,8 @@
 }
 
 .tabs label {
-	font-size: 16px;
-	color: var(--black);
+	font-size: 14px;
+	color: var(--gray-text);
 	-webkit-tap-highlight-color: transparent;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -156,12 +200,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 30px;
-	width: 50%;
-	font-size: 0.8rem;
-	color: var(--gray-light-med);
-	font-weight: 500;
-	border-radius: 99px;
+	height: 40px;
+	width: 60%;
+	font-size: 14px;
+	font-weight: 300;
+	border-radius: 50px;
+	color: var(--gray-text);
 	cursor: pointer;
 	transition: color 0.15s ease-in;
 }
@@ -175,37 +219,22 @@
 }
 
 .fulfillment_box input[id="radio-2"]:checked ~ .glider {
-	transform: translateX(100%);
+	transform: translateX(105%);
 }
 
 .glider {
 	position: absolute;
 	display: flex;
-	height: 30px;
-	width: 47%;
-	background-color: var(--secondary-light-med);
-	z-index: 1;
-	border-radius: 99px;
-	transition: 0.25s ease-out;
-}
-
-.date_box {
-	margin-top: 1rem;
-	gap: 1rem;
-	justify-content: center;
 	align-items: center;
-}
-
-.date_box p {
-	color: var(--black);
-}
-
-.date_box button {
-	font-size: 16px;
-	background-color: transparent;
-	border: transparent;
-	text-decoration: underline;
-	color: var(--secondary-dark-med);
+	top: 5px;
+	left: 5px;
+	height: 30px;
+	width: 46.5%;
+	background-color: var(--secondary);
+	z-index: 1;
+	border-radius: 5px;
+	transition: 0.25s ease-out;
+	box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
 }
 
 .menu_icons_box {

@@ -9,6 +9,7 @@
 
 .order_subtotal_box {
 	padding: 1.5rem;
+	background-color: var(--white);
 }
 
 .subtotal_box {
@@ -19,6 +20,7 @@
 .subtotal_keys p,
 .subtotal_values p {
 	text-align: right;
+	font-size: 12px;
 }
 
 .subtotal_keys,

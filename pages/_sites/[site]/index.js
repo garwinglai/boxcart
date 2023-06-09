@@ -1,29 +1,33 @@
-import React, { useState } from "react";
-import styles from "../../../styles/site/site.module.css";
-import gar_img from "../../../public/images/temp/gar.jpg";
-import Image from "next/image";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import YouTubeIcon from "@mui/icons-material/YouTube";
+import Cart from "@/components/storefront/cart";
+import Gallery from "@/components/storefront/menus/Gallery";
+import ShopMenu from "@/components/storefront/menus/ShopMenu";
+import canlde_banner_temp from "@/public/images/temp/candle_banner.jpeg";
+import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import StoreIcon from "@mui/icons-material/Store";
+import FacebookIcon from "@mui/icons-material/Facebook";
 import GridOnIcon from "@mui/icons-material/GridOn";
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import StoreIcon from "@mui/icons-material/Store";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import IconButton from "@mui/material/IconButton";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
-import { products } from "@/helper/temp/tempData";
-import ShopCard from "@/components/storefront/menus/ShopCard";
-import Cart from "@/components/storefront/cart";
-import ShopMenu from "@/components/storefront/menus/ShopMenu";
-import Gallery from "@/components/storefront/menus/Gallery";
-import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
+import Image from "next/image";
+import React, { useState } from "react";
+import styles from "../../../styles/site/site.module.css";
+import ShopHeader from "@/components/storefront/ShopHeader";
+import ShopLayout from "@/components/layouts/storefront/ShopLayout";
+import AppLayout from "@/components/layouts/AppLayout";
+import ShopBio from "@/components/storefront/ShopBio";
+import ShopFulfillment from "@/components/storefront/ShopFulfillment";
+import Divider from "@mui/material/Divider";
+import ShopSearchBar from "@/components/layouts/storefront/ShopSearchBar";
 
 function Sites({ site }) {
-	console.log("subdomain:", site);
 	const [alignment, setAlignment] = useState("");
 	const [menuSelected, setmenuSelected] = useState("shop");
 
@@ -42,7 +46,6 @@ function Sites({ site }) {
 	}
 
 	function showMenuLayout(menuSelected) {
-		console.log("menu:", menuSelected);
 		if (menuSelected === "shop") {
 			return <ShopMenu />;
 		}
@@ -53,131 +56,23 @@ function Sites({ site }) {
 	}
 
 	return (
-		<React.Fragment>
-			<div className={`${styles.site_box} ${styles.flexCol}`}>
-				<div className={`${styles.flex} ${styles.nav_bar_box}`}>
-					<h2 className={`${styles.business_name}`}>{site}</h2>
-					<IconButton>
-						<MenuOutlinedIcon />
-					</IconButton>
-				</div>
-				<div className={`${styles.flex} ${styles.header_box}`}>
-					<Image
-						src={candle_logo_temp}
-						alt={`${site} logo`}
-						className={`${styles.business_logo}`}
-						priority={true}
-					/>
-					<div className={`${styles.business_bio_box} ${styles.flexCol}`}>
-						<p>
-							The best bakery you&apos;re find in town. Contact us for customer
-							orders, or select your favorite baked goods.
-						</p>
-						<div className={`${styles.flex} ${styles.socials_box}`}>
-							<IconButton>
-								<FacebookIcon
-									fontSize="medium"
-									sx={{ color: "var(--gray-light-med)" }}
-								/>
-							</IconButton>
-							<IconButton>
-								<InstagramIcon
-									fontSize="medium"
-									sx={{ color: "var(--gray-light-med)" }}
-								/>
-							</IconButton>
-							<IconButton>
-								<YouTubeIcon
-									fontSize="medium"
-									sx={{ color: "var(--gray-light-med)" }}
-								/>
-							</IconButton>
-						</div>
-					</div>
-				</div>
-				<div className={`${styles.header_sub_button_box} ${styles.flex}`}>
-					<div className={`${styles.flexCol} ${styles.subscriber_count_box}`}>
-						<p className={`${styles.sub_number}`}>10.3k</p>
-						<p className={`${styles.sub_word}`}>Subscribers</p>
-					</div>
-					<button className={`${styles.btn} ${styles.subscribe_btn}`}>
-						Subscribe
-					</button>
-					<button className={`${styles.btn} ${styles.contact_btn}`}>
-						<EmailOutlinedIcon />
-					</button>
-				</div>
-
-				<div className={`${styles.fulfillment_box} ${styles.flexCol}`}>
-					<div className={`${styles.location_box} ${styles.flex}`}>
-						<LocationOnIcon
-							fontSize="medium"
-							sx={{ color: "var(--secondary-light-med)" }}
-						/>
-						<p>Los Angeles, CA</p>
-					</div>
-					<div className={`${styles.tabs}`}>
-						<input type="radio" id="radio-1" name="tabs" />
-						<label className={`${styles.tab}`} htmlFor="radio-1">
-							Delivery
-						</label>
-						<input type="radio" id="radio-2" name="tabs" />
-						<label className={`${styles.tab}`} htmlFor="radio-2">
-							Pickup
-						</label>
-						<span className={`${styles.glider}`}></span>
-					</div>
-					<div className={`${styles.date_box} ${styles.flex}`}>
-						<p>Feb 23, 2023 @ 2:45 pm</p>
-						<button>Change date</button>
-					</div>
-				</div>
-
-				<StyledToggleButtonGroup
-					value={alignment}
-					color="primary"
-					exclusive
-					onChange={handleAlignment}
-					aria-label="text alignment"
-					className={`${styles.menu_icons_box} ${styles.flex}`}
-				>
-					<ToggleButton
-						value="shop"
-						aria-label="shop icon"
-						className={`${styles.icon_box}`}
-						onClick={setMenu}
-						selected={menuSelected === "shop" ? true : false}
-					>
-						<StoreIcon />
-					</ToggleButton>
-					<ToggleButton
-						value="gallery"
-						aria-label="gallery icon"
-						className={`${styles.icon_box}`}
-						onClick={setMenu}
-						selected={menuSelected === "gallery" ? true : false}
-					>
-						<GridOnIcon />
-					</ToggleButton>
-					{/* <ToggleButton
-						value="customize"
-						aria-label="custom order icon"
-						className={`${styles.icon_box}`}
-						onClick={setMenu}
-						selected={menuSelected === "customize" ? true : false}
-					>
-						<AddShoppingCartIcon />
-					</ToggleButton> */}
-				</StyledToggleButtonGroup>
-				{showMenuLayout(menuSelected)}
+		<div className="pb-8">
+			<ShopHeader isOwner={false} />
+			<ShopBio isOwner={false} />
+			<ShopFulfillment isOwner={false} />
+			<div className="px-4">
+				<Divider light />
 			</div>
-			{/* <p className={`${styles.boxcart_promo}`}>Powered by BoxCart</p> */}
-			<Cart />
-		</React.Fragment>
+			<ShopSearchBar isOwner={false} />
+			<ShopMenu isOwner={false} />
+		</div>
 	);
 }
-
 export default Sites;
+
+Sites.getLayout = function getLayout(page) {
+	return <ShopLayout>{page}</ShopLayout>;
+};
 
 export async function getServerSideProps(context) {
 	const { site } = context.query;

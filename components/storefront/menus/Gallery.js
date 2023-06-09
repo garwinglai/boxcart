@@ -27,7 +27,7 @@ function Gallery() {
 	};
 
 	return (
-		<div className={`${styles.flex} ${styles.gallery_menu_box}`}>
+		<div className={`${styles.grid} ${styles.gallery_menu_box}`}>
 			{products.map((item, idx) => (
 				<GalleryCard
 					key={idx}
@@ -44,7 +44,7 @@ function Gallery() {
 			>
 				<div className={`${styles.image_full_size}`}>
 					<Image
-						className={`${styles.enlarged_image}`}
+						className={`${styles.enlarged_image} rounded-t-lg`}
 						src={enlargedImageUrl}
 						alt={enlargedImageAlt}
 					/>

@@ -43,7 +43,6 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem 1.5rem;
-	border-bottom: 1px solid var(--gray-light);
 }
 
 .cart_header_box h2 {
@@ -51,13 +50,13 @@
 }
 
 .cart_review_box {
-	background-color: var(--gray-light);
+	border-top: 4px solid var(--gray-light);
 	padding: 0.5rem 0;
 }
 
 /* Items title */
-.cart_review_box > h2 {
-	margin-bottom: 0.5rem;
+.cart_review_box > h3 {
+	margin-top: 0.5rem;
 	margin-left: 1.5rem;
 }
 

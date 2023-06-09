@@ -6,9 +6,9 @@ import { useEffect } from "react";
 export default function Home() {
 	const router = useRouter();
 
-	useEffect(() => {
-		router.push("https://www.boxcart.site");
-	}, []);
+	// useEffect(() => {
+	// 	router.push("https://www.boxcart.site");
+	// }, []);
 
 	return (
 		<>

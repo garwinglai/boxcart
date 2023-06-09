@@ -60,7 +60,7 @@ function Cart() {
 						</IconButton>
 					</div>
 					<div className={`${styles.flexCol} ${styles.cart_review_box}`}>
-						<h2>Items</h2>
+						<h3>Items:</h3>
 						{exampleCartItems.map((item, idx) => (
 							<CartItem key={idx} />
 						))}

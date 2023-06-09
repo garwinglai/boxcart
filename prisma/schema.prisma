@@ -29,24 +29,18 @@ model Waitlist {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
-  name                 String?
-  firstName            String?
-  lastName             String?
-  email                String    @unique
-  emailVerified        Boolean   @default(false)
-  isActive             Boolean   @default(false)
-  password             String
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  accounts             Account[]
-  freePeriod           Boolean   @default(true)
-  freePeriodEndDateStr String?
+  id            Int       @id @default(autoincrement())
+  name          String?
+  firstName     String?
+  lastName      String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
   // sessions      Session[]
-  role                 Role      @default(OWNER)
-  subscriptionPlanId   Int?
-
-  @@index([subscriptionPlanId])
+  role          Role      @default(OWNER)
 }
 
 model Account {
@@ -54,22 +48,15 @@ model Account {
   createdAt                DateTime        @default(now())
   updatedAt                DateTime        @updatedAt
   userId                   Int
-  // type                     String
-  // provider                 String
-  // providerAccountId        String
-  // refresh_token            String?         @db.Text
-  // access_token             String?         @db.Text
-  // expires_at               Int?
-  // token_type               String?
-  // scope                    String?
-  // id_token                 String?         @db.Text
-  // session_state            String?
   isActive                 Boolean         @default(false)
+  freePeriodActive         Boolean         @default(true)
+  freePeriodEndDateStr     String?
   email                    String          @unique
+  emailVerified            Boolean         @default(false)
   name                     String?
   firstName                String?
   lastName                 String?
-  accessCode               String?
+  accessCode               String?         @unique
   businessName             String
   subdomain                String          @unique
   businessTypes            BusinessTypes[]
@@ -94,6 +81,16 @@ model Account {
   typeOfTip                String?
   tipValues                Tips[]
   user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // type                     String
+  // provider                 String
+  // providerAccountId        String
+  // refresh_token            String?         @db.Text
+  // access_token             String?         @db.Text
+  // expires_at               Int?
+  // token_type               String?
+  // scope                    String?
+  // id_token                 String?         @db.Text
+  // session_state            String?
 
   // @@unique([provider, providerAccountId])
   @@index([userId])
@@ -166,6 +163,8 @@ enum Role {
   STAFF
   // Customers - of Users
   CUSTOMER
+  // Regular user
+  USER
 }
 
 // BoxCart business account information.

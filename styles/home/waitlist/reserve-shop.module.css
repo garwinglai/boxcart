@@ -155,7 +155,7 @@
 		inset 3px 3px 4px #0e0e0e, inset -3px -3px 4px #5f5e5e;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 769px) {
 	.container {
 		height: 100vh;
 		background: #a770ef; /* fallback for old browsers */

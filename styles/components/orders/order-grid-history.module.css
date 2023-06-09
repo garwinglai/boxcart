@@ -1,0 +1,45 @@
+.order_grid_box {
+	display: grid;
+	grid-template-columns:
+		minmax(30px, 0.5fr)
+		minmax(100px, 1fr)
+		minmax(100px, 1fr)
+		minmax(95px, 1fr)
+		minmax(150px, 1.5fr)
+		minmax(95px, 1fr)
+		minmax(100px, 1fr)
+		minmax(100px, 1fr)
+		minmax(80px, 1fr)
+		minmax(50px, 0.75fr);
+	width: 100%;
+	overflow: scroll;
+	border-collapse: collapse;
+	/* margin: 0.5rem; */
+}
+
+.table_head,
+.table_body {
+	display: contents;
+}
+
+.table_title {
+	padding: 15px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	position: sticky;
+	top: 0;
+	border-bottom: 1px solid var(--gray-light);
+	text-align: left;
+	font-weight: normal;
+	font-size: 1.1rem;
+	color: var(--secondary-dark);
+	font-weight: 500;
+	font-size: 14px;
+	margin-bottom: 0.5rem;
+	justify-self: start;
+}
+
+.table_row {
+	display: contents;
+}

@@ -9,6 +9,19 @@ export default function App({
 	Component,
 	pageProps: { session, ...pageProps },
 }) {
+	const pageTitle = Component.pageTitle;
+	const pageRoute = Component.pageRoute;
+	const mobilePageRoute = Component.mobilePageRoute;
+	const pageIcon = Component.pageIcon;
+	const getLayout = Component.getLayout || ((page) => page);
+	const pageLayoutWithTitle = (
+		page,
+		pageTitle,
+		pageIcon,
+		pageRoute,
+		mobilePageRoute
+	) => getLayout(page, pageTitle, pageIcon, pageRoute, mobilePageRoute);
+
 	return (
 		<>
 			<style jsx global>
@@ -20,7 +33,13 @@ export default function App({
 				`}
 			</style>
 			<SessionProvider session={session}>
-				<Component {...pageProps} />
+				{pageLayoutWithTitle(
+					<Component {...pageProps} />,
+					pageTitle,
+					pageIcon,
+					pageRoute,
+					mobilePageRoute
+				)}
 			</SessionProvider>
 		</>
 	);

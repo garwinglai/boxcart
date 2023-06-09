@@ -35,86 +35,68 @@ export const options = {
 				},
 				password: { label: "Password", type: "password" },
 			},
-			async authorize(credentials, req) {
+			async authorize(credentials) {
 				const { email, password } = credentials;
-
-				console.log("authorize", email, password);
 
 				const userResponse = await findUser(email);
 				const { success, user, error } = userResponse;
 
 				if (!success || (success && !user)) {
-					console.log("authorization error, [...nextauth]:", error);
+					console.log("err finding user in [...nextauth] line 45:", error);
 					return null;
 				}
 
-				if (success) {
-					if (user) {
-						const hash = user.password;
+				if (success && user) {
+					const hash = user.password;
 
-						try {
-							const isPasswordValid = await confirmPasswordHashpassword(
-								password,
-								hash
-							);
-							console.log("isPasswordValid", isPasswordValid);
+					try {
+						const isPasswordValid = await confirmPasswordHashpassword(
+							password,
+							hash
+						);
 
-							if (isPasswordValid) {
-								const userData = {
-									userId: user.id,
-									firstName: user.firstName,
-									lastName: user.lastName,
-									name: user.name,
-									email: user.email,
-									emailVerified: user.emailVerified,
-									isActive: user.isActive,
-								};
-								console.log("userdata authorized:", userData);
-								return userData;
-							}
-
-							if (!isPasswordValid) {
-								console.log("[...nextauth] hash not matched logging in.");
-								return null;
-							}
-						} catch (error) {
-							console.log("error checking hash.");
+						if (!isPasswordValid) {
 							return null;
 						}
+
+						const userData = {
+							userId: user.id,
+							firstName: user.firstName,
+							lastName: user.lastName,
+							name: user.name,
+							email: user.email,
+							emailVerified: user.emailVerified,
+						};
+
+						return userData;
+					} catch (error) {
+						console.log("error checking hash [...nextauth] line 73:", error);
+						return null;
 					}
 				}
 			},
 		}),
-		// * ...more providers  here.
 	],
 	callbacks: {
-		async signIn({ user, account }) {
+		async jwt({ token, user }) {
+			// user only passes through the first time user logs in.
+			// Add any data to token. Token gets called in session callback to use.
 			if (user) {
-				return true;
-			} else {
-				return false;
+				token.id = user.userId;
+				return token;
 			}
-		},
-		async jwt({ token, user, account }) {
-			console.log("jwt callback", token, user, account);
-			if (user) {
-				return user;
-			}
-		},
-		async session({ session }) {
-			console.log("session callback", session);
-			const user = session.user;
 
-			if (user) {
-				return session;
-			}
+			return token;
+		},
+		async session({ token, session }) {
+			// add additional token data to sesssion and return session when session is called.
+			session.user.id = token.id;
+			return session;
 		},
 	},
 	pages: {
-		signIn: "/waitlist/create-account",
-		signUp: "/account/signup",
-		// signOut: "/auth/signin",
-		// newUser: "/auth/signin",
+		signIn: "http://app.localhost:3000/auth/signin",
+		error: "http://app.localhost:3000/auth/signin",
 	},
 };
 
