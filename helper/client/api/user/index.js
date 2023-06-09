@@ -25,12 +25,9 @@ export async function updateEmailIsVerifiedUser(id) {
 	}
 }
 
-export async function updateEmailIsVerifiedUser(id) {
+export async function updateEmailIsVerifiedAccount(id) {
 	const idInt = parseInt(id);
 	console.log("id", id);
-
-	// This will update all Accounts related to User with userId. This is okay because verify-email page is protected. Each time a new account is created, it will have !emailVerified. They will have to revisit this page to verify the email, which will verify email for all Accounts.
-
 	try {
 		const updatedUser = await prisma.account.update({
 			where: {
