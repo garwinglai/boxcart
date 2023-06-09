@@ -99,7 +99,7 @@ function CategoryDrawerComponent({ toggleDrawer, isDesktopView }) {
 						</li>
 					) : (
 						products.map((product, idx) => (
-							<div className="flex justify-between items-center w-full mb-2">
+							<div key={idx} className="flex justify-between items-center w-full mb-2">
 								<li key={idx} className="text-sm font-light">
 									{product}
 								</li>

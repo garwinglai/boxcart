@@ -250,7 +250,10 @@ function ProductDrawer({ state, toggleDrawer }) {
 							</div>
 							{productPhotos.length !== 0 &&
 								productPhotos.map((photo, idx) => (
-									<div className="relative h-[5rem] min-w-[5rem] inline-block">
+									<div
+										key={idx}
+										className="relative h-[5rem] min-w-[5rem] inline-block"
+									>
 										<Image
 											src={photo.imgUrl}
 											alt={photo.fileName}
@@ -533,7 +536,7 @@ function ProductDrawer({ state, toggleDrawer }) {
 														{variantPhotos.length !== 0 && (
 															<div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
 																{variantPhotos.map((file, idx) => (
-																	<div className="relative h-[5rem] min-w-[5rem] inline-block">
+																	<div key={idx} className="relative h-[5rem] min-w-[5rem] inline-block">
 																		<Image
 																			src={file.imgUrl}
 																			alt={file.fileName}
