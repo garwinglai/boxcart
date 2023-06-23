@@ -253,7 +253,7 @@ function Product() {
 				<div className="flex overflow-x-scroll w-full gap-2 px-6 py-4">
 					{exampleImages.length !== 0 &&
 						exampleImages.map((item, idx) => (
-							<div className="flex flex-col max-w-[5rem] gap-1">
+							<div key={idx} className="flex flex-col max-w-[5rem] gap-1">
 								<div
 									key={idx}
 									className="relative h-[5rem] min-w-[5rem] inline-block"
