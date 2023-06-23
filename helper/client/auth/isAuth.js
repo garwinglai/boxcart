@@ -10,7 +10,7 @@ export async function isAuth(context, next) {
 			redirect: {
 				destination:
 					process.env.NODE_ENV && process.env.NODE_ENV === "production"
-						? "app.boxcart.shop/auth/signin"
+						? "/auth/signin"
 						: "http://app.localhost:3000/auth/signin",
 				permanent: false,
 			},
