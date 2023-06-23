@@ -78,7 +78,7 @@
 	.order_grid_box {
 		background-color: var(--white);
 		padding: 0.5rem;
-		border-radius: 25px;
+		border-radius: 4px;
 		margin-top: 1rem;
 		overflow: scroll;
 		box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;

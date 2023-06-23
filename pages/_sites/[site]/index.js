@@ -1,70 +1,44 @@
-import Cart from "@/components/storefront/cart";
-import Gallery from "@/components/storefront/menus/Gallery";
-import ShopMenu from "@/components/storefront/menus/ShopMenu";
-import canlde_banner_temp from "@/public/images/temp/candle_banner.jpeg";
-import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GridOnIcon from "@mui/icons-material/GridOn";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import StoreIcon from "@mui/icons-material/Store";
-import VerifiedIcon from "@mui/icons-material/Verified";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import IconButton from "@mui/material/IconButton";
-import ToggleButton from "@mui/material/ToggleButton";
+import React, { useState, useEffect } from "react";
+import ShopMenu from "@/components/storefront/menus/shop/ShopMenu";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { styled } from "@mui/material/styles";
-import Image from "next/image";
-import React, { useState } from "react";
-import styles from "../../../styles/site/site.module.css";
 import ShopHeader from "@/components/storefront/ShopHeader";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
-import AppLayout from "@/components/layouts/AppLayout";
 import ShopBio from "@/components/storefront/ShopBio";
 import ShopFulfillment from "@/components/storefront/ShopFulfillment";
 import Divider from "@mui/material/Divider";
-import ShopSearchBar from "@/components/layouts/storefront/ShopSearchBar";
+import ShopSearchBar from "@/components/storefront/ShopSearchBar";
+import CartComponent from "@/components/storefront/cart/CartComponent";
+import CategoryShopList from "@/components/storefront/menus/shop/CategoryShopList";
 
-function Sites({ site }) {
-	const [alignment, setAlignment] = useState("");
-	const [menuSelected, setmenuSelected] = useState("shop");
-
-	// useEffect(() => {
-	// 	router.push("https://www.home.boxcart.shop");
-	// }, []);
-
-	const handleAlignment = (event, newAlignment) => {
-		setAlignment(newAlignment);
-	};
-
-	function setMenu(e, value) {
-		// const { value, name } = e.target;
-		console.log(value);
-		setmenuSelected(value);
-	}
-
-	function showMenuLayout(menuSelected) {
-		if (menuSelected === "shop") {
-			return <ShopMenu />;
-		}
-
-		if (menuSelected === "gallery") {
-			return <Gallery />;
-		}
-	}
+function Sites({ site, test }) {
+	const [exampleCartItems, setExampleCartItems] = useState([1, 2]);
+	console.log("test", test);
 
 	return (
-		<div className="pb-8">
-			<ShopHeader isOwner={false} />
-			<ShopBio isOwner={false} />
-			<ShopFulfillment isOwner={false} />
-			<div className="px-4">
-				<Divider light />
+		<div className="pb-8 lg:flex lg:h-[calc(100vh-54px)] lg:pb-0 lg:overflow-hidden ">
+			<div className="flex-grow lg:overflow-y-auto ">
+				<ShopHeader isOwner={false} />
+				<div className="md:flex md:justify-between">
+					<div className="md:w-3/5 lg:w-2/5">
+						<ShopBio isOwner={false} />
+					</div>
+					<div className=" md:mt-16 md:w-2/5">
+						<ShopFulfillment isOwner={false} />
+					</div>
+				</div>
+				<div className="px-4">
+					<Divider light />
+				</div>
+				<ShopSearchBar isOwner={false} />
+				<div className="flex w-full xl:mt-4">
+					<CategoryShopList />
+					<ShopMenu isOwner={false} />
+				</div>
 			</div>
-			<ShopSearchBar isOwner={false} />
-			<ShopMenu isOwner={false} />
+			<div className="hidden lg:block  lg:w-[20rem] ">
+				<CartComponent cartItems={exampleCartItems} isDesktop={true} />
+			</div>
 		</div>
 	);
 }

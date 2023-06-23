@@ -1,31 +1,34 @@
 import React, { useState } from "react";
 import CategoryIcon from "@mui/icons-material/Category";
 import AppLayout from "@/components/layouts/AppLayout";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
-import ButtonFilter from "@/components/designs/ButtonFilter";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonFilter from "@/components/common/buttons/ButtonFilter";
 import { useRouter } from "next/router";
 import ProductCard from "@/components/app/my-shop/products/ProductCard";
 import ProductDrawer from "@/components/app/my-shop/products/ProductDrawer";
+import ButtonFourth from "@/components/common/buttons/ButtonFourth";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function Products() {
 	const [state, setState] = useState({
 		right: false,
 	});
+	const id = [1, 2, 3, 4, 5];
 
-	const { push, pathname } = useRouter();
+	const { push, pathname, query, asPath } = useRouter();
+	const router = useRouter();
 
 	const handleProductRoute = () => {
-		console.log(pathname);
-		if (pathname !== "/app/account/my-shop/products")
-			push("/account/my-shop/products");
+		if (pathname !== "/app/account/inventory/products")
+			push("/account/inventory/products");
 
 		return;
 	};
 
 	const handleCategoryRoute = () => {
-		console.log(pathname);
-		if (pathname !== "/app/account/my-shop/category")
-			push("/account/my-shop/category");
+		console.log("hello world");
+		if (pathname !== "/app/account/inventory/categories")
+			push("/account/inventory/categories");
 
 		return;
 	};
@@ -42,28 +45,40 @@ function Products() {
 	};
 
 	return (
-		<div className="pb-24">
-			<div className="flex gap-4 p-4">
-				<ButtonFilter name="Products" handleClick={handleProductRoute} />
-				<ButtonFilter name="Category" handleClick={handleCategoryRoute} />
+		<div className="py-4 px-4 pb-24 sm:px-8 md:px-16 md:pt-8">
+			<div className="pb-4 flex justify-between items-center">
+				<div className="flex gap-2">
+					<ButtonFilter handleClick={handleProductRoute} name="Products" />
+					<ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
+				</div>
+				<div>
+					<ButtonPrimary
+						name="Create Product"
+						handleClick={toggleDrawer("right", true)}
+					/>
+					<ProductDrawer state={state} toggleDrawer={toggleDrawer} />
+				</div>
 			</div>
-			<div className="px-4 flex flex-col gap-4">
-				<ProductCard />
-				<ProductCard />
-				<ProductCard />
-			</div>
-			<div className="fixed bottom-8 right-4 shadow-md shadow-gray-600 rounded-3xl">
-				<ButtonPrimary
-					name="Create Product"
-					handleClick={toggleDrawer("right", true)}
-				/>
-				<ProductDrawer state={state} toggleDrawer={toggleDrawer} />
+			<div className="flex flex-col gap-4 lg:grid lg:grid-cols-2">
+				{id.map((item, idx) => (
+					<ProductCard key={idx} id={item} />
+				))}
 			</div>
 		</div>
 	);
 }
 
 export default Products;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 Products.getLayout = function getLayout(
 	page,
@@ -79,16 +94,12 @@ Products.getLayout = function getLayout(
 			pageRoute={pageRoute}
 			mobilePageRoute={mobilePageRoute}
 		>
-			{/* <div className="sticky top-0 z-50 bg-white">
-				<MyShopMenu pageTitle={pageTitle} />
-			</div> */}
-			{/* <MobileMyShopMenuFab pageTitle={pageTitle} /> */}
 			{page}
 		</AppLayout>
 	);
 };
 
-Products.pageTitle = "My Shop / Products";
+Products.pageTitle = "Products";
 Products.pageIcon = <CategoryIcon />;
 Products.pageRoute = "products";
 Products.mobilePageRoute = "products";

@@ -35,11 +35,11 @@
 }
 
 .tip_input {
-	height: 3.5rem;
 	width: 100%;
-	text-indent: 2.5rem;
-	border-radius: 5px;
-	font-size: 1.25rem;
+	text-indent: 2rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	padding: 10px 0;
 	color: var(--primary-dark-med);
 	border: none;
 	background-color: var(--primary-light-soft);
@@ -56,7 +56,7 @@
 
 .tip_input::placeholder {
 	color: var(--primary-dark-med);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }
 
 .tip_input input:-webkit-autofill,
@@ -65,19 +65,19 @@
 .tip_input input:-webkit-autofill:active {
 	transition: background-color 9999s ease-in-out 0s;
 	-webkit-text-fill-color: var(--primary-dark-med);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }
 
 .tip_label {
 	position: absolute;
 	top: 50%;
-	left: 2.5rem;
+	left: 1.75rem;
 	transition: transform ease 0.2s;
 	transform: translate(0%, -50%);
 	user-select: none;
 	pointer-events: none;
 	color: var(--primary);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }
 
 .input_group > input:focus + label,

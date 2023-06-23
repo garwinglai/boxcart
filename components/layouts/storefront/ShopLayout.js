@@ -1,12 +1,12 @@
 import React from "react";
 import ShopNavTop from "./ShopNavTop";
-import ShopNavBottom from "./ShopNavBottom";
 
 function ShopLayout({ children }) {
+	const test = "stusff";
 	return (
 		<div>
 			<ShopNavTop />
-			<main className=" overflow-y-scroll">{children}</main>
+			<main test={test}>{children}</main>
 		</div>
 	);
 }

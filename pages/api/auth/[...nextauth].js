@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { findUser } from "@/helper/server/db/crud/auth/login";
+import { findUser } from "@/helper/server/prisma/auth/login";
 
 const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
 	return new Promise((resolve) => {

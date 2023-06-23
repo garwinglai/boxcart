@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import styles from "../../../styles/home/waitlist/reserve-shop.module.css";
 import { useRouter } from "next/router";
 import prisma from "@/lib/prisma";
-import ButtonLoader from "@/components/loaders/ButtonLoader";
+import ButtonLoader from "@/components/common/loaders/ButtonLoader";
 import { checkSubdomainAvail } from "@/helper/client/api/waitlist/waitlist";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShopSwitch } from "../designs/ShopSwitch";
+import { ShopSwitch } from "../common/switches/ShopSwitch";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import TakeoutDiningOutlinedIcon from "@mui/icons-material/TakeoutDiningOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -31,7 +31,7 @@ function ShopFulfillment({ isOwner }) {
 	};
 
 	return (
-		<div className="p-4 ">
+		<div className="p-4 w-full flex flex-col md:flex-col-reverse ">
 			<Accordion
 				onChange={handleSwitch}
 				aria-controls="panel1bh-content"
@@ -93,43 +93,8 @@ function ShopFulfillment({ isOwner }) {
 					</div>
 				</AccordionDetails>
 			</Accordion>
-			{/* {fulfillmentType === "delivery" ? (
-					<span className="flex gap-1 items-center">
-						<DeliveryDiningOutlinedIcon
-							fontSize="small"
-							sx={{ color: "var(--brown-text)" }}
-						/>
-						<p className="text-sm text-[color:var(--brown-text)]">delivery</p>
-					</span>
-				) : (
-					<span className="flex gap-1 items-center">
-						<TakeoutDiningOutlinedIcon
-							fontSize="small"
-							sx={{ color: "var(--brown-text)" }}
-						/>
-						<p className="text-sm text-[color:var(--brown-text)]">pickup</p>
-					</span>
-				)}
-				<ShopSwitch onClick={handleSwitch} /> */}
 
-			{/* {fulfillmentType === "delivery" && (
-				<div className="relative flex-grow py-2">
-					<label
-						htmlFor="address"
-						className="absolute flex items-center gap-2 top-[18px] left-4 text-[color:var(--brown-text)] font-light text-sm"
-					>
-						<LocationOnOutlinedIcon fontSize="small" />
-					</label>
-					<input
-						type="text"
-						name="address"
-						id="address"
-						placeholder="deliver to: address"
-						className="border border-[color:var(--brown-bg)] rounded-lg w-full py-3 placeholder:text-[color:var(--brown-text)] placeholder:text-sm  font-light text-sm indent-10"
-					/>
-				</div>
-			)} */}
-			<div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded-lg ">
+			<div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded-lg md:mb-4 ">
 				<span className="flex flex-col">
 					<p className="font-extralight text-[color:var(--gray-text)] ">
 						Get it by
@@ -158,9 +123,6 @@ const AccordionSummary = styled((props) => <MuiAccordionSummary {...props} />)(
 	({ theme }) => ({
 		"& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
 			transform: "rotate(0deg)",
-		},
-		"& .MuiAccordionSummary-content": {
-			marginLeft: theme.spacing(1),
 		},
 	})
 );

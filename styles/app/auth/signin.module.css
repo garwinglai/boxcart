@@ -38,7 +38,7 @@
 /* ? Containers */
 
 .signin {
-	margin-top: 50px;
+	/* margin-top: 50px; */
 	overflow-y: scroll;
 }
 
@@ -73,8 +73,8 @@
 	border-radius: 5px;
 	border: none;
 	color: var(--white);
-	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
-	box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	/* -webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	box-shadow: 4px 8px 19px -3px var(--primary-dark-med); */
 	transition: all 250ms;
 	background: var(--primary);
 }
@@ -115,13 +115,13 @@
 	.signin {
 		margin-top: unset;
 		height: 100vh;
-		background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
+		/* background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%); */
 		display: flex;
 	}
 
 	.outerContainer {
 		width: 40%;
-		border-radius: 15px;
+		border-radius: 8px;
 		margin: auto;
 		background-color: var(--white);
 	}

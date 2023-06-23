@@ -52,29 +52,9 @@
 	gap: 8px;
 }
 
-/* .filter_btn {
-	background-color: var(--white);
-	padding: 4px 8px;
-	color: var(--gray);
-	border-top: 1px solid var(--gray-light-med);
-	border-bottom: 1px solid var(--gray-light-med);
-	border-right: 1px solid var(--gray-light-med);
-}
-
-.filter_btn_first {
-	border-left: 1px solid var(--gray-light-med);
-	border-top-left-radius: 25px;
-	border-end-start-radius: 25px;
-}
-
-.filter_btn_last {
-	border-top-right-radius: 25px;
-	border-end-end-radius: 25px;
-} */
-
 .order_grid_box {
 	background-color: var(--white);
-	border-radius: 25px;
+	border-radius: 4px;
 	box-sizing: border-box;
 	margin: 0 1rem;
 	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
@@ -101,11 +81,6 @@
 		flex-wrap: wrap;
 		padding: 0 0 0.5rem;
 		justify-content: flex-end;
-		/* position: sticky; */
-		/* top: 55px; */
-		/* top: 0; */
-		/* border-radius: 25px; */
-		/* box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px; */
 	}
 
 	.sort_box {

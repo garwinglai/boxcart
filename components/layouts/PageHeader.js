@@ -4,7 +4,7 @@ import { IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import MobileNavBar from "./MobileNavBar";
-import ButtonPrimary from "../designs/ButtonPrimary";
+import ButtonPrimary from "../common/buttons/ButtonPrimary";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Badge from "@mui/material/Badge";
 
@@ -36,7 +36,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
 			</div>
 			<div className="flex gap-4 items-center">
 				<IconButton>
-					<Badge color="secondary" variant="dot" overlap="circular">
+					<Badge color="warning" variant="dot" overlap="circular">
 						<NotificationsOutlinedIcon
 							sx={{ color: "var(--black-design-extralight)" }}
 						/>
@@ -50,8 +50,8 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
 						/>
 					</IconButton>
 				</div>
-				<p className="hidden md:block md:text-[color:var(--gray-text)] ">
-					BoxCart
+				<p className="hidden md:block md:text-[color:var(--gray-text)] md:text-sm md:font-extralight ">
+					Powered by BoxCart
 				</p>
 			</div>
 			<SwipeableDrawer

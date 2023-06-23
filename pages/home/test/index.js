@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import ButtonLoader from "@/components/loaders/ButtonLoader";
-import PageLoader from "@/components/loaders/PageLoader";
+import ButtonLoader from "@/components/common/loaders/ButtonLoader";
+import PageLoader from "@/components/common/loaders/PageLoader";
 // import { Prisma } from "@prisma/client";
 // import prisma from "@/lib/prisma";
 

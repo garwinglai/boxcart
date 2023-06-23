@@ -4,8 +4,8 @@ import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/account-settings.module.css";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TextField from "@mui/material/TextField";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
-import SaveCancelButtons from "@/components/app/SaveCancelButtons";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function AccountSettings() {
 	return (
@@ -137,12 +137,22 @@ function AccountSettings() {
 					</div>
 				</form>
 			</div>
-			<SaveCancelButtons />
+			{/* <SaveCancelButtons /> */}
 		</div>
 	);
 }
 
 export default AccountSettings;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 AccountSettings.getLayout = function getLayout(
 	page,

@@ -1,14 +1,13 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { isAuth } from "@/helper/client/api/auth/isAuth";
+import { isAuth } from "@/helper/client/auth/isAuth";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/checklist.module.css";
-import Link from "next/link";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ClearIcon from "@mui/icons-material/Clear";
 import ChecklistIcon from "@mui/icons-material/Checklist";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonSecondary from "@/components/common/buttons/ButtonSecondary";
 
 function Checklist({ userSession, pageTitle }) {
 	const router = useRouter();
@@ -18,7 +17,7 @@ function Checklist({ userSession, pageTitle }) {
 			<p>
 				Complete
 				<b> mandatory </b>
-				tasks in order to publish your site.
+				tasks and start selling!
 			</p>
 			<div
 				className={`${styles.mandatory_checklist_box} ${styles.checklist_box}`}
@@ -30,7 +29,7 @@ function Checklist({ userSession, pageTitle }) {
 							<div className={`${styles.task} ${styles.flex}`}>
 								<CheckCircleOutlineIcon fontSize="small" color="success" />
 								<p style={{ textDecoration: "line-through" }}>
-									Verify your email
+									Verify your email.
 								</p>
 							</div>
 							<button
@@ -42,71 +41,66 @@ function Checklist({ userSession, pageTitle }) {
 								Done
 							</button>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Upload your products</p>
+								<p>Upload your products.</p>
 							</div>
 							<div>
 								<ButtonPrimary name="Go" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Set up delivery information</p>
+								<p>Set up your delivery details.</p>
 							</div>
 							<div>
 								<ButtonPrimary name="Go" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Set up payments</p>
+								<p>Set up your payments.</p>
 							</div>
 							<div>
 								<ButtonPrimary name="Go" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Set your hours</p>
+								<p>See how to get support.</p>
 							</div>
 							<div>
 								<ButtonPrimary name="Go" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
+
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Go live</p>
+								<p>View your live store.</p>
 							</div>
 							<div>
 								<ButtonPrimary name="Go" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 				</div>
 			</div>
-			<div
+			{/* <div
 				className={`${styles.suggested_checklist_box} ${styles.checklist_box}`}
 			>
 				<h3>Suggested</h3>
@@ -115,40 +109,48 @@ function Checklist({ userSession, pageTitle }) {
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>Tips and tricks</p>
+								<p>See how to set customize shop hours.</p>
 							</div>
 							<div>
 								<ButtonSecondary name="View" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>How to get support</p>
+								<p>Tips and tricks.</p>
 							</div>
 							<div>
 								<ButtonSecondary name="View" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
 					</div>
 					<div className={`${styles.checklist}`}>
 						<div className={`${styles.task_group} ${styles.flex}`}>
 							<div className={`${styles.task} ${styles.flex}`}>
 								<ClearIcon fontSize="small" color="disabled" />
-								<p>How your subscription works</p>
+								<p>How to get support.</p>
 							</div>
 							<div>
 								<ButtonSecondary name="View" />
 							</div>
 						</div>
-						<div className={`${styles.task_group} ${styles.flex}`}></div>
+					</div>
+					<div className={`${styles.checklist}`}>
+						<div className={`${styles.task_group} ${styles.flex}`}>
+							<div className={`${styles.task} ${styles.flex}`}>
+								<ClearIcon fontSize="small" color="disabled" />
+								<p>How your subscription works.</p>
+							</div>
+							<div>
+								<ButtonSecondary name="View" />
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 }

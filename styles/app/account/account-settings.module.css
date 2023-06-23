@@ -75,7 +75,7 @@
 	border: 2px solid var(--primary-dark-med);
 	padding: 1rem;
 	gap: 8px;
-	border-radius: 25px;
+	border-radius: 8px;
 	background-color: var(--primary-light-soft);
 }
 
@@ -96,7 +96,7 @@
 .payment_info_box {
 	height: fit-content;
 	background-color: var(--white);
-	border-radius: 25px;
+	border-radius: 4px;
 	box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 

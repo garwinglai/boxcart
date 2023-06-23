@@ -6,7 +6,6 @@
 	padding: 10px 20px;
 	border-radius: 5px;
 	width: 100%;
-  min-height: 70px;
 }
 
 .radio_group {
@@ -16,12 +15,10 @@
 }
 
 .radio_group input {
-	width: 20px;
-	height: 20px;
 	accent-color: var(--primary);
 }
 
 .radio_group label {
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 	color: var(--primary-dark);
 }

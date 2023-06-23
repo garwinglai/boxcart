@@ -23,9 +23,7 @@ model Waitlist {
   earlyBird      Boolean  @default(true)
   earlyBirdCode  String?  @unique
   reservationNo  Int?     @unique
-  // codeUsed       String
   numberReferred Int      @default(0)
-  // referralCode   String   @unique
 }
 
 model User {
@@ -39,80 +37,44 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
-  // sessions      Session[]
   role          Role      @default(OWNER)
 }
 
 model Account {
-  id                       Int             @id @default(autoincrement())
-  createdAt                DateTime        @default(now())
-  updatedAt                DateTime        @updatedAt
-  userId                   Int
-  isActive                 Boolean         @default(false)
-  freePeriodActive         Boolean         @default(true)
-  freePeriodEndDateStr     String?
-  email                    String          @unique
-  emailVerified            Boolean         @default(false)
-  name                     String?
-  firstName                String?
-  lastName                 String?
-  accessCode               String?         @unique
-  businessName             String
-  subdomain                String          @unique
-  businessTypes            BusinessTypes[]
-  logoImgStr               String?
-  businessBio              String?
-  socials                  Socials[]
-  fulfillmentMethodInt     Int
-  fulfillmentMethods       Fulfillment[]
-  deliveryTypeInt          Int?
-  deliveryTypeStr          String?
-  localDeliveryDistanceStr String?
-  localDeliveryDistanceMi  Int?
-  localDeliveryDistanceKm  Int?
-  pickupNote               String?
-  address_1                String
-  address_2                String?
-  city                     String
-  state                    String
-  zip                      String
-  fullAddress              String
-  enableTips               Boolean         @default(false)
-  typeOfTip                String?
-  tipValues                Tips[]
-  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // type                     String
-  // provider                 String
-  // providerAccountId        String
-  // refresh_token            String?         @db.Text
-  // access_token             String?         @db.Text
-  // expires_at               Int?
-  // token_type               String?
-  // scope                    String?
-  // id_token                 String?         @db.Text
-  // session_state            String?
+  id                   Int             @id @default(autoincrement())
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  userId               Int
+  isActive             Boolean         @default(false) // After email verification, this will be active.
+  freePeriodActive     Boolean         @default(true)
+  freePeriodEndDateStr String?
+  // freePeriodEndDateEpoch BigInt?
+  email                String          @unique
+  emailVerified        Boolean         @default(false)
+  name                 String?
+  firstName            String?
+  lastName             String?
+  accessCode           String?         @unique
+  businessName         String
+  subdomain            String          @unique
+  businessTypes        BusinessTypes[]
+  logoImgStr           String?
+  businessBio          String?
+  socials              Socials[]
+  fulfillmentMethodInt Int
+  fulfillmentMethods   Fulfillment[]
+  address_1            String
+  address_2            String?
+  city                 String
+  state                String
+  zip                  String
+  fullAddress          String
+  enableTips           Boolean         @default(false)
+  tipValues            Tips[]
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // @@unique([provider, providerAccountId])
   @@index([userId])
 }
-
-// model Session {
-//   id           Int      @id @default(autoincrement())
-//   sessionToken String   @unique
-//   userId       Int
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@index([userId])
-// }
-
-// model VerificationToken {
-//   identifier String
-//   token      String   @unique
-//   expires    DateTime
-
-//   @@unique([identifier, token])
-// }
 
 model BusinessTypes {
   id        Int      @id @default(autoincrement())
@@ -134,20 +96,33 @@ model Socials {
 }
 
 model Fulfillment {
-  id        Int      @id @default(autoincrement())
-  method    String
-  Account   Account? @relation(fields: [accountId], references: [id])
-  accountId Int?
+  id                       Int      @id @default(autoincrement())
+  method                   String
+  methodInt                Int
+  deliveryTypeInt          Int?
+  deliveryTypeStr          String?
+  localDeliveryDistanceStr String?
+  localDeliveryDistanceMi  Int?
+  localDeliveryDistanceKm  Int?
+  pickupNote               String?
+  Account                  Account? @relation(fields: [accountId], references: [id])
+  accountId                Int?
 
   @@index([accountId])
 }
 
 model Tips {
-  id        Int      @id @default(autoincrement())
-  tipStr    String?
-  tipInt    Int?
-  Account   Account? @relation(fields: [accountId], references: [id])
-  accountId Int?
+  id          Int      @id @default(autoincrement())
+  tipOneStr   String?
+  tipOneInt   Int?
+  tipTwoStr   String?
+  tipTwoInt   Int?
+  tipThreeStr String?
+  tipThreeInt Int?
+  type        String?
+  enabled     Boolean  @default(false)
+  Account     Account? @relation(fields: [accountId], references: [id])
+  accountId   Int?
 
   @@index([accountId])
 }
@@ -166,44 +141,3 @@ enum Role {
   // Regular user
   USER
 }
-
-// BoxCart business account information.
-// model BoxAccount {
-//   createdAt                DateTime        @default(now())
-//   updatedAt                DateTime        @updatedAt
-//   id                       Int             @id @default(autoincrement())
-//   email                    String          @unique
-//   password                 String
-//   name                     String?
-//   fName                    String?
-//   lName                    String?
-//   accessCode               String?
-//   businessName             String
-//   subdomain                String
-//   businessType             BusinessTypes[]
-//   logoImgStr               String?
-//   businessBio              String?
-//   socials                  Socials[]
-//   fulfillmentMethodInt     Int
-//   fulfillmentMethods       Fulfillment[]
-//   deliveryTypeInt          Int?
-//   deliveryTypeStr          String?
-//   localDeliveryDistanceStr String?
-//   localDeliveryDistanceMi  Int?
-//   localDeliveryDistanceKm  Int?
-//   pickupNote               String?
-//   address_1                String
-//   address_2                String?
-//   city                     String
-//   state                    String
-//   zip                      String
-//   fullAddress              String
-//   enableTips               Boolean         @default(false)
-//   typeOfTip                String?
-//   tipValues                Tips[]
-
-//   User   User? @relation(fields: [userId], references: [id])
-//   userId Int?
-
-//   @@index([userId])
-// }

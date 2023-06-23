@@ -16,6 +16,10 @@ module.exports = {
 			screens: {
 				md: "769px",
 			},
+			gridTemplateRows: {
+				auto: "auto",
+				"row-end-auto": "auto 1fr",
+			},
 		},
 	},
 	plugins: [

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import mobile_order_placed_icon from "@/public/images/icons/mobile_order.png";
 import Image from "next/image";
+import ButtonPrimaryStorefront from "@/components/common/buttons/ButtonPrimaryStorefront";
 
 function OrderSubmitted() {
 	const router = useRouter();
@@ -17,7 +18,10 @@ function OrderSubmitted() {
 			<Image src={mobile_order_placed_icon} alt="mobile order icon" />
 			<h2>Your order has been placed.</h2>
 			<p>Confirmation email sent.</p>
-			<Link href={`/`} className={`${styles.continue_shopping_link}`}>
+			<Link
+				href={`/`}
+				className="bg-[color:var(--black-design-extralight)] text-white font-light px-4 py-2 active:bg-black "
+			>
 				Continue Shopping
 			</Link>
 		</div>

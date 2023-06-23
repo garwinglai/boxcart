@@ -14,32 +14,25 @@ function RadioGroupComponent({ currOption }) {
 			sx={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}
 		>
 			<div className={`${styles.flex} ${styles.title_box}`}>
-				<FormLabel
-					id="demo-radio-buttons-group-label"
-					sx={{
-						color: " var(--gray)",
-						fontSize: "20px",
-					}}
-				>
-					{optionName}
-				</FormLabel>
-				<p className={`${styles.subtitle_info}`}>select 1</p>
+				<p className="font-medium">{optionName}</p>
+				<p className="font-extralight text-sm">select 1</p>
 			</div>
 			<RadioGroup
-				aria-labelledby="demo-radio-buttons-group-label"
+				aria-labelledby="radio-buttons-group-label"
 				defaultValue="female"
 				name="radio-buttons-group"
-				className={`${styles.group_radio_box} `}
 			>
 				{variations.map((variant) => {
 					return (
 						<FormControlLabel
 							key={variant.id}
 							value={variant.item}
-							control={<Radio />}
-							label={`${variant.item} - ${variant.priceStr}`}
+							control={<Radio color="warning" />}
+							label={
+								<p className="font-light text-sm">{`${variant.item} - ${variant.priceStr}`}</p>
+							}
 							labelPlacement="start"
-							className={`${styles.radio_box}`}
+							className=" justify-between"
 						/>
 					);
 				})}

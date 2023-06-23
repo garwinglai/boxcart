@@ -15,17 +15,15 @@
 	.navbar_box {
 		box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 		height: 100%;
-		border-radius: 16px;
 		z-index: 1000;
 		position: relative;
 		width: 250px;
+		background-color: var(--white-design);
 	}
 
 	.navbar_header_group {
 		align-items: center;
 		padding: 1rem 0;
-		box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-		border-top-right-radius: 16px;
 	}
 
 	.avatar_image {
@@ -69,9 +67,6 @@
 		width: 100%;
 		padding: 0.5rem 1rem;
 		border-top: 1px solid var(--gray-light-med);
-
-		/* background-color: var(--gray-light); */
-		border-end-end-radius: 16px;
 		z-index: 1000;
 	}
 }

@@ -9,10 +9,10 @@ import OrderCard from "./OrderCard";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import order_icon from "@/public/images/icons/order_icon.png";
 import Image from "next/image";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
-import ButtonFourth from "@/components/designs/ButtonFourth";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
-import ButtonThird from "@/components/designs/ButtonThird";
+import ButtonSecondary from "@/components/common/buttons/ButtonSecondary";
+import ButtonFourth from "@/components/common/buttons/ButtonFourth";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonThird from "@/components/common/buttons/ButtonThird";
 
 function OrderGridRow({ status }) {
 	const [state, setState] = React.useState({
@@ -47,27 +47,27 @@ function OrderGridRow({ status }) {
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>2</p>
+				<p className="text-xs">2</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.black_text}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>Jessica Joe</p>
+				<p className="text-xs">Jessica Joe</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.contact}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>jessica@gmail.com</p>
-				<p>123 456 7890</p>
+				<p className="text-xs">jessica@gmail.com</p>
+				<p className="text-xs">123 456 7890</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
 				<p
-					className={`${
+					className={`text-xs ${
 						status === "pending" ? styles.pending : styles.accepted
 					}`}
 				>
@@ -78,31 +78,31 @@ function OrderGridRow({ status }) {
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>4.23.2023</p>
+				<p className="text-xs">4.23.2023</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>5.23.2023</p>
+				<p className="text-xs">5.23.2023</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>Delivery</p>
+				<p className="text-xs">Delivery</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.black_text}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>$123.23</p>
+				<p className="text-xs">$123.23</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>4 Items</p>
+				<p className="text-xs">4 Items</p>
 			</td>
 
 			<td className={`${styles.table_data} ${styles.action}`}>

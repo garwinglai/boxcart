@@ -1,24 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/orders/live-orders.module.css";
-import Calendar from "@/components/designs/Calendar";
-import Badge from "@mui/material/Badge";
+import Calendar from "@/components/common/designs/Calendar";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import SearchBar from "@/components/designs/SearchBar";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import SearchBar from "@/components/common/designs/SearchBar";
 import SortIcon from "@mui/icons-material/Sort";
-import { IconButton } from "@mui/material";
 import OrderCard from "@/components/app/orders/OrderCard";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGrid from "@/components/app/orders/OrderGrid";
-import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import ButtonThird from "@/components/designs/ButtonThird";
-import ButtonFourth from "@/components/designs/ButtonFourth";
-import ButtonFilter from "@/components/designs/ButtonFilter";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
+import ButtonFilter from "@/components/common/buttons/ButtonFilter";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function LiveOrders() {
 	const [state, setState] = React.useState({
@@ -61,13 +55,13 @@ function LiveOrders() {
 				<div className={`${styles.search_group}`}>
 					<SearchBar />
 					<div className={`${styles.filter_box} ${styles.flex}`}>
-						<div className="bg-[color:var(--primary-dark-med)] rounded-full">
+						<div className="bg-[color:var(--primary-dark-med)] rounded">
 							<ButtonFilter
 								name="Sort by"
 								icon={<SortIcon fontSize="small" />}
 							/>
 						</div>
-						<div className="bg-[color:var(--primary-dark-med)] rounded-full">
+						<div className="bg-[color:var(--primary-dark-med)] rounded">
 							<ButtonFilter
 								name="Select Date"
 								icon={<TodayOutlinedIcon fontSize="small" />}
@@ -111,13 +105,13 @@ function LiveOrders() {
 				<div className={`${styles.search_group} ${styles.flex} `}>
 					<SearchBar />
 					<div className={`${styles.filter_box} ${styles.flex} `}>
-					<div className="bg-[color:var(--primary-dark-med)] rounded-full">
+						<div className="bg-[color:var(--primary-dark-med)] rounded">
 							<ButtonFilter
 								name="Sort by"
 								icon={<SortIcon fontSize="small" />}
 							/>
 						</div>
-				<div className="bg-[color:var(--primary-dark-med)] rounded-full">
+						<div className="bg-[color:var(--primary-dark-med)] rounded">
 							<ButtonFilter
 								name="Select Date"
 								icon={<TodayOutlinedIcon fontSize="small" />}
@@ -144,6 +138,16 @@ function LiveOrders() {
 }
 
 export default LiveOrders;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 LiveOrders.getLayout = function getLayout(
 	page,

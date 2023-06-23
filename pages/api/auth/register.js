@@ -1,4 +1,4 @@
-import { createNewUser } from "@/helper/server/db/crud/auth/registration";
+import { createNewUser } from "@/helper/server/prisma/auth/registration";
 
 export default async function handler(req, res) {
 	const { method, body } = req;

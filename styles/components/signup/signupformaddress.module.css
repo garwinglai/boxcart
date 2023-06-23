@@ -9,23 +9,11 @@
 	gap: 1rem;
 }
 
-.address_form {
-	/* background-color: rebeccapurple; */
-	/* width: 100%; */
-}
-
-.address_label {
-	margin-bottom: 2rem;
-	display: inline-block;
-	font-size: 2rem;
-	font-weight: 700;
-}
-
 .address_input {
-	height: 3.5rem;
+	padding: 10px 0;
 	text-indent: 1rem;
-	border-radius: 15px;
-	font-size: 1.25rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
 	width: 100%;
 	color: var(--primary-dark-med);
 	border: none;
@@ -43,7 +31,7 @@
 .address_input:-webkit-autofill:active {
 	transition: background-color 9999s ease-in-out 0s;
 	-webkit-text-fill-color: var(--primary-dark-med);
-	-webkit-text-size-adjust: 1.25rem;
+	-webkit-text-size-adjust: 0.75rem;
 }
 
 .address_input:focus {
@@ -53,5 +41,5 @@
 
 .address_input::placeholder {
 	color: var(--primary-dark-med);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }

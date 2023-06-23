@@ -36,24 +36,24 @@ function CheckGroupComponent({ currOption }) {
 			variant="standard"
 		>
 			<div className={`${styles.flex} ${styles.title_box}`}>
-				<FormLabel
-					component="legend"
-					sx={{
-						color: " var(--gray)",
-						fontSize: "20px",
-					}}
-				>
-					{optionName}
-				</FormLabel>
-				<p className={`${styles.subtitle_info}`}>as many</p>
+				<p className="font-medium">{optionName}</p>
+				<p className="font-extralight text-sm">as many</p>
 			</div>
-			<FormGroup className={`${styles.group_checkbox_box} `}>
+			<FormGroup className="pr-1">
 				{variations.map((variant) => {
 					return (
 						<FormControlLabel
 							key={variant.id}
-							control={<Checkbox onChange={handleChange} name={variant.item} />}
-							label={`${variant.item} - ${variant.priceStr}`}
+							control={
+								<Checkbox
+									onChange={handleChange}
+									name={variant.item}
+									color="warning"
+								/>
+							}
+							label={
+								<p className="font-light text-sm">{`${variant.item} - ${variant.priceStr}`}</p>
+							}
 							labelPlacement="start"
 							className={`${styles.checkbox_box}`}
 						/>

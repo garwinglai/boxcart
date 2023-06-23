@@ -8,17 +8,17 @@
 }
 
 .review_box {
-	padding: 1.5rem;
+	padding: 1rem;
 	background-color: var(--white);
-	border-bottom: 4px solid var(--gray-light);
+	
 }
 
 .review_box h3 {
-	margin-bottom: 1rem;
+	margin-bottom: 0.5rem;
 }
 
 .reivew_content_box {
-	gap: 1rem;
+	gap: 0.5rem;
 }
 
 .review_context {

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import DeliveryDiningRoundedIcon from "@mui/icons-material/DeliveryDiningRounded";
-import MyShopMenu from "@/components/layouts/MyShopMenu";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -10,9 +9,10 @@ import FormLabel from "@mui/material/FormLabel";
 import { TextField } from "@mui/material";
 import delivery_truck_icon from "@/public/images/icons/fulfillment/delivery_truck_icon.png";
 import Image from "next/image";
-import { IOSSwitch } from "@/components/designs/IOSSwitch";
+import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
 import FormGroup from "@mui/material/FormGroup";
-import SaveCancelButtons from "@/components/app/SaveCancelButtons";
+import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function Fulfillment() {
 	const [fulfillmentType, setFulfillmentType] = useState("Delivery");
@@ -34,14 +34,14 @@ function Fulfillment() {
 	return (
 		<div className="flex flex-col pb-24 md:pb-32 lg:flex-row lg:p-4 lg:pb-32 ">
 			<div className="lg:w-2/5 ">
-				<div className="p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] m-4  rounded-3xl bg-white md:h-fit lg:mx-0 lg:mt-0">
-					<h2>Fulfillment Type</h2>
+				<div className="p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] m-4  rounded bg-white md:h-fit lg:mx-0 lg:mt-0">
+					<h3>Fulfillment Type</h3>
 					<div className="pt-2 mr-4">
 						<FormGroup className="flex flex-col gap-2">
 							<FormControlLabel
 								value="Delivery"
 								control={<IOSSwitch />}
-								label={<p className="text-black">Delivery</p>}
+								label={<p className="text-sm">Delivery</p>}
 								onChange={handleChange}
 								checked={deliveryChecked}
 								labelPlacement="start"
@@ -52,7 +52,7 @@ function Fulfillment() {
 								control={<IOSSwitch />}
 								onChange={handleChange}
 								checked={pickupChecked}
-								label={<p className="text-black">Pickup</p>}
+								label={<p className="text-sm">Pickup</p>}
 								labelPlacement="start"
 								className="flex justify-between"
 							/>
@@ -71,11 +71,11 @@ function Fulfillment() {
 			<div className="lg:w-3/5 ">
 				<div
 					className={`p-4  ${
-						deliveryChecked ? "opacity-100" : " opacity-50"
-					} shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded-3xl bg-white  mb-4 mx-4 lg:mr-0`}
+						deliveryChecked ? "visible" : " hidden"
+					} shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white  mb-4 mx-4 lg:mr-0`}
 				>
 					<div className={`flex justify-between items-center`}>
-						<h2>Delivery settings</h2>
+						<h3>Delivery settings</h3>
 						{deliveryChecked ? (
 							<span className="border border-[color:var(--primary)] bg-[color:var(--primary-light)] text-[color:var(--primary-dark)] h-fit font-light text-xs rounded-full px-2 py-1">
 								Enabled
@@ -89,7 +89,7 @@ function Fulfillment() {
 					<div className="py-4 ">
 						<FormControl className="w-full">
 							<FormLabel id="demo-radio-buttons-group-label" className="mb-2 ">
-								<p className=" text-black">Delivery price:</p>
+								<p className=" text-black ">Fee:</p>
 							</FormLabel>
 							<RadioGroup
 								aria-labelledby="demo-radio-buttons-group-label"
@@ -100,14 +100,16 @@ function Fulfillment() {
 								<FormControlLabel
 									value="free"
 									control={<Radio />}
-									label={<p className="text-black">Free</p>}
+									label={<p className="text-black text-sm font-light">Free</p>}
 									disabled={deliveryChecked ? false : true}
 								/>
 								<div className="flex justify-between w-full">
 									<FormControlLabel
 										value="flat"
 										control={<Radio />}
-										label={<p className="text-black">Flat fee</p>}
+										label={
+											<p className="text-black text-sm font-light">Flat fee</p>
+										}
 										disabled={deliveryChecked ? false : true}
 									/>
 									<TextField
@@ -123,7 +125,11 @@ function Fulfillment() {
 									<FormControlLabel
 										value="percetange"
 										control={<Radio />}
-										label={<p className="text-black">Percentage fee</p>}
+										label={
+											<p className="text-black text-sm font-light">
+												Percentage fee
+											</p>
+										}
 										disabled={deliveryChecked ? false : true}
 									/>
 									<TextField
@@ -139,7 +145,11 @@ function Fulfillment() {
 									<FormControlLabel
 										value="distance"
 										control={<Radio />}
-										label={<p className="text-black">By distance</p>}
+										label={
+											<p className="text-black text-sm font-light">
+												By distance
+											</p>
+										}
 										disabled={deliveryChecked ? false : true}
 									/>
 									<TextField
@@ -154,10 +164,10 @@ function Fulfillment() {
 							</RadioGroup>
 						</FormControl>
 						<div className="flex mt-8 gap-2 items-center">
-							<p className="text-gray-700 text-sm">
+							<p className="text-gray-700 text-xs">
 								Connect third party delivery.
 							</p>
-							<span className=" px-1 text-sm rounded-full bg-[color:var(--gray-light)] border border-[color:var(--gray-light-med)] text-[color:var(--gray-light-med)]">
+							<span className=" px-1 text-xs rounded-full bg-[color:var(--gray-light)] border border-[color:var(--gray-light-med)] text-[color:var(--gray-light-med)]">
 								Coming soon
 							</span>
 						</div>
@@ -165,11 +175,11 @@ function Fulfillment() {
 				</div>
 				<div
 					className={`p-4   ${
-						pickupChecked ? "opacity-100" : " opacity-50"
-					} shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded-3xl bg-white mx-4 lg:mr-0`}
+						pickupChecked ? "visible" : "hidden"
+					} shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white mx-4 lg:mr-0`}
 				>
 					<div className={`flex justify-between items-center`}>
-						<h2>Pickup settings</h2>
+						<h3>Pickup settings</h3>
 						{pickupChecked ? (
 							<span className="border border-[color:var(--primary)] bg-[color:var(--primary-light)] text-[color:var(--primary-dark)] h-fit font-light text-xs rounded-full px-2 py-1">
 								Enabled
@@ -181,8 +191,8 @@ function Fulfillment() {
 						)}
 					</div>
 					<div className="w-full py-4">
-						<h4>Address:</h4>
-						<p className="text-black font-light text-sm mt-1">
+						<h4 className="text-sm">Address:</h4>
+						<p className="text-black font-light text-xs mt-1">
 							123 W Adams Blvd, Los Angeles CA 91234
 						</p>
 						<div className="text-right">
@@ -206,12 +216,22 @@ function Fulfillment() {
 					/>
 				</div>
 			</div>
-			<SaveCancelButtons />
+			{/* <SaveCancelButtons /> */}
 		</div>
 	);
 }
 
 export default Fulfillment;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 Fulfillment.getLayout = function getLayout(
 	page,
@@ -227,16 +247,12 @@ Fulfillment.getLayout = function getLayout(
 			pageRoute={pageRoute}
 			mobilePageRoute={mobilePageRoute}
 		>
-			{/* <div className="sticky top-0 z-50 bg-white">
-				<MyShopMenu pageTitle={pageTitle} />
-			</div> */}
-			{/* <MobileMyShopMenuFab pageTitle={pageTitle} /> */}
 			{page}
 		</AppLayout>
 	);
 };
 
-Fulfillment.pageTitle = "My Shop / Fulfillment";
+Fulfillment.pageTitle = "Fulfillment";
 Fulfillment.pageIcon = <DeliveryDiningRoundedIcon />;
 Fulfillment.pageRoute = "fulfillment";
 Fulfillment.mobilePageRoute = "fulfillment";

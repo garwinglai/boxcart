@@ -12,7 +12,7 @@ function AppLayout({
 	mobilePageRoute,
 }) {
 	return (
-		<div className="flex overflow-hidden h-screen">
+		<div className="flex overflow-hidden h-screen bg-[color:var(--brown-bg)] ">
 			<DesktopNavBar pageRoute={pageRoute} />
 			<div className=" overflow-y-scroll w-full">
 				<PageHeader
@@ -20,11 +20,9 @@ function AppLayout({
 					pageIcon={pageIcon}
 					mobilePageRoute={mobilePageRoute}
 				/>
-				<main className="scroll h-[calc(100vh-450px)] bg-[color:var(--primary-light-soft)] md:h-[calc(100vh-57px)] ">
-					{children}
-				</main>
+				<main className="scroll  ">{children}</main>
 			</div>
-			<ShopNavBottom />
+			<ShopNavBottom mobilePageRoute={mobilePageRoute} pageTitle={pageTitle} />
 		</div>
 	);
 }

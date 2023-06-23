@@ -7,7 +7,7 @@ import { IconButton } from "@mui/material";
 
 function ShopBio({isOwner}) {
 	return (
-		<div className="mt-16 px-4 md:mt-20 md:px-8">
+		<div className="mt-16 px-4 md:mt-20 md:px-8 md:mb-4">
 			<p className="text-xs font-light">
 				<span className=" text-base font-medium">12.2k </span>
 				Subscribed
@@ -40,7 +40,7 @@ function ShopBio({isOwner}) {
 						fontSize="small"
 						sx={{ color: "var(--gray-text)" }}
 					/>
-					<p className="font-light text-sm text-[color:var(--gray-text)] ">
+					<p className="font-light text-sm text-[color:var(--black-design-extralight)] ">
 						los angeles
 					</p>
 				</div>

@@ -24,11 +24,8 @@
 	color: var(--black);
 }
 
-.card_img {
-	display: block;
-	width: 100%;
-	height: calc(50vw - 28px);
-	object-fit: cover;
+.card_button_box_link:active {
+	filter: brightness(88%);
 }
 
 .card_context_box {
@@ -71,4 +68,10 @@
 	background-color: var(--brown-bg);
 	color: var(--white);
 	/* margin-left: auto; */
+}
+
+@media (hover: hover) {
+	.card_button_box_link:hover {
+		filter: brightness(88%);
+	}
 }

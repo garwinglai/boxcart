@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../../../styles/home/waitlist/reserve-confirm.module.css";
 import Image from "next/image";
 import Router from "next/router";
-import PageLoader from "@/components/loaders/PageLoader";
+import PageLoader from "@/components/common/loaders/PageLoader";
 import confetti_icon from "../../../public/images/icons/confetti.png";
 
 function ReserveConfirm() {

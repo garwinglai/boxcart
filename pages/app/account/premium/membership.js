@@ -1,12 +1,28 @@
 import React from "react";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AppLayout from "@/components/layouts/AppLayout";
+import MembershipPackages from "@/components/landing/MembershipPackages";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function MemberShip() {
-	return <div>MemberShip</div>;
+	return (
+		<div>
+			<MembershipPackages />
+		</div>
+	);
 }
 
 export default MemberShip;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 MemberShip.getLayout = function getLayout(
 	page,

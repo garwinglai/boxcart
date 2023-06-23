@@ -16,10 +16,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import Grid3x3Icon from "@mui/icons-material/Grid3x3";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
-import ButtonFourth from "@/components/designs/ButtonFourth";
-import ButtonThird from "@/components/designs/ButtonThird";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonSecondary from "@/components/common/buttons/ButtonSecondary";
+import ButtonFourth from "@/components/common/buttons/ButtonFourth";
+import ButtonThird from "@/components/common/buttons/ButtonThird";
 
 function OrderCard({ status, isDesktop, isBusiness, isOrderHistory }) {
 	const [expanded, setExpanded] = React.useState(false);

@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import LinearProgressWithLabel from "@/components/loaders/LinearProgressWithLabel";
+import LinearProgressWithLabel from "@/components/common/loaders/LinearProgressWithLabel";
 import styles from "../../../styles/app/auth/signup.module.css";
-import NextBackButtons from "@/components/signup/NextBackButtons";
-import BusinessTypeCheckbox from "@/components/signup/BusinessTypeCheckbox";
+import NextBackButtons from "@/components/auth/signup/NextBackButtons";
+import BusinessTypeCheckbox from "@/components/auth/signup/BusinessTypeCheckbox";
 import instagram_icon from "../../../public/images/icons/socials/instagram_icon.png";
 import facebook_icon from "../../../public/images/icons/socials/facebook_icon.png";
 import tiktok_icon from "../../../public/images/icons/socials/tiktok_icon.png";
 import youtube_icon from "../../../public/images/icons/socials/youtube_icon.png";
 import { Avatar } from "@mui/material";
 import Image from "next/image";
-import FulfillmentRadioGroup from "@/components/signup/SignupFormRadioGroup";
+import FulfillmentRadioGroup from "@/components/auth/signup/SignupFormRadioGroup";
 import pickup_pin_point_icon from "../../../public/images/icons/fulfillment/pickup_pin_point_icon.png";
 import skooter_icon from "../../../public/images/icons/fulfillment/skooter_icon.png";
 import package_icon from "../../../public/images/icons/fulfillment/package_icon.png";
@@ -17,11 +17,11 @@ import delivery_icon from "../../../public/images/icons/fulfillment/delivery_tru
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { businessTypesArr } from "@/helper/temp/tempData";
-import SignupFormAddress from "@/components/signup/SignupFormAddress";
-import SignupFormDistance from "@/components/signup/SignupFormDistance";
-import SignupFormEnableTips from "@/components/signup/SignupFormEnableTips";
+import SignupFormAddress from "@/components/auth/signup/SignupFormAddress";
+import SignupFormDistance from "@/components/auth/signup/SignupFormDistance";
+import SignupFormEnableTips from "@/components/auth/signup/SignupFormEnableTips";
 import CredentialsForm from "@/components/auth/CredentialsForm";
-import SignupFormSetTip from "@/components/signup/SignupFormSetTip";
+import SignupFormSetTip from "@/components/auth/signup/SignupFormSetTip";
 import {
 	checkAccessCode,
 	checkAccessCodeUsed,
@@ -53,7 +53,7 @@ import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 function Signup() {
 	const [waitListEmail, setWaitListEmail] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [step, setStep] = useState(0);
+	const [step, setStep] = useState(1);
 	const [maxSteps, setMaxSteps] = useState(12);
 	const [isLastStep, setIsLastStep] = useState(false);
 	const [canSkip, setCanSkip] = useState(true);
@@ -64,7 +64,7 @@ function Signup() {
 		lastName: "",
 		email: "",
 		password: "",
-		accessCode: "",
+		accessCode: null,
 		businessName: "",
 		subdomain: "",
 		businessTypes: [],
@@ -150,7 +150,6 @@ function Signup() {
 	const router = useRouter();
 
 	useEffect(() => {
-		console.log("curr step", step);
 		setIsLoading(false);
 		setIsLastStep(false);
 		isStepSkipped(step);
@@ -339,6 +338,16 @@ function Signup() {
 	}
 
 	async function handleNextStep() {
+		const checkRes = checkIfInputIsEmpty();
+		const { isEmpty, errorMsg } = checkRes;
+
+		if (isEmpty) {
+			setOpenError(true);
+			setErrorMessage(errorMsg);
+			setIsLoading(false);
+			return;
+		}
+
 		//* If access code entered, check if it exists.
 		if (step == 0) {
 			if (accessCode !== "") {
@@ -423,14 +432,13 @@ function Signup() {
 				const checkUserSubdomainResult = await checkSubdomainTakenUser(
 					fullSubdomain
 				);
-				console.log(checkUserSubdomainResult);
 
 				if (success || checkUserSubdomainResult.success) {
 					if (value || checkUserSubdomainResult.value) {
 						if (accessCode == "") {
 							setOpenError(true);
 							setErrorMessage(
-								"The subdomain you have entered has been taken. If you reserved this domain, enter your access code in the previous steps."
+								"The subdomain you have entered has already been claimed."
 							);
 							setIsLoading(false);
 							return;
@@ -460,29 +468,33 @@ function Signup() {
 	}
 
 	//* Disable next button if input is null for required info.
-	function disableNextButton() {
+	function checkIfInputIsEmpty() {
 		if (step == 0) {
 			if (accessCode == "") return true;
 		}
 
 		if (step == 1) {
-			if (businessName == "") return true;
+			if (businessName == "")
+				return { isEmpty: true, errorMsg: "Missing business name." };
 		}
 
 		if (step == 2) {
-			if (subdomain == "") return true;
+			if (subdomain == "")
+				return { isEmpty: true, errorMsg: "Missing domain name." };
 		}
 
 		if (step == 3) {
-			if (businessTypes.length === 0 && otherBusinessType == "") return true;
+			if (businessTypes.length === 0 && otherBusinessType == "")
+				return { isEmpty: true, errorMsg: "Select a business type." };
 		}
 
 		if (step == 4) {
-			if (logoImgStr == "") return true;
+			if (logoImgStr == "")
+				return { isEmpty: false, errorMsg: "Upload logo or skip." };
 		}
 
 		if (step == 5) {
-			if (businessBio == "") return true;
+			if (businessBio == "") return { isEmpty: false };
 		}
 
 		if (step == 6) {
@@ -492,26 +504,30 @@ function Signup() {
 					hasSocialLinks = true;
 				}
 			}
-			if (!hasSocialLinks) return true;
+			if (!hasSocialLinks) return { isEmpty: false };
 		}
 
 		if (step == 7) {
-			if (fulfillmentMethodInt == null) return true;
+			if (fulfillmentMethodInt == null)
+				return { isEmpty: true, errorMsg: "Select your fulfillment." };
 		}
 
 		if (step == 8) {
 			if (fulfillmentMethodInt == 0 || fulfillmentMethodInt == 2) {
-				if (deliveryTypeInt == null) return true;
+				if (deliveryTypeInt == null)
+					return { isEmpty: true, errorMsg: "Select your delivery method." };
 			}
 
 			if (fulfillmentMethodInt == 1) {
-				if (pickupNote == "") return true;
+				if (pickupNote == "")
+					return { isEmpty: false, errorMsg: "Missing business name." };
 			}
 		}
 
 		if (step == 9) {
 			if (fulfillmentMethodInt == 2 && deliveryTypeInt == 0) {
-				if (pickupNote == "") return true;
+				if (pickupNote == "")
+					return { isEmpty: false, errorMsg: "Missing business name." };
 			}
 
 			if (
@@ -519,7 +535,7 @@ function Signup() {
 				(fulfillmentMethodInt == 2 && deliveryTypeInt == 1)
 			) {
 				if (localDeliveryDistanceStr == "") {
-					return true;
+					return { isEmpty: true, errorMsg: "Select your delivery range." };
 				}
 			}
 
@@ -529,14 +545,20 @@ function Signup() {
 				fulfillmentMethodInt == 1
 			) {
 				if (address_1 === "" || city === "" || state === "" || zip === "") {
-					return true;
+					return {
+						isEmpty: true,
+						errorMsg: "Complete your address information.",
+					};
 				}
 			}
 		}
 
 		if (step == 10) {
 			if (address_1 === "" || city === "" || state === "" || zip === "") {
-				return true;
+				return {
+					isEmpty: true,
+					errorMsg: "Complete your address information.",
+				};
 			}
 		}
 
@@ -548,25 +570,31 @@ function Signup() {
 				enableTips
 			) {
 				if (tip1.tipStr == "" || tip2.tipStr == "" || tip3.tipStr == "")
-					return true;
+					return { isEmpty: true, errorMsg: "Set your tips." };
 			}
 
 			if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1) {
-				if (pickupNote == "") return true;
+				if (pickupNote == "")
+					return { isEmpty: false, errorMsg: "Set your tips." };
 			}
 		}
 
 		if (step == 12) {
 			if (fulfillmentMethodInt == 0 && deliveryTypeInt == 1 && enableTips) {
 				if (tip1.tipStr == "" || tip2.tipStr == "" || tip3.tipStr == "")
-					return true;
+					return { isEmpty: true, errorMsg: "Set your tips." };
+			}
+
+			if (fulfillmentMethodInt == 2 && deliveryTypeInt == 0 && enableTips) {
+				if (tip1.tipStr == "" || tip2.tipStr == "" || tip3.tipStr == "")
+					return { isEmpty: true, errorMsg: "Set your tips." };
 			}
 		}
 
 		if (step == 13) {
 			if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1 && enableTips) {
 				if (tip1.tipStr == "" || tip2.tipStr == "" || tip3.tipStr == "")
-					return true;
+					return { isEmpty: true, errorMsg: "Set your tips." };
 			}
 		}
 
@@ -845,7 +873,7 @@ function Signup() {
 
 					if (status == 200 && ok) {
 						const id = user.id;
-						console.log("client send", id, email);
+
 						sendVerificationEmail(id, email);
 
 						const signedInRoute =
@@ -872,7 +900,6 @@ function Signup() {
 						setErrorMessage("Network error.");
 					}
 				} catch (error) {
-					console.log("error signing in", error);
 					setOpenError(true);
 					setErrorMessage("Unknown error. Please contact hello@boxcart.shop");
 				}
@@ -886,7 +913,6 @@ function Signup() {
 			);
 		}
 
-		console.log("final return", success, user, error);
 		setIsLoading(false);
 	}
 
@@ -915,8 +941,6 @@ function Signup() {
 			name,
 			email,
 			password,
-			// freePeriodEndDateStr,
-			// freePeriodEndDateEpoch,
 		};
 
 		const accountData = {
@@ -933,12 +957,6 @@ function Signup() {
 			logoImgStr,
 			businessBio,
 			fulfillmentMethodInt,
-			deliveryTypeInt,
-			deliveryTypeStr,
-			localDeliveryDistanceStr,
-			localDeliveryDistanceKm,
-			localDeliveryDistanceMi,
-			pickupNote,
 			address_1,
 			address_2,
 			city,
@@ -951,8 +969,33 @@ function Signup() {
 
 		const businessTypeData = [...businessTypes, ...otherBusinessType];
 		const socialsData = socialLinks;
-		const fulfillmentData = fulfillmentMethods;
 		const tipsData = tipValues;
+		const fulfillmentData = fulfillmentMethods.map((method) => {
+			if (method === "delivery") {
+				return {
+					method,
+					methodInt: 0,
+					deliveryTypeInt,
+					deliveryTypeStr,
+					localDeliveryDistanceStr,
+					localDeliveryDistanceMi,
+					localDeliveryDistanceKm,
+					pickupNote: null,
+				};
+			}
+			if (method === "pickup") {
+				return {
+					method,
+					methodInt: 1,
+					deliveryTypeInt: null,
+					deliveryTypeStr: null,
+					localDeliveryDistanceStr: null,
+					localDeliveryDistanceMi: null,
+					localDeliveryDistanceKm: null,
+					pickupNote,
+				};
+			}
+		});
 
 		const newUserData = {
 			userData,
@@ -990,27 +1033,29 @@ function Signup() {
 	}
 
 	function checkSocialMediaUrlValidEntry() {
-		const socialMediaRegex =
-			/^(?:https?:\/\/)?(?:www\.)?(?:facebook\.com|instagram\.com|youtube\.com|tiktok\.com)\/(?:[a-zA-Z0-9_\-]+\/?)$/;
+		const instagramRegex = /^https:\/\/www\.instagram\.com\/.+/;
+		const facebookRegex = /^https:\/\/www\.facebook\.com\/.+/;
+		const tiktokRegex = /^https:\/\/www\.tiktok\.com\/.+/;
+		const youtubeRegex = /^https:\/\/www\.youtube\.com\/.+/;
 
 		let allSocialUrlsMatchedRegex = [];
 		if (instagramUrl !== "") {
-			const matched = checkSocialMediaRegex(socialMediaRegex, instagramUrl);
+			const matched = checkSocialMediaRegex(instagramRegex, instagramUrl);
 			allSocialUrlsMatchedRegex.push(matched);
 		}
 
 		if (facebookUrl !== "") {
-			const matched = checkSocialMediaRegex(socialMediaRegex, facebookUrl);
+			const matched = checkSocialMediaRegex(facebookRegex, facebookUrl);
 			allSocialUrlsMatchedRegex.push(matched);
 		}
 
 		if (tiktokUrl !== "") {
-			const matched = checkSocialMediaRegex(socialMediaRegex, tiktokUrl);
+			const matched = checkSocialMediaRegex(tiktokRegex, tiktokUrl);
 			allSocialUrlsMatchedRegex.push(matched);
 		}
 
 		if (youtubeUrl !== "") {
-			const matched = checkSocialMediaRegex(socialMediaRegex, youtubeUrl);
+			const matched = checkSocialMediaRegex(youtubeRegex, youtubeUrl);
 			allSocialUrlsMatchedRegex.push(matched);
 		}
 
@@ -1026,7 +1071,7 @@ function Signup() {
 		const socialMediaMatchRegex = socialMediaRegex.test(url);
 		if (!socialMediaMatchRegex) {
 			setErrorMessage(
-				`Please enter a valid url or leave empty. (https://www.facebook.com/accountname)`
+				`Please enter a valid url or leave empty. https://www.{host}.com/{your-handle}`
 			);
 			setOpenError(true);
 			return false;
@@ -1144,457 +1189,523 @@ function Signup() {
 	}
 
 	return (
-		<div className={`${styles.signup}`}>
+		<div className={`${styles.signup} bg-[color:var(--brown-bg)] min-h-screen`}>
 			<Snackbar open={openError} onClose={handleCloseSnackbar}>
 				<Alert severity="error">{errorMessage}</Alert>
 			</Snackbar>
-			<h2 className={`${styles.boxcart_logo}`}>BoxCart</h2>
-			<LinearProgressWithLabel value={(step / maxSteps) * 100} />
-			<form onSubmit={handleSignup} className={`${styles.form_box}`}>
-				{/* Access code */}
-				{step == 0 && (
-					<div
-						className={`${styles.access_code_group} ${styles.form_section_group}`}
-					>
-						<label htmlFor="access_input" className={`${styles.title}`}>
-							Enter access code:
-						</label>
-						<input
-							id="accessCode"
-							name="accessCode"
-							value={accessCode}
-							type="text"
-							placeholder="Enter"
-							className={`${styles.signup_input}`}
-							onChange={handleChange}
-						/>
-
-						<p>
-							Access code was emailed to those who joined our waitlist early.
-							Please check email.
-							<br />
-							<br />
-							Skip if you don&apos;t have an access code.
-						</p>
-					</div>
-				)}
-
-				{/* Business name */}
-				{step == 1 && (
-					<div
-						className={`${styles.biz_name_group} ${styles.form_section_group}`}
-					>
-						<label htmlFor="biz_name_input" className={`${styles.title}`}>
-							What&apos;s your business name?
-						</label>
-						<input
-							id="biz_name_input"
-							required
-							name="businessName"
-							value={businessName}
-							type="text"
-							placeholder="Enter"
-							className={`${styles.signup_input}`}
-							onChange={handleChange}
-						/>
-					</div>
-				)}
-
-				{/* Subdomain */}
-				{step == 2 && (
-					<div
-						className={`${styles.domain_group} ${styles.form_section_group}`}
-					>
-						<label htmlFor="subdomain" className={`${styles.title}`}>
-							Select your business sub-domain:
-						</label>
-						<div className={`${styles.input_pair}`}>
-							<div className={`${styles.input_group}`}>
-								<input
-									className={`${styles.input_editable}`}
-									type="text"
-									id="subdomain"
-									name="subdomain"
-									value={subdomain}
-									ref={subdomainInputRef}
-									minLength="1"
-									maxLength="63"
-									// onInvalid={handleInvalidSubDomain}
-									placeholder="{shop-name}"
-									onChange={handleChange}
-								/>
-							</div>
-							<div
-								className={`${styles.input_group}`}
-								onClick={handleInputFocus}
-							>
-								<input
-									id="domain"
-									className={`${styles.input_readable}`}
-									type="text"
-									readOnly
-									placeholder=".boxcart.shop"
-								/>
-							</div>
-						</div>
-					</div>
-				)}
-
-				{/* Business type */}
-				{step == 3 && (
-					<div
-						className={`${styles.form_section_group} ${styles.business_type}`}
-					>
-						<label htmlFor="select business type" className={`${styles.title}`}>
-							What&apos;s your business type?
-						</label>
-						{businessTypesArr.map((type) => {
-							const { uniqueId, id, name, label, imgSrc, imgAlt } = type;
-							return (
-								<BusinessTypeCheckbox
-									key={uniqueId}
-									id={id}
-									name={name}
-									onChange={handleChange}
-									checked={isBusinessTypeChecked}
-									label={label}
-									imgSrc={imgSrc}
-									imgAlt={imgAlt}
-								/>
-							);
-						})}
-
-						<div className={`${styles.business_type_other}`}>
-							<input
-								id="other"
-								type="text"
-								placeholder="Other:"
-								name="otherBusinessType"
-								value={otherBusinessType}
-								onChange={handleChange}
-							/>
-						</div>
-					</div>
-				)}
-
-				{/* Logo */}
-				{step == 4 && (
-					<div className={`${styles.form_section_group}`}>
-						<h1 className={`${styles.title}`}>Upload your logo.</h1>
-
-						{logoImgStr === "" ? (
-							<Avatar
-								sx={{ width: 100, height: 100 }}
-								variant="rounded"
-								className={`${styles.logo_placeholder_image}`}
-							>
-								Logo
-							</Avatar>
-						) : (
-							<Image
-								src={logoImgStr}
-								alt="business logo"
-								width={200}
-								height={200}
-								className={`${styles.logo_image}`}
-								style={{ objectFit: "cover" }}
-							/>
-						)}
-						<label
-							htmlFor="logo_file"
-							className={`${styles.upload_logo_button}`}
+			<div className=" lg:px-52">
+				<h2 className={`${styles.boxcart_logo}`}>BoxCart</h2>
+				<LinearProgressWithLabel value={(step / maxSteps) * 100} />
+			</div>
+			<div className="md:mt-4 md:px-32">
+				<form onSubmit={handleSignup} className={`${styles.form_box}`}>
+					{/* Access code */}
+					{step == 0 && (
+						<div
+							className={`${styles.access_code_group} ${styles.form_section_group}`}
 						>
-							Upload file:
-						</label>
-						<input
-							id="logo_file"
-							type="file"
-							accept="image/"
-							className={`${styles.upload_logo_input}`}
-							onChange={handleImageUpload}
-						/>
-					</div>
-				)}
-
-				{/* Business bio */}
-				{step == 5 && (
-					<div className={`${styles.form_section_group} ${styles.bio_group}`}>
-						<label htmlFor="business-bio" className={`${styles.title}`}>
-							Enter a description of your business.
-						</label>
-						<textarea
-							type="text"
-							id="business-bio"
-							name="businessBio"
-							value={businessBio}
-							placeholder="Enter..."
-							rows="10"
-							onChange={handleChange}
-						/>
-						<p>{businessBio.length} / 150</p>
-						<p></p>
-					</div>
-				)}
-
-				{/* Socials */}
-				{step == 6 && (
-					<div className={`${styles.form_section_group}`}>
-						<h1 className={`${styles.title}`}>Link your socials.</h1>
-
-						<div className={`${styles.socials_group}`}>
-							<Image src={instagram_icon} alt="instagram logo" width={70} />
+							<label
+								htmlFor="access_input"
+								className="font-medium mb-2 text-black"
+							>
+								Early bird access code:
+							</label>
 							<input
+								id="accessCode"
+								name="accessCode"
+								value={accessCode}
 								type="text"
-								name="instagramUrl"
-								value={instagramUrl}
-								onChange={handleChange}
+								placeholder="Enter"
 								className={`${styles.signup_input}`}
-								placeholder="url:"
+								onChange={handleChange}
+							/>
+
+							<p className="text-xs font-light text-black mt-4">
+								Access code was emailed to those who joined our waitlist early.
+								Please check email.
+								<br />
+								<br />
+								<u>Skip</u> if you don&apos;t have an access code.
+							</p>
+						</div>
+					)}
+
+					{/* Business name */}
+					{step == 1 && (
+						<div
+							className={`${styles.biz_name_group} ${styles.form_section_group}`}
+						>
+							<label
+								htmlFor="biz_name_input"
+								className="text-black font-medium"
+							>
+								What&apos;s your business name? *
+							</label>
+							<input
+								id="biz_name_input"
+								required
+								name="businessName"
+								value={businessName}
+								type="text"
+								placeholder="Enter"
+								className={`${styles.signup_input}`}
+								onChange={handleChange}
 							/>
 						</div>
-						<div className={`${styles.socials_group}`}>
-							<Image src={facebook_icon} alt="facebook logo" width={70} />
+					)}
+
+					{/* Subdomain */}
+					{step == 2 && (
+						<div
+							className={`${styles.domain_group} ${styles.form_section_group}`}
+						>
+							<label
+								htmlFor="subdomain"
+								className="font-medium text-black mb-4"
+							>
+								Select your business sub-domain: *
+							</label>
+							<div className={`${styles.input_pair}`}>
+								<div className={`${styles.input_group}`}>
+									<input
+										className={`${styles.input_editable}`}
+										type="text"
+										id="subdomain"
+										name="subdomain"
+										value={subdomain}
+										ref={subdomainInputRef}
+										minLength="1"
+										maxLength="63"
+										// onInvalid={handleInvalidSubDomain}
+										placeholder="{shop-name}"
+										onChange={handleChange}
+									/>
+								</div>
+								<div
+									className={`${styles.input_group}`}
+									onClick={handleInputFocus}
+								>
+									<input
+										id="domain"
+										className={`${styles.input_readable}`}
+										type="text"
+										readOnly
+										placeholder=".boxcart.shop"
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Business type */}
+					{step == 3 && (
+						<div
+							className={`${styles.form_section_group} ${styles.business_type}`}
+						>
+							<label
+								htmlFor="select business type"
+								className="text-black font-medium"
+							>
+								What&apos;s your business type?
+							</label>
+							{businessTypesArr.map((type) => {
+								const { uniqueId, id, name, label, imgSrc, imgAlt } = type;
+								return (
+									<BusinessTypeCheckbox
+										key={uniqueId}
+										id={id}
+										name={name}
+										onChange={handleChange}
+										checked={isBusinessTypeChecked}
+										label={label}
+										imgSrc={imgSrc}
+										imgAlt={imgAlt}
+									/>
+								);
+							})}
+
+							<div className={`${styles.business_type_other}`}>
+								<input
+									id="other"
+									type="text"
+									placeholder="other:"
+									name="otherBusinessType"
+									value={otherBusinessType}
+									onChange={handleChange}
+									className="text-sm placeholder:text-sm py-1 bg-[color:var(--brown-bg)] font-light text-black "
+								/>
+							</div>
+						</div>
+					)}
+
+					{/* Logo */}
+					{step == 4 && (
+						<div className={`${styles.form_section_group}`}>
+							<h4 className="">Upload your logo.</h4>
+
+							{logoImgStr === "" ? (
+								<Avatar
+									sx={{ width: 100, height: 100 }}
+									variant="rounded"
+									className={`${styles.logo_placeholder_image}`}
+								>
+									Logo
+								</Avatar>
+							) : (
+								<Image
+									src={logoImgStr}
+									alt="uploaded business logo"
+									width={50}
+									height={50}
+									className="w-28 h-28 object-cover mx-auto rounded-full mt-4 border"
+								/>
+							)}
+							<label
+								htmlFor="logo_file"
+								className={`${styles.upload_logo_button}`}
+							>
+								Upload file:
+							</label>
 							<input
-								type="text"
-								name="facebookUrl"
-								value={facebookUrl}
-								onChange={handleChange}
-								className={`${styles.signup_input}`}
-								placeholder="url:"
+								id="logo_file"
+								type="file"
+								accept="image/"
+								className={`${styles.upload_logo_input}`}
+								onChange={handleImageUpload}
 							/>
 						</div>
-						<div className={`${styles.socials_group}`}>
-							<Image src={tiktok_icon} alt="tiktok logo" width={70} />
-							<input
+					)}
+
+					{/* Business bio */}
+					{step == 5 && (
+						<div className={`${styles.form_section_group} ${styles.bio_group}`}>
+							<label
+								htmlFor="business-bio"
+								className="text-black font-medium mb-4"
+							>
+								Enter your business bio.
+							</label>
+							<textarea
 								type="text"
-								name="tiktokUrl"
-								value={tiktokUrl}
+								id="business-bio"
+								name="businessBio"
+								value={businessBio}
+								placeholder="Enter..."
+								rows="10"
 								onChange={handleChange}
-								className={`${styles.signup_input}`}
-								placeholder="url:"
+							/>
+							<p className="font-extralight text-xs">
+								{businessBio.length} / 150
+							</p>
+							<p></p>
+						</div>
+					)}
+
+					{/* Socials */}
+					{step == 6 && (
+						<div className={`${styles.form_section_group}`}>
+							<h4 className="font-medium text-black mb-4">
+								Link your socials.
+							</h4>
+
+							<div className={`${styles.socials_group}`}>
+								<Image
+									src={instagram_icon}
+									alt="instagram logo"
+									className="w-12 h-12"
+								/>
+								<input
+									type="text"
+									name="instagramUrl"
+									value={instagramUrl}
+									onChange={handleChange}
+									className={`${styles.signup_input}`}
+									placeholder="url:"
+								/>
+							</div>
+							<div className={`${styles.socials_group}`}>
+								<Image
+									src={facebook_icon}
+									alt="facebook logo"
+									className="w-12 h-12"
+								/>
+								<input
+									type="text"
+									name="facebookUrl"
+									value={facebookUrl}
+									onChange={handleChange}
+									className={`${styles.signup_input}`}
+									placeholder="url:"
+								/>
+							</div>
+							<div className={`${styles.socials_group}`}>
+								<Image
+									src={tiktok_icon}
+									alt="tiktok logo"
+									className="w-12 h-12"
+								/>
+								<input
+									type="text"
+									name="tiktokUrl"
+									value={tiktokUrl}
+									onChange={handleChange}
+									className={`${styles.signup_input}`}
+									placeholder="url:"
+								/>
+							</div>
+							<div className={`${styles.socials_group}`}>
+								<Image
+									src={youtube_icon}
+									alt="youtube logo"
+									className="w-12 h-12"
+								/>
+								<input
+									type="text"
+									name="youtubeUrl"
+									value={youtubeUrl}
+									onChange={handleChange}
+									className={`${styles.signup_input}`}
+									placeholder="url:"
+								/>
+							</div>
+							<p className="text-sm font-light">
+								Edit &amp; add more in account later.
+							</p>
+						</div>
+					)}
+
+					{/* Fulfill orders */}
+					{step == 7 && (
+						<div
+							className={`${styles.form_section_group} ${styles.fulfillment}`}
+						>
+							<h4 className="text-black mb-4 font-medium">
+								How do you fulfill your orders?
+							</h4>
+							<FulfillmentRadioGroup
+								id="delivery"
+								name="delivery"
+								label="Delivery"
+								hasImage={true}
+								imgSrc={delivery_icon}
+								imgAlt="delivery icon"
+								isChecked={isFulfillmentTypeChecked}
+								onChange={handleChange}
+							/>
+							<FulfillmentRadioGroup
+								id="pickup"
+								name="pickup"
+								label="Pickup"
+								hasImage={true}
+								imgSrc={pickup_pin_point_icon}
+								imgAlt="pickup icon"
+								isChecked={isFulfillmentTypeChecked}
+								onChange={handleChange}
+							/>
+							<FulfillmentRadioGroup
+								id="both"
+								name="both"
+								label="Both"
+								hasImage={false}
+								isChecked={isFulfillmentTypeChecked}
+								onChange={handleChange}
 							/>
 						</div>
-						<div className={`${styles.socials_group}`}>
-							<Image src={youtube_icon} alt="youtube logo" width={70} />
-							<input
-								type="text"
-								name="youtubeUrl"
-								value={youtubeUrl}
+					)}
+
+					{step == 8 && fulfillmentMethodInt != 1 && (
+						<div
+							className={`${styles.form_section_group} ${styles.fulfillment}`}
+						>
+							<h4 className="font-medium text-black mb-4">
+								How do you deliver?
+							</h4>
+							<FulfillmentRadioGroup
+								id="outsource"
+								name="outsource"
+								label="Use a carrier"
+								hasImage={true}
+								imgSrc={package_icon}
+								imgAlt="package icon"
+								isChecked={isDeliveryTypeChecked}
 								onChange={handleChange}
-								className={`${styles.signup_input}`}
-								placeholder="url:"
+							/>
+							<FulfillmentRadioGroup
+								id="in-house"
+								name="inHouse"
+								label="Ship it yourself"
+								hasImage={true}
+								imgSrc={skooter_icon}
+								imgAlt="skooter icon"
+								isChecked={isDeliveryTypeChecked}
+								onChange={handleChange}
 							/>
 						</div>
-						<p>Edit &amp; add more in account later.</p>
-					</div>
-				)}
+					)}
 
-				{/* Fulfill orders */}
-				{step == 7 && (
-					<div className={`${styles.form_section_group} ${styles.fulfillment}`}>
-						<h1 className={`${styles.title}`}>
-							How do you fulfill your orders?
-						</h1>
-						<FulfillmentRadioGroup
-							id="delivery"
-							name="delivery"
-							label="Delivery"
-							hasImage={true}
-							imgSrc={delivery_icon}
-							imgAlt="delivery icon"
-							isChecked={isFulfillmentTypeChecked}
-							onChange={handleChange}
-						/>
-						<FulfillmentRadioGroup
-							id="pickup"
-							name="pickup"
-							label="Pickup"
-							hasImage={true}
-							imgSrc={pickup_pin_point_icon}
-							imgAlt="pickup icon"
-							isChecked={isFulfillmentTypeChecked}
-							onChange={handleChange}
-						/>
-						<FulfillmentRadioGroup
-							id="both"
-							name="both"
-							label="Both"
-							hasImage={false}
-							isChecked={isFulfillmentTypeChecked}
-							onChange={handleChange}
-						/>
-					</div>
-				)}
+					{((step == 9 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
+						(step == 9 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1)) && (
+						<div
+							className={`${styles.form_section_group} ${styles.fulfillment}`}
+						>
+							<SignupFormDistance
+								handleChange={handleChange}
+								isLocalDistanceChecked={isLocalDistanceChecked}
+							/>
+						</div>
+					)}
 
-				{step == 8 && fulfillmentMethodInt != 1 && (
-					<div className={`${styles.form_section_group} ${styles.fulfillment}`}>
-						<h1 className={`${styles.title}`}>How do you deliver?</h1>
-						<FulfillmentRadioGroup
-							id="outsource"
-							name="outsource"
-							label="Use a carrier"
-							hasImage={true}
-							imgSrc={package_icon}
-							imgAlt="package icon"
-							isChecked={isDeliveryTypeChecked}
-							onChange={handleChange}
-						/>
-						<FulfillmentRadioGroup
-							id="in-house"
-							name="inHouse"
-							label="Ship it yourself"
-							hasImage={true}
-							imgSrc={skooter_icon}
-							imgAlt="skooter icon"
-							isChecked={isDeliveryTypeChecked}
-							onChange={handleChange}
-						/>
-					</div>
-				)}
+					{((step == 9 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+						(step == 9 && fulfillmentMethodInt == 1) ||
+						(step == 10 && fulfillmentMethodInt == 2) ||
+						(step == 10 &&
+							fulfillmentMethodInt == 0 &&
+							deliveryTypeInt == 1)) && (
+						<div className={`${styles.form_section_group}`}>
+							<SignupFormAddress
+								handleChange={handleAddressChange}
+								signupValues={signupValues}
+							/>
+						</div>
+					)}
 
-				{((step == 9 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
-					(step == 9 && fulfillmentMethodInt == 2 && deliveryTypeInt == 1)) && (
-					<div className={`${styles.form_section_group} ${styles.fulfillment}`}>
-						<SignupFormDistance
-							handleChange={handleChange}
-							isLocalDistanceChecked={isLocalDistanceChecked}
-						/>
-					</div>
-				)}
+					{((step == 8 && fulfillmentMethodInt == 1) ||
+						(step == 9 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
+						(step == 11 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1)) && (
+						<div
+							className={`${styles.form_section_group} ${styles.pickup_note_group}`}
+						>
+							<label
+								htmlFor="pickup_note"
+								className="font-medium text-black mb-4"
+							>
+								Leave a note for pickup orders.
+							</label>
+							<textarea
+								type="text"
+								id="pickup_note"
+								name="pickupNote"
+								value={pickupNote}
+								placeholder="e.g. Please give us a call/text 10 minutes before arrival. "
+								rows="10"
+								onChange={handleChange}
+							/>
+							<p className="text-xs font-light">{pickupNote.length} / 150</p>
+						</div>
+					)}
 
-				{((step == 9 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
-					(step == 9 && fulfillmentMethodInt == 1) ||
-					(step == 10 && fulfillmentMethodInt == 2) ||
-					(step == 10 &&
+					{((step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+						(step == 10 && fulfillmentMethodInt == 1) ||
+						(step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
+						(step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1)) && (
+						<div className={`${styles.form_section_group}`}>
+							<SignupFormEnableTips
+								isChecked={isTipsChecked}
+								onChange={handleEnableTipsChange}
+							/>
+						</div>
+					)}
+
+					{((step == 11 &&
 						fulfillmentMethodInt == 0 &&
-						deliveryTypeInt == 1)) && (
-					<div className={`${styles.form_section_group}`}>
-						<SignupFormAddress
-							handleChange={handleAddressChange}
-							signupValues={signupValues}
-						/>
-					</div>
-				)}
-
-				{((step == 8 && fulfillmentMethodInt == 1) ||
-					(step == 9 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
-					(step == 11 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 1)) && (
-					<div
-						className={`${styles.form_section_group} ${styles.pickup_note_group}`}
-					>
-						<label htmlFor="pickup_note" className={`${styles.title}`}>
-							Leave a note for pickup orders.
-						</label>
-						<textarea
-							type="text"
-							id="pickup_note"
-							name="pickupNote"
-							value={pickupNote}
-							placeholder="e.g. Please give us a call/text 10 minutes before arrival. "
-							rows="10"
-							onChange={handleChange}
-						/>
-						<p>{pickupNote.length} / 150</p>
-					</div>
-				)}
-
-				{((step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
-					(step == 10 && fulfillmentMethodInt == 1) ||
-					(step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
-					(step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
-					(step == 12 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 1)) && (
-					<div className={`${styles.form_section_group}`}>
-						<SignupFormEnableTips
-							isChecked={isTipsChecked}
-							onChange={handleEnableTipsChange}
-						/>
-					</div>
-				)}
-
-				{((step == 11 &&
-					fulfillmentMethodInt == 0 &&
-					deliveryTypeInt == 0 &&
-					enableTips) ||
-					(step == 11 && fulfillmentMethodInt == 1 && enableTips) ||
-					(step == 12 &&
-						fulfillmentMethodInt == 0 &&
-						deliveryTypeInt == 1 &&
-						enableTips) ||
-					(step == 12 &&
-						fulfillmentMethodInt == 2 &&
 						deliveryTypeInt == 0 &&
 						enableTips) ||
-					(step == 13 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 1 &&
-						enableTips)) && (
-					<div className={`${styles.form_section_group}`}>
-						<SignupFormSetTip
-							signupValues={signupValues}
-							onChangeTipType={handleChangeSetTips}
-							isChecked={isTipTypeChecked}
-							onChangeTipValues={handleChange}
-						/>
-					</div>
-				)}
+						(step == 11 && fulfillmentMethodInt == 1 && enableTips) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 0 &&
+							deliveryTypeInt == 1 &&
+							enableTips) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 0 &&
+							enableTips) ||
+						(step == 13 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1 &&
+							enableTips)) && (
+						<div className={`${styles.form_section_group}`}>
+							<SignupFormSetTip
+								signupValues={signupValues}
+								onChangeTipType={handleChangeSetTips}
+								isChecked={isTipTypeChecked}
+								onChangeTipValues={handleChange}
+							/>
+						</div>
+					)}
 
-				{((step == 11 &&
-					fulfillmentMethodInt == 0 &&
-					deliveryTypeInt == 0 &&
-					!enableTips) ||
-					(step == 11 && fulfillmentMethodInt == 1 && !enableTips) ||
-					(step == 12 &&
+					{((step == 11 &&
 						fulfillmentMethodInt == 0 &&
 						deliveryTypeInt == 0 &&
-						enableTips) ||
-					(step == 12 && fulfillmentMethodInt == 1) ||
-					(step == 12 &&
-						fulfillmentMethodInt == 0 &&
-						deliveryTypeInt == 1 &&
 						!enableTips) ||
-					(step == 12 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 0 &&
-						!enableTips) ||
-					(step == 13 &&
-						fulfillmentMethodInt == 0 &&
-						deliveryTypeInt == 1 &&
-						enableTips) ||
-					(step == 13 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 0 &&
-						enableTips) ||
-					(step == 13 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 1 &&
-						!enableTips) ||
-					(step == 14 &&
-						fulfillmentMethodInt == 2 &&
-						deliveryTypeInt == 1 &&
-						enableTips)) && (
-					<div className={`${styles.form_section_group}`}>
-						<CredentialsForm
-							signupValues={signupValues}
-							handleChange={handleChange}
-						/>
-					</div>
-				)}
+						(step == 11 && fulfillmentMethodInt == 1 && !enableTips) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 0 &&
+							deliveryTypeInt == 0 &&
+							enableTips) ||
+						(step == 12 && fulfillmentMethodInt == 1) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 0 &&
+							deliveryTypeInt == 1 &&
+							!enableTips) ||
+						(step == 12 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 0 &&
+							!enableTips) ||
+						(step == 13 &&
+							fulfillmentMethodInt == 0 &&
+							deliveryTypeInt == 1 &&
+							enableTips) ||
+						(step == 13 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 0 &&
+							enableTips) ||
+						(step == 13 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1 &&
+							!enableTips) ||
+						(step == 14 &&
+							fulfillmentMethodInt == 2 &&
+							deliveryTypeInt == 1 &&
+							enableTips)) && (
+						<div className={`${styles.form_section_group}`}>
+							<CredentialsForm
+								signupValues={signupValues}
+								handleChange={handleChange}
+							/>
+						</div>
+					)}
 
-				<NextBackButtons
-					step={step}
-					disableNext={disableNextButton}
-					nextStep={handleNextStep}
-					backStep={handleBackStep}
-					signup={handleSignup}
-					canSkip={canSkip}
-					isLastStep={isLastStep}
-					isLoading={isLoading}
-				/>
-			</form>
+					<NextBackButtons
+						step={step}
+						nextStep={handleNextStep}
+						backStep={handleBackStep}
+						signup={handleSignup}
+						canSkip={canSkip}
+						isLastStep={isLastStep}
+						isLoading={isLoading}
+					/>
+				</form>
+				{/* <div className="hidden md:block w-[50%] bg-white rounded-xl shadow-lg">
+					<div className=" ">
+						<ShopHeader isOwner={false} />
+						<div className="">
+							<div className="">
+								<ShopBio isOwner={false} />
+							</div>
+							<div className="">
+								<ShopFulfillment isOwner={false} />
+							</div>
+						</div>
+					</div>
+				</div> */}
+			</div>
 		</div>
 	);
 }

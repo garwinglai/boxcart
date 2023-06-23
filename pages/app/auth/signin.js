@@ -8,6 +8,9 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
+import login_icon from "@/public/images/icons/login_icon.png";
+import Image from "next/image";
+import logo from "@/public/images/logos/boxcart_logo_full.png";
 
 const Signin = ({ providers }) => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -80,23 +83,20 @@ const Signin = ({ providers }) => {
 	}
 
 	return (
-		<div className={`${styles.signin}`}>
+		<div className={`${styles.signin} lg:bg-[color:var(--brown-bg)] h-screen`}>
 			<Snackbar open={openError} onClose={handleCloseSnackbar}>
 				<Alert severity="error">{errorMessage}</Alert>
 			</Snackbar>
-			<div className={`${styles.outerContainer}`}>
-				<div className={`${styles.signinContainer}`}>
-					<div className={`${styles.logoContainer} ${styles.flexRow}`}>
-						<h2>BoxCart</h2>
-					</div>
-					<div className={`${styles.descriptContainer} ${styles.flexCol}`}>
-						<Avatar sx={{ bgcolor: "secondary.main" }}>
-							<LockOpenIcon />
-						</Avatar>
-						<h2 className={`${styles.primaryFont} ${styles.loginHeader}`}>
-							Log in
-						</h2>
-						{/* <p className={`${styles.secondaryFont}`}>Continue to BoxCart</p> */}
+			<div className={`${styles.outerContainer} lg:shadow p-12`}>
+				<div className="relative">
+					<Image
+						src={logo}
+						alt="boxcart logo"
+						className=" aspect-video w-40 h-40 object-cover absolute -top-24 -left-14 "
+					/>
+					<div className="mx-auto text-center pb-4">
+						<Image src={login_icon} alt="login icon" className="mx-auto"/>
+						<h2 className="">Sign in</h2>
 					</div>
 					<form onSubmit={handleLogin} className={`${styles.flexCol}`}>
 						<input
@@ -127,16 +127,16 @@ const Signin = ({ providers }) => {
 
 					<div className={`${styles.newUserContainer} ${styles.flexRow}`}>
 						<p>New to BoxCart?</p>
-						<Link href="/auth/signup" className={`${styles.link}`}>
+						<Link href="/auth/signup" className={`${styles.link} underline text-sm`}>
 							Get started
 						</Link>
 					</div>
 				</div>
 				<footer className={`${styles.termsContainer} ${styles.flexRow}`}>
-					<Link href="/" className={`${styles.link}`}>
+					<Link href="/" className={`${styles.link} mt-4 underline font-light text-sm`}>
 						Privacy
 					</Link>
-					<Link href="/" className={`${styles.link}`}>
+					<Link href="/" className={`${styles.link} mt-4 underline font-light text-sm`}>
 						Terms
 					</Link>
 				</footer>

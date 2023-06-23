@@ -1,8 +1,5 @@
 import React, { useRef, useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import styles from "@/styles/app/account/my-shop/profile.module.css";
-import MyShopMenu from "@/components/layouts/MyShopMenu";
-import MobileMyShopMenuFab from "@/components/layouts/MobileMyShopMenuFab";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import TextField from "@mui/material/TextField";
 import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
@@ -10,17 +7,13 @@ import candle_banner_temp from "@/public/images/temp/candle_banner.jpeg";
 import Image from "next/image";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import group_icon from "@/public/images/icons/group_icon.png";
-import instagram_icon from "@/public/images/icons/socials/instagram_icon.png";
 import ShopPreview from "@/components/app/my-shop/ShopPreview";
 import { Alert } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
-import SaveCancelButtons from "@/components/app/SaveCancelButtons";
-
-// TODO: complete address
+import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
+import { isAuth } from "@/helper/client/auth/isAuth";
 
 function Profile() {
 	const [businessInfo, setBusinessInfo] = useState({
@@ -97,13 +90,13 @@ function Profile() {
 				</Alert>
 			</Snackbar>
 			<div className="lg:w-1/2 p-4 flex flex-col gap-4 ">
-				<div className="p-4 rounded-3xl flex flex-col gap-2 relative  bg-white   shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+				<div className="p-4 rounded flex flex-col gap-2 relative  bg-white   shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
 					<h2>Business Info</h2>
 					<div className="absolute mt-11 pr-4">
 						<Image
 							src={candle_banner_temp}
 							alt="banner image"
-							className="rounded-3xl w-screen h-32 block  object-cover"
+							className="rounded w-screen h-32 block  object-cover"
 						/>
 						<button
 							onClick={handleEditLogoClick("banner")}
@@ -190,7 +183,7 @@ function Profile() {
 						</div>
 					</form>
 				</div>
-				<div className="p-4 flex flex-col gap-2 bg-white rounded-3xl  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+				<div className="p-4 flex flex-col gap-2 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
 					<h2>Address</h2>
 					<form className="flex flex-col gap-3">
 						<div>
@@ -265,7 +258,7 @@ function Profile() {
 						</div>
 					</form>
 				</div>
-				<div className="p-4 flex flex-col gap-4bg-white rounded-3xl bg-white  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+				<div className="p-4 flex flex-col gap-4bg-white rounded bg-white  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
 					<h2>Social links</h2>
 					<TextField
 						fullWidth
@@ -317,12 +310,22 @@ function Profile() {
 					/>
 				</div>
 			</div>
-			<SaveCancelButtons />
+			{/* <SaveCancelButtons /> */}
 		</div>
 	);
 }
 
 export default Profile;
+
+export async function getServerSideProps(context) {
+	return isAuth(context, (userSession) => {
+		return {
+			props: {
+				userSession,
+			},
+		};
+	});
+}
 
 Profile.getLayout = function getLayout(
 	page,
@@ -338,16 +341,12 @@ Profile.getLayout = function getLayout(
 			pageRoute={pageRoute}
 			mobilePageRoute={mobilePageRoute}
 		>
-			{/* <div className="sticky top-0 z-50 bg-white">
-				<MyShopMenu pageTitle={pageTitle} />
-			</div> */}
-			{/* <MobileMyShopMenuFab pageTitle={pageTitle} /> */}
 			{page}
 		</AppLayout>
 	);
 };
 
-Profile.pageTitle = "My Shop / Profile";
+Profile.pageTitle = "Profile";
 Profile.pageIcon = <EditRoundedIcon />;
 Profile.pageRoute = "profile";
 Profile.mobilePageRoute = "profile";

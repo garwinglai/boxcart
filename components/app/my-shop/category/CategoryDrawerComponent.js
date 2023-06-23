@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ButtonPrimary from "@/components/designs/ButtonPrimary";
+import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
 import { IconButton } from "@mui/material";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
@@ -44,7 +44,7 @@ function CategoryDrawerComponent({ toggleDrawer, isDesktopView }) {
 					</button>
 				</div>
 			)}
-			<div className="rounded-3xl p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
+			<div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
 				<span className="flex flex-col gap-2">
 					<label
 						htmlFor="categoryTitle"
@@ -55,7 +55,7 @@ function CategoryDrawerComponent({ toggleDrawer, isDesktopView }) {
 					<input
 						type="text"
 						id="categoryTitle"
-						className={`transition-colors duration-300 border border-[color:var(--primary)] rounded-3xl w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
+						className={`transition-colors duration-300 border border-[color:var(--primary)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
 					/>
 				</span>
 				<span className="flex flex-col gap-2 mt-4 relative">
@@ -67,7 +67,7 @@ function CategoryDrawerComponent({ toggleDrawer, isDesktopView }) {
 						id="product"
 						onChange={handleChangeSelectedProduct}
 						value={selectedProduct}
-						className={`transition-colors duration-300 border border-[color:var(--primary)] rounded-3xl w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
+						className={`transition-colors duration-300 border border-[color:var(--primary)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
 					>
 						<option value="n/a">n / a</option>
 						<option value="Desserts">Desserts</option>
@@ -90,7 +90,7 @@ function CategoryDrawerComponent({ toggleDrawer, isDesktopView }) {
 					/>
 				</div>
 			</div>
-			<div className="rounded-3xl p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
+			<div className="rounded p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
 				<h4>Added Products:</h4>
 				<ul className="pt-2">
 					{products.length === 0 ? (

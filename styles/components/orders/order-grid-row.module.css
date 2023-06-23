@@ -37,7 +37,6 @@
 }
 
 .table_row > td {
-	font-size: 14px;
 	border-bottom: 1px solid var(--gray-light);
 }
 
@@ -73,7 +72,6 @@
 .pending {
 	font-weight: 300;
 	width: fit-content;
-	font-size: 12px;
 	padding: 4px 8px;
 	border-radius: 5px;
 	color: var(--white);
@@ -84,7 +82,6 @@
 .accepted {
 	font-weight: 300;
 	width: fit-content;
-	font-size: 12px;
 	padding: 4px 8px;
 	border-radius: 5px;
 	color: var(--white);
@@ -96,17 +93,6 @@
 	gap: 8px;
 	flex-direction: row;
 	align-items: center;
-}
-
-.action_btn {
-	flex-grow: 1;
-	border-radius: 5px;
-	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
-	box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-	transition: all 250ms;
-	font-size: 12px;
-	height: fit-content;
-	padding: 4px 0;
 }
 
 .accept_btn {

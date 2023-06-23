@@ -4,7 +4,7 @@
 
 .search_input {
 	height: fit-content;
-	border-radius: 45px;
+	border-radius: 4px;
 	background-color: var(--white);
 }
 
@@ -17,6 +17,6 @@
 
 @media screen and (width > 768px) {
 	.search_input {
-		border-radius: 45px;
+		border-radius: 4px;
 	}
 }

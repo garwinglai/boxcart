@@ -1,5 +1,5 @@
 import Gallery from "@/components/storefront/menus/Gallery";
-import ShopMenu from "@/components/storefront/menus/ShopMenu";
+import ShopMenu from "@/components/storefront/menus/shop/ShopMenu";
 import React, { useState } from "react";
 import candle_banner_temp from "@/public/images/temp/candle_banner.jpeg";
 import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
@@ -44,7 +44,7 @@ function ShopPreview({ route, businessName, bio, email }) {
 	}
 
 	return (
-		<div className="bg-white m-4 relative flex flex-col shadow-lg  rounded-3xl md:ml-0 md:shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+		<div className="bg-white m-4 relative flex flex-col shadow-lg  rounded md:ml-0 md:shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
 			<div className="absolute">
 				<Image
 					src={candle_banner_temp}

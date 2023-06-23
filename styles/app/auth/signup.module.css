@@ -22,21 +22,14 @@
 	flex-direction: column;
 }
 
-.title {
-	margin-bottom: 2rem;
-	display: inline-block;
-	font-size: 2rem;
-	font-weight: 700;
-}
-
 .signup_input {
-	height: 3.5rem;
-	text-indent: 2rem;
-	border-radius: 15px;
-	font-size: 1.25rem;
+	margin: 1rem 0;
+	padding: 1rem;
+	text-indent: 1rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
 	width: 100%;
 	color: var(--primary-dark-med);
-	border: none;
 	border: none;
 	background-color: var(--primary-light-soft);
 	outline: none;
@@ -52,15 +45,11 @@
 
 .signup_input::placeholder {
 	color: var(--primary-dark-med);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }
 
 /* *Target specific form section groups */
 /* *Access Group */
-.access_code_group > p {
-	margin: 2rem 0;
-	color: var(--gray);
-}
 
 /* *Domain */
 .input_pair {
@@ -68,7 +57,7 @@
 	display: flex;
 	align-items: center;
 	background-color: var(--primary-light-soft);
-	border-radius: 15px;
+	border-radius: 4px;
 	height: fit-content;
 	transition: box-shadow ease 0.2s;
 	box-shadow: inset 1px 1px 1px var(--primary),
@@ -80,10 +69,10 @@
 }
 
 .input_pair input {
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 	background: transparent;
 	border: none;
-	height: 4rem;
+	padding: 1rem;
 	width: 100%;
 	color: var(--primary-dark-med);
 	outline: none;
@@ -120,20 +109,14 @@
 }
 
 .business_type_other > input {
-	height: 3rem;
 	width: 100%;
 	box-sizing: border-box;
 	border: none;
 	border-bottom: 1px solid var(--primary);
-	font-size: 1.25rem;
 }
 
 .business_type_other > input:focus {
 	outline: transparent;
-}
-
-.business_type_other input::placeholder {
-	font-size: 1.25rem;
 }
 
 /* * Upload logo */
@@ -150,14 +133,14 @@
 }
 
 .upload_logo_button {
-	margin: 2rem auto 0;
+	margin: 1rem auto 0;
 	border: none;
 	color: var(--white);
-	padding: 10px 15px;
-	font-size: 1.25rem;
-	border-radius: 50px;
-	-webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
-	box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	padding: 4px 8px;
+	font-size: 0.75rem;
+	border-radius: 4px;
+	/* -webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
+	box-shadow: 4px 8px 19px -3px var(--primary-dark-med); */
 	transition: all 250ms;
 	background: var(--primary);
 }
@@ -175,11 +158,11 @@
 
 /* *Enter business bio. */
 .bio_group textarea {
-	border-radius: 10px;
-	padding: 1.5rem;
+	border-radius: 4px;
+	padding: 1rem;
 	background-color: var(--primary-light-soft);
 	border: transparent;
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 	color: var(--primary-dark-med);
 	transition: box-shadow ease 0.2s;
 	box-shadow: inset 1px 1px 1px var(--primary),
@@ -188,7 +171,7 @@
 
 .bio_group textarea::placeholder {
 	color: var(--primary-dark-med);
-	font-size: 1.25rem;
+	font-size: 0.75rem;
 }
 
 .bio_group textarea:focus {
@@ -223,11 +206,11 @@
 
 /* *Pickup Note */
 .pickup_note_group textarea {
-	border-radius: 10px;
-	padding: 1.5rem;
+	border-radius: 4px;
+	padding: 1rem;
 	background-color: var(--primary-light-soft);
 	border: transparent;
-	font-size: 1.05rem;
+	font-size: 0.75rem;
 	color: var(--primary-dark-med);
 	transition: box-shadow ease 0.2s;
 	box-shadow: inset 1px 1px 1px var(--primary),
@@ -236,7 +219,7 @@
 
 .pickup_note_group textarea::placeholder {
 	color: var(--primary-dark-med);
-	font-size: 1.05rem;
+	font-size: 0.75rem;
 }
 
 .pickup_note_group textarea:focus {
@@ -258,16 +241,7 @@
 	}
 }
 
-@media screen and (min-width: 769px) {
-	.signup {
-		/* width: 65%; */
-		padding-right: 200px;
-		padding-left: 200px;
-		height: 100vh;
-		margin: 0 auto;
-		/* background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%); */
-	}
-
+@media screen and (min-width: 1024px) {
 	.form_box {
 		width: 60%;
 		margin: 0 auto;

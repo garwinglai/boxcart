@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import styles from "../../../styles/site/checkout.module.css";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { IconButton } from "@mui/material";
+import { Divider, IconButton } from "@mui/material";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import TextField from "@mui/material/TextField";
 import { useRouter } from "next/router";
 import OrderReview from "@/components/storefront/cart/OrderReview";
 import OrderSubtotal from "@/components/storefront/cart/OrderSubtotal";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ButtonPrimaryStorefront from "@/components/common/buttons/ButtonPrimaryStorefront";
 
 function Checkout() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -18,77 +18,96 @@ function Checkout() {
 	}
 
 	function handleSubmitOrder(e) {
+		if (isLoading) return;
+
 		e.preventDefault();
 		setIsLoading(true);
-		console.log("order submit clicked");
 		router.push("/order-submitted/123");
 	}
 
 	return (
-		<div className={`${styles.checkbout_box}`}>
-			<div className={`${styles.header} ${styles.flex}`}>
+		<div className="">
+			<div className="flex justify-between sticky top-0 p-2 bg-white items-center border-b z-10">
 				<IconButton onClick={handleBack}>
-					<ArrowBackIosIcon color="primary" />
+					<ChevronLeftIcon color="black" />
 				</IconButton>
-				<div className={`${styles.flex} ${styles.checkout_word_box}`}>
-					<h2>Checkout</h2>
-					<ShoppingCartCheckoutIcon color="primary" />
+				<div className="flex gap-2 items-center">
+					<h3 className="text-[color:var(--black-design-extralight)]">
+						Checkout Information
+					</h3>
+					<ShoppingCartCheckoutIcon
+						sx={{ color: "var(--black-design-extralight)" }}
+					/>
 				</div>
 			</div>
 			<form
 				onSubmit={handleSubmitOrder}
-				className={`${styles.checkout_content_box} ${styles.flexCol}`}
+				className="flex flex-col gap-1 pb-16 lg:flex-row lg:mt-8 lg:mx-16 lg:gap-4"
 			>
-				<div
-					className={`${styles.info_box} ${styles.customer_info_box} ${styles.flexCol}`}
-				>
-					<h2>Customer Info:</h2>
-					<div className={`${styles.names_box} ${styles.flex}`}>
-						<TextField
-							id="outlined-basic"
-							label="First name"
-							variant="standard"
-							required
-						/>
-						<TextField
-							id="outlined-basic"
-							label="Last name"
-							variant="standard"
-							required
-						/>
+				<div className="lg:w-2/3">
+					<div className="p-4 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0 lg:mt-0">
+						<h3 className="font-medium">Your information:</h3>
+						<div className="lg:px-12">
+							<div className="flex w-full gap-2">
+								<TextField
+									id="outlined-basic"
+									label="First name"
+									variant="standard"
+									fullWidth
+									required
+									color="warning"
+								/>
+								<TextField
+									fullWidth
+									id="outlined-basic"
+									label="Last name"
+									variant="standard"
+									required
+									color="warning"
+								/>
+							</div>
+							<TextField
+								id="outlined-basic"
+								label="Email"
+								variant="standard"
+								required
+								fullWidth
+								color="warning"
+								sx={{ marginTop: "1rem" }}
+							/>
+							<TextField
+								id="outlined-basic"
+								label="Phone (optional)"
+								variant="standard"
+								fullWidth
+								color="warning"
+								sx={{ marginTop: "1rem" }}
+							/>
+						</div>
 					</div>
-					<TextField
-						id="outlined-basic"
-						label="Email"
-						variant="standard"
-						required
-						fullWidth
-					/>
-					<TextField
-						id="outlined-basic"
-						label="Phone (optional)"
-						variant="standard"
-						fullWidth
-					/>
+
+					<div className="p-4 bg-white border-t-2 md:border md:round md:mb-4 md:mx-16 lg:mx-0">
+						<h3 className="font-medium">Payment:</h3>
+						{/* //TODO: Depending on payment type, show different inputs */}
+					</div>
 				</div>
-				<div className={`${styles.info_box} ${styles.payment_info_box}`}>
-					<h2>Payment:</h2>
-					{/* //TODO: Depending on payment type, show different inputs */}
-				</div>
-				<div className={`${styles.info_box} ${styles.review_box}`}>
-					<OrderReview />
-				</div>
-				<div className={`${styles.info_box} ${styles.total_box}`}>
-					<OrderSubtotal />
-				</div>
-				<div className={`${styles.submit_button_box}`}>
-					<button
-						disabled={isLoading ? true : false}
-						className={`${styles.submit_order_button}`}
-						type="submit"
-					>
-						{isLoading ? "Submitting order..." : "Submit Order"}
-					</button>
+
+				<div className="relative lg:flex-grow">
+					<div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
+						<OrderReview />
+					</div>
+
+					<div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
+						<OrderSubtotal />
+					</div>
+					<div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
+						<button
+							type="submit"
+							className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
+						>
+							{isLoading ? "Submitting order..." : "Submit Order"}
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>

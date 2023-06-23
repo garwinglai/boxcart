@@ -2,22 +2,84 @@ import React, { useState } from "react";
 import Image from "next/image";
 import candle_2 from "@/public/images/temp/candle_2.jpeg";
 import { IconButton } from "@mui/material";
-import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
-import ButtonFilter from "@/components/designs/ButtonFilter";
-import { IOSSwitch } from "@/components/designs/IOSSwitch";
+import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import AspectRatioOutlinedIcon from "@mui/icons-material/AspectRatioOutlined";
+import ProductModal from "./ProductModal";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { styled, alpha } from "@mui/material/styles";
 import ProductDrawer from "./ProductDrawer";
 
-function ProductCard() {
+const StyledMenu = styled((props) => (
+	<Menu
+		elevation={0}
+		anchorOrigin={{
+			vertical: "bottom",
+			horizontal: "right",
+		}}
+		transformOrigin={{
+			vertical: "top",
+			horizontal: "right",
+		}}
+		{...props}
+	/>
+))(({ theme }) => ({
+	"& .MuiPaper-root": {
+		borderRadius: 6,
+		marginTop: theme.spacing(1),
+		minWidth: 66,
+		color:
+			theme.palette.mode === "light"
+				? "rgb(55, 65, 81)"
+				: theme.palette.grey[300],
+		boxShadow:
+			"rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+		"& .MuiMenu-list": {
+			padding: "0",
+		},
+		"& .MuiMenuItem-root": {
+			"& .MuiSvgIcon-root": {
+				color: theme.palette.text.secondary,
+				marginRight: theme.spacing(1),
+			},
+			"&:active": {
+				backgroundColor: alpha(
+					theme.palette.primary.main,
+					theme.palette.action.selectedOpacity
+				),
+			},
+		},
+	},
+}));
+
+function ProductCard({ id }) {
+	const [expandedCardId, setExpandedCardId] = useState(null);
 	const [isCardOpen, setIsCardOpen] = useState(false);
+	const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 	const [isItemVisible, setIsItemVisible] = useState(false);
 	const [state, setState] = useState({
 		right: false,
 	});
+	const [anchorEl, setAnchorEl] = useState(null);
+	const open = Boolean(anchorEl);
+
+	const isExpanded = expandedCardId === id;
 
 	const handleExpand = () => {
+		if (expandedCardId === id) {
+			setExpandedCardId(null);
+		} else {
+			setExpandedCardId(id);
+		}
+
 		setIsCardOpen((prev) => !prev);
+	};
+
+	const handleClickListenerExpand = () => {
+		setIsCardModalOpen((prev) => !prev);
 	};
 
 	const handleSwitchChange = () => {
@@ -35,51 +97,91 @@ function ProductCard() {
 		setState({ ...state, [anchor]: open });
 	};
 
-	return (
-		<div className="rounded-3xl w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
-			<div className="flex justify-between items-center border-b border-[color:var(--gray-light-med)] h-[8rem]">
-				<div className="flex gap-3 h-full">
-					<div className="relative w-2/5 h-full">
-						<Image
-							src={candle_2}
-							alt="image"
-							className="h-full object-cover rounded-ss-3xl aspect-square "
-						/>
-						<button
-							className="bg-black bg-opacity-50 border border-white rounded text-white ab
-           absolute bottom-1 right-1 px-2 py-1 text-xs "
-						>
-							5 Photos
-						</button>
-					</div>
+	const handleOpenMenu = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
 
-					<div className="py-2">
-						<h4>Candle Set</h4>
-						<p className="text-xs font-light mt-1">
-							<b className=" font-medium">Price: </b>
-							$12.99
-						</p>
-						<p className="text-xs font-light mt-1">
-							<b className=" font-medium">Qty: </b>5
-						</p>
-						<p className="text-xs font-light  mt-1">
-							<b className=" font-medium">Category: </b>n/a
-						</p>
-						<p className="text-xs font-light mt-1">
-							<b className=" font-medium">ID: </b>2
-						</p>
-					</div>
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const handleMenuClick = (e) => {
+		const drawerToggling = toggleDrawer("right", true);
+		handleClose();
+		drawerToggling(e);
+	};
+
+	return (
+		<div
+			className={`rounded w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white md:row-auto ${
+				isExpanded ? "md:grid-row-end-auto" : "md:h-fit"
+			}`}
+		>
+			<div className="flex gap-3 justify-between items-center border-b border-[color:var(--gray-light-med)]">
+				<div className="self-start w-[30%] relative sm:w-[20%] lg:w-[30%]">
+					<Image
+						src={candle_2}
+						alt="image"
+						className="rounded-ss object-cover w-full h-full"
+					/>
+					<button
+						className="bg-black bg-opacity-50 border border-white rounded text-white ab
+           absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight "
+					>
+						5 Photos
+					</button>
 				</div>
-				<div>
-					<IconButton onClick={handleExpand}>
-						<ExpandMoreOutlinedIcon />
+				<div className="flex-grow flex flex-col gap-1 py-2">
+					<h4 className="font-medium">Candle Set</h4>
+					<p className="text-xs font-light">
+						<b className=" font-medium">Price: </b>
+						$12.99
+					</p>
+					<p className="text-xs font-light">
+						<b className=" font-medium">Qty: </b>5
+					</p>
+					<p className="text-xs font-light">
+						<b className=" font-medium">Category: </b>n/a
+					</p>
+				</div>
+				<div className="mr-2">
+					<IconButton onClick={handleOpenMenu}>
+						<MoreVertIcon fontSize="small" />
 					</IconButton>
+					<StyledMenu
+						id="basic-menu"
+						anchorEl={anchorEl}
+						open={open}
+						onClose={handleClose}
+						MenuListProps={{
+							"aria-labelledby": "basic-button",
+						}}
+						anchorOrigin={{
+							vertical: "top",
+							horizontal: "left",
+						}}
+						transformOrigin={{
+							vertical: "top",
+							horizontal: "left",
+						}}
+					>
+						<MenuItem onClick={handleMenuClick} sx={{ fontSize: "12px" }}>
+							Edit
+						</MenuItem>
+						<MenuItem onClick={handleClose} sx={{ fontSize: "12px" }}>
+							Delete
+						</MenuItem>
+						<MenuItem onClick={handleClose} sx={{ fontSize: "12px" }}>
+							Duplicate
+						</MenuItem>
+					</StyledMenu>
+					<ProductDrawer state={state} toggleDrawer={toggleDrawer} />
 				</div>
 			</div>
-			<div className="flex justify-between items-center p-4">
+			<div className="flex justify-between items-center p-2">
 				<span className="flex gap-4 items-center">
 					<p
-						className={`text-sm ${
+						className={`text-xs ${
 							isItemVisible
 								? "text-[color:var(--primary-dark-med)] "
 								: "text-[color:var(--gray-text)] "
@@ -89,8 +191,36 @@ function ProductCard() {
 					</p>
 					<IOSSwitch checked={isItemVisible} onChange={handleSwitchChange} />
 				</span>
-				<ButtonFilter name="Edit" handleClick={toggleDrawer("right", true)} />
-				<ProductDrawer state={state} toggleDrawer={toggleDrawer} />
+
+				<div className="hidden lg:block">
+					<IconButton
+						onClick={handleClickListenerExpand}
+						sx={{ marginRight: "8px" }}
+					>
+						<AspectRatioOutlinedIcon fontSize="small" />
+					</IconButton>
+					<ProductModal
+						isItemVisible={isItemVisible}
+						toggleDrawer={toggleDrawer}
+						state={state}
+						handleSwitchChange={handleSwitchChange}
+						isCardModalOpen={isCardModalOpen}
+						handleClickListenerExpand={handleClickListenerExpand}
+					/>
+				</div>
+				<div className="lg:hidden">
+					<IconButton onClick={handleExpand}>
+						{isCardOpen ? (
+							<ExpandLessIcon fontSize="small" />
+						) : (
+							<ExpandMoreOutlinedIcon fontSize="small" />
+						)}
+					</IconButton>
+				</div>
+				{/* <div>
+					<ButtonFilter name="Edit" handleClick={toggleDrawer("right", true)} />
+					<ProductDrawer state={state} toggleDrawer={toggleDrawer} />
+				</div> */}
 			</div>
 			{isCardOpen && (
 				<div className="border-t border-[color:var(--gray-light-med)]">

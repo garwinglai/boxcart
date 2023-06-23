@@ -2,44 +2,41 @@ import React, { useState } from "react";
 import styles from "@/styles/components/layouts/desktop-navbar.module.css";
 import Image from "next/image";
 import candle_logo from "@/public/images/temp/candle_logo_temp.jpeg";
-import ChecklistIcon from "@mui/icons-material/Checklist";
 import Link from "next/link";
 import List from "@mui/material/List";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
-import MailOutlineOutlinedIcon from "@mui/icons-material/MailOutlineOutlined";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StorefrontIcon from "@mui/icons-material/Storefront";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import StarPurple500Icon from "@mui/icons-material/StarPurple500";
-import RecentActorsOutlinedIcon from "@mui/icons-material/RecentActorsOutlined";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AddIcon from "@mui/icons-material/Add";
 import LogoutIcon from "@mui/icons-material/Logout";
-import LaunchIcon from "@mui/icons-material/Launch";
-import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
-import launch_icon from "@/public/images/icons/launch_icon.png";
-import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import HistoryIcon from "@mui/icons-material/History";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import StoreIcon from "@mui/icons-material/Store";
+import StarIcon from "@mui/icons-material/Star";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SmsIcon from "@mui/icons-material/Sms";
+import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
+import ButtonThird from "../common/buttons/ButtonThird";
+import NewspaperIcon from "@mui/icons-material/Newspaper";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 function DesktopNavBar({ pageRoute }) {
 	const [openStoreList, setOpenStoreList] = useState(
-		pageRoute === "profile" ||
-			pageRoute === "products" ||
-			pageRoute === "category" ||
-			pageRoute === "availability" ||
+		pageRoute === "availability" ||
 			pageRoute === "fulfillment" ||
 			pageRoute === "payments"
 			? true
@@ -47,6 +44,9 @@ function DesktopNavBar({ pageRoute }) {
 	);
 	const [openOrderList, setOpenOrderList] = useState(
 		pageRoute === "history" || pageRoute === "live" ? true : false
+	);
+	const [openInventoryList, setOpenInventoryList] = useState(
+		pageRoute === "products" || pageRoute === "category" ? true : false
 	);
 	const [openCommList, setOpenCommList] = useState(
 		pageRoute === "contacts" ||
@@ -59,12 +59,18 @@ function DesktopNavBar({ pageRoute }) {
 		pageRoute === "membership" || pageRoute === "add-ons" ? true : false
 	);
 
+	const { push } = useRouter();
+
 	const handleNestedStoreList = () => {
 		setOpenStoreList((prev) => !prev);
 	};
 
 	const handleNestedOrderList = () => {
 		setOpenOrderList((prev) => !prev);
+	};
+
+	const handleInventoryList = () => {
+		setOpenInventoryList((prev) => !prev);
 	};
 
 	const handleNestedCommList = () => {
@@ -79,8 +85,11 @@ function DesktopNavBar({ pageRoute }) {
 		window.alert("Share shop");
 	};
 
-	const handleLogOut = () => {
-		window.alert("log out");
+	const handleLogOut = async () => {
+		await signOut({
+			redirect: false,
+		});
+		push("/auth/signin");
 	};
 
 	return (
@@ -92,14 +101,13 @@ function DesktopNavBar({ pageRoute }) {
 					className={`${styles.avatar_image}`}
 				/>
 				<h4>BoxCart</h4>
-				<div className={`${styles.flex} ${styles.greetings_group}`}>
-					<Image
-						src={launch_icon}
-						alt="launch icon"
-						className={`${styles.launch_image}`}
+
+				<Link href="/account/my-shop">
+					<ButtonThird
+						icon={<StorefrontIcon fontSize="small" />}
+						name="My Shop"
 					/>
-					<p>Hi, Sean</p>
-				</div>
+				</Link>
 			</div>
 			<List
 				component="nav"
@@ -107,68 +115,28 @@ function DesktopNavBar({ pageRoute }) {
 				className={`${styles.menu_list_group}`}
 				sx={{ padding: "1rem" }}
 			>
-				<Link href="/account/checklist" className={`${styles.menu_link_group}`}>
-					<MenuItem
-						sx={{
-							backgroundColor: `${
-								pageRoute === "checklist" && "var(--primary-light-med)"
-							}`,
-							border: `${
-								pageRoute === "checklist"
-									? "1px solid var(--primary)"
-									: "1px solid var(--white)"
-							}`,
-							borderRadius: `${pageRoute === "checklist" && "45px"}`,
-						}}
-					>
-						<ListItemIcon>
-							<ChecklistIcon
-								sx={{
-									color: `${
-										pageRoute === "checklist" ? "var(--primary-dark)" : "gray"
-									}  `,
-								}}
-							/>
-						</ListItemIcon>
-						<ListItemText
-							primary="Checklist"
-							sx={{
-								color: `${
-									pageRoute === "checklist" ? "var(--primary-dark)" : "gray"
-								}  `,
-							}}
-						/>
-					</MenuItem>
-				</Link>
-
 				<MenuItem onClick={handleNestedStoreList}>
 					<ListItemIcon>
-						<StorefrontIcon
+						<StoreIcon
 							sx={{
 								color: `${
-									pageRoute === "profile" ||
-									pageRoute === "products" ||
-									pageRoute === "category" ||
 									pageRoute === "availability" ||
 									pageRoute === "fulfillment" ||
 									pageRoute === "payments"
-										? "var(--primary-dark)"
+										? "var(--third-dark)"
 										: "gray"
 								}  `,
 							}}
 						/>
 					</ListItemIcon>
 					<ListItemText
-						primary="My shop"
+						primary="Store"
 						sx={{
 							color: `${
-								pageRoute === "profile" ||
-								pageRoute === "products" ||
-								pageRoute === "category" ||
 								pageRoute === "availability" ||
 								pageRoute === "fulfillment" ||
 								pageRoute === "payments"
-									? "var(--primary-dark)"
+									? "var(--third-dark)"
 									: "gray"
 							}  `,
 						}}
@@ -177,7 +145,7 @@ function DesktopNavBar({ pageRoute }) {
 					{openStoreList ? (
 						<ExpandLess
 							sx={{
-								color: "var(--primary)",
+								color: "var(--third-dark)",
 							}}
 						/>
 					) : (
@@ -190,102 +158,6 @@ function DesktopNavBar({ pageRoute }) {
 				</MenuItem>
 				<Collapse in={openStoreList} timeout="auto" unmountOnExit>
 					<List component="div" disablePadding sx={{ pl: "16px" }}>
-						{/* <Link
-							href="/account/my-shop"
-							className={`${styles.menu_link_group}`}
-							onClick={toggleDrawer("right", false)}
-						>
-							<MenuItem >
-								<ListItemIcon>
-									<VisibilityOutlinedIcon fontSize="small" />
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Preview</p>}
-								/>
-							</MenuItem>
-						</Link> */}
-						<Link
-							href="/account/my-shop/profile"
-							className={`${styles.menu_link_group}`}
-						>
-							<MenuItem
-								sx={{
-									backgroundColor: `${
-										pageRoute === "profile" && "var(--primary-light-med)"
-									}`,
-									border: `${
-										pageRoute === "profile"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "profile" && "45px"}`,
-								}}
-							>
-								<ListItemIcon>
-									<AccountBoxOutlinedIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												pageRoute === "profile" ? "var(--primary-dark)" : "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Profile</p>}
-									sx={{
-										color: `${
-											pageRoute === "profile" ? "var(--primary-dark)" : "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
-						<Link
-							href="/account/my-shop/products"
-							className={`${styles.menu_link_group}`}
-						>
-							<MenuItem
-								sx={{
-									backgroundColor: `${
-										(pageRoute === "products" || pageRoute === "category") &&
-										"var(--primary-light-med)"
-									}`,
-									border: `${
-										pageRoute === "products" || pageRoute === "category"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${
-										(pageRoute === "products" || pageRoute === "category") &&
-										"45px"
-									}`,
-								}}
-							>
-								<ListItemIcon>
-									<CategoryOutlinedIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												pageRoute === "products" || pageRoute === "category"
-													? "var(--primary-dark)"
-													: "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Products</p>}
-									sx={{
-										color: `${
-											pageRoute === "products" || pageRoute === "category"
-												? "var(--primary-dark)"
-												: "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
 						<Link
 							href="/account/my-shop/availability"
 							className={`${styles.menu_link_group}`}
@@ -293,14 +165,10 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "availability" && "var(--primary-light-med)"
+										pageRoute === "availability" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "availability"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "availability" && "45px"}`,
+
+									borderRadius: `${pageRoute === "availability" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
@@ -309,7 +177,7 @@ function DesktopNavBar({ pageRoute }) {
 										sx={{
 											color: `${
 												pageRoute === "availability"
-													? "var(--primary-dark)"
+													? "var(--third-dark)"
 													: "gray"
 											}  `,
 										}}
@@ -320,7 +188,7 @@ function DesktopNavBar({ pageRoute }) {
 									sx={{
 										color: `${
 											pageRoute === "availability"
-												? "var(--primary-dark)"
+												? "var(--third-dark)"
 												: "gray"
 										}  `,
 									}}
@@ -334,14 +202,10 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "fulfillment" && "var(--primary-light-med)"
+										pageRoute === "fulfillment" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "fulfillment"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "fulfillment" && "45px"}`,
+
+									borderRadius: `${pageRoute === "fulfillment" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
@@ -350,7 +214,7 @@ function DesktopNavBar({ pageRoute }) {
 										sx={{
 											color: `${
 												pageRoute === "fulfillment"
-													? "var(--primary-dark)"
+													? "var(--third-dark)"
 													: "gray"
 											}  `,
 										}}
@@ -360,9 +224,7 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Fulfillment</p>}
 									sx={{
 										color: `${
-											pageRoute === "fulfillment"
-												? "var(--primary-dark)"
-												: "gray"
+											pageRoute === "fulfillment" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
@@ -375,14 +237,10 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "payments" && "var(--primary-light-med)"
+										pageRoute === "payments" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "payments"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "payments" && "45px"}`,
+
+									borderRadius: `${pageRoute === "payments" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
@@ -390,9 +248,7 @@ function DesktopNavBar({ pageRoute }) {
 										fontSize="small"
 										sx={{
 											color: `${
-												pageRoute === "payments"
-													? "var(--primary-dark)"
-													: "gray"
+												pageRoute === "payments" ? "var(--third-dark)" : "gray"
 											}  `,
 										}}
 									/>
@@ -401,7 +257,7 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Payments</p>}
 									sx={{
 										color: `${
-											pageRoute === "payments" ? "var(--primary-dark)" : "gray"
+											pageRoute === "payments" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
@@ -412,11 +268,11 @@ function DesktopNavBar({ pageRoute }) {
 
 				<MenuItem onClick={handleNestedOrderList}>
 					<ListItemIcon>
-						<ShoppingCartOutlinedIcon
+						<LocalGroceryStoreIcon
 							sx={{
 								color: `${
 									pageRoute === "live" || pageRoute === "history"
-										? "var(--primary-dark)"
+										? "var(--third-dark)"
 										: "gray"
 								}  `,
 							}}
@@ -427,7 +283,7 @@ function DesktopNavBar({ pageRoute }) {
 						sx={{
 							color: `${
 								pageRoute === "live" || pageRoute === "history"
-									? "var(--primary-dark)"
+									? "var(--third-dark)"
 									: "gray"
 							}  `,
 						}}
@@ -435,7 +291,7 @@ function DesktopNavBar({ pageRoute }) {
 					{openOrderList ? (
 						<ExpandLess
 							sx={{
-								color: "var(--primary)",
+								color: "var(--third-dark)",
 							}}
 						/>
 					) : (
@@ -455,22 +311,18 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "live" && "var(--primary-light-med)"
+										pageRoute === "live" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "live"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "live" && "45px"}`,
+
+									borderRadius: `${pageRoute === "live" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
-									<ShoppingCartCheckoutIcon
+									<LocalOfferOutlinedIcon
 										fontSize="small"
 										sx={{
 											color: `${
-												pageRoute === "live" ? "var(--primary-dark)" : "gray"
+												pageRoute === "live" ? "var(--third-dark)" : "gray"
 											}  `,
 										}}
 									/>
@@ -479,7 +331,7 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Live</p>}
 									sx={{
 										color: `${
-											pageRoute === "live" ? "var(--primary-dark)" : "gray"
+											pageRoute === "live" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
@@ -492,22 +344,18 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "history" && "var(--primary-light-med)"
+										pageRoute === "history" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "history"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "history" && "45px"}`,
+
+									borderRadius: `${pageRoute === "history" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
-									<FormatListBulletedIcon
+									<HistoryIcon
 										fontSize="small"
 										sx={{
 											color: `${
-												pageRoute === "history" ? "var(--primary-dark)" : "gray"
+												pageRoute === "history" ? "var(--third-dark)" : "gray"
 											}  `,
 										}}
 									/>
@@ -516,7 +364,7 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">History</p>}
 									sx={{
 										color: `${
-											pageRoute === "history" ? "var(--primary-dark)" : "gray"
+											pageRoute === "history" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
@@ -525,177 +373,111 @@ function DesktopNavBar({ pageRoute }) {
 					</List>
 				</Collapse>
 
-				<MenuItem onClick={handleNestedCommList}>
-					<ListItemIcon>
-						<MailOutlineOutlinedIcon
+				<Link
+					href="/account/inventory/products"
+					className={`${styles.menu_link_group}`}
+				>
+					<MenuItem
+						sx={{
+							backgroundColor: `${
+								(pageRoute === "products" || pageRoute === "category") &&
+								"var(--third-light-soft)"
+							}`,
+
+							borderRadius: `${pageRoute === "chat" && "4px"}`,
+						}}
+					>
+						<ListItemIcon>
+							<InventoryIcon
+								sx={{
+									color: `${
+										pageRoute === "products" || pageRoute === "category"
+											? "var(--third-dark)"
+											: "gray"
+									}  `,
+								}}
+							/>
+						</ListItemIcon>
+						<ListItemText
+							primary="Products"
 							sx={{
 								color: `${
-									pageRoute === "contacts" ||
-									pageRoute === "chat" ||
-									pageRoute === "comm-settings"
-										? "var(--primary-dark)"
+									pageRoute === "products" || pageRoute === "category"
+										? "var(--third-dark)"
 										: "gray"
 								}  `,
 							}}
 						/>
-					</ListItemIcon>
-					<ListItemText
-						primary="Communication"
-						sx={{
-							pr: "8px",
-							color: `${
-								pageRoute === "contacts" ||
-								pageRoute === "chat" ||
-								pageRoute === "comm-settings"
-									? "var(--primary-dark)"
-									: "gray"
-							}  `,
-						}}
-					/>
-					{openCommList ? (
-						<ExpandLess
-							sx={{
-								color: "var(--primary)",
-							}}
-						/>
-					) : (
-						<ExpandMore
-							sx={{
-								color: "gray",
-							}}
-						/>
-					)}
-				</MenuItem>
+					</MenuItem>
+				</Link>
 
-				<Collapse in={openCommList} timeout="auto" unmountOnExit>
-					<List component="div" disablePadding sx={{ pl: "16px" }}>
-						<Link
-							href="/account/communication/contacts"
-							className={`${styles.menu_link_group}`}
-						>
-							<MenuItem
+				<Link href="/account/chat" className={`${styles.menu_link_group}`}>
+					<MenuItem
+						sx={{
+							backgroundColor: `${
+								pageRoute === "chat" && "var(--third-light-soft)"
+							}`,
+
+							borderRadius: `${pageRoute === "chat" && "4px"}`,
+						}}
+					>
+						<ListItemIcon>
+							<SmsIcon
 								sx={{
-									backgroundColor: `${
-										pageRoute === "contacts" && "var(--primary-light-med)"
-									}`,
-									border: `${
-										pageRoute === "contacts"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "contacts" && "45px"}`,
+									color: `${
+										pageRoute === "chat" ? "var(--third-dark)" : "gray"
+									}  `,
 								}}
-							>
-								<ListItemIcon>
-									<RecentActorsOutlinedIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												pageRoute === "contacts"
-													? "var(--primary-dark)"
-													: "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Contacts</p>}
-									sx={{
-										color: `${
-											pageRoute === "contacts" ? "var(--primary-dark)" : "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
-						<Link
-							href="/account/communication/chat"
-							className={`${styles.menu_link_group}`}
-						>
-							<MenuItem
+							/>
+						</ListItemIcon>
+						<ListItemText
+							primary="Chat"
+							sx={{
+								color: `${
+									pageRoute === "chat" ? "var(--third-dark)" : "gray"
+								}  `,
+							}}
+						/>
+					</MenuItem>
+				</Link>
+
+				<Link href="/account/contacts" className={`${styles.menu_link_group}`}>
+					<MenuItem
+						sx={{
+							backgroundColor: `${
+								pageRoute === "contacts" && "var(--third-light-soft)"
+							}`,
+
+							borderRadius: `${pageRoute === "contacts" && "4px"}`,
+						}}
+					>
+						<ListItemIcon>
+							<ContactEmergencyIcon
 								sx={{
-									backgroundColor: `${
-										pageRoute === "chat" && "var(--primary-light-med)"
-									}`,
-									border: `${
-										pageRoute === "chat"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "chat" && "45px"}`,
+									color: `${
+										pageRoute === "contacts" ? "var(--third-dark)" : "gray"
+									}  `,
 								}}
-							>
-								<ListItemIcon>
-									<ChatOutlinedIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												pageRoute === "chat" ? "var(--primary-dark)" : "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Chat</p>}
-									sx={{
-										color: `${
-											pageRoute === "chat" ? "var(--primary-dark)" : "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
-						<Link
-							href="/account/communication/settings"
-							className={`${styles.menu_link_group}`}
-						>
-							<MenuItem
-								sx={{
-									backgroundColor: `${
-										pageRoute === "comm-settings" && "var(--primary-light-med)"
-									}`,
-									border: `${
-										pageRoute === "comm-settings"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "comm-settings" && "45px"}`,
-								}}
-							>
-								<ListItemIcon>
-									<ModeEditOutlineOutlinedIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												pageRoute === "comm-settings"
-													? "var(--primary-dark)"
-													: "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Settings</p>}
-									sx={{
-										color: `${
-											pageRoute === "comm-settings"
-												? "var(--primary-dark)"
-												: "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
-					</List>
-				</Collapse>
+							/>
+						</ListItemIcon>
+						<ListItemText
+							primary="Contacts"
+							sx={{
+								color: `${
+									pageRoute === "contacts" ? "var(--third-dark)" : "gray"
+								}  `,
+							}}
+						/>
+					</MenuItem>
+				</Link>
 
 				<MenuItem onClick={handleNestedPremiumList}>
 					<ListItemIcon>
-						<StarPurple500Icon
+						<StarIcon
 							sx={{
 								color: `${
 									pageRoute === "membership" || pageRoute === "add-ons"
-										? "var(--primary-dark)"
+										? "var(--third-dark)"
 										: "gray"
 								}  `,
 							}}
@@ -706,7 +488,7 @@ function DesktopNavBar({ pageRoute }) {
 						sx={{
 							color: `${
 								pageRoute === "membership" || pageRoute === "add-ons"
-									? "var(--primary-dark)"
+									? "var(--third-dark)"
 									: "gray"
 							}  `,
 						}}
@@ -714,7 +496,7 @@ function DesktopNavBar({ pageRoute }) {
 					{openPremiumList ? (
 						<ExpandLess
 							sx={{
-								color: "var(--primary)",
+								color: "var(--third-dark)",
 							}}
 						/>
 					) : (
@@ -735,14 +517,10 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "membership" && "var(--primary-light-med)"
+										pageRoute === "membership" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "membership"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "membership" && "45px"}`,
+
+									borderRadius: `${pageRoute === "membership" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
@@ -752,29 +530,23 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Membership</p>}
 									sx={{
 										color: `${
-											pageRoute === "membership"
-												? "var(--primary-dark)"
-												: "gray"
+											pageRoute === "membership" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
 							</MenuItem>
 						</Link>
-						<Link
+						{/* <Link
 							href="/account/premium/add-ons"
 							className={`${styles.menu_link_group}`}
 						>
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "add-ons" && "var(--primary-light-med)"
+										pageRoute === "add-ons" && "var(--third-light-soft)"
 									}`,
-									border: `${
-										pageRoute === "add-ons"
-											? "1px solid var(--primary)"
-											: "1px solid var(--white)"
-									}`,
-									borderRadius: `${pageRoute === "add-ons" && "45px"}`,
+
+									borderRadius: `${pageRoute === "add-ons" && "4px"}`,
 								}}
 							>
 								<ListItemIcon>
@@ -784,12 +556,12 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Add ons</p>}
 									sx={{
 										color: `${
-											pageRoute === "add-ons" ? "var(--primary-dark)" : "gray"
+											pageRoute === "add-ons" ? "var(--third-dark)" : "gray"
 										}  `,
 									}}
 								/>
 							</MenuItem>
-						</Link>
+						</Link> */}
 					</List>
 				</Collapse>
 
@@ -797,22 +569,18 @@ function DesktopNavBar({ pageRoute }) {
 					<MenuItem
 						sx={{
 							backgroundColor: `${
-								pageRoute === "account-settings" && "var(--primary-light-med)"
+								pageRoute === "account-settings" && "var(--third-light-soft)"
 							}`,
-							border: `${
-								pageRoute === "account-settings"
-									? "1px solid var(--primary)"
-									: "1px solid var(--white)"
-							}`,
-							borderRadius: `${pageRoute === "account-settings" && "45px"}`,
+
+							borderRadius: `${pageRoute === "account-settings" && "4px"}`,
 						}}
 					>
 						<ListItemIcon>
-							<SettingsOutlinedIcon
+							<SettingsIcon
 								sx={{
 									color: `${
 										pageRoute === "account-settings"
-											? "var(--primary-dark)"
+											? "var(--third-dark)"
 											: "gray"
 									}  `,
 								}}
@@ -823,8 +591,37 @@ function DesktopNavBar({ pageRoute }) {
 							sx={{
 								color: `${
 									pageRoute === "account-settings"
-										? "var(--primary-dark)"
+										? "var(--third-dark)"
 										: "gray"
+								}  `,
+							}}
+						/>
+					</MenuItem>
+				</Link>
+				<Link href="/account/newsroom" className={`${styles.menu_link_group}`}>
+					<MenuItem
+						sx={{
+							backgroundColor: `${
+								pageRoute === "news-room" && "var(--third-light-soft)"
+							}`,
+
+							borderRadius: `${pageRoute === "news-room" && "4px"}`,
+						}}
+					>
+						<ListItemIcon>
+							<NewspaperIcon
+								sx={{
+									color: `${
+										pageRoute === "news-room" ? "var(--third-dark)" : "gray"
+									}  `,
+								}}
+							/>
+						</ListItemIcon>
+						<ListItemText
+							primary="Newsroom"
+							sx={{
+								color: `${
+									pageRoute === "news-room" ? "var(--third-dark)" : "gray"
 								}  `,
 							}}
 						/>
@@ -836,14 +633,20 @@ function DesktopNavBar({ pageRoute }) {
 					<ListItemIcon>
 						<ShareOutlinedIcon />
 					</ListItemIcon>
-					<ListItemText primary="Share store" />
+					<ListItemText
+						primary="Share store"
+						sx={{ color: "var(--black-design-extralight)" }}
+					/>
 				</MenuItem>
 
 				<MenuItem onClick={handleLogOut}>
 					<ListItemIcon>
 						<LogoutIcon />
 					</ListItemIcon>
-					<ListItemText primary="Log out" />
+					<ListItemText
+						primary="Log out"
+						sx={{ color: "var(--black-design-extralight)" }}
+					/>
 				</MenuItem>
 			</div>
 		</div>

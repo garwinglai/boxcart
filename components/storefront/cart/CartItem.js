@@ -1,14 +1,12 @@
 import React from "react";
 import styles from "../../../styles/components/storefront/cart/cartitem.module.css";
 import Image from "next/image";
-import mug_temp from "../../../public/images/temp/custom_mug.jpg";
-import sweater_temp from "../../../public/images/temp/custom_sweater.jpg";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import candle_2 from "@/public/images/temp/candle_2.jpeg";
-import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 
 import candle_4 from "@/public/images/temp/candle_4.jpeg";
+import { IconButton } from "@mui/material";
 
 function CartItem({ isDesktop, isBusiness }) {
 	return (
@@ -17,11 +15,11 @@ function CartItem({ isDesktop, isBusiness }) {
 				<Image
 					src={candle_4}
 					alt="product image"
-					className={`${styles.cart_item_img}`}
+					className=" min-w-[5rem] max-w-[5rem] min-h-[5rem] max-h-[5rem] object-cover"
 				/>
 				<div className={`${styles.flexCol} ${styles.item_info_box}`}>
-					<h4>Candle de la Special</h4>
-					<h5>$2.99</h5>
+					<h4 className="font-medium">Candle de la Special</h4>
+
 					<p>
 						<b>Options:</b> small, strawberry, cheese
 					</p>
@@ -32,42 +30,50 @@ function CartItem({ isDesktop, isBusiness }) {
 						labore, reprehenderit culpa nemo! Magnam.
 					</p>
 					{!isBusiness && (
-						<div className={`${styles.edit_quantity_btn_group} ${styles.flex}`}>
-							<button className={`${styles.quantity_btn} ${styles.remove_btn}`}>
-								<DeleteForeverIcon fontSize="small" />
-							</button>
-							<div className={`${styles.item_quantity_box} ${styles.flex}`}>
-								<p>1</p>
+						<div className="flex justify-between items-center">
+							<div className="flex gap-2 items-center  ">
+								<IconButton>
+									<DeleteForeverIcon fontSize="small" />
+								</IconButton>
+
+								<div className="w-fit border border-[color:var(--gray-light-med)] px-3 py-1">
+									<p>12</p>
+								</div>
+								<IconButton className="">
+									<AddIcon fontSize="small" />
+								</IconButton>
 							</div>
-							<button className={`${styles.quantity_btn} ${styles.add_btn}`}>
-								<AddIcon fontSize="small" />
-							</button>
+							<h5 className="font-medium">$2.99</h5>
 						</div>
 					)}
 				</div>
 			</div>
 			<div className={`${styles.flexCol} ${styles.cart_item_uploads_box}`}>
 				<div className={`${styles.flex} ${styles.upload_title_group}`}>
-					{isBusiness ? <h5>Customer Uploads:</h5> : <h5>Uploads:</h5>}
+					{isBusiness ? (
+						<h5 className="font-medium">Customer Uploads:</h5>
+					) : (
+						<h5 className="font-medium">Uploads:</h5>
+					)}
 					{!isBusiness && <button>edit</button>}
 				</div>
 				<div className={`${styles.flex} ${styles.example_images_box}`}>
 					<div className={`${styles.example_image_group} ${styles.flexCol}`}>
 						<Image
 							src={candle_2}
-							className={`${styles.example_image}`}
+							className=" min-w-[5rem] max-w-[5rem] min-h-[5rem] max-h-[5rem] object-cover"
 							alt="customer uploaded images"
 						/>
 
-						<p>fileNameaskadhflkjahsdlfiawdfa</p>
+						<p className="truncate">fileNameaskadhflkjahsdlfiawdfa</p>
 					</div>
 					<div className={`${styles.example_image_group} ${styles.flexCol}`}>
 						<Image
 							src={candle_2}
-							className={`${styles.example_image}`}
+							className=" min-w-[5rem] max-w-[5rem] min-h-[5rem] max-h-[5rem] object-cover"
 							alt="customer uploaded images"
 						/>
-						<p>fileName</p>
+						<p className="truncate">fileName</p>
 					</div>
 				</div>
 			</div>

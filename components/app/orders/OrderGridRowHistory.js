@@ -41,39 +41,39 @@ function OrderGridRowHistory({ status }) {
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>2</p>
+				<p className="text-xs">2</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>4.23.2023</p>
+				<p className="text-xs">4.23.2023</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>5.23.2023</p>
+				<p className="text-xs">5.23.2023</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.black_text}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>Jessica Joe</p>
+				<p className="text-xs">Jessica Joe</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.contact}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>jessica@gmail.com</p>
-				<p>123 456 7890</p>
+				<p className="text-xs">jessica@gmail.com</p>
+				<p className="text-xs">123 456 7890</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
 				<p
-					className={`${
+					className={`text-xs ${
 						status === "declined"
 							? styles.declined
 							: status === "refunded"
@@ -91,19 +91,19 @@ function OrderGridRowHistory({ status }) {
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>Delivery</p>
+				<p className="text-xs">Delivery</p>
 			</td>
 			<td
 				className={`${styles.table_data} ${styles.black_text}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>$123.23</p>
+				<p className="text-xs">$123.23</p>
 			</td>
 			<td
 				className={`${styles.table_data}`}
 				onClick={toggleDrawer("right", true)}
 			>
-				<p>4 Items</p>
+				<p className="text-xs">4 Items</p>
 			</td>
 
 			<td className={`${styles.table_data} ${styles.view_more_btn}`}>

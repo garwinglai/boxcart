@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
-import ButtonSecondary from "@/components/designs/ButtonSecondary";
+import ButtonSecondary from "@/components/common/buttons/ButtonSecondary";
 import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
-import ButtonFilter from "@/components/designs/ButtonFilter";
+import ButtonFilter from "@/components/common/buttons/ButtonFilter";
 import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
 import CategoryDrawer from "./CategoryDrawer";
 
-function CategoryCard({ handleEidtCategoryClick }) {
+function CategoryCard({ handleEditCategory }) {
 	const [isViewWholeCard, setIsViewWholeCard] = useState(false);
 	const [state, setState] = useState({
 		right: false,
@@ -29,7 +29,7 @@ function CategoryCard({ handleEidtCategoryClick }) {
 	};
 
 	return (
-		<div className="p-4 rounded-3xl w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+		<div className="p-4 rounded w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
 			<div className="flex justify-between items-center">
 				<div className="flex flex-col gap-1">
 					<h4>Drinks</h4>
@@ -52,11 +52,11 @@ function CategoryCard({ handleEidtCategoryClick }) {
 					<DeleteOutlineOutlinedIcon fontSize="small" />
 					Remove
 				</button>
-				<div className="md:hidden">
+				<div className="lg:hidden">
 					<ButtonFilter name="Edit" handleClick={toggleDrawer("right", true)} />
 				</div>
-				<div className="hidden md:block">
-					<ButtonFilter name="Edit" handleClick={handleEidtCategoryClick} />
+				<div className="hidden lg:block">
+					<ButtonFilter name="Edit" handleClick={handleEditCategory} />
 				</div>
 				<CategoryDrawer state={state} toggleDrawer={toggleDrawer} />
 			</div>

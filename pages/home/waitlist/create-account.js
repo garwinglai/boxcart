@@ -3,8 +3,8 @@ import styles from "../../../styles/home/waitlist/create-account.module.css";
 import { useRouter } from "next/router";
 import Router from "next/router";
 import Image from "next/image";
-import ButtonLoader from "@/components/loaders/ButtonLoader";
-import PageLoader from "@/components/loaders/PageLoader";
+import ButtonLoader from "@/components/common/loaders/ButtonLoader";
+import PageLoader from "@/components/common/loaders/PageLoader";
 import firstCharCapitlize from "@/utils/string-manipulate";
 import { createEarlyBirdCode, createPersonalCode } from "@/utils/promo-codes";
 import {
