@@ -1,7 +1,7 @@
 import React from "react";
 import BasicPackage from "./BasicPackage";
 import MediumPackage from "./MediumPackage";
-import { IOSSwitch } from "../common/switches/IOSSwitch";
+import { IOSSwitch } from "../global/switches/IOSSwitch";
 import TopPackage from "./TopPackage";
 
 function MembershipPackages() {

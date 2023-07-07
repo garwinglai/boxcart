@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
 import AppLayout from "@/components/layouts/AppLayout";
-import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
+import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
@@ -13,7 +13,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import PercentOutlinedIcon from "@mui/icons-material/PercentOutlined";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
-import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
 
 function Payments() {

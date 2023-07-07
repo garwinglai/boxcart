@@ -17,207 +17,211 @@ import Link from "next/link";
 import React, { useState } from "react";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import ContactEmergencyOutlinedIcon from "@mui/icons-material/ContactEmergencyOutlined";
-import ButtonThird from "../common/buttons/ButtonThird";
+import ButtonThird from "../global/buttons/ButtonThird";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import { deleteLocalStorage } from "@/utils/clientStorage";
 
 function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
-	const [openStoreList, setOpenStoreList] = useState(
-		mobilePageRoute === "profile" ||
-			mobilePageRoute === "products" ||
-			mobilePageRoute === "category" ||
-			mobilePageRoute === "availability" ||
-			mobilePageRoute === "fulfillment" ||
-			mobilePageRoute === "payments"
-			? true
-			: false
-	);
-	const [openOrderList, setOpenOrderList] = useState(
-		mobilePageRoute === "history" || mobilePageRoute === "live" ? true : false
-	);
-	const [openCommList, setOpenCommList] = useState(
-		mobilePageRoute === "contacts" ||
-			mobilePageRoute === "chat" ||
-			mobilePageRoute === "comm-settings"
-			? true
-			: false
-	);
-	const [openPremiumList, setOpenPremiumList] = useState(
-		mobilePageRoute === "membership" || mobilePageRoute === "add-ons"
-			? true
-			: false
-	);
+  const [openStoreList, setOpenStoreList] = useState(
+    mobilePageRoute === "profile" ||
+      mobilePageRoute === "products" ||
+      mobilePageRoute === "category" ||
+      mobilePageRoute === "availability" ||
+      mobilePageRoute === "fulfillment" ||
+      mobilePageRoute === "payments"
+      ? true
+      : false
+  );
+  const [openOrderList, setOpenOrderList] = useState(
+    mobilePageRoute === "history" || mobilePageRoute === "live" ? true : false
+  );
+  const [openCommList, setOpenCommList] = useState(
+    mobilePageRoute === "contacts" ||
+      mobilePageRoute === "chat" ||
+      mobilePageRoute === "comm-settings"
+      ? true
+      : false
+  );
+  const [openPremiumList, setOpenPremiumList] = useState(
+    mobilePageRoute === "membership" || mobilePageRoute === "add-ons"
+      ? true
+      : false
+  );
 
-	const { push } = useRouter();
+  const { push } = useRouter();
 
-	const handleNestedStoreList = () => {
-		setOpenStoreList((prev) => !prev);
-	};
+  const handleNestedStoreList = () => {
+    setOpenStoreList((prev) => !prev);
+  };
 
-	const handleNestedOrderList = () => {
-		setOpenOrderList((prev) => !prev);
-	};
+  const handleNestedOrderList = () => {
+    setOpenOrderList((prev) => !prev);
+  };
 
-	const handleNestedCommList = () => {
-		setOpenCommList((prev) => !prev);
-	};
+  const handleNestedCommList = () => {
+    setOpenCommList((prev) => !prev);
+  };
 
-	const handleNestedPremiumList = () => {
-		setOpenPremiumList((prev) => !prev);
-	};
+  const handleNestedPremiumList = () => {
+    setOpenPremiumList((prev) => !prev);
+  };
 
-	const handleShareShop = () => {
-		window.alert("Share shop");
-	};
+  const handleShareShop = () => {
+    window.alert("Share shop");
+  };
 
-	const handleLogOut = async () => {
-		await signOut({
-			redirect: false,
-		});
-		push("/auth/signin");
-	};
+  const handleLogOut = async () => {
+    await signOut({
+      redirect: false,
+    });
+    deleteLocalStorage("checklist");
+    deleteLocalStorage("isChecklistComplete");
+    push("/auth/signin");
+  };
 
-	return (
-		<div className={`${styles.mobile_nav_box} ${styles.flexCol}`}>
-			<div className={`${styles.navbar_header_group} ${styles.flexCol}`}>
-				<Image
-					alt="business logo"
-					src={candle_logo}
-					className={`${styles.avatar_image}`}
-				/>
-				<h3>BoxCart</h3>
+  return (
+    <div className={`${styles.mobile_nav_box} ${styles.flexCol}`}>
+      <div className={`${styles.navbar_header_group} ${styles.flexCol}`}>
+        <Image
+          alt="business logo"
+          src={candle_logo}
+          className={`${styles.avatar_image}`}
+        />
+        <h3>BoxCart</h3>
 
-				<Link href="/account/my-shop" className="mt-2">
-					<ButtonThird
-						handleClick={toggleDrawer("right", false)}
-						icon={<StorefrontIcon fontSize="small" />}
-						name="My Shop"
-					/>
-				</Link>
-			</div>
-			<List
-				component="nav"
-				aria-labelledby="nested-list-subheader"
-				className={`${styles.menu_list_group}`}
-				sx={{ padding: "1rem" }}
-			>
-				<Link
-					href="/account/contacts"
-					className={`${styles.menu_link_group}`}
-					onClick={toggleDrawer("right", false)}
-				>
-					<MenuItem
-						sx={{
-							backgroundColor: `${
-								mobilePageRoute === "contacts" && "var(--third-light)"
-							}`,
+        <Link href="/account/my-shop" className="mt-2">
+          <ButtonThird
+            handleClick={toggleDrawer("right", false)}
+            icon={<StorefrontIcon fontSize="small" />}
+            name="My Shop"
+          />
+        </Link>
+      </div>
+      <List
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        className={`${styles.menu_list_group}`}
+        sx={{ padding: "1rem" }}
+      >
+        <Link
+          href="/account/contacts"
+          className={`${styles.menu_link_group}`}
+          onClick={toggleDrawer("right", false)}
+        >
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                mobilePageRoute === "contacts" && "var(--third-light)"
+              }`,
 
-							borderRadius: `${mobilePageRoute === "contacts" && "4px"}`,
-						}}
-					>
-						<ListItemIcon>
-							<ContactEmergencyOutlinedIcon
-								sx={{
-									color: `${
-										mobilePageRoute === "contacts"
-											? "var(--third-dark)"
-											: "gray"
-									}  `,
-								}}
-							/>
-						</ListItemIcon>
-						<ListItemText
-							primary="Contacts"
-							sx={{
-								color: `${
-									mobilePageRoute === "contacts" ? "var(--third-dark)" : "gray"
-								}  `,
-							}}
-						/>
-					</MenuItem>
-				</Link>
+              borderRadius: `${mobilePageRoute === "contacts" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <ContactEmergencyOutlinedIcon
+                sx={{
+                  color: `${
+                    mobilePageRoute === "contacts"
+                      ? "var(--third-dark)"
+                      : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Contacts"
+              sx={{
+                color: `${
+                  mobilePageRoute === "contacts" ? "var(--third-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link>
 
-				<MenuItem onClick={handleNestedPremiumList}>
-					<ListItemIcon>
-						<StarPurple500Icon
-							sx={{
-								color: `${
-									mobilePageRoute === "membership" ||
-									mobilePageRoute === "add-ons"
-										? "var(--third-dark)"
-										: "gray"
-								}  `,
-							}}
-						/>
-					</ListItemIcon>
-					<ListItemText
-						primary="Premium"
-						sx={{
-							color: `${
-								mobilePageRoute === "membership" ||
-								mobilePageRoute === "add-ons"
-									? "var(--third-dark)"
-									: "gray"
-							}  `,
-						}}
-					/>
-					{openPremiumList ? (
-						<ExpandLess
-							sx={{
-								color: "var(--third-dark)",
-							}}
-						/>
-					) : (
-						<ExpandMore
-							sx={{
-								color: "gray",
-							}}
-						/>
-					)}
-				</MenuItem>
+        <MenuItem onClick={handleNestedPremiumList}>
+          <ListItemIcon>
+            <StarPurple500Icon
+              sx={{
+                color: `${
+                  mobilePageRoute === "membership" ||
+                  mobilePageRoute === "add-ons"
+                    ? "var(--third-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="Premium"
+            sx={{
+              color: `${
+                mobilePageRoute === "membership" ||
+                mobilePageRoute === "add-ons"
+                  ? "var(--third-dark)"
+                  : "gray"
+              }  `,
+            }}
+          />
+          {openPremiumList ? (
+            <ExpandLess
+              sx={{
+                color: "var(--third-dark)",
+              }}
+            />
+          ) : (
+            <ExpandMore
+              sx={{
+                color: "gray",
+              }}
+            />
+          )}
+        </MenuItem>
 
-				<Collapse in={openPremiumList} timeout="auto" unmountOnExit>
-					<List component="div" disablePadding sx={{ pl: "16px" }}>
-						<Link
-							href="/account/premium/membership"
-							className={`${styles.menu_link_group}`}
-							onClick={toggleDrawer("right", false)}
-						>
-							<MenuItem
-								sx={{
-									backgroundColor: `${
-										mobilePageRoute === "membership" && "var(--third-light)"
-									}`,
+        <Collapse in={openPremiumList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding sx={{ pl: "16px" }}>
+            <Link
+              href="/account/premium/membership"
+              className={`${styles.menu_link_group}`}
+              onClick={toggleDrawer("right", false)}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    mobilePageRoute === "membership" && "var(--third-light)"
+                  }`,
 
-									borderRadius: `${mobilePageRoute === "membership" && "4px"}`,
-								}}
-							>
-								<ListItemIcon>
-									<CardMembershipIcon
-										fontSize="small"
-										sx={{
-											color: `${
-												mobilePageRoute === "membership"
-													? "var(--third-dark)"
-													: "gray"
-											}  `,
-										}}
-									/>
-								</ListItemIcon>
-								<ListItemText
-									primary={<p className="text-sm font-light">Membership</p>}
-									sx={{
-										color: `${
-											mobilePageRoute === "membership"
-												? "var(--third-dark)"
-												: "gray"
-										}  `,
-									}}
-								/>
-							</MenuItem>
-						</Link>
-						{/* <Link
+                  borderRadius: `${mobilePageRoute === "membership" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <CardMembershipIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        mobilePageRoute === "membership"
+                          ? "var(--third-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Membership</p>}
+                  sx={{
+                    color: `${
+                      mobilePageRoute === "membership"
+                        ? "var(--third-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            {/* <Link
 							href="/account/premium/add-ons"
 							className={`${styles.menu_link_group}`}
 							onClick={toggleDrawer("right", false)}
@@ -255,101 +259,101 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
 								/>
 							</MenuItem>
 						</Link> */}
-					</List>
-				</Collapse>
+          </List>
+        </Collapse>
 
-				<Link
-					href="/account/settings"
-					className={`${styles.menu_link_group}`}
-					onClick={toggleDrawer("right", false)}
-				>
-					<MenuItem
-						sx={{
-							backgroundColor: `${
-								mobilePageRoute === "account-settings" && "var(--third-light)"
-							}`,
+        <Link
+          href="/account/settings"
+          className={`${styles.menu_link_group}`}
+          onClick={toggleDrawer("right", false)}
+        >
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                mobilePageRoute === "account-settings" && "var(--third-light)"
+              }`,
 
-							borderRadius: `${
-								mobilePageRoute === "account-settings" && "4px"
-							}`,
-						}}
-					>
-						<ListItemIcon>
-							<SettingsOutlinedIcon
-								sx={{
-									color: `${
-										mobilePageRoute === "account-settings"
-											? "var(--third-dark)"
-											: "gray"
-									}  `,
-								}}
-							/>
-						</ListItemIcon>
-						<ListItemText
-							primary="Settings"
-							sx={{
-								color: `${
-									mobilePageRoute === "account-settings"
-										? "var(--third-dark)"
-										: "gray"
-								}  `,
-							}}
-						/>
-					</MenuItem>
-				</Link>
-				<Link
-					href="/account/newsroom"
-					className={`${styles.menu_link_group}`}
-					onClick={toggleDrawer("right", false)}
-				>
-					<MenuItem
-						sx={{
-							backgroundColor: `${
-								mobilePageRoute === "news-room" && "var(--third-light)"
-							}`,
+              borderRadius: `${
+                mobilePageRoute === "account-settings" && "4px"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <SettingsOutlinedIcon
+                sx={{
+                  color: `${
+                    mobilePageRoute === "account-settings"
+                      ? "var(--third-dark)"
+                      : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Settings"
+              sx={{
+                color: `${
+                  mobilePageRoute === "account-settings"
+                    ? "var(--third-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link>
+        <Link
+          href="/account/newsroom"
+          className={`${styles.menu_link_group}`}
+          onClick={toggleDrawer("right", false)}
+        >
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                mobilePageRoute === "news-room" && "var(--third-light)"
+              }`,
 
-							borderRadius: `${mobilePageRoute === "news-room" && "4px"}`,
-						}}
-					>
-						<ListItemIcon>
-							<NewspaperIcon
-								sx={{
-									color: `${
-										mobilePageRoute === "news-room"
-											? "var(--third-dark)"
-											: "gray"
-									}  `,
-								}}
-							/>
-						</ListItemIcon>
-						<ListItemText
-							primary="Newsroom"
-							sx={{
-								color: `${
-									mobilePageRoute === "news-room" ? "var(--third-dark)" : "gray"
-								}  `,
-							}}
-						/>
-					</MenuItem>
-				</Link>
-			</List>
-			<div className={`${styles.navbar_footer_group}`}>
-				<MenuItem onClick={handleShareShop}>
-					<ListItemIcon>
-						<ShareOutlinedIcon />
-					</ListItemIcon>
-					<ListItemText primary="Share store" />
-				</MenuItem>
+              borderRadius: `${mobilePageRoute === "news-room" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <NewspaperIcon
+                sx={{
+                  color: `${
+                    mobilePageRoute === "news-room"
+                      ? "var(--third-dark)"
+                      : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Newsroom"
+              sx={{
+                color: `${
+                  mobilePageRoute === "news-room" ? "var(--third-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link>
+      </List>
+      <div className={`${styles.navbar_footer_group}`}>
+        <MenuItem onClick={handleShareShop}>
+          <ListItemIcon>
+            <ShareOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Share store" />
+        </MenuItem>
 
-				<MenuItem onClick={handleLogOut}>
-					<ListItemIcon>
-						<LogoutIcon />
-					</ListItemIcon>
-					<ListItemText primary="Log out" />
-				</MenuItem>
-			</div>
-		</div>
-	);
+        <MenuItem onClick={handleLogOut}>
+          <ListItemIcon>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Log out" />
+        </MenuItem>
+      </div>
+    </div>
+  );
 }
 
 export default MobileNavBar;

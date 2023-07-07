@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShopSwitch } from "../common/switches/ShopSwitch";
+import { ShopSwitch } from "../global/switches/ShopSwitch";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import TakeoutDiningOutlinedIcon from "@mui/icons-material/TakeoutDiningOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";

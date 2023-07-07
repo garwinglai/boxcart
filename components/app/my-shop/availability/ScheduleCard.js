@@ -1,4 +1,4 @@
-import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
+import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import React, { useState } from "react";
 import { IconButton } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";

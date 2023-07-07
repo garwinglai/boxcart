@@ -3,7 +3,7 @@ import EditCalendarRoundedIcon from "@mui/icons-material/EditCalendarRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import calendar_icon from "@/public/images/icons/calendar_icon.png";
 import Image from "next/image";
-import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import AddIcon from "@mui/icons-material/Add";
 import CreateScheduleDrawer from "@/components/app/my-shop/availability/CreateScheduleDrawer";
 import Drawer from "@mui/material/Drawer";
@@ -12,7 +12,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
-import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
+import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import { isAuth } from "@/helper/client/auth/isAuth";
 
 function Availability() {

@@ -2,13 +2,13 @@ import React from "react";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/orders/order-history.module.css";
-import Calendar from "@/components/common/designs/Calendar";
-import SearchBar from "@/components/common/designs/SearchBar";
+import Calendar from "@/components/global/designs/Calendar";
+import SearchBar from "@/components/global/designs/SearchBar";
 import SortIcon from "@mui/icons-material/Sort";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGridHistory from "@/components/app/orders/OrderGridHistory";
-import ButtonFilter from "@/components/common/buttons/ButtonFilter";
+import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { isAuth } from "@/helper/client/auth/isAuth";
 
 function AllOrders() {

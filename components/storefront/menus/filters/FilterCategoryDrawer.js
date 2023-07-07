@@ -1,6 +1,6 @@
 import React from "react";
 import Drawer from "@mui/material/Drawer";
-import DrawerHeader from "@/components/common/drawers/DrawerHeader";
+import DrawerHeader from "@/components/global/drawers/DrawerHeader";
 import CategoryIcon from "@mui/icons-material/Category";
 import Divider from "@mui/material/Divider";
 

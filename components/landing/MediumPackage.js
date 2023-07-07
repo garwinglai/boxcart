@@ -1,7 +1,7 @@
 import React from "react";
 import crowd_funding_icon from "@/public/images/icons/crowd_funding_icon.png";
 import Image from "next/image";
-import ButtonPrimary from "../common/buttons/ButtonPrimary";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import check_icon from "@/public/images/icons/check_icon.png";
 
 function MediumPackage() {

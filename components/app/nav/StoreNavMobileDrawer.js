@@ -2,7 +2,7 @@ import React from "react";
 import Drawer from "@mui/material/Drawer";
 import Link from "next/link";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
-import DrawerHeader from "../../common/drawers/DrawerHeader";
+import DrawerHeader from "../../global/drawers/DrawerHeader";
 import PropTypes from "prop-types";
 import { Global } from "@emotion/react";
 import { styled } from "@mui/material/styles";

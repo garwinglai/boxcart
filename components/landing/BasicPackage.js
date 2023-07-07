@@ -1,7 +1,7 @@
 import React from "react";
 import launch_icon from "@/public/images/icons/launch_icon.png";
 import Image from "next/image";
-import ButtonPrimary from "../common/buttons/ButtonPrimary";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import check_icon from "@/public/images/icons/check_icon.png";
 
 function BasicPackage() {

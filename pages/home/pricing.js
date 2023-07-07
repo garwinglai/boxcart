@@ -2,7 +2,7 @@ import React from "react";
 import BasicPackage from "@/components/landing/BasicPackage";
 import MediumPackage from "@/components/landing/MediumPackage";
 import TopPackage from "@/components/landing/TopPackage";
-import { IOSSwitch } from "@/components/common/switches/IOSSwitch";
+import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 
 function Pricing() {
 	return (

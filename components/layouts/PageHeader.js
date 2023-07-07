@@ -4,7 +4,7 @@ import { IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import MobileNavBar from "./MobileNavBar";
-import ButtonPrimary from "../common/buttons/ButtonPrimary";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Badge from "@mui/material/Badge";
 

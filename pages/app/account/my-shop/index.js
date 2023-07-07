@@ -25,7 +25,7 @@ function MyShop() {
 				<Divider light />
 			</div>
 			<ShopSearchBar isOwner={true} />
-			<ShopMenu isOwner={true} />
+			{/* <ShopMenu isOwner={true} /> */}
 		</div>
 	);
 }

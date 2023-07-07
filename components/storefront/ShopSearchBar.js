@@ -12,7 +12,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import ButtonPrimaryStorefront from "../common/buttons/ButtonPrimaryStorefront";
+import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
 
 function ShopSearchBar({ isOwner }) {
 	const [state, setState] = React.useState({

@@ -1,4 +1,4 @@
-import { findSubdomainUser } from "@/helper/server/prisma/account/findSubdomain";
+import { findSubdomainAccount } from "@/helper/server/prisma/account/findSubdomain";
 
 export default async function handler(req, res) {
 	const { slug } = req.query;
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 	const subdomain = slug;
 
 	if (method === "GET") {
-		const user = await findSubdomainUser(subdomain);
+		const user = await findSubdomainAccount(subdomain);
 		const { success, value, error } = user;
 
 		if (success) {

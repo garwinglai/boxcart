@@ -1,7 +1,7 @@
 import React from "react";
 import ai_brain_icon from "@/public/images/icons/ai_brain_icon.png";
 import Image from "next/image";
-import ButtonPrimary from "../common/buttons/ButtonPrimary";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import check_icon from "@/public/images/icons/check_icon.png";
 
 function TopPackage() {

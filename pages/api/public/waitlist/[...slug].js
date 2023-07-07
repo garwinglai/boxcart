@@ -2,7 +2,7 @@ import {
 	checkSubdomainInUse,
 	checkEmailInUseAPI,
 	createWaitlistUser,
-} from "@/helper/server/prisma/waitlist/waitlist-crud";
+} from "@/helper/server/prisma/waitlist";
 
 // * API Handler
 export default async function handler(req, res) {

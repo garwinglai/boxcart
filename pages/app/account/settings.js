@@ -4,7 +4,7 @@ import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/account-settings.module.css";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TextField from "@mui/material/TextField";
-import ButtonPrimary from "@/components/common/buttons/ButtonPrimary";
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
 
 function AccountSettings() {

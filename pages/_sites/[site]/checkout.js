@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import OrderReview from "@/components/storefront/cart/OrderReview";
 import OrderSubtotal from "@/components/storefront/cart/OrderSubtotal";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ButtonPrimaryStorefront from "@/components/common/buttons/ButtonPrimaryStorefront";
+import ButtonPrimaryStorefront from "@/components/global/buttons/ButtonPrimaryStorefront";
 
 function Checkout() {
 	const [isLoading, setIsLoading] = useState(false);

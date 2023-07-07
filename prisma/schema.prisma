@@ -24,107 +24,376 @@ model Waitlist {
   earlyBirdCode  String?  @unique
   reservationNo  Int?     @unique
   numberReferred Int      @default(0)
+  isUserCreated  Boolean  @default(false)
+  user           User?
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  name          String?
-  firstName     String?
-  lastName      String?
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  role          Role      @default(OWNER)
+  id              Int       @id @default(autoincrement())
+  name            String?
+  firstName       String?
+  lastName        String?
+  email           String    @unique
+  isEmailVerified Boolean   @default(false)
+  password        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  accounts        Account[]
+  role            Role      @default(OWNER)
+  waitlist        Waitlist  @relation(fields: [waitlistId], references: [id])
+  waitlistId      Int       @unique
 }
 
 model Account {
-  id                   Int             @id @default(autoincrement())
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-  userId               Int
-  isActive             Boolean         @default(false) // After email verification, this will be active.
-  freePeriodActive     Boolean         @default(true)
-  freePeriodEndDateStr String?
-  // freePeriodEndDateEpoch BigInt?
-  email                String          @unique
-  emailVerified        Boolean         @default(false)
-  name                 String?
-  firstName            String?
-  lastName             String?
-  accessCode           String?         @unique
-  businessName         String
-  subdomain            String          @unique
-  businessTypes        BusinessTypes[]
-  logoImgStr           String?
-  businessBio          String?
-  socials              Socials[]
-  fulfillmentMethodInt Int
-  fulfillmentMethods   Fulfillment[]
-  address_1            String
-  address_2            String?
-  city                 String
-  state                String
-  zip                  String
-  fullAddress          String
-  enableTips           Boolean         @default(false)
-  tipValues            Tips[]
-  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                     Int            @id @default(autoincrement())
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  isFreePeriodActive     Boolean        @default(true)
+  freePeriodEndDateStr   String?
+  freePeriodEndDateEpoch String?
+  isFirstLogin           Boolean        @default(true)
+  email                  String         @unique
+  isEmailVerified        Boolean        @default(false)
+  userName               String?
+  firstName              String?
+  lastName               String?
+  accessCode             String?        @unique
+  businessName           String
+  subdomain              String         @unique
+  businessTypes          BusinessType[]
+  logoImgStr             String?        @db.LongText
+  businessBio            String?
+  socials                Social[]
+  fulfillmentMethodInt   Int
+  fulfillmentMethods     Fulfillment[]
+  address_1              String
+  address_2              String?
+  city                   String
+  state                  String
+  zip                    String
+  fullAddress            String
+  enableTips             Boolean        @default(false)
+  tips                   Tips?
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 Int
+
+  // new updates to check
+  isActive              Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
+  isBetaUser            Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isBetaPromoActive     Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isChecklistComplete   Boolean              @default(false) // Default false until checklist is complete.
+  hasCustomAvailability Boolean              @default(false) // Default false until user sets own availabilitly.
+  hasPremiumPlan        Boolean              @default(false) // Default false until user pays for premium plan.
+  hasPaymentMethod      Boolean              @default(false)
+  hasDeposits           Boolean              @default(false)
+  acceptedPayments      AcceptedPayment[]
+  deposit               Deposit?
+  savedPaymentMethods   SavedPaymentMethod[]
+  premiumPlan           PremiumPlan?
+  checklist             Checklist?
+  products              Product[]
+  categories            Category[]
+  availabilities        Availability[]
+  // 
 
   @@index([userId])
 }
 
-model BusinessTypes {
+// TODO figure out schema for stripe
+model AcceptedPayment {
+  id                  Int      @id @default(autoincrement())
+  paymentMethod       String?
+  paymentAccount      String?
+  paymentInstructions String?
+  account             Account? @relation(fields: [accountId], references: [id])
+  accountId           Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([accountId])
+}
+
+model Deposit {
+  id            Int     @id @default(autoincrement())
+  feeTypeStr    String?
+  feeTypeSymbol String?
+  feeStr        String?
+  feeIntPenny   Int?
+  account       Account @relation(fields: [accountId], references: [id])
+  accountId     Int     @unique
+}
+
+model Availability {
+  id                      Int                       @id @default(autoincrement())
+  datesAvailability       DatesAvailability[]
+  datesRangedAvailability DatesRangedAvailability[]
+  daysOfWeekAvailability  DaysOfWeekAvailability[]
+  account                 Account?                  @relation(fields: [accountId], references: [id])
+  accountId               Int?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+
+  @@index([accountId])
+}
+
+model DatesAvailability {
+  id             Int           @id @default(autoincrement())
+  dateStr        String?
+  dateEpoch      String?
+  startTimeStr   String?
+  startTimeInt   Int?
+  endTimeStr     String?
+  endTimeInt     Int?
+  availability   Availability? @relation(fields: [availabilityId], references: [id])
+  availabilityId Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([availabilityId])
+}
+
+model DatesRangedAvailability {
+  id             Int           @id @default(autoincrement())
+  startDateStr   String?
+  startDateInt   Int?
+  endDateStr     String?
+  endDateInt     Int?
+  startTimeStr   String?
+  startTimeInt   Int?
+  endTimeStr     String?
+  endTimeInt     Int?
+  availability   Availability? @relation(fields: [availabilityId], references: [id])
+  availabilityId Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([availabilityId])
+}
+
+model DaysOfWeekAvailability {
+  id                 Int           @id @default(autoincrement())
+  dayStr             String?
+  dayInt             Int?
+  startTimeStr       String?
+  startTimeInt       Int?
+  endTimeStr         String?
+  endTimeInt         Int?
+  repetition         String?
+  lengthOfRepetition String?
+  availability       Availability? @relation(fields: [availabilityId], references: [id])
+  availabilityId     Int?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([availabilityId])
+}
+
+model Product {
+  id                   Int           @id @default(autoincrement())
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  isSampleProduct      Boolean       @default(false)
+  isEnabled            Boolean       @default(true)
+  productName          String?
+  description          String?
+  priceIntPenny        Int?
+  priceStr             String?
+  defaultImgStr        String?
+  images               Image[]
+  hasUnlimitedQuantity Boolean       @default(true)
+  setQuantityByProduct Boolean       @default(true) //If false, set qty by variant and total up for qty.
+  quantity             Int?
+  optionGroups         OptionGroup[]
+  questions            Question[]
+  relatedCategories    Category[]
+  account              Account?      @relation(fields: [accountId], references: [id])
+  accountId            Int?
+
+  @@index([accountId])
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDefault   Boolean  @default(false)
+  imgStr      String?
+  imgFileName String?
+  productName String?
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   Int?
+
+  @@index([productId])
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  categoryName String?   @unique
+  account      Account?  @relation(fields: [accountId], references: [id])
+  accountId    Int?
+  products     Product[]
+
+  @@index([accountId])
+}
+
+model Question {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  question    String?
+  productName String?
+  isRequired  Boolean  @default(true)
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   Int?
+
+  @@index([productId])
+}
+
+model OptionGroup {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  optionGroupName String?
+  productName     String?
+  product         Product? @relation(fields: [productId], references: [id])
+  productId       Int?
+  options         Option[]
+
+  @@index([productId])
+}
+
+model Option {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  optionGroupName String?
+  optionName      String?
+  priceStr        String?
+  priceIntPenny   Int?
+  quantityStr     String?
+  quantityInt     Int?
+  optionGroup     OptionGroup? @relation(fields: [optionGroupId], references: [id])
+  optionGroupId   Int?
+
+  @@index([optionGroupId])
+}
+
+model Checklist {
+  id                       Int     @id @default(autoincrement())
+  isEmailVerified          Boolean @default(false)
+  isProductsUploaded       Boolean @default(false)
+  isDeliverySet            Boolean @default(false)
+  isPaymentsSet            Boolean @default(false)
+  hasViewedSupportChannels Boolean @default(false)
+  hasViewedShareStore      Boolean @default(false)
+  subdomain                String? @unique
+  email                    String? @unique
+  account                  Account @relation(fields: [accountId], references: [id])
+  accountId                Int     @unique
+}
+
+model PremiumPlan {
+  id                    Int      @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  planName              String?
+  planInt               Int? // 0 base, 1 mid, 2high
+  costStr               String?
+  costIntPenny          Int?
+  payPeriod             String?
+  nextPaymentDateStr    String?
+  nextPaymentDateEpoch  String?
+  previousBillDateStr   String?
+  previousBillDateEpoch String?
+  autoRenew             Boolean  @default(true)
+  totalPaidStr          String?
+  totalPaidInt          Int?
+  userName              String?
+  businessName          String?
+  email                 String?
+  account               Account  @relation(fields: [accountId], references: [id])
+  accountId             Int      @unique
+}
+
+model SavedPaymentMethod {
+  id                  Int      @id @default(autoincrement())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  paymentMethod       String?
+  cardholderName      String?
+  cardExpirationStr   String?
+  cardExpirationEpoch String?
+  cardNumber          Int?
+  userName            String?
+  businessName        String?
+  email               String?
+  account             Account? @relation(fields: [accountId], references: [id])
+  accountId           Int?
+
+  @@index([accountId])
+}
+
+model BusinessType {
   id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   type      String?
-  Account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id])
   accountId Int?
 
   @@index([accountId])
 }
 
-model Socials {
+model Social {
   id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   platform  String?
   url       String?
-  Account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id])
   accountId Int?
 
   @@index([accountId])
 }
 
 model Fulfillment {
-  id                       Int      @id @default(autoincrement())
-  method                   String
-  methodInt                Int
-  deliveryTypeInt          Int?
-  deliveryTypeStr          String?
-  localDeliveryDistanceStr String?
-  localDeliveryDistanceMi  Int?
-  localDeliveryDistanceKm  Int?
-  pickupNote               String?
-  Account                  Account? @relation(fields: [accountId], references: [id])
-  accountId                Int?
+  id                        Int      @id @default(autoincrement())
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  method                    String
+  methodInt                 Int
+  deliveryTypeInt           Int?
+  deliveryTypeStr           String?
+  localDeliveryDistanceStr  String?
+  localDeliveryDistanceMi   Int?
+  localDeliveryDistanceKm   Int?
+  pickupNote                String?
+  deliveryFeeType           String?
+  deliveryFeePriceStr       String?
+  deliveryFeePriceIntPenny  Int?
+  deliveryFeeByDistanceStr  String?
+  deliveryFeeByDistanceInt  Int?
+  deliveryFeeDistanceMetric String?
+  account                   Account? @relation(fields: [accountId], references: [id])
+  accountId                 Int?
 
   @@index([accountId])
 }
 
 model Tips {
-  id          Int      @id @default(autoincrement())
-  tipOneStr   String?
-  tipOneInt   Int?
-  tipTwoStr   String?
-  tipTwoInt   Int?
-  tipThreeStr String?
-  tipThreeInt Int?
-  type        String?
-  enabled     Boolean  @default(false)
-  Account     Account? @relation(fields: [accountId], references: [id])
-  accountId   Int?
-
-  @@index([accountId])
+  id               Int     @id @default(autoincrement())
+  account          Account @relation(fields: [accountId], references: [id])
+  accountId        Int     @unique
+  tipOneStr        String?
+  tipOneIntPenny   Int?
+  tipTwoStr        String?
+  tipTwoIntPenny   Int?
+  tipThreeStr      String?
+  tipThreeIntPenny Int?
+  type             String?
+  enabled          Boolean @default(false)
 }
 
 enum Role {

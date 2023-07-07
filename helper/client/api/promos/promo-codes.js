@@ -1,5 +1,5 @@
 export async function checkReferralCode(code) {
-	const referUrl = `/api/crud/promos/${code}`;
+	const referUrl = `/api/public/promos/${code}`;
 
 	const resCheckReferral = await fetch(referUrl, {
 		method: "GET",
@@ -15,7 +15,7 @@ export async function checkReferralCode(code) {
 }
 
 export async function logReferUsed(codeUsed) {
-	const referUrl = `/api/crud/promos/${codeUsed}`;
+	const referUrl = `/api/public/promos/${codeUsed}`;
 
 	const resCheckReferral = await fetch(referUrl, {
 		method: "POST",

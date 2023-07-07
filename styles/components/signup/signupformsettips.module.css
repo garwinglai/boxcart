@@ -1,86 +1,92 @@
 .flex {
-	display: flex;
+  display: flex;
 }
 
 .flexCol {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .tip_example {
-	margin-top: 16px;
-	color: var(--gray);
+  margin-top: 16px;
+  color: var(--gray);
 }
 
 .form_box {
-	margin-top: 1.5rem;
-	align-items: center;
+  margin-top: 1.5rem;
+  align-items: center;
 }
 
 .tip_type_box {
-	gap: 1rem;
+  gap: 1rem;
 }
 
 .inputs_box {
-	align-items: center;
-	gap: 1rem;
-	width: 100%;
-	margin-top: 3rem;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 3rem;
 }
 
 .input_group {
-	width: 100%;
-	position: relative;
-	overflow: hidden;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .tip_input {
-	width: 100%;
-	text-indent: 2rem;
-	border-radius: 4px;
-	font-size: 0.75rem;
-	padding: 10px 0;
-	color: var(--primary-dark-med);
-	border: none;
-	background-color: var(--primary-light-soft);
-	outline: none;
-	transition: box-shadow ease 0.2s;
-	box-shadow: inset 1px 1px 1px var(--primary),
-		inset -1px -1px 1px var(--primary-light);
+  width: 100%;
+  text-indent: 2rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 10px 0;
+  color: var(--primary-dark-med);
+  border: none;
+  background-color: var(--primary-light-soft);
+  outline: none;
+  transition: box-shadow ease 0.2s;
+  box-shadow: inset 1px 1px 1px var(--primary),
+    inset -1px -1px 1px var(--primary-light);
 }
 
 .tip_input:focus {
-	box-shadow: inset 3px 3px 3px var(--primary),
-		inset -2px -2px 2px var(--primary-light);
+  box-shadow: inset 3px 3px 3px var(--primary),
+    inset -2px -2px 2px var(--primary-light);
 }
 
 .tip_input::placeholder {
-	color: var(--primary-dark-med);
-	font-size: 0.75rem;
+  color: var(--primary-dark-med);
+  font-size: 0.75rem;
 }
 
 .tip_input input:-webkit-autofill,
 .tip_input input:-webkit-autofill:hover,
 .tip_input input:-webkit-autofill:focus,
 .tip_input input:-webkit-autofill:active {
-	transition: background-color 9999s ease-in-out 0s;
-	-webkit-text-fill-color: var(--primary-dark-med);
-	font-size: 0.75rem;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: var(--primary-dark-med);
+  font-size: 0.75rem;
 }
 
 .tip_label {
-	position: absolute;
-	top: 50%;
-	left: 1.75rem;
-	transition: transform ease 0.2s;
-	transform: translate(0%, -50%);
-	user-select: none;
-	pointer-events: none;
-	color: var(--primary);
-	font-size: 0.75rem;
+  position: absolute;
+  top: 50%;
+  left: 1.75rem;
+  transition: transform ease 0.2s;
+  transform: translate(0%, -50%);
+  user-select: none;
+  pointer-events: none;
+  color: var(--primary);
+  font-size: 0.75rem;
 }
 
 .input_group > input:focus + label,
 .input_group > input:valid + label {
-	transform: translate(-150%, -50%);
+  transform: translate(-150%, -50%);
+}
+
+@media screen and (min-width: 769px) {
+  .tip_input {
+    font-size: 1rem;
+  }
 }

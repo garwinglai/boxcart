@@ -1,45 +1,55 @@
 .flex {
-	display: flex;
-	gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .flexCol {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .address_input {
-	padding: 10px 0;
-	text-indent: 1rem;
-	border-radius: 4px;
-	font-size: 0.75rem;
-	width: 100%;
-	color: var(--primary-dark-med);
-	border: none;
-	border: none;
-	background-color: var(--primary-light-soft);
-	outline: none;
-	transition: box-shadow ease 0.2s;
-	box-shadow: inset 1px 1px 1px var(--primary),
-		inset -1px -1px 1px var(--primary-light);
+  padding: 10px 0;
+  text-indent: 1rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  width: 100%;
+  color: var(--primary-dark-med);
+  border: none;
+  border: none;
+  background-color: var(--primary-light-soft);
+  outline: none;
+  transition: box-shadow ease 0.2s;
+  box-shadow: inset 1px 1px 1px var(--primary),
+    inset -1px -1px 1px var(--primary-light);
 }
 
 .address_input:-webkit-autofill,
 .address_input:-webkit-autofill:hover,
 .address_input:-webkit-autofill:focus,
 .address_input:-webkit-autofill:active {
-	transition: background-color 9999s ease-in-out 0s;
-	-webkit-text-fill-color: var(--primary-dark-med);
-	-webkit-text-size-adjust: 0.75rem;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: var(--primary-dark-med);
+  -webkit-text-size-adjust: 0.75rem;
 }
 
 .address_input:focus {
-	box-shadow: inset 3px 3px 3px var(--primary),
-		inset -2px -2px 2px var(--primary-light);
+  box-shadow: inset 3px 3px 3px var(--primary),
+    inset -2px -2px 2px var(--primary-light);
 }
 
 .address_input::placeholder {
-	color: var(--primary-dark-med);
-	font-size: 0.75rem;
+  color: var(--primary-dark-med);
+  font-size: 0.75rem;
+}
+
+@media screen and (min-width: 769px) {
+  .address_input {
+    font-size: 1rem;
+  }
+
+  .address_input::placeholder {
+    font-size: 1rem;
+  }
 }

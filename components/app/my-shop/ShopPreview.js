@@ -29,7 +29,6 @@ function ShopPreview({ route, businessName, bio, email }) {
 
 	function setMenu(e, value) {
 		// const { value, name } = e.target;
-		console.log(value);
 		setmenuSelected(value);
 	}
 
