@@ -264,7 +264,7 @@ function ProductCard({
                     className="w-10 h-10"
                   />
                   <p>You&apos;re about to delete this product:</p>
-                  <h2 className="mb-2">"{productName}"</h2>
+                  <h2 className="mb-2">{productName}</h2>
                   <div className="flex  gap-4 items-center mt-2 w-full">
                     <div className="w-1/2">
                       <ButtonSecondary

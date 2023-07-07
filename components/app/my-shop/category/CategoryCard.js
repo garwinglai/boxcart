@@ -166,7 +166,7 @@ function CategoryCard({
                 className="w-10 h-10"
               />
               <p>You&apos;re about to delete the category:</p>
-              <h2 className="mb-2">"{categoryName}"</h2>
+              <h2 className="mb-2">{categoryName}</h2>
               <div className="flex  gap-4 items-center mt-2 w-full">
                 <div className="w-1/2">
                   <ButtonSecondary
