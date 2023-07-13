@@ -106,7 +106,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
-        <Link
+        {/* <Link
           href="/account/contacts"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
@@ -140,7 +140,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               }}
             />
           </MenuItem>
-        </Link>
+        </Link> */}
 
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>

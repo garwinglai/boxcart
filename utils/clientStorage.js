@@ -3,7 +3,7 @@ export function setLocalStorage(key, item) {
 }
 
 export function getLocalStorage(key) {
-  localStorage.getItem(key);
+  return localStorage.getItem(key);
 }
 
 export function deleteLocalStorage(key) {
@@ -15,7 +15,7 @@ export function setSessionStorage(key, item) {
 }
 
 export function getSessionStorage(key) {
-  sessionStorage.getItem(key);
+  return sessionStorage.getItem(key);
 }
 
 export function deleteSessionStorage(key) {

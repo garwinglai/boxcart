@@ -51,6 +51,8 @@ export async function updateCategoryServer(category) {
   const { accountId, categoryName, products, categoryId, removedProducts } =
     JSON.parse(category);
 
+  console.log("products", removedProducts);
+
   try {
     const updateCategory = await prisma.category.update({
       where: {

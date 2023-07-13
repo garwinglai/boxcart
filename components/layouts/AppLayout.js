@@ -21,20 +21,21 @@ function AppLayout({
   pageRoute,
   mobilePageRoute,
 }) {
-  const [snackbarPosition, setsnackbarPosition] = useState({
+  const [snackbarPosition, setSnackbarPosition] = useState({
     open: false,
-    vertical: "top",
-    horizontal: "center",
+    vertical: "bottom",
+    horizontal: "right",
   });
 
   const { vertical, horizontal, open } = snackbarPosition;
 
   useEffect(() => {
     const isChecklistComplete = getLocalStorage("isChecklistComplete");
-    if (!isChecklistComplete) {
-      setsnackbarPosition({
+    const isChecklistCompleteJson = JSON.parse(isChecklistComplete);
+    if (!isChecklistCompleteJson) {
+      setSnackbarPosition({
         open: true,
-        vertical: "top",
+        vertical: "bottom",
         horizontal: "center",
       });
     }
@@ -44,16 +45,17 @@ function AppLayout({
     <div className="flex overflow-hidden h-screen bg-[color:var(--brown-bg)] relative">
       <DesktopNavBar pageRoute={pageRoute} />
       <div className=" overflow-y-scroll w-full">
-        <div className="mx-auto flex justify-center">
-          {/* <Snackbar
+        <div className="absolute mx-auto mt-10 flex justify-center">
+          <Snackbar
             open={open}
             key={vertical + horizontal}
             anchorOrigin={{ vertical, horizontal }}
             sx={{
               width: "fit-content",
+              marginBottom: "4rem",
             }}
             message={
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-light md:text-sm">
                   Complete checklist to launch your store.
                 </p>
@@ -65,13 +67,14 @@ function AppLayout({
                 </Link>
               </div>
             }
-          /> */}
+          />
         </div>
         <PageHeader
           pageTitle={pageTitle}
           pageIcon={pageIcon}
           mobilePageRoute={mobilePageRoute}
         />
+
         <main className="scroll">{children}</main>
       </div>
       <ShopNavBottom mobilePageRoute={mobilePageRoute} pageTitle={pageTitle} />

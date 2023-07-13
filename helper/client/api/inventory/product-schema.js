@@ -51,7 +51,9 @@ export async function deleteProductClient(productId) {
 
   const resDeleteProduct = await fetch(productApiRoute, {
     method: "POST",
-    body: JSON.stringify({ productId }),
+    body: JSON.stringify({
+      productId,
+    }),
   });
   const resDeleteProductJson = await resDeleteProduct.json();
 

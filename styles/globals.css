@@ -3,88 +3,88 @@
 @tailwind utilities;
 
 @layer base {
-	html {
-		-webkit-tap-highlight-color: transparent;
-	}
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 :root {
-	--black-design-extralight: #333333;
-	--black-design-light: #2b2b2b;
-	--black-design-med: #1f1f1f;
-	--black-design: #1b1c1e;
-	--black: #000000;
-	--white: #ffffff;
-	--white-design: #fbfbfb;
-	--white-med: #e1e1e1;
-	--white-light: #e0e0e0;
-	/* --primary-light-soft: #faf8ff;
+  --black-design-extralight: #333333;
+  --black-design-light: #2b2b2b;
+  --black-design-med: #1f1f1f;
+  --black-design: #1b1c1e;
+  --black: #000000;
+  --white: #ffffff;
+  --white-design: #fbfbfb;
+  --white-med: #e1e1e1;
+  --white-light: #e0e0e0;
+  /* --primary-light-soft: #faf8ff;
 	--primary-light: #ddcffc;
 	--primary-light-med: #c4a9ff;
 	--primary: #8952ff;
 	--primary-dark-med: #5b37aa;
 	--primary-dark: #2e1b55; */
-	--secondary-light-soft: #e8f0ff;
-	--secondary-light: #c8dcfe;
-	--secondary-light-med: #a5c7ff;
-	--secondary: #4a8eff;
-	--secondary-dark-med: #315faa;
-	--secondary-dark: #192f55;
-	--gray: #5e5e5e;
-	--gray-light-med: #d3d3d3;
-	--gray-text: #8f8f8f;
-	--gray-light: #f7f7f780;
-	--error: rgb(254, 78, 78);
-	--success: rgb(75, 255, 126);
-	--desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
-		rgba(0, 0, 0, 0.24) 0px 1px 2px;
-	--brown-bg: #f3f0ec;
-	--brown-bg-soft: rgb(251, 241, 228) 4;
-	--brown-bg-switch: #633e11;
-	--brown-text: #7d3e1e;
-	--primary: #7e3815;
-	--primary-light: #eeaa88;
-	--primary-light-soft: #ffe8dd;
-	--primary-light-med: #c2734b;
-	--primary-dark: #552209;
-	--primary-dark-med: #7e3b19;
-	--third: #7e3815;
-	--third-light: #eeaa88;
-	--third-light-soft: #ffe8dd;
-	--third-light-med: #c2734b;
-	--third-dark: #552209;
-	--third-dark-med: #7e3b19;
-	--modal-shadow: #00000059 0px 5px 15px;
+  --secondary-light-soft: #e8f0ff;
+  --secondary-light: #c8dcfe;
+  --secondary-light-med: #a5c7ff;
+  --secondary: #4a8eff;
+  --secondary-dark-med: #315faa;
+  --secondary-dark: #192f55;
+  --gray: #5e5e5e;
+  --gray-light-med: #d3d3d3;
+  --gray-text: #8f8f8f;
+  --gray-light: #f7f7f780;
+  --error: rgb(254, 78, 78);
+  --success: rgb(75, 255, 126);
+  --desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+    rgba(0, 0, 0, 0.24) 0px 1px 2px;
+  --brown-bg: #f3f0ec;
+  --brown-bg-soft: #fbf1e4;
+  --brown-bg-switch: #633e11;
+  --brown-text: #7d3e1e;
+  --primary: #7e3815;
+  --primary-light: #eeaa88;
+  --primary-light-soft: #ffe8dd;
+  --primary-light-med: #c2734b;
+  --primary-dark: #552209;
+  --primary-dark-med: #7e3b19;
+  --third: #7e3815;
+  --third-light: #eeaa88;
+  --third-light-soft: #ffe8dd;
+  --third-light-med: #c2734b;
+  --third-dark: #552209;
+  --third-dark-med: #7e3b19;
+  --modal-shadow: #00000059 0px 5px 15px;
 }
 
 html {
-	background-color: var(--brown-bg-soft);
+  background-color: var(--brown-bg-soft);
 }
 
 * {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 *,
 *::before,
 *::after {
-	box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 html {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html,
 body {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 * {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 h1,
@@ -99,7 +99,7 @@ label,
 span,
 td,
 th {
-	font-family: var(--robotoFlex-font), sans-serif;
+  font-family: var(--robotoFlex-font), sans-serif;
 }
 
 h1,
@@ -108,7 +108,7 @@ h3,
 h4,
 h5,
 b {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 p,
@@ -116,27 +116,27 @@ input::placeholder,
 textarea::placeholder,
 input,
 textarea {
-	font-family: var(--archivo-font), sans-serif;
+  font-family: var(--archivo-font), sans-serif;
 }
 
 label {
-	color: var(--gray-text);
+  color: var(--gray-text);
 }
 
 /* Chrome, Safari, Edge, Opera remove input number arrow */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Firefox */
 input[type="number"] {
-	-moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 button {
-	transition: all 250ms;
+  transition: all 250ms;
 }
 
 /* Drawer MUI */
@@ -146,12 +146,12 @@ button {
 } */
 
 @media (hover: hover) {
-	button:hover {
-		cursor: pointer;
-	}
+  button:hover {
+    cursor: pointer;
+  }
 
-	button:disabled:hover {
-		background: unset;
-		cursor: not-allowed;
-	}
+  button:disabled:hover {
+    background: unset;
+    cursor: not-allowed;
+  }
 }

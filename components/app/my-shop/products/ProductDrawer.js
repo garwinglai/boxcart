@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Drawer from "@mui/material/Drawer";
 import product_tag_icon from "@/public/images/icons/product_tag_icon.png";
 import Image from "next/image";
@@ -24,6 +24,8 @@ import {
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
+import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
+import { updateProductVerifiedChecklist } from "@/helper/client/api/checklist";
 
 const style = {
   position: "absolute",
@@ -47,6 +49,7 @@ function ProductDrawer({
   accountId,
   getProducts,
   addToProductsList,
+  updateProductList,
 }) {
   const [isSaveProductLoading, setIsSaveProductLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -75,15 +78,10 @@ function ProductDrawer({
     priceStr: product ? product.priceStr : "",
     defaultImgStr: product ? product.defaultImgStr : "",
     imgArrJson: product ? product.imgArrJson : "",
-    quantity: product ? product.quantity : 1,
+    quantity: product ? (!product.quantity ? 0 : product.quantity) : 1,
     setQuantityByProduct: product ? product.setQuantityByProduct : true,
     id: product ? product.id : "",
     isSampleProduct: product ? product.isSampleProduct : false,
-    categoryId: product
-      ? product.categoryId
-        ? product.categoryId
-        : null
-      : null,
     relatedCategories: product ? product.relatedCategories : [],
   });
   const [allCategories, setAllCategories] = useState(
@@ -97,6 +95,9 @@ function ProductDrawer({
   const [removedCategories, setRemovedCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
   const [openCategoryModal, setOpenCategoryModal] = useState(false);
+  const [removedQuestions, setRemovedQuestions] = useState([]);
+  const [removedOptions, setRemovedOptions] = useState([]);
+  const [removedOptionGroups, setRemovedOptionGroups] = useState([]);
 
   const {
     productName,
@@ -109,7 +110,6 @@ function ProductDrawer({
     setQuantityByProduct,
     id,
     isSampleProduct,
-    categoryId,
     relatedCategories,
   } = productValues;
 
@@ -120,6 +120,98 @@ function ProductDrawer({
     groupOfOptions,
   } = showOptionInputs;
   const { isSnackbarOpen, snackbarMessage } = snackbar;
+
+  // useEffect to structure optionGroup variables from product edit
+  if (isEditProduct) {
+    useEffect(() => {
+      if (!product) return;
+
+      setOptions(null);
+    }, []);
+  }
+
+  const setOptions = (updatedProduct) => {
+    const { optionGroups } = updatedProduct ? updatedProduct : product;
+    const optionsArr = [];
+
+    for (let i = 0; i < optionGroups.length; i++) {
+      const currOption = optionGroups[i];
+      const { options } = currOption;
+
+      optionsArr.push(...options);
+    }
+
+    // optionGroupPosition
+    const oGPositions = optionGroups.map((item) => item.id);
+
+    // optionGroupTitle
+    const oGTitles = optionGroups.map((item) => ({
+      position: item.id,
+      title: item.optionGroupName,
+      groupId: item.id,
+    }));
+
+    // optionPosition
+    const oPositions = optionGroups.map((item) => {
+      const { id: groupPosition } = item;
+
+      const dataArr = [];
+
+      for (let i = 0; i < optionsArr.length; i++) {
+        const currOption = optionsArr[i];
+        const { id: optionPosition, optionGroupId } = currOption;
+
+        if (optionGroupId === groupPosition) {
+          dataArr.push({ groupPosition, optionPosition });
+        }
+      }
+
+      return dataArr;
+    });
+    const oPositionsArr = oPositions.flat();
+
+    // groupOfOptions
+    const groupOptions = optionGroups.map((item) => {
+      const { id: groupPosition } = item;
+
+      const dataArr = [];
+
+      for (let i = 0; i < optionsArr.length; i++) {
+        const currOption = optionsArr[i];
+        const {
+          id: optionPosition,
+          optionGroupId,
+          optionName,
+          priceStr,
+          quantityStr,
+        } = currOption;
+
+        if (groupPosition === optionGroupId) {
+          dataArr.push({
+            groupPosition,
+            optionPosition,
+            optionName,
+            price: priceStr.slice(1),
+            quantityStr,
+            optionId: optionPosition,
+            groupId: groupPosition,
+          });
+        }
+      }
+
+      return dataArr;
+    });
+    const groupOptionsArr = groupOptions.flat();
+
+    const optionInputs = {
+      optionGroupPositions: oGPositions,
+      optionGroupTitles: oGTitles,
+      optionPositions: oPositionsArr,
+      groupOfOptions: groupOptionsArr,
+    };
+
+    setShowOptionInputs(optionInputs);
+  };
 
   const handleCategoryNameChange = (e) => {
     const { value } = e.target;
@@ -188,22 +280,49 @@ function ProductDrawer({
 
   const handleIsQtyUnlimitedChange = () => {
     setHasUnlimitedQuantity((prev) => !prev);
+    setProductValues((prev) => ({
+      ...prev,
+      setQuantityByProduct: true,
+      quantity: 0,
+    }));
   };
 
   const handleAddCustomerQuestions = (e) => {
-    setCustomerQuestionInput("");
     if (!customerQuestionInput) return;
 
-    if (!customerQuestions.includes(customerQuestionInput))
-      setCustomerQuestions((prev) => [
-        ...prev,
-        { question: customerQuestionInput, isRequired: true },
-      ]);
+    // check if customerQuestionInput is in removedQuestions, if it is, remove from removedQuestions
+
+    if (removedQuestions.includes(customerQuestionInput)) {
+      const newRemovedQuestions = removedQuestions.filter(
+        (question) => question !== customerQuestionInput
+      );
+      setRemovedQuestions(newRemovedQuestions);
+    }
+
+    // Create an array of all the questions within customerQuestions
+    const customerQuestionsArr = customerQuestions.map((item) => item.question);
+    // check if customerQuestionsArr includes customerQuestionInput, if it does, return
+    if (customerQuestionsArr.includes(customerQuestionInput)) {
+      handleOpenSnackbar("Question already exists");
+      setCustomerQuestionInput("");
+      return;
+    }
+
+    setCustomerQuestions((prev) => [
+      ...prev,
+      { question: customerQuestionInput, isRequired: true },
+    ]);
+
+    setCustomerQuestionInput("");
   };
 
   const handleCustomerQuestionInputChange = (e) => {
     const { value } = e.target;
-    setCustomerQuestionInput(value);
+
+    // Value is a string, capitalize first letter only, even if it is a sentence.
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+
+    setCustomerQuestionInput(capitalizedValue);
   };
 
   const handleQuestionRequired = (currQuestion) => (e) => {
@@ -293,6 +412,15 @@ function ProductDrawer({
       return;
     }
 
+    // Check if optionGroupTitles has duplicates. If it does, throw error
+    const optionGroupTitleArr = optionGroupTitles.map((item) => item.title);
+    const optionGroupTitleSet = new Set(optionGroupTitleArr);
+
+    if (optionGroupTitleArr.length !== optionGroupTitleSet.size) {
+      handleOpenSnackbar("Duplicate group title.");
+      return;
+    }
+
     const optionPositionsArrLen = optionPositions.length;
 
     // if there are no option positions, then the first option position is 0
@@ -309,7 +437,7 @@ function ProductDrawer({
       return;
     }
 
-    // If there is option positions, but no options per position, then the first option position is 0 for the group
+    // If there is option positions, but no options per group, then the first option position is 0 for the group
     const groupPositionsArr = optionPositions.map((item) => item.groupPosition);
     if (!groupPositionsArr.includes(position)) {
       const data = {
@@ -370,6 +498,26 @@ function ProductDrawer({
       (item) => item.groupPosition != value
     );
 
+    if (isEditProduct) {
+      // check optionGroupTitles to see if value matches any of the positions, if it does, check if groupId exists. If groupId exists, add the groupId to removedOptionGroups
+      const newRemovedOptionGroups = optionGroupTitles.filter((item) => {
+        if (item.position == value) {
+          if (item.groupId) return item.groupId;
+        }
+      });
+
+      if (newRemovedOptionGroups.length > 0) {
+        const newRemovedOptionGroupsArr = newRemovedOptionGroups.map(
+          (item) => item.groupId
+        );
+
+        setRemovedOptionGroups((prev) => [
+          ...prev,
+          ...newRemovedOptionGroupsArr,
+        ]);
+      }
+    }
+
     setShowOptionInputs((prev) => ({
       ...prev,
       groupOfOptions: newGroupOfOptions,
@@ -401,7 +549,7 @@ function ProductDrawer({
         ...prev,
         optionGroupTitles: optionGroupTitles.map((item, idx) => {
           if (position === item.position) {
-            return { position, title: value };
+            return { ...item, title: value };
           }
 
           return item;
@@ -434,6 +582,24 @@ function ProductDrawer({
       return true;
     });
 
+    if (isEditProduct) {
+      // check groupOfOptions to see if value matches any of the positions, if it does, check if optionId exists. If optionId exists, check if optionId equals optionPosition, if it does, add option to removedOptions
+
+      const newRemovedOptions = groupOfOptions.filter((item) => {
+        if (item.groupPosition == groupPosition) {
+          if (item.optionId == optionPosition) return item.optionId;
+        }
+      });
+
+      if (newRemovedOptions.length > 0) {
+        const newRemovedOptionsArr = newRemovedOptions.map(
+          (item) => item.optionId
+        );
+
+        setRemovedOptions((prev) => [...prev, ...newRemovedOptionsArr]);
+      }
+    }
+
     setShowOptionInputs((prev) => ({
       ...prev,
       optionPositions: newOptionPositions,
@@ -454,15 +620,18 @@ function ProductDrawer({
       }));
       return;
     }
+    let groupId = null;
 
     const hasGroupPosition = groupOfOptions.map((item) => {
       if (item.groupPosition !== groupPosition) return "notExist";
+      if (item.groupId) groupId = item.groupId;
       return "exists";
     });
 
     const hasPosition = groupOfOptions.map((item) => {
       if (item.groupPosition === groupPosition) {
         if (item.optionPosition !== optionPosition) return "notExist";
+
         return "exists";
       }
     });
@@ -493,8 +662,10 @@ function ProductDrawer({
       // if groupPosition exists but optionPosition does not exist, we have to add new [name]:value pair to the same groupPosition
       const data = {
         ...optionPositions,
+        groupId,
         [name]: value,
       };
+
       setShowOptionInputs((prev) => ({
         ...prev,
         groupOfOptions: [...groupOfOptions, data],
@@ -512,9 +683,22 @@ function ProductDrawer({
     }));
   };
 
-  const handleRemoveQuestion = (question) => () => {
+  const handleRemoveQuestion = (item) => () => {
+    const { id, question } = item;
+
+    // if edit, check if question is in product.questions, if it is, add question to removedQuestions
+    if (isEditProduct) {
+      const initialQuestionsArr = product.questions.map(
+        (item) => item.question
+      );
+
+      if (initialQuestionsArr.includes(question)) {
+        setRemovedQuestions((prev) => [...prev, question]);
+      }
+    }
+
     const newQuestionsArr = customerQuestions.filter(
-      (item) => item.question !== question
+      (i) => i.question !== question
     );
     setCustomerQuestions(newQuestionsArr);
   };
@@ -562,14 +746,18 @@ function ProductDrawer({
 
     if (name === "setQuantity") {
       if (value === "product") {
-        setProductValues((prev) => ({ ...prev, setQuantityByProduct: true }));
+        setProductValues((prev) => ({
+          ...prev,
+          setQuantityByProduct: true,
+          quantity: 0,
+        }));
       }
 
       if (value === "option") {
         setProductValues((prev) => ({
           ...prev,
           setQuantityByProduct: false,
-          quantity: "",
+          quantity: 0,
         }));
       }
 
@@ -581,6 +769,7 @@ function ProductDrawer({
       const isQuantityFormat = regex.test(value);
 
       if (!isQuantityFormat) {
+        setProductValues((prev) => ({ ...prev, quantity: 0 }));
         return;
       }
     }
@@ -611,6 +800,14 @@ function ProductDrawer({
     }
 
     // TODO: update, removed categories
+    // check if categoryName is in initialRelatedProducts, if it is, add categoryName to removedCategories
+    const initialRelatedProductsArr = initialRelatedProducts.map(
+      (item) => item.categoryName
+    );
+
+    if (initialRelatedProductsArr.includes(categoryName)) {
+      setRemovedCategories((prev) => [...prev, categoryName]);
+    }
   };
 
   const handleSave = async (e) => {
@@ -629,9 +826,19 @@ function ProductDrawer({
       const isQuantityFormat = regex.test(quantity);
       if (!isQuantityFormat) {
         handleOpenSnackbar("Quantity must be a whole number");
-        setIsSaveProductLoading(true);
+        setIsSaveProductLoading(false);
         return;
       }
+    }
+
+    // Check if optionGroupTitles has duplicates. If it does, throw error
+    const optionGroupTitleArr = optionGroupTitles.map((item) => item.title);
+    const optionGroupTitleSet = new Set(optionGroupTitleArr);
+
+    if (optionGroupTitleArr.length !== optionGroupTitleSet.size) {
+      handleOpenSnackbar("Duplicate group title.");
+      setIsSaveProductLoading(false);
+      return;
     }
 
     const productSchema = structureProductSchema();
@@ -646,16 +853,31 @@ function ProductDrawer({
 
     const { optionGroupSchema, optionSchema } = structuredOptions;
     const optionGroupSchemaLength = optionGroupSchema.length;
-    const optionSchemaLength = optionSchema.length;
 
-    if (optionGroupSchemaLength > 0 && optionSchemaLength === 0) {
-      handleOpenSnackbar("Missing variants.");
-      setIsSaveProductLoading(false);
-      return;
+    if (optionGroupSchemaLength > 0) {
+      // get the optionGroupNames from optionGroupSchema and check if the optionGroupName exists in optionSchema. If not, open snackbar with message
+      const optionGroupNames = optionGroupSchema.map(
+        (item) => item.optionGroupName
+      );
+      const optionGroupNamesInOptionSchema = optionSchema.map(
+        (item) => item.optionGroupName
+      );
+
+      const missingVariants = optionGroupNames.filter(
+        (item) => !optionGroupNamesInOptionSchema.includes(item)
+      );
+
+      if (missingVariants.length > 0) {
+        handleOpenSnackbar(
+          "Missing variants. Add variants or remove option group."
+        );
+        setIsSaveProductLoading(false);
+        return;
+      }
     }
 
     if (!setQuantityByProduct && optionGroupSchemaLength === 0) {
-      handleOpenSnackbar("Check quantity. No options created.");
+      handleOpenSnackbar("Update quantity settings.");
       setIsSaveProductLoading(false);
       return;
     }
@@ -670,7 +892,16 @@ function ProductDrawer({
 
     if (isEditProduct) {
       const resProductUpdate = await updateProductClient(productObject);
+      const { success, value } = resProductUpdate;
+      const { updatedProduct } = value;
+
+      if (!success) {
+        handleOpenSnackbar("Error updating product.");
+      }
+
       setIsSaveProductLoading(false);
+      unsetAllStates(updatedProduct);
+      updateProductList(updatedProduct);
     }
 
     if (isCreateProduct) {
@@ -685,17 +916,36 @@ function ProductDrawer({
         return;
       }
 
+      const checklistLS = getLocalStorage("checklist");
+      const checklistJson = JSON.parse(checklistLS);
+      const { isProductsUploaded, accountId } = checklistJson;
+
+      if (!isProductsUploaded) {
+        checklistJson.isProductsUploaded = true;
+        const checklistJsonString = JSON.stringify(checklistJson);
+        setLocalStorage("checklist", checklistJsonString);
+
+        const { success, value, error } = await updateProductVerifiedChecklist(
+          accountId
+        );
+
+        if (!success) {
+          console.log("error updating checklist for product:", error);
+          handleOpenSnackbar("Error updating checklist.");
+        }
+      }
+
       addToProductsList(createdProduct);
       if (createdCategories && createdCategories.length > 0) {
         setAllCategories((prev) => [...prev, ...createdCategories]);
       }
+      unsetAllStates();
     }
 
-    unsetAllStates();
     toggleDrawer("right", false)(e);
   };
 
-  const unsetAllStates = async () => {
+  const unsetAllStates = async (updatedProduct) => {
     if (isCreateProduct) {
       setProductValues({
         productName: "",
@@ -708,7 +958,6 @@ function ProductDrawer({
         setQuantityByProduct: true,
         id: "",
         isSampleProduct: false,
-        categoryId: null,
         relatedCategories: [],
       });
 
@@ -729,35 +978,51 @@ function ProductDrawer({
 
     if (isEditProduct) {
       // reset all states to original values
+      const {
+        productName,
+        description,
+        priceIntPenny,
+        priceStr,
+        defaultImgStr,
+        imgArrJson,
+        quantity,
+        setQuantityByProduct,
+        id,
+        isSampleProduct,
+        relatedCategories,
+        questions,
+        hasUnlimitedQuantity,
+        optionGroups,
+      } = updatedProduct ? updatedProduct : product;
 
       setProductValues({
-        productName: product.productName,
-        description: product.description,
-        priceInt: product.priceIntPenny / 100,
-        priceStr: product.priceStr,
-        defaultImgStr: product.defaultImgStr,
-        imgArrJson: product.imgArrJson,
-        quantity: product.quantity,
-        setQuantityByProduct: product.setQuantityByProduct,
-        id: product.id,
-        isSampleProduct: product.isSampleProduct,
-        categoryId: product.categoryId,
-        relatedCategories: product.relatedCategories,
+        productName,
+        description,
+        priceInt: priceIntPenny / 100,
+        priceStr: priceStr.slice(1),
+        defaultImgStr,
+        imgArrJson,
+        quantity,
+        setQuantityByProduct,
+        id,
+        isSampleProduct,
+        relatedCategories,
       });
 
-      setShowOptionInputs({
-        optionGroupPositions: [],
-        optionGroupTitles: [],
-        optionPositions: [],
-        groupOfOptions: [],
-      });
-
-      setCustomerQuestions(product.questions);
+      setOptions(updatedProduct);
+      setCustomerQuestions(questions);
       setVariantPhotos([]);
       setProductPhotos([]);
       setCustomerQuestionInput("");
-      setHasUnlimitedQuantity(product.hasUnlimitedQuantity);
+      setHasUnlimitedQuantity(hasUnlimitedQuantity);
     }
+
+    setRemovedCategories([]);
+    setRemovedQuestions([]);
+    setRemovedOptions([]);
+    setRemovedOptionGroups([]);
+    setNewCategories([]);
+    setHoldTempCategoriesToAdd([]);
   };
 
   const structureProductSchema = () => {
@@ -773,30 +1038,29 @@ function ProductDrawer({
     }
 
     const convertToPriceStr = `$${priceValue}`;
-    let categoryIdInt = undefined;
-
-    if (categoryId) categoryIdInt = parseInt(categoryId);
 
     const productSchema = {
       id,
       accountId,
-      categoryId: categoryIdInt,
       isSampleProduct: false,
       productName,
       description,
       priceIntPenny,
       priceStr: convertToPriceStr,
-      quantity: quantity === 0 ? null : parseInt(quantity),
+      quantity: quantity ? (quantity === 0 ? 0 : parseInt(quantity)) : 0,
       hasUnlimitedQuantity,
       setQuantityByProduct,
       relatedCategories,
-      removeAddedCategory,
+      removedCategories,
       newCategories,
+      removedQuestions,
+      removedOptionGroups,
+      removedOptions,
     };
 
     return productSchema;
   };
-
+  console.log("isSampleProduct", isSampleProduct);
   const structureImageSchema = () => {
     // TODO: no image schema yet
     // TODO: Save to AWD
@@ -804,8 +1068,8 @@ function ProductDrawer({
 
   const structureOptionGroupSchema = () => {
     const optionGroupSchema = optionGroupTitles.map((group) => {
-      const { position, title: optionGroupName } = group;
-      return { productName, optionGroupName };
+      const { position, title: optionGroupName, groupId } = group;
+      return { productName, optionGroupName, groupId };
     });
 
     let groupOfOptionsInsertGroupTitles = [];
@@ -834,6 +1098,8 @@ function ProductDrawer({
         price,
         quantityStr,
         optionGroupName,
+        groupId,
+        optionId,
       } = group;
 
       let priceIntPenny = 0;
@@ -865,7 +1131,9 @@ function ProductDrawer({
 
       if (quantityStr && quantityStr !== "") {
         if (!setQuantityByProduct) {
-          const regex = /^(?!0)\d*$/;
+          // const regex = /^(?!0)\d*$/;
+          const regex = /^(?!0$)\d*$/;
+
           const isQuantityFormat = regex.test(quantityStr);
 
           if (!isQuantityFormat) quantityError = true;
@@ -882,6 +1150,8 @@ function ProductDrawer({
         priceIntPenny,
         quantityStr: qtyStr,
         quantityInt: qtyInt,
+        groupId,
+        optionId,
       };
     });
 
@@ -930,20 +1200,96 @@ function ProductDrawer({
     </React.Fragment>
   );
 
+  function getOptionTitle(position) {
+    const titleArr = optionGroupTitles.filter((item) => {
+      if (item.position === position) return item.title;
+    });
+
+    let title = "";
+
+    if (titleArr.length !== 0) {
+      title = titleArr[0].title;
+    }
+
+    return title;
+  }
+
+  const getOptionValueName = (item) => {
+    const { groupPosition, optionPosition } = item;
+    let name = "";
+
+    for (let i = 0; i < groupOfOptions.length; i++) {
+      const currOption = groupOfOptions[i];
+      const {
+        groupPosition: groupId,
+        optionPosition: optionId,
+        optionName,
+      } = currOption;
+
+      if (groupPosition === groupId && optionPosition === optionId) {
+        if (optionName) name = optionName;
+      }
+    }
+
+    return name;
+  };
+
+  function getOptionValuePrice(item) {
+    const { groupPosition, optionPosition } = item;
+
+    let pricing = "";
+
+    for (let i = 0; i < groupOfOptions.length; i++) {
+      const currOption = groupOfOptions[i];
+      const {
+        groupPosition: groupId,
+        optionPosition: optionId,
+        price,
+      } = currOption;
+
+      if (groupPosition === groupId && optionPosition === optionId) {
+        pricing = price;
+      }
+    }
+
+    return pricing;
+  }
+
+  function getOptionvalueQuantity(item) {
+    const { groupPosition, optionPosition } = item;
+
+    let quantity = "";
+
+    for (let i = 0; i < groupOfOptions.length; i++) {
+      const currOption = groupOfOptions[i];
+      const {
+        groupPosition: groupId,
+        optionPosition: optionId,
+        quantityStr,
+      } = currOption;
+
+      if (groupPosition === groupId && optionPosition === optionId) {
+        quantity = quantityStr;
+      }
+    }
+
+    return quantity;
+  }
+
   return (
     <Drawer anchor={"right"} open={state["right"]} onClose={handleCloseDrawer}>
+      <Snackbar
+        open={isSnackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        action={action}
+      />
       <form
         onSubmit={handleSave}
         className="w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-28 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
-        <Snackbar
-          open={isSnackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          message={snackbarMessage}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          action={action}
-        />
         <div className="flex justify-between items-center">
           <span className="flex gap-4 items-center">
             <Image
@@ -955,7 +1301,8 @@ function ProductDrawer({
           </span>
           <button
             className="flex text-[color:var(--third-dark)] "
-            onClick={toggleDrawer("right", false)}
+            onClick={handleCloseDrawer}
+            type="button"
           >
             <ChevronLeftIcon />
             <p>close</p>
@@ -1213,7 +1560,7 @@ function ProductDrawer({
               </div>
             </div>
             <select
-              name="categoryId"
+              name="category"
               id="category"
               // value={category}
               onChange={handleInputCategoryChange}
@@ -1223,7 +1570,7 @@ function ProductDrawer({
                 <option value="">No categories added ...</option>
               ) : (
                 <React.Fragment>
-                  <option value="">Select a category ...</option>
+                  <option value="">Select your categories ...</option>
                   {allCategories.map((category) => (
                     <option
                       key={category.categoryName}
@@ -1287,7 +1634,7 @@ function ProductDrawer({
               <React.Fragment>
                 <FormControl>
                   <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    aria-labelledby="radio buttons for setting quantity"
                     name="setQuantity"
                     value={setQuantityByProduct ? "product" : "option"}
                     onChange={handleProductInputChange}
@@ -1353,7 +1700,11 @@ function ProductDrawer({
                 </p>
               </div>
               <div className="">
-                <ButtonPrimary name="Add" handleClick={handleAddOptionGroup} />
+                <ButtonPrimary
+                  type="button"
+                  name="Add"
+                  handleClick={handleAddOptionGroup}
+                />
               </div>
             </span>
           </div>
@@ -1367,10 +1718,11 @@ function ProductDrawer({
                   <div>
                     <span className="flex justify-between items-center mb-2">
                       <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
-                        Group:
+                        Option group
                       </h4>
 
                       <button
+                        type="button"
                         value={position}
                         onClick={handleRemoveOptionGroup}
                         className="text-xs font-light text-[color:var(--third-dark)] underline rounded px-2 py-1"
@@ -1390,6 +1742,7 @@ function ProductDrawer({
                         type="text"
                         name="optionTitle"
                         id="optionTitle"
+                        value={getOptionTitle(position)}
                         onChange={handleOptionGroupChange(position)}
                         placeholder="Size, flavor, toppings ... "
                         className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
@@ -1402,6 +1755,7 @@ function ProductDrawer({
 
                       <div>
                         <ButtonFilter
+                          type="button"
                           name="+ Variant"
                           handleClick={handleAddVariantClick(position)}
                         />
@@ -1413,11 +1767,8 @@ function ProductDrawer({
                           return (
                             <div
                               key={item.optionPosition}
-                              className="flex gap-5 mt-4 ml-4"
+                              className="flex gap-5 items-center mt-4 pt-4 ml-4 border-t"
                             >
-                              <h4 className="mt-2 font-medium text-xs">
-                                {item.optionPosition + 1}.
-                              </h4>
                               <div className="flex-grow">
                                 <div className="flex gap-4 justify-center items-center">
                                   <span className="flex flex-col relative flex-grow">
@@ -1432,6 +1783,7 @@ function ProductDrawer({
                                       type="text"
                                       name="optionName"
                                       id="optionName"
+                                      defaultValue={getOptionValueName(item)}
                                       onChange={handleOptionChange(item)}
                                       placeholder="Small, med ..."
                                       className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] placeholder:text-xs  font-light text-xs overflow-hidden`}
@@ -1454,6 +1806,7 @@ function ProductDrawer({
                                       id="price"
                                       step="0.01"
                                       placeholder="Empty = free"
+                                      defaultValue={getOptionValuePrice(item)}
                                       onChange={handleOptionChange(item)}
                                       className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4  indent-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden placeholder:text-xs`}
                                     />
@@ -1473,15 +1826,18 @@ function ProductDrawer({
                                       type="number"
                                       name="quantityStr"
                                       id="quantityStr"
+                                      defaultValue={getOptionvalueQuantity(
+                                        item
+                                      )}
                                       onChange={handleOptionChange(item)}
                                       className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] placeholder:text-xs  font-light text-xs overflow-hidden`}
                                     />
                                   </div>
                                 )}
-
                                 <button
+                                  type="button"
                                   onClick={removeOptionPosition(item)}
-                                  className="mt-4 mb-2 block text-xs font-light text-[color:var(--black-design)] p-1 rounded ml-auto border border-[color:var(--black-design)] active:bg-[color:var(--black-design)] active:text-white "
+                                  className="h-fit mt-4 mb-2 block text-xs font-light text-[color:var(--black-design)] p-1 rounded ml-auto border border-[color:var(--black-design)] active:bg-[color:var(--black-design)] active:text-white "
                                 >
                                   remove
                                 </button>
@@ -1533,7 +1889,7 @@ function ProductDrawer({
                     className="flex items-cetner justify-between gap-3 mb-3"
                   >
                     <span className="flex items-center">
-                      <IconButton onClick={handleRemoveQuestion(item.question)}>
+                      <IconButton onClick={handleRemoveQuestion(item)}>
                         <CloseIcon fontSize="small" />
                       </IconButton>
                       <p className="text-sm font-light">{item.question}</p>
@@ -1562,7 +1918,7 @@ function ProductDrawer({
 
         <div className="absolute left-0 bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
           <SaveCancelButtons
-            handleCancel={toggleDrawer("right", false)}
+            handleCancel={handleCloseDrawer}
             saveButtonType="submit"
             cancelBbuttonType="button"
             isLoading={isSaveProductLoading}

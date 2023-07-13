@@ -22,7 +22,6 @@ export async function createProductServer(product) {
         createdCategories,
       };
     } else {
-      console.log("does not go here");
       const createdProduct = await createProduct(product);
       data = {
         createdProduct,
@@ -37,7 +36,6 @@ export async function createProductServer(product) {
 }
 
 const createCategories = (newCategories, accountId) => {
-  console.log("newCategories", newCategories, accountId);
   return prisma.category.createMany({
     data: newCategories.map((categoryName) => {
       console.log("categoryName", categoryName);
@@ -63,7 +61,6 @@ const createProduct = (product) => {
 
   const {
     accountId,
-    categoryId,
     isSampleProduct,
     productName,
     description,
@@ -73,7 +70,6 @@ const createProduct = (product) => {
     hasUnlimitedQuantity,
     setQuantityByProduct,
     relatedCategories,
-    newCategories,
   } = productSchema;
 
   return prisma.product.create({
@@ -178,6 +174,40 @@ const createProduct = (product) => {
 };
 
 export async function updateProductServer(product) {
+  const { productSchema, questionSchema } = product;
+  const { accountId, newCategories, removedQuestions } = productSchema;
+
+  try {
+    let data = {};
+    if (newCategories && newCategories.length > 0) {
+      console.log("new cat");
+      const [updatedProduct, createdCategories] = await prisma.$transaction([
+        updateProduct(product),
+        createCategories(newCategories, accountId),
+      ]);
+
+      data = {
+        updatedProduct,
+        createdCategories,
+      };
+    } else {
+      console.log("no new cat");
+      const updatedProduct = await updateProduct(product);
+      data = {
+        updatedProduct,
+      };
+    }
+
+    console.log("data", data);
+
+    return { success: true, value: data };
+  } catch (error) {
+    console.log("update product server error:", error);
+    return { success: false, error };
+  }
+}
+
+const updateProduct = (product) => {
   const {
     productSchema,
     imageSchmea,
@@ -187,54 +217,255 @@ export async function updateProductServer(product) {
   } = product;
 
   const {
-    id,
     accountId,
-    categoryId,
+    id,
     isSampleProduct,
     productName,
     description,
-    priceIntPenny: productPricePenny,
-    priceStr: productPriceStr,
+    priceIntPenny,
+    priceStr,
     quantity,
     hasUnlimitedQuantity,
     setQuantityByProduct,
+    relatedCategories,
+    removedCategories,
+    removedQuestions,
+    removedOptionGroups,
+    removedOptions,
   } = productSchema;
+  console.log("removedOptions", removedOptions);
 
-  const {
-    optionName,
-    optionGroupName,
-    priceStr: optionPriceStr,
-    priceIntPenny: optionPricePenny,
-    quantityStr,
-    quantityInt,
-  } = optionSchema;
+  //  TODO:
+  // 1. update product
+  // console.log("relatedCategories", relatedCategories);
+  // console.log("optionGroupSchema", optionGroupSchema);
+  // console.log("optionSchema", optionSchema);
 
-  // const { productName, optionGroupName } = optionGroupSchema;
-
-  // const { isRequired, question, productName } = questionSchema;
-  const { isRequired, question } = questionSchema;
-
-  const updateProduct = await prisma.product.update({
+  return prisma.product.update({
     where: {
       id,
     },
     data: {
-      isSampleProduct,
       productName,
       description,
-      priceIntPenny: productPricePenny,
-      priceStr: productPriceStr,
+      priceIntPenny,
+      priceStr,
+      // defaultImgStr,
       hasUnlimitedQuantity,
       setQuantityByProduct,
       quantity,
+      relatedCategories: {
+        disconnect: removedCategories.map((categoryName) => {
+          return {
+            categoryName,
+          };
+        }),
+        connectOrCreate: relatedCategories.map((category) => {
+          const { id, categoryName } = category;
+          return {
+            where: {
+              categoryName,
+            },
+            create: {
+              categoryName,
+              account: {
+                connect: {
+                  id: accountId,
+                },
+              },
+            },
+          };
+        }),
+      },
+      questions: {
+        update: questionSchema.map((questionObj) => {
+          const { id, isRequired, question } = questionObj;
+
+          if (!id) return;
+          const questionData = {
+            where: {
+              id,
+            },
+            data: {
+              isRequired,
+            },
+          };
+
+          return questionData;
+        }),
+        connectOrCreate: questionSchema.map((questionObj) => {
+          const { id, isRequired, question } = questionObj;
+
+          const questionData = {
+            where: {
+              question,
+            },
+            create: {
+              question,
+              productName,
+              isRequired,
+            },
+          };
+
+          return questionData;
+        }),
+        deleteMany: removedQuestions.map((question) => {
+          return {
+            question,
+          };
+        }),
+      },
       optionGroups: {
-        upsert: {
-          where: {},
+        update: optionGroupSchema.map((optionGroup) => {
+          const { optionGroupName, groupId } = optionGroup;
+
+          if (!groupId) return;
+
+          const optionGroupData = {
+            where: {
+              id: groupId,
+            },
+            data: {
+              optionGroupName,
+              options: {
+                update: optionSchema.map((option) => {
+                  const {
+                    optionGroupName: groupName,
+                    optionName,
+                    priceIntPenny,
+                    priceStr,
+                    quantityInt,
+                    quantityStr,
+                    groupId: optionGroupId,
+                    optionId,
+                  } = option;
+
+                  if (!optionId) return;
+                  if (optionGroupId !== groupId) return;
+
+                  const optionData = {
+                    where: {
+                      id: optionId,
+                    },
+                    data: {
+                      optionGroupName: groupName,
+                      optionName,
+                      priceIntPenny,
+                      priceStr,
+                      quantityInt,
+                      quantityStr,
+                    },
+                  };
+
+                  return optionData;
+                }),
+                create: optionSchema.map((option) => {
+                  const {
+                    optionGroupName: groupName,
+                    optionName,
+                    priceIntPenny,
+                    priceStr,
+                    quantityInt,
+                    quantityStr,
+                    groupId: optionGroupId,
+                    optionId,
+                  } = option;
+
+                  if (optionGroupId !== groupId) return;
+                  if (optionId) return;
+
+                  const optionData = {
+                    optionGroupName: groupName,
+                    optionName,
+                    priceIntPenny,
+                    priceStr,
+                    quantityInt,
+                    quantityStr,
+                  };
+
+                  return optionData;
+                }),
+                deleteMany: removedOptions.map((id) => {
+                  return {
+                    id,
+                  };
+                }),
+              },
+            },
+          };
+
+          return optionGroupData;
+        }),
+        create: optionGroupSchema.map((optionGroup) => {
+          const { optionGroupName, groupId } = optionGroup;
+
+          if (groupId) return;
+
+          const data = {
+            optionGroupName,
+            productName,
+            options: {
+              create: optionSchema.map((option) => {
+                const {
+                  optionGroupName: groupName,
+                  optionName,
+                  priceIntPenny,
+                  priceStr,
+                  quantityInt,
+                  quantityStr,
+                  optionId,
+                  groupId: optionGroupId,
+                } = option;
+
+                const optionGroupIdReformNull =
+                  optionGroupId === null || optionGroupId === undefined
+                    ? null
+                    : optionGroupId;
+                const groupIdReformNull =
+                  groupId === null || groupId === undefined ? null : groupId;
+
+                if (optionGroupIdReformNull !== groupIdReformNull) return;
+                if (optionGroupName !== groupName) return;
+                if (optionId) return;
+
+                const optionData = {
+                  optionGroupName: groupName,
+                  optionName,
+                  priceIntPenny,
+                  priceStr,
+                  quantityInt,
+                  quantityStr,
+                };
+
+                return optionData;
+              }),
+            },
+          };
+
+          return data;
+        }),
+        deleteMany: removedOptionGroups.map((id) => {
+          return {
+            id,
+          };
+        }),
+      },
+    },
+    include: {
+      questions: true,
+      relatedCategories: true,
+      optionGroups: {
+        include: {
+          options: true,
         },
       },
     },
   });
-}
+
+  // 2. update options groups: update original, create new, delete removed
+  // 3. update questions: create new, delete removed
+  // 4. update related categories: update original, delete removed
+};
 
 export async function getProductsServer(accountId) {
   try {
@@ -261,7 +492,6 @@ export async function getProductsServer(accountId) {
 }
 
 export async function deleteProductServer(productId) {
-  console.log("productId", productId);
   try {
     const deleteProduct = await prisma.product.delete({
       where: {

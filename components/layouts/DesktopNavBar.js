@@ -34,6 +34,7 @@ import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { deleteLocalStorage } from "@/utils/clientStorage";
+import { Divider } from "@mui/material";
 
 function DesktopNavBar({ pageRoute }) {
   const [openStoreList, setOpenStoreList] = useState(
@@ -443,7 +444,7 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-
+        {/* 
         <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
@@ -472,8 +473,8 @@ function DesktopNavBar({ pageRoute }) {
               }}
             />
           </MenuItem>
-        </Link>
-
+        </Link> */}
+        <Divider sx={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>
             <StarIcon

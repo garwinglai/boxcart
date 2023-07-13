@@ -220,7 +220,7 @@ model Image {
   imgStr      String?
   imgFileName String?
   productName String?
-  product     Product? @relation(fields: [productId], references: [id])
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId   Int?
 
   @@index([productId])
@@ -231,7 +231,7 @@ model Category {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   categoryName String?   @unique
-  account      Account?  @relation(fields: [accountId], references: [id])
+  account      Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
   accountId    Int?
   products     Product[]
 
@@ -242,10 +242,10 @@ model Question {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  question    String?
+  question    String?  @unique
   productName String?
   isRequired  Boolean  @default(true)
-  product     Product? @relation(fields: [productId], references: [id])
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId   Int?
 
   @@index([productId])
@@ -257,7 +257,7 @@ model OptionGroup {
   updatedAt       DateTime @updatedAt
   optionGroupName String?
   productName     String?
-  product         Product? @relation(fields: [productId], references: [id])
+  product         Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId       Int?
   options         Option[]
 
@@ -265,17 +265,17 @@ model OptionGroup {
 }
 
 model Option {
-  id              Int          @id @default(autoincrement())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id              Int         @id @default(autoincrement())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   optionGroupName String?
   optionName      String?
   priceStr        String?
   priceIntPenny   Int?
   quantityStr     String?
   quantityInt     Int?
-  optionGroup     OptionGroup? @relation(fields: [optionGroupId], references: [id])
-  optionGroupId   Int?
+  optionGroup     OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  optionGroupId   Int
 
   @@index([optionGroupId])
 }

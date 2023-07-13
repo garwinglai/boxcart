@@ -12,6 +12,8 @@ import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
+import Image from "next/image";
+import boxes_icon from "@/public/images/icons/boxes_icon.png";
 
 function Products({ userAccount }) {
   // Props
@@ -84,6 +86,17 @@ function Products({ userAccount }) {
     );
   };
 
+  const updateProductList = (updatedProduct) => {
+    setCurrProducts((prev) =>
+      prev.map((product) => {
+        if (product.id === updatedProduct.id) {
+          return updatedProduct;
+        }
+        return product;
+      })
+    );
+  };
+
   // Display
   const action = (
     <React.Fragment>
@@ -116,7 +129,7 @@ function Products({ userAccount }) {
           onClose={handleCloseSnackbar}
           message={snackbarMessage}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          action={action}
+          // action={action}
         />
 
         <div className="flex gap-2">
@@ -139,19 +152,28 @@ function Products({ userAccount }) {
         </div>
       </div>
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
-        {currProducts.map((product) => {
-          const { id, category, accountId } = product;
-          return (
-            <ProductCard
-              key={id}
-              product={product}
-              accountId={accountId}
-              categories={categories}
-              handleOpenSnackbar={handleOpenSnackbar}
-              filterDeletedProducts={filterDeletedProducts}
-            />
-          );
-        })}
+        {currProducts.length === 0 ? (
+          <div className="flex flex-col justify-center items-center gap-4 mt-16">
+            <Image src={boxes_icon} alt="boxes icon" className="w-24 h-24 opacity-50"/>
+            <p className="text-center font-extralight">You have no products yet.</p>
+          </div>
+        ) : (
+          currProducts.map((product) => {
+            const { id, category, accountId } = product;
+            return (
+              <ProductCard
+                key={id}
+                product={product}
+                accountId={accountId}
+                categories={categories}
+                handleOpenSnackbar={handleOpenSnackbar}
+                filterDeletedProducts={filterDeletedProducts}
+                addToProductsList={addToProductsList}
+                updateProductList={updateProductList}
+              />
+            );
+          })
+        )}
       </div>
     </div>
   );

@@ -18,7 +18,10 @@ import Box from "@mui/material/Box";
 import delete_folder_icon from "@/public/images/icons/delete_folder.png";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
-import { deleteProductClient } from "@/helper/client/api/inventory/product-schema";
+import {
+  createProductClient,
+  deleteProductClient,
+} from "@/helper/client/api/inventory/product-schema";
 
 const style = {
   position: "absolute",
@@ -80,6 +83,8 @@ function ProductCard({
   accountId,
   handleOpenSnackbar,
   filterDeletedProducts,
+  addToProductsList,
+  updateProductList,
 }) {
   //Props
   const {
@@ -92,7 +97,8 @@ function ProductCard({
     imgArrJson,
     description,
     quantity,
-    isQuantityByProduct,
+    setQuantityByProduct,
+    hasUnlimitedQuantity,
     questions,
     optionGroups,
     relatedCategories,
@@ -182,6 +188,131 @@ function ProductCard({
     handleOpenSnackbar("Product deleted.");
   };
 
+  const handleDuplicateProduct = async () => {
+    handleOpenSnackbar("Duplicating product...");
+
+    const productSchema = structureProductSchema(product);
+    const imageSchema = structureImageSchema();
+    const questionSchema = structureQuestionSchema(product);
+    const structuredOptions = structureOptionGroupSchema(product);
+
+    const { optionGroupSchema, optionSchema } = structuredOptions;
+
+    const productObject = {
+      productSchema,
+      imageSchema,
+      optionGroupSchema,
+      optionSchema,
+      questionSchema,
+    };
+
+    const resProductCreate = await createProductClient(productObject);
+    const { success, value } = resProductCreate;
+    const { createdProduct } = value;
+
+    if (!success) {
+      handleOpenSnackbar("Error duplicating product.");
+      return;
+    }
+
+    handleOpenSnackbar("Duplicated.");
+    addToProductsList(createdProduct);
+  };
+
+  const structureProductSchema = (product) => {
+    const {
+      id,
+      accountId,
+      categoryId,
+      isSampleProduct,
+      productName,
+      description,
+      priceIntPenny,
+      priceStr,
+      quantity,
+      hasUnlimitedQuantity,
+      setQuantityByProduct,
+      relatedCategories,
+    } = product;
+
+    const productSchema = {
+      id,
+      accountId,
+      isSampleProduct: false,
+      productName,
+      description,
+      priceIntPenny,
+      priceStr,
+      quantity,
+      hasUnlimitedQuantity,
+      setQuantityByProduct,
+      relatedCategories,
+    };
+
+    return productSchema;
+  };
+
+  const structureImageSchema = () => {
+    // TODO: no image schema yet
+    // TODO: Save to AWD
+  };
+
+  const structureQuestionSchema = (product) => {
+    const { questions } = product;
+    const questionSchema = questions.map((item) => {
+      const { question, isRequired, productName } = item;
+
+      const data = {
+        question,
+        isRequired,
+        productName,
+      };
+
+      return data;
+    });
+
+    return questionSchema;
+  };
+
+  const structureOptionGroupSchema = (product) => {
+    const { optionGroups } = product;
+    let optionsArr = [];
+    const optionGroupSchema = optionGroups.map((group) => {
+      const { optionGroupName, productName, options } = group;
+      optionsArr.push(...options);
+      const data = {
+        optionGroupName,
+        productName,
+      };
+
+      return data;
+    });
+
+    const optionSchema = optionsArr.map((option) => {
+      const {
+        optionName,
+        priceIntPenny,
+        priceStr,
+        quantityInt,
+        quantityStr,
+        optionGroupName,
+      } = option;
+
+      const data = {
+        optionName,
+        optionGroupName,
+        priceStr,
+        priceIntPenny,
+        quantityInt,
+        quantityStr,
+      };
+
+      return data;
+    });
+
+    return { optionGroupSchema, optionSchema };
+  };
+
   return (
     <div
       className={`rounded w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white md:row-auto ${
@@ -193,6 +324,7 @@ function ProductCard({
           <Image
             src={candle_2}
             alt="image"
+            priority={true}
             className="rounded-ss object-cover w-full h-full"
           />
           <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
@@ -207,7 +339,13 @@ function ProductCard({
           </p>
           <p className="text-xs font-light md:text-sm">
             <b className="">Qty: </b>
-            {quantity ? quantity : "set for product options"}
+            {hasUnlimitedQuantity
+              ? "Unlimited"
+              : setQuantityByProduct
+              ? quantity == 0
+                ? "Out of stock"
+                : quantity
+              : "Set for product options"}
           </p>
           <p className="text-xs font-light md:text-sm">
             <b className="">Category: </b>
@@ -292,7 +430,10 @@ function ProductCard({
               </Box>
             </Modal>
 
-            <MenuItem onClick={handleClose} sx={{ fontSize: "12px" }}>
+            <MenuItem
+              onClick={handleDuplicateProduct}
+              sx={{ fontSize: "12px" }}
+            >
               Duplicate
             </MenuItem>
           </StyledMenu>
@@ -303,6 +444,7 @@ function ProductCard({
             categories={categories}
             isEditProduct={true}
             accountId={accountId}
+            updateProductList={updateProductList}
           />
         </div>
       </div>
@@ -417,12 +559,15 @@ function ProductCard({
                 </p>
               ) : (
                 questions.map((item) => {
-                  const { question, id } = item;
+                  const { question, id, isRequired } = item;
 
                   return (
-                    <p key={id} className="font-extralight text-sm">
-                      {question}
-                    </p>
+                    <div key={id} className="flex justify-between items-center">
+                      <p className="font-extralight text-sm">{question}</p>
+                      <p className="font-extralight text-sm">
+                        {isRequired ? "(required)" : "(optional)"}
+                      </p>
+                    </div>
                   );
                 })
               )}
