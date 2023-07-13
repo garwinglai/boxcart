@@ -13,7 +13,7 @@ function App({ pageTitle }) {
   const handleSignOut = async () => {
     // const signedOutRoute =
     // 	process.env.NODE_ENV && process.env.NODE_ENV === "production"
-    // 		? "app.boxcart.shop/auth/signin"
+    // 		? "https://app.boxcart.shop/auth/signin"
     // 		: "http://app.localhost:3000/auth/signin";
 
     const res = await signOut({ redirect: false });
