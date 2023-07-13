@@ -161,9 +161,9 @@ export async function getServerSideProps(context) {
     };
   }
 
-  updateEmailIsVerifiedUser(userId);
-  updateEmailIsVerifiedAccount(accountId);
-  updateEmailIsVerifiedChecklist(accountId);
+  await updateEmailIsVerifiedUser(userId);
+  await updateEmailIsVerifiedAccount(accountId);
+  await updateEmailIsVerifiedChecklist(accountId);
 
   return {
     props: { serializedSession },

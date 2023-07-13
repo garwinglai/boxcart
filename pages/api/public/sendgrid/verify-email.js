@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   if (method === "POST") {
     const bodyParsed = JSON.parse(body);
     const { userId, accountId, email } = bodyParsed;
+    console.log("bodyParsed:", bodyParsed);
 
     const mailOptions = {
       to: email,

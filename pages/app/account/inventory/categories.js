@@ -9,7 +9,7 @@ import CategoryDrawer from "@/components/app/my-shop/category/CategoryDrawer";
 import Image from "next/image";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import { isAuth } from "@/helper/client/auth/isAuth";
-
+import prisma from "@/lib/prisma";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import { IconButton } from "@mui/material";
