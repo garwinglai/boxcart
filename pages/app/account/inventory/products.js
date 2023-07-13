@@ -14,6 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
+import prisma from "@/lib/prisma";
 
 function Products({ userAccount }) {
   // Props
@@ -154,8 +155,14 @@ function Products({ userAccount }) {
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
         {currProducts.length === 0 ? (
           <div className="flex flex-col justify-center items-center gap-4 mt-16">
-            <Image src={boxes_icon} alt="boxes icon" className="w-24 h-24 opacity-50"/>
-            <p className="text-center font-extralight">You have no products yet.</p>
+            <Image
+              src={boxes_icon}
+              alt="boxes icon"
+              className="w-24 h-24 opacity-50"
+            />
+            <p className="text-center font-extralight">
+              You have no products yet.
+            </p>
           </div>
         ) : (
           currProducts.map((product) => {

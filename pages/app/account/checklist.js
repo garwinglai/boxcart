@@ -15,6 +15,7 @@ import Image from "next/image";
 import { updateAccountFirstLoginClient } from "@/helper/client/api/account/account-schema";
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
 
 const style = {
   position: "absolute",
