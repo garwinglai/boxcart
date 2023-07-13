@@ -17,8 +17,8 @@ export async function createNewUser(body) {
   const hash = await bcrypt.hash(password, saltRounds);
 
   const {
-    waitlistId,
-    accessCode,
+    // waitlistId,
+    // accessCode,
     businessName,
     freePeriodEndDateStr,
     freePeriodEndDateEpoch,
@@ -57,11 +57,6 @@ export async function createNewUser(body) {
         name,
         email,
         password: hash,
-        // waitlist: {
-        //   connect: {
-        //     id: waitlistId,
-        //   },
-        // },
         accounts: {
           create: [
             {
@@ -71,7 +66,7 @@ export async function createNewUser(body) {
               lastName,
               freePeriodEndDateStr,
               freePeriodEndDateEpoch: freePeriodEndDateEpochStr,
-              accessCode,
+              // accessCode,
               businessName,
               subdomain,
               logoImgStr,
@@ -212,6 +207,18 @@ export async function createNewUser(body) {
 
     return { success: true, user };
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const prismaError = {
+        code: error.code,
+        message: error.message,
+        target: error.meta,
+      };
+
+      console.log(
+        "error fetching email prismaError helper/server/db/account/email:",
+        prismaError
+      );
+    }
     console.log("error creating user", error);
     return { success: false, error };
   }

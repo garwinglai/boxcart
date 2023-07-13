@@ -98,6 +98,7 @@ function ProductDrawer({
   const [removedQuestions, setRemovedQuestions] = useState([]);
   const [removedOptions, setRemovedOptions] = useState([]);
   const [removedOptionGroups, setRemovedOptionGroups] = useState([]);
+  const [newQuestionsAdded, setNewQuestionsAdded] = useState([]);
 
   const {
     productName,
@@ -290,12 +291,29 @@ function ProductDrawer({
   const handleAddCustomerQuestions = (e) => {
     if (!customerQuestionInput) return;
 
-    // check if customerQuestionInput is in removedQuestions, if it is, remove from removedQuestions
+    if (isEditProduct) {
+      const initialQuestions = product.questions.map((item) => item.question);
+      const data = {
+        question: customerQuestionInput,
+        isRequired: true,
+      };
 
-    if (removedQuestions.includes(customerQuestionInput)) {
+      if (!initialQuestions.includes(customerQuestionInput)) {
+        // if customerQuesetionInput is not already in newQuestionsAdded, add it to newQuestionsAdded
+        if (!newQuestionsAdded.includes(customerQuestionInput)) {
+          setNewQuestionsAdded((prev) => [...prev, data]);
+        }
+      }
+    }
+
+    // removedQuestions is an array of {id, question}, map through removed Question to see if it includes customerQuestionInput
+    const removedQuestionsArr = removedQuestions.map((item) => item.question);
+
+    if (removedQuestionsArr.includes(customerQuestionInput)) {
       const newRemovedQuestions = removedQuestions.filter(
-        (question) => question !== customerQuestionInput
+        (item) => item.question !== customerQuestionInput
       );
+
       setRemovedQuestions(newRemovedQuestions);
     }
 
@@ -306,6 +324,23 @@ function ProductDrawer({
       handleOpenSnackbar("Question already exists");
       setCustomerQuestionInput("");
       return;
+    }
+
+    if (isEditProduct) {
+      const initialCustomerQuestionsArr = product.questions.map(
+        (item) => item.question
+      );
+
+      // if customerQuestionInput is in initialCustomerQuestionsArr, add the original item to setCustomerQUestions
+      if (initialCustomerQuestionsArr.includes(customerQuestionInput)) {
+        const initialCustomerQuestions = product.questions.filter(
+          (item) => item.question === customerQuestionInput
+        );
+
+        setCustomerQuestions((prev) => [...prev, ...initialCustomerQuestions]);
+        setCustomerQuestionInput("");
+        return;
+      }
     }
 
     setCustomerQuestions((prev) => [
@@ -326,6 +361,19 @@ function ProductDrawer({
   };
 
   const handleQuestionRequired = (currQuestion) => (e) => {
+    // check if currQuestion is in newQuestionsAdded, if it is, change isRequired to !isRequired
+    if (isEditProduct) {
+      const newQuestionsAddedArr = newQuestionsAdded.map((item) => {
+        if (item.question === currQuestion) {
+          return { ...item, isRequired: !item.isRequired };
+        }
+
+        return item;
+      });
+
+      setNewQuestionsAdded(newQuestionsAddedArr);
+    }
+
     const updatedQuestionArray = customerQuestions.map((item) => {
       if (item.question === currQuestion)
         return { ...item, isRequired: !item.isRequired };
@@ -686,14 +734,20 @@ function ProductDrawer({
   const handleRemoveQuestion = (item) => () => {
     const { id, question } = item;
 
+    // check if question is in newQuestionsAdded, if it is, remove question from newQuestionsAdded
+    if (isEditProduct) {
+      const newQuestionsAddedArr = newQuestionsAdded.filter(
+        (item) => item.question !== question
+      );
+      setNewQuestionsAdded(newQuestionsAddedArr);
+    }
+
     // if edit, check if question is in product.questions, if it is, add question to removedQuestions
     if (isEditProduct) {
-      const initialQuestionsArr = product.questions.map(
-        (item) => item.question
-      );
+      const initialQuestionsArr = product.questions.map((item) => item.id);
 
-      if (initialQuestionsArr.includes(question)) {
-        setRemovedQuestions((prev) => [...prev, question]);
+      if (initialQuestionsArr.includes(id)) {
+        setRemovedQuestions((prev) => [...prev, item]);
       }
     }
 
@@ -841,6 +895,11 @@ function ProductDrawer({
     const questionSchema = structureQuestionSchema();
     const structuredOptions = structureOptionGroupSchema();
 
+    console.log("questionSchema", questionSchema);
+    console.log("newQuestionsAdded", newQuestionsAdded);
+
+    // setIsSaveProductLoading(false);
+    // return;
     if (!structuredOptions) {
       setIsSaveProductLoading(false);
       return;
@@ -1018,6 +1077,7 @@ function ProductDrawer({
 
     setRemovedCategories([]);
     setRemovedQuestions([]);
+    setNewQuestionsAdded([]);
     setRemovedOptions([]);
     setRemovedOptionGroups([]);
     setNewCategories([]);
@@ -1053,13 +1113,13 @@ function ProductDrawer({
       removedCategories,
       newCategories,
       removedQuestions,
+      newQuestionsAdded,
       removedOptionGroups,
       removedOptions,
     };
 
     return productSchema;
   };
-  console.log("isSampleProduct", isSampleProduct);
   const structureImageSchema = () => {
     // TODO: no image schema yet
     // TODO: Save to AWD
@@ -1287,7 +1347,7 @@ function ProductDrawer({
       />
       <form
         onSubmit={handleSave}
-        className="w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-28 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
+        className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-28 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
         <div className="flex justify-between items-center">
           <span className="flex gap-4 items-center">

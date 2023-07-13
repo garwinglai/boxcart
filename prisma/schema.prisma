@@ -25,7 +25,7 @@ model Waitlist {
   reservationNo  Int?     @unique
   numberReferred Int      @default(0)
   isUserCreated  Boolean  @default(false)
-  user           User?
+  // user           User?
 }
 
 model User {
@@ -40,8 +40,8 @@ model User {
   updatedAt       DateTime  @updatedAt
   accounts        Account[]
   role            Role      @default(OWNER)
-  waitlist        Waitlist? @relation(fields: [waitlistId], references: [id])
-  waitlistId      Int?      @unique
+  // waitlist        Waitlist? @relation(fields: [waitlistId], references: [id])
+  // waitlistId      Int?      @unique
 }
 
 model Account {
@@ -57,7 +57,7 @@ model Account {
   userName               String?
   firstName              String?
   lastName               String?
-  accessCode             String?        @unique
+  // accessCode             String?        @unique
   businessName           String
   subdomain              String         @unique
   businessTypes          BusinessType[]
@@ -242,7 +242,7 @@ model Question {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  question    String?  @unique
+  question    String?
   productName String?
   isRequired  Boolean  @default(true)
   product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -289,7 +289,6 @@ model Checklist {
   hasViewedSupportChannels Boolean @default(false)
   hasViewedShareStore      Boolean @default(false)
   subdomain                String? @unique
-  email                    String? @unique
   account                  Account @relation(fields: [accountId], references: [id])
   accountId                Int     @unique
 }
@@ -383,9 +382,9 @@ model Fulfillment {
 }
 
 model Tips {
-  id               Int     @id @default(autoincrement())
-  account          Account @relation(fields: [accountId], references: [id])
-  accountId        Int     @unique
+  id               Int      @id @default(autoincrement())
+  account          Account? @relation(fields: [accountId], references: [id])
+  accountId        Int?     @unique
   tipOneStr        String?
   tipOneIntPenny   Int?
   tipTwoStr        String?
@@ -393,7 +392,7 @@ model Tips {
   tipThreeStr      String?
   tipThreeIntPenny Int?
   type             String?
-  enabled          Boolean @default(false)
+  enabled          Boolean  @default(false)
 }
 
 enum Role {

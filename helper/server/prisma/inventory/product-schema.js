@@ -5,7 +5,6 @@ export async function createProductServer(product) {
   const { productSchema } = product;
 
   const { newCategories, accountId } = productSchema;
-  console.log("newCategories", newCategories);
 
   // const { isRequired, question, productName } = questionSchema;
 
@@ -38,8 +37,6 @@ export async function createProductServer(product) {
 const createCategories = (newCategories, accountId) => {
   return prisma.category.createMany({
     data: newCategories.map((categoryName) => {
-      console.log("categoryName", categoryName);
-
       const data = {
         categoryName,
         accountId,
@@ -180,7 +177,6 @@ export async function updateProductServer(product) {
   try {
     let data = {};
     if (newCategories && newCategories.length > 0) {
-      console.log("new cat");
       const [updatedProduct, createdCategories] = await prisma.$transaction([
         updateProduct(product),
         createCategories(newCategories, accountId),
@@ -191,14 +187,11 @@ export async function updateProductServer(product) {
         createdCategories,
       };
     } else {
-      console.log("no new cat");
       const updatedProduct = await updateProduct(product);
       data = {
         updatedProduct,
       };
     }
-
-    console.log("data", data);
 
     return { success: true, value: data };
   } catch (error) {
@@ -230,16 +223,17 @@ const updateProduct = (product) => {
     relatedCategories,
     removedCategories,
     removedQuestions,
+    newQuestionsAdded,
     removedOptionGroups,
     removedOptions,
   } = productSchema;
-  console.log("removedOptions", removedOptions);
 
   //  TODO:
   // 1. update product
   // console.log("relatedCategories", relatedCategories);
   // console.log("optionGroupSchema", optionGroupSchema);
   // console.log("optionSchema", optionSchema);
+  console.log("serverside", questionSchema);
 
   return prisma.product.update({
     where: {
@@ -281,7 +275,7 @@ const updateProduct = (product) => {
       questions: {
         update: questionSchema.map((questionObj) => {
           const { id, isRequired, question } = questionObj;
-
+          console.log("inside question update", isRequired, id);
           if (!id) return;
           const questionData = {
             where: {
@@ -294,25 +288,20 @@ const updateProduct = (product) => {
 
           return questionData;
         }),
-        connectOrCreate: questionSchema.map((questionObj) => {
-          const { id, isRequired, question } = questionObj;
-
+        create: newQuestionsAdded.map((item) => {
+          const { isRequired, question } = item;
+          console.log("isRequired", isRequired);
           const questionData = {
-            where: {
-              question,
-            },
-            create: {
-              question,
-              productName,
-              isRequired,
-            },
+            question,
+            productName,
+            isRequired,
           };
 
           return questionData;
         }),
-        deleteMany: removedQuestions.map((question) => {
+        deleteMany: removedQuestions.map(({ id, question }) => {
           return {
-            question,
+            id,
           };
         }),
       },

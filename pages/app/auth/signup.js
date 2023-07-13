@@ -911,6 +911,7 @@ function Signup() {
             setErrorMessage("Network error.");
           }
         } catch (error) {
+          console.log("error", error);
           setOpenError(true);
           setErrorMessage("Unknown error. Please contact hello@boxcart.shop");
         }
