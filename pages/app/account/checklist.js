@@ -59,7 +59,8 @@ function Checklist({ userSession, userAccount, pageTitle }) {
 
   // UseEffects
   useEffect(() => {
-    setLocalStorage("checklist", checklist);
+    const checklistString = JSON.stringify(checklist);
+    setLocalStorage("checklist", checklistString);
   }, []);
 
   // * action functions
