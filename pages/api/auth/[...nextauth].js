@@ -95,7 +95,10 @@ export const options = {
     },
   },
   pages: {
-    signIn: "http://app.localhost:3000/auth/signin",
+    signIn:
+      process.env.NODE_ENV && process.env.NODE_ENV === "production"
+        ? "/auth/signin"
+        : "http://app.localhost:3000/auth/signin",
     error: "http://app.localhost:3000/auth/signin",
   },
 };

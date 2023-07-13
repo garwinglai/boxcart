@@ -28,7 +28,10 @@ import {
 } from "@/helper/client/api/account/early-bird-code";
 import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
 import { checkSubdomainAvail } from "@/helper/client/api/waitlist/waitlist";
-import { checkEmailAvailableWaitlist } from "@/helper/client/api/account/email";
+import {
+  checkEmailAvailableAccount,
+  checkEmailAvailableWaitlist,
+} from "@/helper/client/api/account/email";
 import { newUserSignup } from "@/helper/client/api/auth/registration";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -829,28 +832,23 @@ function Signup() {
     const isEmailValid = checkEmailRegex(email);
     if (!isEmailValid) return;
 
-    if (waitListEmail !== email) {
-      const { success, value, error } = await checkEmailAvailableWaitlist(
-        email
-      );
-      // value == user
+    const emailAvailable = await checkEmailAvailableAccount(email);
 
-      if (!success) {
+    if (!emailAvailable.success) {
+      setOpenError(true);
+      setErrorMessage(
+        "Error checking if email is available. Please contact hello@boxcart.shop"
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    if (emailAvailable.success) {
+      if (emailAvailable.value) {
         setOpenError(true);
-        setErrorMessage(
-          "Error checking if email is available. Please contact hello@boxcart.shop"
-        );
+        setErrorMessage("Email already exists.");
         setIsLoading(false);
         return;
-      }
-
-      if (success) {
-        if (value) {
-          setOpenError(true);
-          setErrorMessage("Email already exists.");
-          setIsLoading(false);
-          return;
-        }
       }
     }
 
