@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { isAuth } from "@/helper/client/auth/isAuth";
 import AppLayout from "@/components/layouts/AppLayout";
@@ -16,6 +16,7 @@ import { updateAccountFirstLoginClient } from "@/helper/client/api/account/accou
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import { setLocalStorage } from "@/utils/clientStorage";
 
 const style = {
   position: "absolute",
@@ -55,6 +56,11 @@ function Checklist({ userSession, userAccount, pageTitle }) {
 
   // * Instantiate
   const router = useRouter();
+
+  // UseEffects
+  useEffect(() => {
+    setLocalStorage("checklist", checklist);
+  }, []);
 
   // * action functions
   const handleClose = () => {
