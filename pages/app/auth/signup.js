@@ -889,7 +889,7 @@ function Signup() {
 
             const signedInRoute =
               process.env.NODE_ENV && process.env.NODE_ENV === "production"
-                ? "app.boxcart.shop/account/checklist"
+                ? "https://app.boxcart.shop/account/checklist"
                 : "http://app.localhost:3000/account/checklist";
 
             router.push(signedInRoute);
