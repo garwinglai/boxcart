@@ -34,6 +34,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
+import { setLocalStorage } from "@/utils/clientStorage";
 
 // steps:
 // 0: accessCode
@@ -55,7 +56,7 @@ function Signup() {
   const [waitlistId, setWaitlistId] = useState("");
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [maxSteps, setMaxSteps] = useState(12);
   const [isLastStep, setIsLastStep] = useState(false);
   const [canSkip, setCanSkip] = useState(true);
@@ -156,6 +157,86 @@ function Signup() {
     setIsLastStep(false);
     isStepSkipped(step);
 
+    //* Next, Skip, Back buttons.
+    function isStepSkipped(step) {
+      let skipSteps = [0, 4, 5, 6];
+
+      // Upload logo step
+      if (step == 4) {
+        if (logoImgStr !== "") {
+          setCanSkip(false);
+        } else {
+          setCanSkip(true);
+        }
+        return;
+      }
+
+      // Bio step
+      if (step == 5) {
+        if (businessBio !== "") {
+          setCanSkip(false);
+        } else {
+          setCanSkip(true);
+        }
+        return;
+      }
+
+      // Socials step
+      if (step == 6) {
+        let hasLinks = false;
+        for (const [key, value] of Object.entries(socialLinks)) {
+          if (value !== "") {
+            hasLinks = true;
+            continue;
+          }
+        }
+
+        if (hasLinks) {
+          setCanSkip(false);
+        } else {
+          setCanSkip(true);
+        }
+        return;
+      }
+
+      // pickup note
+      if (
+        (step == 8 && fulfillmentMethodInt == 1) ||
+        (step == 9 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
+        (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 1)
+      ) {
+        if (pickupNote !== "") {
+          setCanSkip(false);
+        } else {
+          setCanSkip(true);
+        }
+        return;
+      }
+
+      // Fulfillment - 0: delivery, 1: pickup, 2: both.
+      if (fulfillmentMethodInt == 1) {
+        skipSteps.push(8);
+      }
+
+      if (fulfillmentMethodInt == 2) {
+        // DeliveryInt - 0: outsource, 1: in-house
+
+        if (deliveryTypeInt == 0) {
+          skipSteps.push(9);
+        }
+
+        if (deliveryTypeInt == 1) {
+          skipSteps.push(11);
+        }
+      }
+
+      if (skipSteps.includes(step)) {
+        setCanSkip(true);
+      } else {
+        setCanSkip(false);
+      }
+    }
+
     // fulfillmentMethod: 0: delivery, 1: pickup, 2: both.
     // deliverymethod: 0. outsource, 1: in-house
     if (fulfillmentMethodInt == 0) {
@@ -245,91 +326,11 @@ function Signup() {
     enableTips,
   ]);
 
-  //* Next, Skip, Back buttons.
-  function isStepSkipped(step) {
-    let skipSteps = [0, 4, 5, 6];
-
-    // Upload logo step
-    if (step == 4) {
-      if (logoImgStr !== "") {
-        setCanSkip(false);
-      } else {
-        setCanSkip(true);
-      }
-      return;
-    }
-
-    // Bio step
-    if (step == 5) {
-      if (businessBio !== "") {
-        setCanSkip(false);
-      } else {
-        setCanSkip(true);
-      }
-      return;
-    }
-
-    // Socials step
-    if (step == 6) {
-      let hasLinks = false;
-      for (const [key, value] of Object.entries(socialLinks)) {
-        if (value !== "") {
-          hasLinks = true;
-          continue;
-        }
-      }
-
-      if (hasLinks) {
-        setCanSkip(false);
-      } else {
-        setCanSkip(true);
-      }
-      return;
-    }
-
-    // pickup note
-    if (
-      (step == 8 && fulfillmentMethodInt == 1) ||
-      (step == 9 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
-      (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 1)
-    ) {
-      if (pickupNote !== "") {
-        setCanSkip(false);
-      } else {
-        setCanSkip(true);
-      }
-      return;
-    }
-
-    // Fulfillment - 0: delivery, 1: pickup, 2: both.
-    if (fulfillmentMethodInt == 1) {
-      skipSteps.push(8);
-    }
-
-    if (fulfillmentMethodInt == 2) {
-      // DeliveryInt - 0: outsource, 1: in-house
-
-      if (deliveryTypeInt == 0) {
-        skipSteps.push(9);
-      }
-
-      if (deliveryTypeInt == 1) {
-        skipSteps.push(11);
-      }
-    }
-
-    if (skipSteps.includes(step)) {
-      setCanSkip(true);
-    } else {
-      setCanSkip(false);
-    }
-  }
-
   function handleBackStep() {
     setStep((prev) => prev - 1);
   }
 
-  async function handleNextStep() {
+  async function handleNextStep(e) {
     const checkRes = checkIfInputIsEmpty();
     const { isEmpty, errorMsg } = checkRes;
 
@@ -341,75 +342,75 @@ function Signup() {
     }
 
     //* If access code entered, check if it exists.
-    if (step == 0) {
-      if (accessCode !== "") {
-        setIsLoading(true);
+    // if (step == 0) {
+    //   if (accessCode !== "") {
+    //     setIsLoading(true);
 
-        const waitlist = await checkAccessCode(accessCode);
+    //     const waitlist = await checkAccessCode(accessCode);
 
-        // value == user
-        if (waitlist.success) {
-          if (!waitlist.value) {
-            setOpenError(true);
-            setErrorMessage(
-              "Access code not found. If you have a code, reach out for more information. hello@boxcart.shop"
-            );
-            setIsLoading(false);
-            return;
-          }
+    //     // value == user
+    //     if (waitlist.success) {
+    //       if (!waitlist.value) {
+    //         setOpenError(true);
+    //         setErrorMessage(
+    //           "Access code not found. If you have a code, reach out for more information. hello@boxcart.shop"
+    //         );
+    //         setIsLoading(false);
+    //         return;
+    //       }
 
-          if (waitlist.value) {
-            const { value } = waitlist;
-            setWaitlistId(value.id);
-            const account = await checkAccessCodeUsed(accessCode);
+    //       if (waitlist.value) {
+    //         const { value } = waitlist;
+    //         setWaitlistId(value.id);
+    //         const account = await checkAccessCodeUsed(accessCode);
 
-            if (account.success) {
-              if (account.value) {
-                setOpenError(true);
-                setErrorMessage(
-                  "Access code has already been used. Reach out for more information."
-                );
-                setIsLoading(false);
-                return;
-              }
-              if (!account.value) {
-                const { fName, lName, email, subdomain } = waitlist.value;
-                const shortenedSubdomain = subdomain.replace(
-                  ".boxcart.shop",
-                  ""
-                );
-                setSignupValues((prev) => ({
-                  ...prev,
-                  firstName: fName,
-                  lastName: lName,
-                  email,
-                  subdomain: shortenedSubdomain,
-                }));
-                setWaitListEmail(email);
-              }
-            }
+    //         if (account.success) {
+    //           if (account.value) {
+    //             setOpenError(true);
+    //             setErrorMessage(
+    //               "Access code has already been used. Reach out for more information."
+    //             );
+    //             setIsLoading(false);
+    //             return;
+    //           }
+    //           if (!account.value) {
+    //             const { fName, lName, email, subdomain } = waitlist.value;
+    //             const shortenedSubdomain = subdomain.replace(
+    //               ".boxcart.shop",
+    //               ""
+    //             );
+    //             setSignupValues((prev) => ({
+    //               ...prev,
+    //               firstName: fName,
+    //               lastName: lName,
+    //               email,
+    //               subdomain: shortenedSubdomain,
+    //             }));
+    //             setWaitListEmail(email);
+    //           }
+    //         }
 
-            if (!account.success) {
-              setOpenError(true);
-              setErrorMessage(
-                "Unknown error. Please contact hello@boxcart.shop with your access code."
-              );
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
+    //         if (!account.success) {
+    //           setOpenError(true);
+    //           setErrorMessage(
+    //             "Unknown error. Please contact hello@boxcart.shop with your access code."
+    //           );
+    //           setIsLoading(false);
+    //           return;
+    //         }
+    //       }
+    //     }
 
-        if (!waitlist.success) {
-          setOpenError(true);
-          setErrorMessage(
-            "Unknown error. Please contact hello@boxcart.shop with your access code."
-          );
-          setIsLoading(false);
-          return;
-        }
-      }
-    }
+    //     if (!waitlist.success) {
+    //       setOpenError(true);
+    //       setErrorMessage(
+    //         "Unknown error. Please contact hello@boxcart.shop with your access code."
+    //       );
+    //       setIsLoading(false);
+    //       return;
+    //     }
+    //   }
+    // }
 
     //* Test regex for subdomain.
     if (step == 2) {
@@ -872,8 +873,21 @@ function Signup() {
           if (status == 200 && ok) {
             const userId = user.id;
             const accountId = accounts[0].id;
+            const checklist = {
+              accountId,
+              hasViewedShareStore: false,
+              hasViewedSupportChannels: false,
+              id: newUserData.id,
+              isDeliverySet: false,
+              isEmailVerified: true,
+              isPaymentsSet: false,
+              isProductsUploaded: false,
+            };
+            const checklistString = JSON.stringify(checklist);
 
             sendVerificationEmail(userId, accountId, email);
+            setLocalStorage("isChecklistComplete", "false");
+            setLocalStorage("checklist", checklistString);
 
             const signedInRoute =
               process.env.NODE_ENV && process.env.NODE_ENV === "production"
@@ -1207,7 +1221,7 @@ function Signup() {
       </Snackbar>
       <div className=" lg:px-52">
         <h2 className={`${styles.boxcart_logo}`}>BoxCart</h2>
-        <LinearProgressWithLabel value={(step / maxSteps) * 100} />
+        <LinearProgressWithLabel value={((step - 1) / maxSteps) * 100} />
       </div>
       <div className="md:mt-4 md:px-32">
         <form onSubmit={handleSignup} className={`${styles.form_box}`}>
@@ -1261,6 +1275,14 @@ function Signup() {
                 What&apos;s your business name? *
               </label>
               <input
+                autoFocus
+                onKeyDown={(e) => {
+                  const keyDown = e.key;
+                  if (keyDown === "Enter") {
+                    e.preventDefault();
+                    handleNextStep();
+                  }
+                }}
                 id="biz_name_input"
                 required
                 name="businessName"
@@ -1287,6 +1309,14 @@ function Signup() {
               <div className={`${styles.input_pair}`}>
                 <div className={`${styles.input_group}`}>
                   <input
+                    autoFocus
+                    onKeyDown={(e) => {
+                      const keyDown = e.key;
+                      if (keyDown === "Enter") {
+                        e.preventDefault();
+                        handleNextStep();
+                      }
+                    }}
                     className={`${styles.input_editable}`}
                     type="text"
                     id="subdomain"
@@ -1343,6 +1373,7 @@ function Signup() {
                     label={label}
                     imgSrc={imgSrc}
                     imgAlt={imgAlt}
+                    autoFocus
                   />
                 );
               })}
@@ -1409,6 +1440,7 @@ function Signup() {
                 Enter your business bio.
               </label>
               <textarea
+                autoFocus
                 type="text"
                 id="business-bio"
                 name="businessBio"
@@ -1610,6 +1642,7 @@ function Signup() {
               </label>
               <textarea
                 type="text"
+                autoFocus
                 id="pickup_note"
                 name="pickupNote"
                 value={pickupNote}

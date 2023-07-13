@@ -24,7 +24,7 @@ function AppLayout({
   const [snackbarPosition, setSnackbarPosition] = useState({
     open: false,
     vertical: "bottom",
-    horizontal: "right",
+    horizontal: "center",
   });
 
   const { vertical, horizontal, open } = snackbarPosition;

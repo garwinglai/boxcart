@@ -40,8 +40,8 @@ model User {
   updatedAt       DateTime  @updatedAt
   accounts        Account[]
   role            Role      @default(OWNER)
-  waitlist        Waitlist  @relation(fields: [waitlistId], references: [id])
-  waitlistId      Int       @unique
+  waitlist        Waitlist? @relation(fields: [waitlistId], references: [id])
+  waitlistId      Int?      @unique
 }
 
 model Account {

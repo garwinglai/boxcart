@@ -122,13 +122,13 @@ function ProductDrawer({
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
   // useEffect to structure optionGroup variables from product edit
-  if (isEditProduct) {
-    useEffect(() => {
-      if (!product) return;
 
-      setOptions(null);
-    }, []);
-  }
+  useEffect(() => {
+    if (isCreateProduct) return;
+    if (!product) return;
+
+    setOptions(null);
+  }, []);
 
   const setOptions = (updatedProduct) => {
     const { optionGroups } = updatedProduct ? updatedProduct : product;
@@ -813,11 +813,6 @@ function ProductDrawer({
   const handleSave = async (e) => {
     e.preventDefault();
 
-    if (isSampleProduct) {
-      handleOpenSnackbar("Sample product cannot be edited.");
-      return;
-    }
-
     setIsSaveProductLoading(true);
 
     // Create regex to make sure quantity doesn't have decimal places
@@ -894,12 +889,13 @@ function ProductDrawer({
       const resProductUpdate = await updateProductClient(productObject);
       const { success, value } = resProductUpdate;
       const { updatedProduct } = value;
+      setIsSaveProductLoading(false);
 
       if (!success) {
         handleOpenSnackbar("Error updating product.");
+        return;
       }
 
-      setIsSaveProductLoading(false);
       unsetAllStates(updatedProduct);
       updateProductList(updatedProduct);
     }
@@ -916,25 +912,6 @@ function ProductDrawer({
         return;
       }
 
-      const checklistLS = getLocalStorage("checklist");
-      const checklistJson = JSON.parse(checklistLS);
-      const { isProductsUploaded, accountId } = checklistJson;
-
-      if (!isProductsUploaded) {
-        checklistJson.isProductsUploaded = true;
-        const checklistJsonString = JSON.stringify(checklistJson);
-        setLocalStorage("checklist", checklistJsonString);
-
-        const { success, value, error } = await updateProductVerifiedChecklist(
-          accountId
-        );
-
-        if (!success) {
-          console.log("error updating checklist for product:", error);
-          handleOpenSnackbar("Error updating checklist.");
-        }
-      }
-
       addToProductsList(createdProduct);
       if (createdCategories && createdCategories.length > 0) {
         setAllCategories((prev) => [...prev, ...createdCategories]);
@@ -942,7 +919,29 @@ function ProductDrawer({
       unsetAllStates();
     }
 
+    updateChecklist();
     toggleDrawer("right", false)(e);
+  };
+
+  const updateChecklist = async () => {
+    const checklistLS = getLocalStorage("checklist");
+    const checklistJson = JSON.parse(checklistLS);
+    const { isProductsUploaded, accountId } = checklistJson;
+
+    if (isProductsUploaded) return;
+
+    checklistJson.isProductsUploaded = true;
+    const checklistJsonString = JSON.stringify(checklistJson);
+    setLocalStorage("checklist", checklistJsonString);
+
+    const { success, value, error } = await updateProductVerifiedChecklist(
+      accountId
+    );
+
+    if (!success) {
+      console.log("error updating checklist for product:", error);
+      handleOpenSnackbar("Error updating checklist.");
+    }
   };
 
   const unsetAllStates = async (updatedProduct) => {

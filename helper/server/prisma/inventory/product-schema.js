@@ -247,6 +247,7 @@ const updateProduct = (product) => {
     },
     data: {
       productName,
+      isSampleProduct,
       description,
       priceIntPenny,
       priceStr,

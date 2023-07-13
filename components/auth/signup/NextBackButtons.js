@@ -19,7 +19,7 @@ function NextBackButtons({
 }) {
   return (
     <div className={`${styles.nextbackbuttons}`}>
-      <div className={` ${step == 0 && styles.hide_back_button}`}>
+      <div className={` ${step == 1 && styles.hide_back_button}`}>
         <ButtonSecondary name="Back" handleClick={backStep} type="button" />
       </div>
 
@@ -39,7 +39,7 @@ function NextBackButtons({
           <ButtonPrimary
             type={isLastStep ? "submit" : "button"}
             name={isLastStep ? "Complete" : "Next"}
-            handleClick={isLastStep ? signup : nextStep}
+            handleClick={isLastStep ? null : nextStep}
           />
         </div>
       )}
