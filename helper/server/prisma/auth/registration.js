@@ -113,6 +113,12 @@ export async function createNewUser(body) {
                 create: fulfillmentData.map((data) => {
                   const dataToSave = {
                     ...data,
+                    address_1,
+                    address_2,
+                    city,
+                    state,
+                    zip,
+                    fullAddress,
                   };
 
                   return dataToSave;

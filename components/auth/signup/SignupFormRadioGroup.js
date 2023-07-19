@@ -3,30 +3,30 @@ import styles from "@/styles/components/signup/signup-form-radio-group.module.cs
 import Image from "next/image";
 
 function SignupFormRadioGroup({
-	id,
-	name,
-	label,
-	imgSrc,
-	imgAlt,
-	hasImage,
-	isChecked,
-	onChange,
+  id,
+  name,
+  label,
+  imgSrc,
+  imgAlt,
+  hasImage,
+  isChecked,
+  onChange,
 }) {
-	return (
-		<label className={`${styles.fulfillment}`}>
-			<div className={`${styles.radio_group}`}>
-				<input
-					type="radio"
-					id={id}
-					name={name}
-					checked={isChecked(name)}
-					onChange={onChange}
-				/>
-				<label htmlFor={id}>{label}</label>
-			</div>
-			{hasImage && <Image src={imgSrc} alt={imgAlt} className="w-8 h-8" />}
-		</label>
-	);
+  return (
+    <label className={`${styles.fulfillment}`}>
+      <div className={`${styles.radio_group}`}>
+        <input
+          type="radio"
+          id={id}
+          name={name}
+          checked={isChecked(name)}
+          onChange={onChange}
+        />
+        <label htmlFor={id}>{label}</label>
+      </div>
+      {hasImage && <Image src={imgSrc} alt={imgAlt} className="w-8 h-8" />}
+    </label>
+  );
 }
 
 export default SignupFormRadioGroup;

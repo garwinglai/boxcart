@@ -49,7 +49,7 @@ function SignupFormSetTip({
               className={`${styles.tip_input}`}
               type="number"
               id="input_1"
-              value={tip1.tipStr}
+              value={tip1.tipInt}
               name="tip1"
               pattern="\d*"
               inputMode="numeric"
@@ -65,7 +65,7 @@ function SignupFormSetTip({
               type="number"
               id="input_2"
               name="tip2"
-              value={tip2.tipStr}
+              value={tip2.tipInt}
               pattern="\d*"
               inputMode="numeric"
               onChange={onChangeTipValues}
@@ -80,7 +80,7 @@ function SignupFormSetTip({
               type="number"
               id="input_3"
               name="tip3"
-              value={tip3.tipStr}
+              value={tip3.tipInt}
               pattern="\d*"
               inputMode="numeric"
               onChange={onChangeTipValues}

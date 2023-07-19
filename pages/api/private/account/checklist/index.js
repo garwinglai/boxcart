@@ -1,6 +1,9 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
 import { checkIsChecklistCompleteServer } from "@/helper/server/prisma/account/account-schema";
-import { updateProductVerifiedChecklistServer } from "@/helper/server/prisma/checklist";
+import {
+  updateFulfillmentChecklistServer,
+  updateProductVerifiedChecklistServer,
+} from "@/helper/server/prisma/checklist";
 
 export default async function handler(req, res) {
   const isLoggedIn = await isAuthServer(req, res);
@@ -32,6 +35,17 @@ export default async function handler(req, res) {
       const resAccount = await updateProductVerifiedChecklistServer(
         accoundIdInt
       );
+      const { success, value } = resAccount;
+
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
+    }
+
+    if (updateKey === "fulfillmentVerified") {
+      const resAccount = await updateFulfillmentChecklistServer(accoundIdInt);
       const { success, value } = resAccount;
 
       if (success) {

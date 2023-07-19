@@ -150,7 +150,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {isEmailVerified ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <ButtonPrimary
                     handleClick={handleSendVerifyEmail}
@@ -176,7 +176,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {isProductsUploaded ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <Link href="/account/inventory/products" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -202,7 +202,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               <div>
                 {/* //create a link to set delivery details */}
                 {isDeliverySet ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <Link
                     href="/account/my-shop/fulfillment"
@@ -231,7 +231,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               <div>
                 {/* //create a link to set payment details */}
                 {isPaymentsSet ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <Link href="/account/my-shop/payments" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -240,7 +240,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
             </div>
           </div>
-          <div className={`${styles.checklist}`}>
+          {/* <div className={`${styles.checklist}`}>
             <div className={`${styles.task_group} ${styles.flex}`}>
               <div
                 className={`${styles.task} ${styles.flex} ${
@@ -256,7 +256,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {hasViewedSupportChannels ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <Link href="/account/support" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -264,7 +264,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className={`${styles.checklist}`}>
             <div className={`${styles.task_group} ${styles.flex}`}>
@@ -278,11 +278,11 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 ) : (
                   <ClearIcon fontSize="small" color="disabled" />
                 )}
-                <p className="text-sm">View your live store.</p>
+                <p className="text-sm">View & share store.</p>
               </div>
               <div>
                 {hasViewedShareStore ? (
-                  <p className="text-sm font-light">Complete</p>
+                  <p className="text-sm font-light">Finished</p>
                 ) : (
                   <Link href="/account/my-shop/share" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />

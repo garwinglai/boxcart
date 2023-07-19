@@ -18,3 +18,22 @@ export async function updateProductVerifiedChecklistServer(accountId) {
     return { success: false, error };
   }
 }
+
+export async function updateFulfillmentChecklistServer(accountId) {
+  try {
+    const udpatedChecklist = await prisma.checklist.update({
+      where: { accountId },
+      data: {
+        isDeliverySet: true,
+      },
+    });
+
+    return { success: true, value: udpatedChecklist };
+  } catch (error) {
+    console.log(
+      "helper/server/prisma/checklist updateProductVerifiedChecklistServer error:",
+      error
+    );
+    return { success: false, error };
+  }
+}

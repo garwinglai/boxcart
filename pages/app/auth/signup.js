@@ -102,15 +102,15 @@ function Signup() {
     tipValues: {
       tip1: {
         tipStr: "",
-        tipInt: null,
+        tipInt: "",
       },
       tip2: {
         tipStr: "",
-        tipInt: null,
+        tipInt: "",
       },
       tip3: {
         tipStr: "",
-        tipInt: null,
+        tipInt: "",
       },
     },
     email: "",
@@ -710,7 +710,7 @@ function Signup() {
 
   function setCorrectTipValues(name, value) {
     const tipInt = value ? parseInt(value) : null;
-    const tipStr = value;
+    const tipStr = typeOfTip === "percentage" ? value + "%" : "$" + value;
 
     setSignupValues((prev) => ({
       ...prev,
@@ -998,7 +998,7 @@ function Signup() {
           deliveryFeePriceStr: null,
           deliveryFeePriceIntPenny: null,
           deliveryFeeByDistanceStr: null,
-          deliveryFeeByDistanceInt: null,
+          deliveryFeeByDistanceIntPenny: null,
           deliveryFeeDistanceMetric: null,
         };
       }
@@ -1016,7 +1016,7 @@ function Signup() {
           deliveryFeePriceStr: null,
           deliveryFeePriceIntPenny: null,
           deliveryFeeByDistanceStr: null,
-          deliveryFeeByDistanceInt: null,
+          deliveryFeeByDistanceIntPenny: null,
           deliveryFeeDistanceMetric: null,
         };
       }

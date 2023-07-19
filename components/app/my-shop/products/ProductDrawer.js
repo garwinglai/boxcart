@@ -253,7 +253,7 @@ function ProductDrawer({
     setHoldTempCategoriesToAdd((prev) => [...prev, newCategory]);
     setNewCategoryInput("");
     setOpenCategoryModal(false);
-    handleOpenSnackbar("Category added to list.");
+    handleOpenSnackbar("Category added to list. Select it from dropdown.");
   };
 
   const handleOpenSnackbar = (message) => {
@@ -895,9 +895,6 @@ function ProductDrawer({
     const questionSchema = structureQuestionSchema();
     const structuredOptions = structureOptionGroupSchema();
 
-    console.log("questionSchema", questionSchema);
-    console.log("newQuestionsAdded", newQuestionsAdded);
-
     // setIsSaveProductLoading(false);
     // return;
     if (!structuredOptions) {
@@ -955,6 +952,7 @@ function ProductDrawer({
         return;
       }
 
+      handleOpenSnackbar("Product updated.");
       unsetAllStates(updatedProduct);
       updateProductList(updatedProduct);
     }
@@ -971,6 +969,7 @@ function ProductDrawer({
         return;
       }
 
+      handleOpenSnackbar("Product created.");
       addToProductsList(createdProduct);
       if (createdCategories && createdCategories.length > 0) {
         setAllCategories((prev) => [...prev, ...createdCategories]);
@@ -1202,16 +1201,29 @@ function ProductDrawer({
         }
       }
 
-      return {
-        optionName,
-        optionGroupName,
-        priceStr,
-        priceIntPenny,
-        quantityStr: qtyStr,
-        quantityInt: qtyInt,
-        groupId,
-        optionId,
-      };
+      if (isCreateProduct) {
+        return {
+          optionName,
+          optionGroupName,
+          priceStr,
+          priceIntPenny,
+          quantityStr: qtyStr,
+          quantityInt: qtyInt,
+        };
+      }
+
+      if (isEditProduct) {
+        return {
+          optionName,
+          optionGroupName,
+          priceStr,
+          priceIntPenny,
+          quantityStr: qtyStr,
+          quantityInt: qtyInt,
+          groupId,
+          optionId,
+        };
+      }
     });
 
     if (priceError) {
@@ -1240,9 +1252,16 @@ function ProductDrawer({
     return questionSchema;
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const handleCloseDrawer = (e) => {
     toggleDrawer("right", false)(e);
     unsetAllStates();
+    setIsSaveProductLoading(false);
   };
 
   // * Display
@@ -1510,6 +1529,7 @@ function ProductDrawer({
             </label>
             <input
               type="text"
+              onKeyDown={handleKeyDown}
               required
               id="name"
               value={productName}
@@ -1547,6 +1567,7 @@ function ProductDrawer({
             </span>
             {/* //create an input for price so that it only has 2 decimals */}
             <input
+              onKeyDown={handleKeyDown}
               required
               type="number"
               name="priceInt"
@@ -1588,8 +1609,10 @@ function ProductDrawer({
                           New category:
                         </label>
                         <input
+                          onKeyDown={handleKeyDown}
                           type="text"
                           required
+                          autoFocus
                           id="newCategoryInput"
                           name="newCategoryInput"
                           value={newCategoryInput}
@@ -1721,6 +1744,7 @@ function ProductDrawer({
                 </FormControl>
                 {setQuantityByProduct && (
                   <input
+                    onKeyDown={handleKeyDown}
                     required
                     type="number"
                     name="quantity"
@@ -1797,6 +1821,7 @@ function ProductDrawer({
                         Title
                       </label>
                       <input
+                        onKeyDown={handleKeyDown}
                         required
                         type="text"
                         name="optionTitle"
@@ -1838,6 +1863,7 @@ function ProductDrawer({
                                       Name
                                     </label>
                                     <input
+                                      onKeyDown={handleKeyDown}
                                       required
                                       type="text"
                                       name="optionName"
@@ -1860,6 +1886,7 @@ function ProductDrawer({
                                       $
                                     </span>
                                     <input
+                                      onKeyDown={handleKeyDown}
                                       type="number"
                                       name="price"
                                       id="price"
@@ -1880,6 +1907,7 @@ function ProductDrawer({
                                       Quantity
                                     </label>
                                     <input
+                                      onKeyDown={handleKeyDown}
                                       required
                                       step="1"
                                       type="number"
@@ -1921,6 +1949,7 @@ function ProductDrawer({
                 </label>
               </span>
               <input
+                onKeyDown={handleKeyDown}
                 type="text"
                 id="customerQuestion"
                 value={customerQuestionInput}
@@ -1979,7 +2008,7 @@ function ProductDrawer({
           <SaveCancelButtons
             handleCancel={handleCloseDrawer}
             saveButtonType="submit"
-            cancelBbuttonType="button"
+            cancelButtonType="button"
             isLoading={isSaveProductLoading}
           />
         </div>

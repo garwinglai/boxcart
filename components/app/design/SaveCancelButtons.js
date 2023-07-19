@@ -9,6 +9,7 @@ function SaveCancelButtons({
   isLoading,
   saveButtonType,
   cancelButtonType,
+  handleSave,
 }) {
   return (
     <div className="flex items-center gap-4">
@@ -23,7 +24,11 @@ function SaveCancelButtons({
         {isLoading ? (
           <BoxLoader />
         ) : (
-          <ButtonPrimary name="Save" type={saveButtonType} />
+          <ButtonPrimary
+            name="Save"
+            type={saveButtonType}
+            handleClick={handleSave}
+          />
         )}
       </div>
     </div>

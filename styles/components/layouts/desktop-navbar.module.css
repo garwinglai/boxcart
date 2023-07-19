@@ -17,7 +17,7 @@
 		height: 100%;
 		z-index: 1000;
 		position: relative;
-		width: 250px;
+		min-width: 225px;
 		background-color: var(--white-design);
 	}
 

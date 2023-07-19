@@ -105,7 +105,7 @@ model AcceptedPayment {
   paymentMethod       String?
   paymentAccount      String?
   paymentInstructions String?
-  account             Account? @relation(fields: [accountId], references: [id])
+  account             Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId           Int?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -119,7 +119,7 @@ model Deposit {
   feeTypeSymbol String?
   feeStr        String?
   feeIntPenny   Int?
-  account       Account @relation(fields: [accountId], references: [id])
+  account       Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId     Int     @unique
 }
 
@@ -128,7 +128,7 @@ model Availability {
   datesAvailability       DatesAvailability[]
   datesRangedAvailability DatesRangedAvailability[]
   daysOfWeekAvailability  DaysOfWeekAvailability[]
-  account                 Account?                  @relation(fields: [accountId], references: [id])
+  account                 Account?                  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId               Int?
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
@@ -144,7 +144,7 @@ model DatesAvailability {
   startTimeInt   Int?
   endTimeStr     String?
   endTimeInt     Int?
-  availability   Availability? @relation(fields: [availabilityId], references: [id])
+  availability   Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   availabilityId Int?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -162,7 +162,7 @@ model DatesRangedAvailability {
   startTimeInt   Int?
   endTimeStr     String?
   endTimeInt     Int?
-  availability   Availability? @relation(fields: [availabilityId], references: [id])
+  availability   Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   availabilityId Int?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -180,7 +180,7 @@ model DaysOfWeekAvailability {
   endTimeInt         Int?
   repetition         String?
   lengthOfRepetition String?
-  availability       Availability? @relation(fields: [availabilityId], references: [id])
+  availability       Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   availabilityId     Int?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
@@ -206,7 +206,7 @@ model Product {
   optionGroups         OptionGroup[]
   questions            Question[]
   relatedCategories    Category[]
-  account              Account?      @relation(fields: [accountId], references: [id])
+  account              Account?      @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId            Int?
 
   @@index([accountId])
@@ -231,7 +231,7 @@ model Category {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   categoryName String?   @unique
-  account      Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  account      Account?  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId    Int?
   products     Product[]
 
@@ -289,7 +289,7 @@ model Checklist {
   hasViewedSupportChannels Boolean @default(false)
   hasViewedShareStore      Boolean @default(false)
   subdomain                String? @unique
-  account                  Account @relation(fields: [accountId], references: [id])
+  account                  Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId                Int     @unique
 }
 
@@ -312,7 +312,7 @@ model PremiumPlan {
   userName              String?
   businessName          String?
   email                 String?
-  account               Account  @relation(fields: [accountId], references: [id])
+  account               Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId             Int      @unique
 }
 
@@ -328,7 +328,7 @@ model SavedPaymentMethod {
   userName            String?
   businessName        String?
   email               String?
-  account             Account? @relation(fields: [accountId], references: [id])
+  account             Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId           Int?
 
   @@index([accountId])
@@ -339,7 +339,7 @@ model BusinessType {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   type      String?
-  account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId Int?
 
   @@index([accountId])
@@ -351,39 +351,48 @@ model Social {
   updatedAt DateTime @updatedAt
   platform  String?
   url       String?
-  account   Account? @relation(fields: [accountId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId Int?
 
   @@index([accountId])
 }
 
 model Fulfillment {
-  id                        Int      @id @default(autoincrement())
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
-  method                    String
-  methodInt                 Int
-  deliveryTypeInt           Int?
-  deliveryTypeStr           String?
-  localDeliveryDistanceStr  String?
-  localDeliveryDistanceMi   Int?
-  localDeliveryDistanceKm   Int?
-  pickupNote                String?
-  deliveryFeeType           String?
-  deliveryFeePriceStr       String?
-  deliveryFeePriceIntPenny  Int?
-  deliveryFeeByDistanceStr  String?
-  deliveryFeeByDistanceInt  Int?
-  deliveryFeeDistanceMetric String?
-  account                   Account? @relation(fields: [accountId], references: [id])
-  accountId                 Int?
+  id                             Int      @id @default(autoincrement())
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+  method                         String
+  methodInt                      Int
+  deliveryTypeInt                Int?
+  deliveryTypeStr                String?
+  localDeliveryDistanceStr       String?
+  localDeliveryDistanceMi        Int?
+  localDeliveryDistanceKm        Int?
+  pickupNote                     String?
+  deliveryFeeType                String?
+  deliveryFeePriceStr            String?
+  deliveryFeePriceIntPenny       Int?
+  deliveryFeeByDistanceStr       String?
+  deliveryFeeByDistanceIntPenny  Int?
+  deliveryFeeDistanceMetric      String?
+  deliveryFeeByPercentStr        String?
+  deliveryFeeByPercentIntHundred Int?
+  address_1                      String?
+  address_2                      String?
+  city                           String?
+  state                          String?
+  zip                            String?
+  fullAddress                    String?
+  account                        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId                      Int
 
+  @@unique(fields: [accountId, method], name: "fulfillment_identifier")
   @@index([accountId])
 }
 
 model Tips {
   id               Int      @id @default(autoincrement())
-  account          Account? @relation(fields: [accountId], references: [id])
+  account          Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId        Int?     @unique
   tipOneStr        String?
   tipOneIntPenny   Int?

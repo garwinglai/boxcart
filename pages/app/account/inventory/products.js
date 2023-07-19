@@ -18,7 +18,7 @@ import prisma from "@/lib/prisma";
 
 function Products({ userAccount }) {
   // Props
-  const { products, categories, logoImgStr, id: accountId } = userAccount;
+  const { products, categories, logoImgStr, id: accountId } = userAccount || {};
 
   // States
   const [isLoading, setIsLoading] = useState(false);

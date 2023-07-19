@@ -21,6 +21,7 @@ export async function createProductServer(product) {
         createdCategories,
       };
     } else {
+      console.log("no new categories");
       const createdProduct = await createProduct(product);
       data = {
         createdProduct,
@@ -48,6 +49,7 @@ const createCategories = (newCategories, accountId) => {
 };
 
 const createProduct = (product) => {
+  console.log("product", product);
   const {
     productSchema,
     imageSchmea,
@@ -68,6 +70,8 @@ const createProduct = (product) => {
     setQuantityByProduct,
     relatedCategories,
   } = productSchema;
+
+  console.log("creating product", product);
 
   return prisma.product.create({
     data: {
@@ -106,7 +110,7 @@ const createProduct = (product) => {
         create: optionGroupSchema.map((optionGroup) => {
           const { optionGroupName } = optionGroup;
           const optionGroupData = {
-            optionGroupName: optionGroup.optionGroupName,
+            optionGroupName,
             productName,
             options: {
               create: optionSchema.filter((option) => {
@@ -135,12 +139,13 @@ const createProduct = (product) => {
                         : quantityInt
                       : null,
                   };
-
+                  console.log("optionData", optionData);
                   return optionData;
                 }
               }),
             },
           };
+          console.log("optionGroupData", optionGroupData);
           return optionGroupData;
         }),
       },
@@ -171,6 +176,7 @@ const createProduct = (product) => {
 };
 
 export async function updateProductServer(product) {
+  console.log("update product server", product);
   const { productSchema, questionSchema } = product;
   const { accountId, newCategories, removedQuestions } = productSchema;
 
@@ -233,7 +239,6 @@ const updateProduct = (product) => {
   // console.log("relatedCategories", relatedCategories);
   // console.log("optionGroupSchema", optionGroupSchema);
   // console.log("optionSchema", optionSchema);
-  console.log("serverside", questionSchema);
 
   return prisma.product.update({
     where: {
