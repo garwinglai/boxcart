@@ -16,8 +16,8 @@ import { setLocalStorage } from "@/utils/clientStorage";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 
 const adminLoginTemp = {
-  email: "garwinglai@gmail.com",
-  password: "asdfghjkl",
+  email: "",
+  password: "",
 };
 
 const Signin = ({ providers }) => {
