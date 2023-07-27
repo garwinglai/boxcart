@@ -12,33 +12,52 @@ import {
   createDatesAvailabilityClient,
   createDatesRangedAvailabilityClient,
   createDaysOfWeekAvailabilityClient,
+  updateDatesAvailabilityClient,
+  updateDatesRangedAvailabilityClient,
+  updateDayOfWeekAvailabilityClient,
 } from "@/helper/client/api/availability/availability-crud";
 
-function CreateScheduleDrawer({
+function EditScheduleDrawer({
   toggleDrawer,
   accountId,
+  scheduleData,
+  scheduleTypeEdit,
   handleOpenSnackbar,
   availability,
   getAvailabilities,
 }) {
+  const { id: scheduleId } = scheduleData;
+
   const [timeOptions, setTimeOptions] = useState([]);
-  const [scheduleType, setScheduleType] = useState("date");
+  const [scheduleType, setScheduleType] = useState(scheduleTypeEdit);
   const [specificDateValues, setSpecificDateValues] = useState({
-    specificDate: "",
-    specificDateStartTime: "8:00 AM",
-    specificDateEndTime: "5:00 PM",
+    specificDate:
+      scheduleTypeEdit === "date" ? scheduleData.dateStrUnformat : "",
+    specificDateStartTime:
+      scheduleTypeEdit === "date" ? scheduleData.startTimeStr : "8:00 AM",
+    specificDateEndTime:
+      scheduleTypeEdit === "date" ? scheduleData.endTimeStr : "5:00 PM",
   });
   const [dateRangeValus, setDateRangeValues] = useState({
-    startDateRange: "",
-    endDateRange: "",
-    startTimeRange: "8:00 AM",
-    endTimeRange: "5:00 PM",
+    startDateRange:
+      scheduleTypeEdit === "range" ? scheduleData.startDateStrUnformat : "",
+    endDateRange:
+      scheduleTypeEdit === "range" ? scheduleData.endDateStrUnformat : "",
+    startTimeRange:
+      scheduleTypeEdit === "range" ? scheduleData.startTimeStr : "8:00 AM",
+    endTimeRange:
+      scheduleTypeEdit === "range" ? scheduleData.endTimeStr : "5:00 PM",
   });
   const [weekValues, setWeekValues] = useState({
-    weekday: "Monday",
-    weekStartTime: "8:00 AM",
-    weekEndTime: "5:00 PM",
-    repeatOption: "Does not repeat",
+    weekday: scheduleTypeEdit === "week" ? scheduleData.dayStr : "Monday",
+    weekStartTime:
+      scheduleTypeEdit === "week" ? scheduleData.startTimeStr : "8:00 AM",
+    weekEndTime:
+      scheduleTypeEdit === "week" ? scheduleData.endTimeStr : "5:00 PM",
+    repeatOption:
+      scheduleTypeEdit === "week"
+        ? scheduleData.repeatOption
+        : "Does not repeat",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -168,11 +187,11 @@ function CreateScheduleDrawer({
         return;
       }
 
-      const { success, value, error } = await createSpecificDate();
+      const { success, value, error } = await updateSpecificDate();
 
       if (success) {
         const { availabilityId } = value;
-        handleOpenSnackbar("Schedule created successfully.");
+        handleOpenSnackbar("Schedule updated.");
         getAvailabilities(availabilityId);
         setIsLoading(false);
         toggleDrawer(e);
@@ -228,11 +247,11 @@ function CreateScheduleDrawer({
         return;
       }
 
-      const { success, value, error } = await createRangeDate();
+      const { success, value, error } = await updateRangeDate();
 
       if (success) {
         const { availabilityId } = value;
-        handleOpenSnackbar("Schedule created successfully.");
+        handleOpenSnackbar("Schedule updated.");
         getAvailabilities(availabilityId);
         setIsLoading(false);
         toggleDrawer(e);
@@ -276,7 +295,7 @@ function CreateScheduleDrawer({
         return;
       }
 
-      const { success, value, error } = await createWeekDate();
+      const { success, value, error } = await updateWeekDate();
 
       if (success) {
         const { availabilityId } = value;
@@ -329,7 +348,7 @@ function CreateScheduleDrawer({
     return false;
   };
 
-  const createSpecificDate = async () => {
+  const updateSpecificDate = async () => {
     const {
       reFormattedStartDate,
       formattedStartDate,
@@ -347,6 +366,7 @@ function CreateScheduleDrawer({
     const epochEndTime = formattedEndTime.getTime().toString();
 
     const datesAvailability = {
+      id: scheduleId,
       dateStrUnformat: specificDate,
       dateStr: reFormattedStartDate,
       dateEpochStr: epochDate,
@@ -356,16 +376,9 @@ function CreateScheduleDrawer({
       endTimeEpochStr: epochEndTime,
     };
 
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
     try {
-      const { success, value } = await createDatesAvailabilityClient(
-        datesAvailability,
-        accountInfoString
+      const { success, value } = await updateDatesAvailabilityClient(
+        datesAvailability
       );
 
       return { success, value };
@@ -379,7 +392,7 @@ function CreateScheduleDrawer({
     }
   };
 
-  const createRangeDate = async () => {
+  const updateRangeDate = async () => {
     const {
       reFormattedStartDate, // mm/dd/yyyy
       formattedStartDate,
@@ -395,6 +408,7 @@ function CreateScheduleDrawer({
     const epochStartDate = formattedStartDate.getTime().toString();
 
     const datesRagnedAvailability = {
+      id: scheduleId,
       startDateStrUnformat: startDateRange,
       startDateStr: reFormattedStartDate,
       startDateEpochStr: epochStartDate,
@@ -405,16 +419,9 @@ function CreateScheduleDrawer({
       endTimeStr: endTimeRange,
     };
 
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
     try {
-      const { success, value } = await createDatesRangedAvailabilityClient(
-        datesRagnedAvailability,
-        accountInfoString
+      const { success, value } = await updateDatesRangedAvailabilityClient(
+        datesRagnedAvailability
       );
 
       return { success, value };
@@ -428,11 +435,12 @@ function CreateScheduleDrawer({
     }
   };
 
-  const createWeekDate = async () => {
+  const updateWeekDate = async () => {
     const dayInt = convertWeekdayToInt(weekday);
     const repeatOptionInt = convertRepeatOptionToInt(repeatOption);
 
     const daysOfWeekAvailability = {
+      id: scheduleId,
       dayStr: weekday,
       dayInt,
       startTimeStr: weekStartTime,
@@ -441,16 +449,9 @@ function CreateScheduleDrawer({
       repeatOptionInt,
     };
 
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
     try {
-      const { success, value } = await createDaysOfWeekAvailabilityClient(
-        daysOfWeekAvailability,
-        accountInfoString
+      const { success, value } = await updateDayOfWeekAvailabilityClient(
+        daysOfWeekAvailability
       );
 
       return { success, value };
@@ -876,4 +877,4 @@ function CreateScheduleDrawer({
   );
 }
 
-export default CreateScheduleDrawer;
+export default EditScheduleDrawer;

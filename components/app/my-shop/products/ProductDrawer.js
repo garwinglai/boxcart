@@ -47,9 +47,9 @@ function ProductDrawer({
   isCreateProduct,
   isEditProduct,
   accountId,
-  getProducts,
-  addToProductsList,
   updateProductList,
+  handleOpenSnackbarGlobal,
+  getAllProducts,
 }) {
   const [isSaveProductLoading, setIsSaveProductLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -860,7 +860,7 @@ function ProductDrawer({
     );
 
     if (initialRelatedProductsArr.includes(categoryName)) {
-      setRemovedCategories((prev) => [...prev, categoryName]);
+      setRemovedCategories((prev) => [...prev, id]);
     }
   };
 
@@ -952,7 +952,7 @@ function ProductDrawer({
         return;
       }
 
-      handleOpenSnackbar("Product updated.");
+      handleOpenSnackbarGlobal("Product updated.");
       unsetAllStates(updatedProduct);
       updateProductList(updatedProduct);
     }
@@ -968,15 +968,15 @@ function ProductDrawer({
         handleOpenSnackbar("Error creating product.");
         return;
       }
-
-      handleOpenSnackbar("Product created.");
-      addToProductsList(createdProduct);
+      handleOpenSnackbarGlobal("Product created.");
+      // addToProductsList(createdProduct);
       if (createdCategories && createdCategories.length > 0) {
         setAllCategories((prev) => [...prev, ...createdCategories]);
       }
       unsetAllStates();
     }
 
+    getAllProducts(accountId);
     updateChecklist();
     toggleDrawer("right", false)(e);
   };
@@ -1714,6 +1714,15 @@ function ProductDrawer({
             </span>
             {!hasUnlimitedQuantity && (
               <React.Fragment>
+                <ul className="my-2">
+                  <li className="text-xs list-disc font-light ml-9 md:text-sm">
+                    Set the quantity for your product, or
+                  </li>
+
+                  <li className="text-xs list-disc font-light ml-9 mt-2 md:text-sm">
+                    Set the quantity for each product option below.
+                  </li>
+                </ul>
                 <FormControl>
                   <RadioGroup
                     aria-labelledby="radio buttons for setting quantity"
@@ -1731,6 +1740,19 @@ function ProductDrawer({
                         </p>
                       }
                     />
+                    {setQuantityByProduct && (
+                      <input
+                        onKeyDown={handleKeyDown}
+                        required
+                        type="number"
+                        name="quantity"
+                        id="quantity"
+                        value={quantity}
+                        onChange={handleProductInputChange}
+                        placeholder="total quantity for this product ..."
+                        className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 my-1 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
+                      />
+                    )}
                     <FormControlLabel
                       value="option"
                       control={<Radio size="small" color="warning" />}
@@ -1740,32 +1762,15 @@ function ProductDrawer({
                         </p>
                       }
                     />
+                    {!setQuantityByProduct && (
+                      <ul className="">
+                        <li className="text-xs list-disc font-light ml-5 md:text-sm">
+                          Set quantity for product options below.
+                        </li>
+                      </ul>
+                    )}
                   </RadioGroup>
                 </FormControl>
-                {setQuantityByProduct && (
-                  <input
-                    onKeyDown={handleKeyDown}
-                    required
-                    type="number"
-                    name="quantity"
-                    id="quantity"
-                    value={quantity}
-                    onChange={handleProductInputChange}
-                    placeholder="total quantity for this product ..."
-                    className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
-                  />
-                )}
-                {!setQuantityByProduct && (
-                  <ul>
-                    <li className="text-xs list-disc font-light ml-12 md:text-sm">
-                      Set quantity for different product options below.{" "}
-                    </li>
-                    <li className="text-xs list-disc font-light ml-12 mt-2 md:text-sm">
-                      {" "}
-                      If no options, set by product or turn off.{" "}
-                    </li>
-                  </ul>
-                )}
               </React.Fragment>
             )}
           </span>
@@ -1880,7 +1885,7 @@ function ProductDrawer({
                                       htmlFor="priceStr"
                                       className="text-[color:var(--black-design-extralight)] font-medium text-xs "
                                     >
-                                      Price
+                                      Add on price
                                     </label>
                                     <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
                                       $
@@ -1891,7 +1896,7 @@ function ProductDrawer({
                                       name="price"
                                       id="price"
                                       step="0.01"
-                                      placeholder="Empty = free"
+                                      placeholder="0"
                                       defaultValue={getOptionValuePrice(item)}
                                       onChange={handleOptionChange(item)}
                                       className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4  indent-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden placeholder:text-xs`}

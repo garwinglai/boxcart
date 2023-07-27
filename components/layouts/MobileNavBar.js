@@ -69,10 +69,6 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
     setOpenPremiumList((prev) => !prev);
   };
 
-  const handleShareShop = () => {
-    window.alert("Share shop");
-  };
-
   const handleLogOut = async () => {
     await signOut({
       redirect: false,
@@ -338,12 +334,17 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         </Link>
       </List>
       <div className={`${styles.navbar_footer_group}`}>
-        <MenuItem onClick={handleShareShop}>
-          <ListItemIcon>
-            <ShareOutlinedIcon />
-          </ListItemIcon>
-          <ListItemText primary="Share store" />
-        </MenuItem>
+        <Link
+          href="/account/my-shop/share"
+          onClick={toggleDrawer("right", false)}
+        >
+          <MenuItem>
+            <ListItemIcon>
+              <ShareOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText primary="Share store" />
+          </MenuItem>
+        </Link>
 
         <MenuItem onClick={handleLogOut}>
           <ListItemIcon>

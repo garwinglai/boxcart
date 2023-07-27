@@ -192,7 +192,6 @@ function Fulfillment({ userSession, userAccount }) {
     if (value === "Delivery") {
       if (isDeliveryChecked && !isPickupChecked) {
         handleOpenSnackbar(snackMessage);
-        return;
       }
 
       // Check if deliveryMethod exists, if it does add it to removedFulfillmentIds
@@ -226,7 +225,6 @@ function Fulfillment({ userSession, userAccount }) {
     if (value === "Pickup") {
       if (isPickupChecked && !isDeliveryChecked) {
         handleOpenSnackbar(snackMessage);
-        return;
       }
 
       // Check if pickupMethod exists, if it does add it to removedFulfillmentIds

@@ -31,3 +31,23 @@ export async function checkIsChecklistCompleteClient(email) {
     return { success: false, account: null };
   }
 }
+
+export async function updateAccountSettingsClient(data) {
+  console.log("here")
+  console.log("data", data);
+  const apiUrl = `/api/private/account/update`;
+
+  const resAccount = await fetch(apiUrl, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  const accountJSON = await resAccount.json();
+  const { status } = resAccount;
+
+  if (status === 200) {
+    return { success: true, account: accountJSON };
+  } else {
+    return { success: false, account: null };
+  }
+}

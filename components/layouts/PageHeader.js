@@ -29,7 +29,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
 	};
 
 	return (
-		<div className=" flex justify-between py-2 px-4 items-center sticky top-0 bg-[color:var(--white)] border-b border-[color:var(--gray-light)] z-10 shadow-md">
+		<div className=" flex justify-between py-2 px-4 items-center sticky top-0 bg-[color:var(--white)] border-b border-[color:var(--gray-light)] z-20 shadow-md">
 			<div className="flex gap-2 items-center">
 				{pageIcon}
 				<h3 className="text-[color:var(--black-design)] ">{pageTitle}</h3>

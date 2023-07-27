@@ -981,8 +981,19 @@ function Signup() {
     };
 
     const businessTypeData = [...businessTypes, ...otherBusinessType];
-    const socialsData = socialLinks;
-    const tipsData = tipValues;
+    const tipsData = {
+      type: typeOfTip,
+      tipOneStr: tip1.tipStr,
+      tipOneIntPenny: typeOfTip === "dollar" ? tip1.tipInt * 100 : null,
+      tipOneIntHundredth: typeOfTip === "percentage" ? tip1.tipInt * 100 : null,
+      tipTwoStr: tip2.tipStr,
+      tipTwoIntPenny: typeOfTip === "dollar" ? tip2.tipInt * 100 : null,
+      tipTwoIntHundredth: typeOfTip === "percentage" ? tip2.tipInt * 100 : null,
+      tipThreeStr: tip3.tipStr,
+      tipThreeIntPenny: typeOfTip === "dollar" ? tip3.tipInt * 100 : null,
+      tipThreeIntHundredth:
+        typeOfTip === "percentage" ? tip3.tipInt * 100 : null,
+    };
     const fulfillmentData = fulfillmentMethods.map((method) => {
       if (method === "delivery") {
         return {
@@ -1021,6 +1032,32 @@ function Signup() {
         };
       }
     });
+    // check social links object to see if any of the keys have values. If so, push data to a new array.
+    const socialsData = [];
+    for (const [key, value] of Object.entries(socialLinks)) {
+      if (value !== "") {
+        let platform;
+
+        switch (key) {
+          case "instagramUrl":
+            platform = "instagram";
+            break;
+          case "facebookUrl":
+            platform = "facebook";
+            break;
+          case "tiktokUrl":
+            platform = "tiktok";
+            break;
+          case "youtubeUrl":
+            platform = "youtube";
+            break;
+          default:
+            break;
+        }
+
+        socialsData.push({ platform, socialLink: value });
+      }
+    }
 
     const newUserData = {
       userData,
@@ -1058,29 +1095,30 @@ function Signup() {
   }
 
   function checkSocialMediaUrlValidEntry() {
-    const instagramRegex = /^https:\/\/www\.instagram\.com\/.+/;
-    const facebookRegex = /^https:\/\/www\.facebook\.com\/.+/;
-    const tiktokRegex = /^https:\/\/www\.tiktok\.com\/.+/;
-    const youtubeRegex = /^https:\/\/www\.youtube\.com\/.+/;
+    // Create the regex for each without the https.
+    const instagramRegexNoHttp = /^www\.instagram\.com\/.+/;
+    const facebookRegexNoHttp = /^www\.facebook\.com\/.+/;
+    const tiktokRegexNoHttp = /^www\.tiktok\.com\/.+/;
+    const youtubeRegexNoHttp = /^www\.youtube\.com\/.+/;
 
     let allSocialUrlsMatchedRegex = [];
     if (instagramUrl !== "") {
-      const matched = checkSocialMediaRegex(instagramRegex, instagramUrl);
+      const matched = checkSocialMediaRegex(instagramRegexNoHttp, instagramUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (facebookUrl !== "") {
-      const matched = checkSocialMediaRegex(facebookRegex, facebookUrl);
+      const matched = checkSocialMediaRegex(facebookRegexNoHttp, facebookUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (tiktokUrl !== "") {
-      const matched = checkSocialMediaRegex(tiktokRegex, tiktokUrl);
+      const matched = checkSocialMediaRegex(tiktokRegexNoHttp, tiktokUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (youtubeUrl !== "") {
-      const matched = checkSocialMediaRegex(youtubeRegex, youtubeUrl);
+      const matched = checkSocialMediaRegex(youtubeRegexNoHttp, youtubeUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
@@ -1096,7 +1134,7 @@ function Signup() {
     const socialMediaMatchRegex = socialMediaRegex.test(url);
     if (!socialMediaMatchRegex) {
       setErrorMessage(
-        `Please enter a valid url or leave empty. https://www.{host}.com/{your-handle}`
+        `Please enter a valid url or leave empty: www.{host}.com/{your-handle}`
       );
       setOpenError(true);
       return false;

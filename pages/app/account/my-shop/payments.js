@@ -1,26 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
-import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import Link from "next/link";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import PercentOutlinedIcon from "@mui/icons-material/PercentOutlined";
-import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
 import CurrencyInput from "react-currency-input-field";
+import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
+import ButtonFourth from "@/components/global/buttons/ButtonFourth";
+import ButtonThird from "@/components/global/buttons/ButtonThird";
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import { updatePaymentClient } from "@/helper/client/api/payments/payment-crud";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import { updatePaymentChecklistClient } from "@/helper/client/api/checklist";
+import { getLocalStorage } from "@/utils/clientStorage";
+
+const styleMobile = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 350,
+  bgcolor: "background.paper",
+  // border: "2px solid #000",
+  borderRadius: 1,
+  boxShadow: 24,
+  p: 4,
+};
 
 function Payments({ userAccount }) {
-  const { enableTips, tips, deposit, acceptedPayments } = userAccount || {};
+  const {
+    enableTips,
+    tips,
+    deposit,
+    requireDeposit,
+    acceptedPayments,
+    id: accountId,
+  } = userAccount || {};
 
-  const [hasDeposit, setHasDeposit] = useState(false);
+  const placeholderCardMessage =
+    "Please include your order ID in payment notes. Payment must be completed in 15 minutes.";
+
+  const placeholderCashMessage =
+    "Please provide cash upon receiving order in person.";
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [hasDeposit, setHasDeposit] = useState(requireDeposit);
+  const [depositFeeType, setDepositFeeType] = useState(
+    hasDeposit
+      ? deposit
+        ? deposit.feeTypeStr !== ""
+          ? deposit.feeTypeStr
+          : "dollar"
+        : "dollar"
+      : ""
+  );
+  const [depositDollarFee, setDepositDollarFee] = useState(
+    deposit
+      ? deposit.feeTypeSymbol === "$"
+        ? deposit.feeIntPenny / 100
+        : ""
+      : ""
+  );
+  const [depositPercentageFee, setDepositPercentageFee] = useState(
+    deposit
+      ? deposit.feeTypeSymbol === "%"
+        ? deposit.feeIntHundredth / 100
+        : ""
+      : ""
+  );
   const [hasTips, setHasTips] = useState(enableTips ? enableTips : false);
   const [tipType, setTipType] = useState(
     enableTips ? (tips.type ? tips.type : "dollar") : "dollar"
@@ -28,22 +88,22 @@ function Payments({ userAccount }) {
   const [tipValuesDollar, setTipValuesDollar] = useState({
     tipOneDollar: enableTips
       ? tips.type === "dollar"
-        ? tips.tipOneIntPenny
-          ? tips.tipOneIntPenny
+        ? tips.tipOneIntPenny / 100
+          ? tips.tipOneIntPenny / 100
           : ""
         : ""
       : "",
     tipTwoDollar: enableTips
       ? tips.type === "dollar"
-        ? tips.tipTwoIntPenny
-          ? tips.tipTwoIntPenny
+        ? tips.tipTwoIntPenny / 100
+          ? tips.tipTwoIntPenny / 100
           : ""
         : ""
       : "",
     tipThreeDollar: enableTips
       ? tips.type === "dollar"
-        ? tips.tipThreeIntPenny
-          ? tips.tipThreeIntPenny
+        ? tips.tipThreeIntPenny / 100
+          ? tips.tipThreeIntPenny / 100
           : ""
         : ""
       : "",
@@ -51,22 +111,22 @@ function Payments({ userAccount }) {
   const [tipValuesPercentage, setTipValuesPercentage] = useState({
     tipOnePercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipOneIntPenny
-          ? tips.tipOneIntPenny
+        ? tips.tipOneIntHundredth / 100
+          ? tips.tipOneIntHundredth / 100
           : ""
         : ""
       : "",
     tipTwoPercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipTwoIntPenny
-          ? tips.tipTwoIntPenny
+        ? tips.tipTwoIntHundredth / 100
+          ? tips.tipTwoIntHundredth / 100
           : ""
         : ""
       : "",
     tipThreePercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipThreeIntPenny
-          ? tips.tipThreeIntPenny
+        ? tips.tipThreeIntHundredth / 100
+          ? tips.tipThreeIntHundredth / 100
           : ""
         : ""
       : "",
@@ -74,82 +134,656 @@ function Payments({ userAccount }) {
   const [useCard, setUseCard] = useState(false);
   const [useCash, setUseCash] = useState(false);
   const [cashPayInstructions, setCashPayInstructions] = useState(
-    "Please provide cash upon receiving order in person."
+    placeholderCashMessage
   );
   const [useZelle, setUseZelle] = useState(false);
-  const [zellePayInstructions, setZellePayInstructions] = useState(
-    "Please include your order ID in payment notes. Payment must be completed in 15 minutes."
-  );
-  const [useCashApp, setUseCashApp] = useState(false);
-  const [cashAppPayInstructions, setCashAppPayInstructions] = useState(
-    "Please include your order ID in payment notes. Payment must be completed in 15 minutes."
-  );
+  const [zelleValues, setZelleValues] = useState({
+    zellePayInstructions: placeholderCardMessage,
+    zelleAccount: "",
+  });
+  // const [useCashApp, setUseCashApp] = useState(false);
+  // const [cashAppPayInstructions, setCashAppPayInstructions] = useState(
+  //   "Please include your order ID in payment notes. Payment must be completed in 15 minutes."
+  // );
   const [useVenmo, setUseVenmo] = useState(false);
-  const [venmoPayInstructions, setVenmoPayInstructions] = useState(
-    "Please include your order ID in payment notes. Payment must be completed in 15 minutes."
-  );
+  const [venmoValues, setVenmoValues] = useState({
+    venmoPayInstructions: placeholderCardMessage,
+    venmoAccount: "",
+  });
   const [usePayPal, setUsePayPal] = useState(false);
-  const [payPalPayInstructions, setPayPalPayInstructions] = useState(
-    "Please include your order ID in payment notes. Payment must be completed in 15 minutes."
-  );
+  const [paypalValues, setPaypalValues] = useState({
+    paypalInstructions: placeholderCardMessage,
+    paypalAccount: "",
+  });
+  const [removedPayments, setRemovedPayments] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState({
+    snackbarOpen: false,
+    snackbarMessage: "",
+  });
 
+  const { snackbarOpen, snackbarMessage } = openSnackbar;
   const { tipOneDollar, tipTwoDollar, tipThreeDollar } = tipValuesDollar;
   const { tipOnePercentage, tipTwoPercentage, tipThreePercentage } =
     tipValuesPercentage;
+  const { zellePayInstructions, zelleAccount } = zelleValues;
+  const { paypalInstructions, paypalAccount } = paypalValues;
+  const { venmoPayInstructions, venmoAccount } = venmoValues;
+
+  useEffect(() => {
+    for (let i = 0; i < acceptedPayments.length; i++) {
+      const payment = acceptedPayments[i];
+      const { paymentMethod, paymentAccount, paymentInstructions } = payment;
+
+      if (paymentMethod === "cash") {
+        setUseCash(true);
+        setCashPayInstructions(
+          paymentInstructions ? paymentInstructions : placeholderCashMessage
+        );
+      }
+
+      if (paymentMethod === "venmo") {
+        setUseVenmo(true);
+        setVenmoValues((prev) => ({
+          ...prev,
+          venmoPayInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          venmoAccount: paymentAccount,
+        }));
+      }
+
+      if (paymentMethod === "paypal") {
+        setUsePayPal(true);
+        setPaypalValues((prev) => ({
+          ...prev,
+          paypalInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          paypalAccount: paymentAccount,
+        }));
+      }
+
+      if (paymentMethod === "zelle") {
+        setUseZelle(true);
+        setZelleValues((prev) => ({
+          ...prev,
+          zellePayInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          zelleAccount: paymentAccount,
+        }));
+      }
+    }
+  }, []);
+
+  const handleOpenSnackbar = (message) => {
+    setOpenSnackbar({
+      snackbarOpen: true,
+      snackbarMessage: message,
+    });
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackbar(false);
+  };
 
   const handleChangeInPayment = (e) => {
     const { value } = e.target;
 
     if (value === "deposit") {
+      if (hasDeposit) {
+        setDepositFeeType("");
+        setDepositDollarFee("");
+        setDepositPercentageFee("");
+      }
+
+      if (!hasDeposit) {
+        setDepositFeeType("dollar");
+      }
       setHasDeposit((prev) => !prev);
     }
 
     if (value === "tips") {
+      if (hasTips) {
+        setTipType("");
+        setTipValuesDollar({
+          tipOneDollar: "",
+          tipTwoDollar: "",
+          tipThreeDollar: "",
+        });
+        setTipValuesPercentage({
+          tipOnePercentage: "",
+          tipTwoPercentage: "",
+          tipThreePercentage: "",
+        });
+      }
+
+      if (!hasTips) {
+        setTipType("dollar");
+      }
+
       setHasTips((prev) => !prev);
     }
 
     if (value === "card") {
+      // TODO: when add stripe, check if I have to add to removedPayments
       setUseCard((prev) => !prev);
     }
 
     if (value === "cash") {
+      if (useCash) {
+        setCashPayInstructions(placeholderCashMessage);
+        // Check is paymentMethod == "cash" in acceptedPayments array, if it is, add to removedPayments
+
+        // return cashPayment or undefined
+        const cashPayment = acceptedPayments.find(
+          (payment) => payment.paymentMethod === "cash"
+        );
+
+        if (cashPayment) {
+          setRemovedPayments((prev) => [...prev, cashPayment]);
+        }
+      }
       setUseCash((prev) => !prev);
     }
 
     if (value === "zelle") {
+      if (useZelle) {
+        setZelleValues({
+          zellePayInstructions: placeholderCardMessage,
+          zelleAccount: "",
+        });
+
+        // Check is paymentMethod == "zelle" in acceptedPayments array, if it is, add to removedPayments
+
+        // return zellePayment or undefined
+        const zellePayment = acceptedPayments.find(
+          (payment) => payment.paymentMethod === "zelle"
+        );
+
+        if (zellePayment) {
+          setRemovedPayments((prev) => [...prev, zellePayment]);
+        }
+      }
+
       setUseZelle((prev) => !prev);
     }
 
-    if (value === "cash-app") {
-      setUseCashApp((prev) => !prev);
-    }
+    // if (value === "cash-app") {
+    //   setUseCashApp((prev) => !prev);
+    // }
 
     if (value === "venmo") {
+      if (useVenmo) {
+        setVenmoValues({
+          venmoPayInstructions: placeholderCardMessage,
+          venmoAccount: "",
+        });
+
+        // Check is paymentMethod == "venmo" in acceptedPayments array, if it is, add to removedPayments
+
+        // return venmoPayment or undefined
+        const venmoPayment = acceptedPayments.find(
+          (payment) => payment.paymentMethod === "venmo"
+        );
+
+        if (venmoPayment) {
+          setRemovedPayments((prev) => [...prev, venmoPayment]);
+        }
+      }
       setUseVenmo((prev) => !prev);
     }
 
     if (value === "paypal") {
+      if (usePayPal) {
+        setPaypalValues({
+          paypalInstructions: placeholderCardMessage,
+          paypalAccount: "",
+        });
+
+        // Check is paymentMethod == "paypal" in acceptedPayments array, if it is, add to removedPayments
+
+        // return paypalPayment or undefined
+        const paypalPayment = acceptedPayments.find(
+          (payment) => payment.paymentMethod === "paypal"
+        );
+
+        if (paypalPayment) {
+          setRemovedPayments((prev) => [...prev, paypalPayment]);
+        }
+      }
       setUsePayPal((prev) => !prev);
+    }
+  };
+
+  const handleDepositFeeTypeChange = (e) => {
+    const { value } = e.target;
+
+    if (value === "dollar") {
+      setDepositPercentageFee("");
+    }
+
+    if (value === "percentage") {
+      setDepositDollarFee("");
+    }
+
+    setDepositFeeType(value);
+  };
+
+  const handleDepositFeeChange = (value, name) => {
+    if (name === "dollar") {
+      setDepositDollarFee(value);
+    }
+
+    if (name === "percentage") {
+      setDepositPercentageFee(value);
     }
   };
 
   const handleTipType = (e) => {
     const { value } = e.target;
+    if (value === "dollar") {
+      setTipValuesPercentage({
+        tipOnePercentage: "",
+        tipTwoPercentage: "",
+        tipThreePercentage: "",
+      });
+    }
+
+    if (value === "percentage") {
+      setTipValuesDollar({
+        tipOneDollar: "",
+        tipTwoDollar: "",
+        tipThreeDollar: "",
+      });
+    }
+
     setTipType(value);
   };
 
   const handleChangeTipValuesDollar = (value, name) => {
-    console.log(value, name);
     setTipValuesDollar((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleChangeTipValuesPercentage = (value, name) => {
-    console.log(value, name);
     setTipValuesPercentage((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleZelleChange = (e) => {
+    const { name, value } = e.target;
+    setZelleValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePaypalChange = (e) => {
+    const { name, value } = e.target;
+
+    setPaypalValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleVenmoChange = (e) => {
+    const { name, value } = e.target;
+    setVenmoValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCashChange = (e) => {
+    const { value } = e.target;
+    setCashPayInstructions(value);
+  };
+
+  const handleCancel = (e) => {
+    setIsCancelModalOpen(true);
+  };
+
+  const closeCancelModal = () => {
+    setIsCancelModalOpen(false);
+  };
+
+  const handleCancelAllUpdates = () => {
+    setIsLoading(false);
+    setIsCancelModalOpen(false);
+    // reset all state values to original values from props
+
+    setHasDeposit(requireDeposit);
+    setDepositFeeType(
+      deposit
+        ? deposit.feeTypeStr !== ""
+          ? deposit.feeTypeStr
+          : "dollar"
+        : "dollar"
+    );
+    setDepositDollarFee(
+      deposit ? (deposit.feeTypeSymbol === "$" ? deposit.feeIntPenny : "") : ""
+    );
+    setDepositPercentageFee(
+      deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPenny : "") : ""
+    );
+    setHasTips(enableTips ? enableTips : false);
+    setTipType(enableTips ? (tips.type ? tips.type : "dollar") : "dollar");
+    setTipValuesDollar({
+      tipOneDollar: enableTips
+        ? tips.type === "dollar"
+          ? tips.tipOneIntPenny
+            ? tips.tipOneIntPenny
+            : ""
+          : ""
+        : "",
+      tipTwoDollar: enableTips
+        ? tips.type === "dollar"
+          ? tips.tipTwoIntPenny
+            ? tips.tipTwoIntPenny
+            : ""
+          : ""
+        : "",
+      tipThreeDollar: enableTips
+        ? tips.type === "dollar"
+          ? tips.tipThreeIntPenny
+            ? tips.tipThreeIntPenny
+            : ""
+          : ""
+        : "",
+    });
+    setTipValuesPercentage({
+      tipOnePercentage: enableTips
+        ? tips.type === "percentage"
+          ? tips.tipOneIntPenny
+            ? tips.tipOneIntPenny
+            : ""
+          : ""
+        : "",
+      tipTwoPercentage: enableTips
+        ? tips.type === "percentage"
+          ? tips.tipTwoIntPenny
+            ? tips.tipTwoIntPenny
+            : ""
+          : ""
+        : "",
+      tipThreePercentage: enableTips
+        ? tips.type === "percentage"
+          ? tips.tipThreeIntPenny
+            ? tips.tipThreeIntPenny
+            : ""
+          : ""
+        : "",
+    });
+    setUseCard(
+      deposit ? (deposit.paymentMethod === "card" ? true : false) : false
+    );
+    setUseCash(
+      deposit ? (deposit.paymentMethod === "cash" ? true : false) : false
+    );
+    setCashPayInstructions(
+      deposit
+        ? deposit.paymentMethod === "cash"
+          ? deposit.paymentInstructions
+            ? deposit.paymentInstructions
+            : placeholderCashMessage
+          : placeholderCashMessage
+        : placeholderCashMessage
+    );
+    setUseZelle(
+      deposit ? (deposit.paymentMethod === "zelle" ? true : false) : false
+    );
+    setZelleValues({
+      zellePayInstructions: deposit
+        ? deposit.paymentMethod === "zelle"
+          ? deposit.paymentInstructions
+            ? deposit.paymentInstructions
+            : placeholderCardMessage
+          : placeholderCardMessage
+        : placeholderCardMessage,
+      zelleAccount: deposit
+        ? deposit.paymentMethod === "zelle"
+          ? deposit.paymentAccount
+          : ""
+        : "",
+    });
+    setUseVenmo(
+      deposit ? (deposit.paymentMethod === "venmo" ? true : false) : false
+    );
+    setVenmoValues({
+      venmoPayInstructions: deposit
+        ? deposit.paymentMethod === "venmo"
+          ? deposit.paymentInstructions
+            ? deposit.paymentInstructions
+            : placeholderCardMessage
+          : placeholderCardMessage
+        : placeholderCardMessage,
+      venmoAccount: deposit
+        ? deposit.paymentMethod === "venmo"
+          ? deposit.paymentAccount
+          : ""
+        : "",
+    });
+    setUsePayPal(
+      deposit ? (deposit.paymentMethod === "paypal" ? true : false) : false
+    );
+    setPaypalValues({
+      paypalInstructions: deposit
+        ? deposit.paymentMethod === "paypal"
+          ? deposit.paymentInstructions
+            ? deposit.paymentInstructions
+            : placeholderCardMessage
+          : placeholderCardMessage
+        : placeholderCardMessage,
+      paypalAccount: deposit
+        ? deposit.paymentMethod === "paypal"
+          ? deposit.paymentAccount
+          : ""
+        : "",
+    });
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    // TODO: Stripe
+
+    setIsLoading(true);
+
+    const accountData = structureAccountData();
+    const tipsData = structureTipsData();
+    const depositData = structureDepositData();
+    const paymentData = structurePaymentData();
+
+    const data = {
+      accountData,
+      tipsData,
+      depositData,
+      paymentData,
+      accountId,
+      removedPayments,
+    };
+
+    console.log(data);
+
+    try {
+      const { success, value } = await updatePaymentClient(data);
+
+      if (success) {
+        const { acceptedPayments } = value;
+        const acceptedPaymentsLen = acceptedPayments.length;
+
+        if (acceptedPaymentsLen === 0) {
+          handleOpenSnackbar("Please enter at least one payment method.");
+          setIsLoading(false);
+          return;
+        }
+
+        updateChecklist();
+        handleOpenSnackbar("Successfully saved.");
+        setIsLoading(false);
+        return;
+      }
+
+      handleOpenSnackbar("Error saving.");
+    } catch (error) {
+      console.log("error", error);
+      handleOpenSnackbar("Error updating payments.");
+    }
+
+    setIsLoading(false);
+  };
+
+  const updateChecklist = async () => {
+    const checklistLocalStorage = getLocalStorage("checklist");
+    const checklistJson = JSON.parse(checklistLocalStorage);
+    const { isPaymentSet } = checklistJson;
+
+    if (isPaymentSet) return;
+
+    checklistJson.isPaymentSet = true;
+    const checklistString = JSON.stringify(checklistJson);
+    localStorage.setItem("checklist", checklistString);
+
+    const { success, value, error } = await updatePaymentChecklistClient(
+      accountId
+    );
+
+    if (!success) {
+      console.log("error updating checklist for product:", error);
+      handleOpenSnackbar("Error updating checklist.");
+    }
+  };
+
+  const structureAccountData = () => {
+    const accountData = {
+      enableTips: hasTips,
+      requireDeposit: hasDeposit,
+    };
+    return accountData;
+  };
+
+  const structureTipsData = () => {
+    if (!hasTips) return {};
+
+    const tipOne =
+      tipType === "dollar" ? "$" + tipOneDollar : tipOnePercentage + "%";
+    const tipOnePenny = parseInt(tipOneDollar) * 100;
+    const tipOneHundredth = parseInt(tipOnePercentage) * 100;
+    const tipTwo =
+      tipType === "dollar" ? "$" + tipTwoDollar : tipTwoPercentage + "%";
+    const tipTwoPenny = parseInt(tipTwoDollar) * 100;
+    const tipTwoHundredth = parseInt(tipTwoPercentage) * 100;
+    const tipThree =
+      tipType === "dollar" ? "$" + tipThreeDollar : tipThreePercentage + "%";
+    const tipThreePenny = parseInt(tipThreeDollar) * 100;
+    const tipThreeHundredth = parseInt(tipThreePercentage) * 100;
+
+    const tipsData = {
+      tipOneStr: tipOne,
+      tipOneIntPenny: tipOnePenny ? tipOnePenny : null,
+      tipOneIntHundredth: tipOneHundredth ? tipOneHundredth : null,
+      tipTwoStr: tipTwo,
+      tipTwoIntPenny: tipTwoPenny ? tipTwoPenny : null,
+      tipTwoIntHundredth: tipTwoHundredth ? tipTwoHundredth : null,
+      tipThreeStr: tipThree,
+      tipThreeIntPenny: tipThreePenny ? tipThreePenny : null,
+      tipThreeIntHundredth: tipThreeHundredth ? tipThreeHundredth : null,
+      type: tipType,
+    };
+
+    return tipsData;
+  };
+
+  const structureDepositData = () => {
+    if (!hasDeposit) return {};
+
+    const depositData = {
+      feeTypeStr: depositFeeType,
+      feeTypeSymbol: depositFeeType === "dollar" ? "$" : "%",
+      feeIntPenny: depositFeeType === "dollar" ? depositDollarFee * 100 : null,
+      feeIntHundredth:
+        depositFeeType === "percentage" ? depositPercentageFee * 100 : null,
+      feeStr:
+        depositFeeType === "dollar"
+          ? "$" + depositDollarFee
+          : depositPercentageFee + "%",
+    };
+
+    return depositData;
+  };
+
+  const structurePaymentData = () => {
+    if (!useCard && !useCash && !useZelle && !useVenmo && !usePayPal) return [];
+
+    const acceptedPayments = [];
+
+    if (useCash) {
+      const cashData = {
+        paymentMethod: "cash",
+        paymentInstructions: cashPayInstructions,
+        paymentAccount: null,
+      };
+      acceptedPayments.push(cashData);
+    }
+
+    if (useVenmo) {
+      const venmoData = {
+        paymentMethod: "venmo",
+        paymentInstructions: venmoPayInstructions,
+        paymentAccount: venmoAccount,
+      };
+      acceptedPayments.push(venmoData);
+    }
+
+    if (usePayPal) {
+      // check if value is a paypal.me/ in the beginning of the string, if it doesn't have it, add it
+      let paypalAccountAddPrefix = paypalAccount;
+
+      if (!paypalAccount.includes("paypal.me/")) {
+        paypalAccountAddPrefix = `paypal.me/${paypalAccount}`;
+      }
+
+      const paypalData = {
+        paymentMethod: "paypal",
+        paymentInstructions: paypalInstructions,
+        paymentAccount: paypalAccountAddPrefix,
+      };
+      acceptedPayments.push(paypalData);
+    }
+
+    if (useZelle) {
+      const zelleData = {
+        paymentMethod: "zelle",
+        paymentInstructions: zellePayInstructions,
+        paymentAccount: zelleAccount,
+      };
+      acceptedPayments.push(zelleData);
+    }
+
+    return acceptedPayments;
+  };
+
+  // Displays
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbar}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   return (
-    <div className="pb-32 pt-4 lg:grid lg:grid-cols-2 lg:auto-rows-min lg:gap-4 lg:px-4 lg:pt-4  ">
+    <form
+      onSubmit={handleSave}
+      className="pb-32 pt-4 lg:grid lg:grid-cols-2 lg:auto-rows-min lg:gap-4 lg:px-4 lg:pt-4  "
+    >
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        action={action}
+      />
       <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:mx-0 lg:mb-0 ">
         <div>
           <div className="flex justify-between pr-4">
@@ -162,7 +796,7 @@ function Payments({ userAccount }) {
           </div>
           <p className="text-gray-800 font-light text-xs mt-2">
             Deposits will be charged immediately. The rest of the payment can be
-            charged on the live orders page.
+            charged in orders-live page.
           </p>
           <div
             className={`transition-opactiy ${
@@ -173,32 +807,42 @@ function Payments({ userAccount }) {
           >
             <FormControl className="w-full ">
               <RadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="free"
-                name="radio-buttons-group"
+                // aria-labelledby="demo-radio-buttons-group-label"
+                defaultValue="dollar"
+                value={depositFeeType}
+                onChange={handleDepositFeeTypeChange}
+                name="deposit-fee-type-radio-group-buttons"
                 className="flex flex-col gap-2 "
               >
                 <div className="flex justify-between w-full">
                   <FormControlLabel
-                    value="flat"
+                    value="dollar"
                     control={<Radio />}
                     label={
-                      <p className="text-black text-xs font-light">Flat fee</p>
+                      <p className="text-black text-xs font-light">
+                        Dollar fee
+                      </p>
                     }
                   />
                   <div className="w-1/6 flex gap-2 items-center">
-                    <input
-                      type="number"
-                      name="flat-fee"
-                      id="flat-fee"
-                      className={`w-2/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-3 font-light text-xs`}
+                    <CurrencyInput
+                      name="dollar"
+                      required
+                      placeholder="$"
+                      disabled={depositFeeType == "dollar" ? false : true}
+                      value={depositDollarFee}
+                      onValueChange={handleDepositFeeChange}
+                      decimalsLimit={2}
+                      prefix="$"
+                      className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
+                        depositFeeType == "dollar" ? "ring-1" : "border-none"
+                      }`}
                     />
-                    <label htmlFor="flat-fee">$</label>
                   </div>
                 </div>
                 <div className="flex justify-between w-full">
                   <FormControlLabel
-                    value="percetange"
+                    value="percentage"
                     control={<Radio />}
                     label={
                       <p className="text-black text-xs font-light">
@@ -207,13 +851,21 @@ function Payments({ userAccount }) {
                     }
                   />
                   <div className="w-1/6 flex gap-2 items-center">
-                    <input
-                      type="number"
-                      name="percentage-fee"
-                      id="percentage-fee"
-                      className={`w-2/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-3 font-light text-xs`}
+                    <CurrencyInput
+                      name="percentage"
+                      required
+                      placeholder="%"
+                      disabled={depositFeeType == "percentage" ? false : true}
+                      value={depositPercentageFee}
+                      onValueChange={handleDepositFeeChange}
+                      decimalsLimit={2}
+                      suffix="%"
+                      className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
+                        depositFeeType == "percentage"
+                          ? "ring-1"
+                          : "border-none"
+                      }`}
                     />
-                    <label htmlFor="percentage-fee">%</label>
                   </div>
                 </div>
               </RadioGroup>
@@ -242,7 +894,7 @@ function Payments({ userAccount }) {
         >
           <FormControl className="w-full ">
             <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
+              // aria-labelledby="demo-radio-buttons-group-label"
               defaultValue="free"
               name="radio-buttons-group"
               className="flex flex-col gap-2 "
@@ -436,8 +1088,8 @@ function Payments({ userAccount }) {
                   Instructions:
                 </label>
                 <textarea
-                  // value={cashPayInstructions}
-
+                  value={cashPayInstructions}
+                  onChange={handleCashChange}
                   type="text"
                   id="cash-instructions-input"
                   className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
@@ -476,6 +1128,11 @@ function Payments({ userAccount }) {
                 <input
                   type="text"
                   id="venmo-account"
+                  name="venmoAccount"
+                  value={venmoAccount}
+                  onChange={handleVenmoChange}
+                  required
+                  disabled={useVenmo ? false : true}
                   className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
                 />
               </div>
@@ -484,67 +1141,12 @@ function Payments({ userAccount }) {
                   Instructions:
                 </label>
                 <textarea
-                  // value={venmoPayInstructions}
+                  value={venmoPayInstructions}
+                  name="venmoPayInstructions"
+                  onChange={handleVenmoChange}
+                  disabled={useVenmo ? false : true}
                   type="text"
                   id="venmo-instructions-input"
-                  className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="border-b border-[color:var(--gray-light)] py-4">
-            <div className="flex justify-between">
-              <div>
-                <div className="flex gap-1">
-                  <AccountBalanceOutlinedIcon sx={{ color: "black" }} />
-                  <p className="text-black">Paypal</p>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Allow payments via Paypal.
-                </p>
-              </div>
-              <IOSSwitch
-                onChange={handleChangeInPayment}
-                value="paypal"
-                checked={usePayPal}
-              />
-            </div>
-            <div
-              className={`${
-                usePayPal
-                  ? " transition-opacity duration-300 h-auto opacity-100"
-                  : " h-0 opacity-0"
-              }`}
-            >
-              <div className="my-2">
-                <label htmlFor="paypal-account" className="text-xs">
-                  Paypal Account: paypal.me/
-                </label>
-                <input
-                  type="text"
-                  id="paypal-account"
-                  className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                />
-              </div>
-              <div className="pb-2">
-                <p className="text-xs font-light text-[color:var(--gray-text)]">
-                  Offer your customers your Paypal link for simple payment.
-                </p>
-                <Link
-                  href="https://www.paypal.com/paypalme/"
-                  className="text-xs font-light text-[color:var(--secondary-dark-med)] underline"
-                >
-                  Claim your paypal.me link.
-                </Link>
-              </div>
-              <div className="my-2">
-                <label htmlFor="paypal-instructions-input" className="text-xs">
-                  Instructions:
-                </label>
-                <textarea
-                  // value={payPalPayInstructions}
-                  type="text"
-                  id="paypal-instructions-input"
                   className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
                 />
               </div>
@@ -570,26 +1172,40 @@ function Payments({ userAccount }) {
             <div
               className={`${
                 useZelle
-                  ? " transition-opacity duration-300 h-auto opacity-100"
-                  : " h-0 opacity-0"
+                  ? "transition-opacity duration-300 h-auto opacity-100"
+                  : "h-0 opacity-0"
               }`}
             >
               <div className="my-2">
+                <div className="py-4">
+                  <p className="text-xs font-light text-[color:var(--gray-text)]">
+                    Offer your customers your Zelle info for simple payment.
+                  </p>
+                </div>
                 <label htmlFor="zelle-account" className="text-xs">
                   Zelle Account:
                 </label>
                 <input
                   type="text"
+                  placeholder="Email or phone number"
                   id="zelle-account"
+                  value={zelleAccount}
+                  disabled={useZelle ? false : true}
+                  required
+                  name="zelleAccount"
+                  onChange={handleZelleChange}
                   className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
                 />
               </div>
               <div className="my-2">
                 <label htmlFor="zelle-instructions-input" className="text-xs">
-                  Instructions:
+                  Instructions for customer:
                 </label>
                 <textarea
-                  // value={zellePayInstructions}
+                  onChange={handleZelleChange}
+                  value={zellePayInstructions}
+                  name="zellePayInstructions"
+                  disabled={useZelle ? false : true}
                   type="text"
                   id="zelle-instructions-input"
                   className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
@@ -597,61 +1213,112 @@ function Payments({ userAccount }) {
               </div>
             </div>
           </div>
-          {/* <div className="border-b border-[color:var(--gray-light)] py-4">
-						<div className="flex justify-between">
-							<div>
-								<div className="flex gap-1">
-									<MonetizationOnOutlinedIcon sx={{ color: "black" }} />
-									<p className="text-black">Cash App</p>
-								</div>
-								<p className="text-xs text-gray-500">
-									Allow payments via Cash App.
-								</p>
-							</div>
-							<IOSSwitch
-								onChange={handleChangeInPayment}
-								value="cash-app"
-								checked={useCashApp}
-							/>
-						</div>
-						<div
-							className={`${
-								useCashApp
-									? " transition-opacity duration-300 h-auto opacity-100"
-									: " h-0 opacity-0"
-							}`}
-						>
-							<div className="my-2">
-								<label htmlFor="cash-app-account" className="text-xs">
-									Cash App Account:
-								</label>
-								<input
-									type="text"
-									id="cash-app-account"
-									className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-								/>
-							</div>
-							<div className="my-2">
-								<label
-									htmlFor="cash-app-instructions-input"
-									className="text-xs"
-								>
-									Instructions:
-								</label>
-								<textarea
-									value={cashAppPayInstructions}
-									type="text"
-									id="cash-app-instructions-input"
-									className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
-								/>
-							</div>
-						</div>
-					</div> */}
+          <div className="border-b border-[color:var(--gray-light)] py-4">
+            <div className="flex justify-between">
+              <div>
+                <div className="flex gap-1">
+                  <AccountBalanceOutlinedIcon sx={{ color: "black" }} />
+                  <p className="text-black">Paypal</p>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Allow payments via Paypal.
+                </p>
+              </div>
+              <IOSSwitch
+                onChange={handleChangeInPayment}
+                value="paypal"
+                checked={usePayPal}
+              />
+            </div>
+            <div className="my-2">
+              <div
+                className={`${
+                  usePayPal
+                    ? " transition-opacity duration-300 h-auto opacity-100"
+                    : " h-0 opacity-0"
+                }`}
+              >
+                <div className="py-4">
+                  <p className="text-xs font-light text-[color:var(--gray-text)]">
+                    Offer your customers your Paypal link for simple payment.
+                  </p>
+                  <Link
+                    target="_blank"
+                    href="https://www.paypal.com/paypalme/"
+                    className="text-xs font-light text-[color:var(--secondary-dark-med)] underline"
+                  >
+                    Claim your paypal.me link.
+                  </Link>
+                </div>
+                <label htmlFor="paypal-account" className="text-xs">
+                  Paypal Account: paypal.me/
+                </label>
+                <input
+                  type="text"
+                  id="paypal-account"
+                  name="paypalAccount"
+                  value={paypalAccount}
+                  onChange={handlePaypalChange}
+                  required
+                  disabled={usePayPal ? false : true}
+                  className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
+                />
+                <div className="my-2">
+                  <label
+                    htmlFor="paypal-instructions-input"
+                    className="text-xs"
+                  >
+                    Instructions:
+                  </label>
+                  <textarea
+                    value={paypalInstructions}
+                    onChange={handlePaypalChange}
+                    disabled={usePayPal ? false : true}
+                    name="paypalInstructions"
+                    type="text"
+                    id="paypal-instructions-input"
+                    className={`transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)]  font-light text-xs overflow-hidden`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
+        <div className="lg:w-2/5 lg:ml-auto">
+          <SaveCancelButtons
+            handleCancel={handleCancel}
+            cancelButtonType="button"
+            isLoading={isLoading}
+            saveButtonType="submit"
+          />
+        </div>
+        <Modal
+          open={isCancelModalOpen}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={styleMobile}>
+            {/* <h4>Cancel</h4> */}
+            <p>Cancel all updates?</p>
+            <div className="flex justify-end mt-6 gap-4">
+              <ButtonFourth
+                type="button"
+                name="No"
+                handleClick={closeCancelModal}
+              />
 
-      {/* <SaveCancelButtons /> */}
-    </div>
+              <ButtonThird
+                name="Yes, cancel"
+                type="button"
+                handleClick={handleCancelAllUpdates}
+              />
+            </div>
+          </Box>
+        </Modal>
+      </div>
+    </form>
   );
 }
 

@@ -15,6 +15,7 @@ import { IconButton } from "@mui/material";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
 import prisma from "@/lib/prisma";
+import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
 
 function Products({ userAccount }) {
   // Props
@@ -30,14 +31,51 @@ function Products({ userAccount }) {
   const [state, setState] = useState({
     right: false,
   });
+  const [openSnackbarGlobal, setOpenSnackbarGlobal] = useState({
+    snackbarOpenGlobal: false,
+    snackbarMessageGlobal: "",
+  });
 
   // DOB States
+  const { snackbarOpenGlobal, snackbarMessageGlobal } = openSnackbarGlobal;
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
   // Instances to instantiate
   const { push, pathname } = useRouter();
 
   // Functions
+
+  const getAllProducts = async (accountId) => {
+    const { success, value } = await getProductsClient(accountId);
+
+    if (success) {
+      const { products } = value;
+      setCurrProducts(products);
+      return;
+    }
+
+    return;
+  };
+
+  const handleOpenSnackbarGlobal = (message) => {
+    console.log("message", message);
+    setOpenSnackbarGlobal({
+      snackbarOpenGlobal: true,
+      snackbarMessageGlobal: message,
+    });
+  };
+
+  const handleCloseSnackbarGlobal = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackbarGlobal({
+      snackbarOpenGlobal: false,
+      snackbarMessageGlobal: "",
+    });
+  };
+
   const handleProductRoute = () => {
     if (pathname !== "/app/account/inventory/products")
       push("/account/inventory/products");
@@ -77,10 +115,6 @@ function Products({ userAccount }) {
     });
   };
 
-  const addToProductsList = (newProduct) => {
-    setCurrProducts((prev) => [...prev, newProduct]);
-  };
-
   const filterDeletedProducts = (productId) => {
     setCurrProducts((prev) =>
       prev.filter((product) => product.id !== productId)
@@ -98,20 +132,6 @@ function Products({ userAccount }) {
     );
   };
 
-  // Display
-  const action = (
-    <React.Fragment>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleCloseSnackbar}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
-
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center mt-[50%] gap-8 md:mt-[25%]">
@@ -120,6 +140,20 @@ function Products({ userAccount }) {
       </div>
     );
   }
+
+  // Displays
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbarGlobal}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   return (
     <div className="py-4 px-4 pb-24 ">
@@ -132,7 +166,13 @@ function Products({ userAccount }) {
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           // action={action}
         />
-
+        <Snackbar
+          open={snackbarOpenGlobal}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbarGlobal}
+          message={snackbarMessageGlobal}
+          action={action}
+        />
         <div className="flex gap-2">
           <ButtonFilter handleClick={handleProductRoute} name="Products" />
           <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
@@ -148,7 +188,8 @@ function Products({ userAccount }) {
             categories={categories}
             isCreateProduct={true}
             accountId={accountId}
-            addToProductsList={addToProductsList}
+            handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+            getAllProducts={getAllProducts}
           />
         </div>
       </div>
@@ -175,8 +216,9 @@ function Products({ userAccount }) {
                 categories={categories}
                 handleOpenSnackbar={handleOpenSnackbar}
                 filterDeletedProducts={filterDeletedProducts}
-                addToProductsList={addToProductsList}
                 updateProductList={updateProductList}
+                handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+                getAllProducts={getAllProducts}
               />
             );
           })

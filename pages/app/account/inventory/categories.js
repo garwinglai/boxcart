@@ -163,9 +163,9 @@ function Categories({ userAccount }) {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
-        {fetchedCategories && fetchedCategories.length !== 0 ? (
-          fetchedCategories.map((category) => (
+      {fetchedCategories && fetchedCategories.length !== 0 ? (
+        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
+          {fetchedCategories.map((category) => (
             <CategoryCard
               key={category.id}
               category={category}
@@ -175,18 +175,18 @@ function Categories({ userAccount }) {
               products={products}
               updateCategoryList={updateCategoryList}
             />
-          ))
-        ) : (
-          <div className="flex flex-col gap-2 justify-center items-center mt-32 lg:mt-6">
-            <Image
-              src={open_folder}
-              alt="open folder icon"
-              className="w-12 h-12 opacity-50"
-            />
-            <p className="font-light">No categories ...</p>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 justify-center items-center mt-32 lg:mt-6">
+          <Image
+            src={open_folder}
+            alt="open folder icon"
+            className="w-12 h-12 opacity-50"
+          />
+          <p className="font-light opacity-50">No categories ...</p>
+        </div>
+      )}
     </div>
   );
 }

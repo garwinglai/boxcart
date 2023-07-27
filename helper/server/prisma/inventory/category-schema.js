@@ -130,3 +130,32 @@ export async function deleteCategoryServer(categoryId) {
     return { success: false, value: null, error };
   }
 }
+
+export async function getProductsByCategoryIdServer(categoryId) {
+  try {
+    const category = await prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+      include: {
+        products: {
+          include: {
+            optionGroups: {
+              include: {
+                options: true,
+              },
+            },
+            questions: true,
+            relatedCategories: true,
+            images: true,
+          },
+        },
+      },
+    });
+
+    return { success: true, value: category };
+  } catch (error) {
+    console.log("error getting products by category id, server:", error);
+    return { success: false, value: null, error };
+  }
+}

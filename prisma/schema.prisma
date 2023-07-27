@@ -45,25 +45,26 @@ model User {
 }
 
 model Account {
-  id                     Int            @id @default(autoincrement())
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
-  isFreePeriodActive     Boolean        @default(true)
+  id                     Int                  @id @default(autoincrement())
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  isFreePeriodActive     Boolean              @default(true)
   freePeriodEndDateStr   String?
   freePeriodEndDateEpoch String?
-  isFirstLogin           Boolean        @default(true)
-  email                  String         @unique
-  isEmailVerified        Boolean        @default(false)
+  isFirstLogin           Boolean              @default(true)
+  email                  String               @unique
+  isEmailVerified        Boolean              @default(false)
   userName               String?
   firstName              String?
   lastName               String?
   // accessCode             String?        @unique
   businessName           String
-  subdomain              String         @unique
+  subdomain              String               @unique
   businessTypes          BusinessType[]
-  logoImgStr             String?        @db.LongText
+  logoImgStr             String?              @db.LongText
   businessBio            String?
   socials                Social[]
+  subscriberCount        String?
   fulfillmentMethodInt   Int
   fulfillmentMethods     Fulfillment[]
   address_1              String
@@ -72,28 +73,27 @@ model Account {
   state                  String
   zip                    String
   fullAddress            String
-  enableTips             Boolean        @default(false)
+  enableTips             Boolean              @default(false)
   tips                   Tips?
-  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 Int
-
   // new updates to check
-  isActive              Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
-  isBetaUser            Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  isBetaPromoActive     Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  isChecklistComplete   Boolean              @default(false) // Default false until checklist is complete.
-  hasCustomAvailability Boolean              @default(false) // Default false until user sets own availabilitly.
-  hasPremiumPlan        Boolean              @default(false) // Default false until user pays for premium plan.
-  hasPaymentMethod      Boolean              @default(false)
-  hasDeposits           Boolean              @default(false)
-  acceptedPayments      AcceptedPayment[]
-  deposit               Deposit?
-  savedPaymentMethods   SavedPaymentMethod[]
-  premiumPlan           PremiumPlan?
-  checklist             Checklist?
-  products              Product[]
-  categories            Category[]
-  availabilities        Availability[]
+  isActive               Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
+  isBetaUser             Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isBetaPromoActive      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isChecklistComplete    Boolean              @default(false) // Default false until checklist is complete.
+  hasCustomAvailability  Boolean              @default(false) // Default false until user sets own availabilitly.
+  hasPremiumPlan         Boolean              @default(false) // Default false until user pays for premium plan.
+  hasPaymentMethod       Boolean              @default(false)
+  requireDeposit         Boolean              @default(false)
+  acceptedPayments       AcceptedPayment[]
+  deposit                Deposit?
+  savedPaymentMethods    SavedPaymentMethod[]
+  premiumPlan            PremiumPlan[]
+  checklist              Checklist?
+  products               Product[]
+  categories             Category[]
+  availability           Availability?
   // 
 
   @@index([userId])
@@ -102,25 +102,27 @@ model Account {
 // TODO figure out schema for stripe
 model AcceptedPayment {
   id                  Int      @id @default(autoincrement())
-  paymentMethod       String?
+  paymentMethod       String
   paymentAccount      String?
   paymentInstructions String?
-  account             Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId           Int?
+  account             Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId           Int
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
+  @@unique([paymentMethod, accountId], name: "payment_identifier")
   @@index([accountId])
 }
 
 model Deposit {
-  id            Int     @id @default(autoincrement())
-  feeTypeStr    String?
-  feeTypeSymbol String?
-  feeStr        String?
-  feeIntPenny   Int?
-  account       Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId     Int     @unique
+  id              Int     @id @default(autoincrement())
+  feeTypeStr      String?
+  feeTypeSymbol   String?
+  feeStr          String?
+  feeIntPenny     Int?
+  feeIntHundredth Int?
+  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId       Int     @unique
 }
 
 model Availability {
@@ -128,8 +130,8 @@ model Availability {
   datesAvailability       DatesAvailability[]
   datesRangedAvailability DatesRangedAvailability[]
   daysOfWeekAvailability  DaysOfWeekAvailability[]
-  account                 Account?                  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId               Int?
+  account                 Account                   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId               Int                       @unique
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
 
@@ -137,53 +139,55 @@ model Availability {
 }
 
 model DatesAvailability {
-  id             Int           @id @default(autoincrement())
-  dateStr        String?
-  dateEpoch      String?
-  startTimeStr   String?
-  startTimeInt   Int?
-  endTimeStr     String?
-  endTimeInt     Int?
-  availability   Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId Int?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                Int          @id @default(autoincrement())
+  dateStrUnformat   String?
+  dateStr           String?
+  dateEpochStr      String?
+  startTimeStr      String?
+  startTimeEpochStr String?
+  endTimeStr        String?
+  endTimeEpochStr   String?
+  isEnabled         Boolean      @default(true)
+  availability      Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId    Int
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@index([availabilityId])
 }
 
 model DatesRangedAvailability {
-  id             Int           @id @default(autoincrement())
-  startDateStr   String?
-  startDateInt   Int?
-  endDateStr     String?
-  endDateInt     Int?
-  startTimeStr   String?
-  startTimeInt   Int?
-  endTimeStr     String?
-  endTimeInt     Int?
-  availability   Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId Int?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                   Int           @id @default(autoincrement())
+  startDateStrUnformat String?
+  startDateStr         String?
+  startDateEpochStr    String?
+  endDateStrUnformat   String?
+  endDateStr           String?
+  endDateEpochStr      String?
+  startTimeStr         String?
+  endTimeStr           String?
+  isEnabled            Boolean       @default(true)
+  availability         Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId       Int?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   @@index([availabilityId])
 }
 
 model DaysOfWeekAvailability {
-  id                 Int           @id @default(autoincrement())
-  dayStr             String?
-  dayInt             Int?
-  startTimeStr       String?
-  startTimeInt       Int?
-  endTimeStr         String?
-  endTimeInt         Int?
-  repetition         String?
-  lengthOfRepetition String?
-  availability       Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId     Int?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  dayStr          String?
+  dayInt          Int?
+  startTimeStr    String?
+  endTimeStr      String?
+  repeatOption    String?
+  repeatOptionInt Int? //0: no repeat 1: repeat weekly 2: repeat daily 3: repeat weekdays
+  isEnabled       Boolean       @default(true)
+  availability    Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId  Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([availabilityId])
 }
@@ -226,15 +230,17 @@ model Image {
   @@index([productId])
 }
 
+// TODO: cannot be unique categoryName
 model Category {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  categoryName String?   @unique
-  account      Account?  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId    Int?
+  categoryName String
+  account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId    Int
   products     Product[]
 
+  @@unique(fields: [accountId, categoryName], name: "category_identifier")
   @@index([accountId])
 }
 
@@ -313,7 +319,9 @@ model PremiumPlan {
   businessName          String?
   email                 String?
   account               Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId             Int      @unique
+  accountId             Int
+
+  @@index([accountId])
 }
 
 model SavedPaymentMethod {
@@ -346,14 +354,15 @@ model BusinessType {
 }
 
 model Social {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  platform  String?
-  url       String?
-  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId Int?
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  platform   String
+  socialLink String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  Int
 
+  @@unique(fields: [socialLink, accountId], name: "social_identifier")
   @@index([accountId])
 }
 
@@ -391,17 +400,20 @@ model Fulfillment {
 }
 
 model Tips {
-  id               Int      @id @default(autoincrement())
-  account          Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        Int?     @unique
-  tipOneStr        String?
-  tipOneIntPenny   Int?
-  tipTwoStr        String?
-  tipTwoIntPenny   Int?
-  tipThreeStr      String?
-  tipThreeIntPenny Int?
-  type             String?
-  enabled          Boolean  @default(false)
+  id                   Int      @id @default(autoincrement())
+  account              Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId            Int?     @unique
+  tipOneStr            String?
+  tipOneIntPenny       Int?
+  tipOneIntHundredth   Int?
+  tipTwoStr            String?
+  tipTwoIntPenny       Int?
+  tipTwoIntHundredth   Int?
+  tipThreeStr          String?
+  tipThreeIntPenny     Int?
+  tipThreeIntHundredth Int?
+  type                 String?
+  enabled              Boolean  @default(true)
 }
 
 enum Role {

@@ -38,3 +38,51 @@ export async function checkIsChecklistCompleteServer(email) {
     return { success: false, error };
   }
 }
+
+export async function updateAccountSettingsServer(body) {
+  console.log("body", body);
+  const { accountId, updatedSettings, socialLinks, removedSocialLinks } =
+    JSON.parse(body);
+
+  try {
+    const updateUser = await prisma.account.update({
+      where: {
+        id: accountId,
+      },
+      data: {
+        ...updatedSettings,
+        socials: {
+          upsert: socialLinks.map((social) => {
+            const { platform, socialLink, id } = social;
+
+            if (id) return;
+
+            return {
+              where: {
+                social_identifier: {
+                  accountId,
+                  socialLink,
+                },
+              },
+              update: social,
+              create: social,
+            };
+          }),
+          deleteMany: removedSocialLinks.map((item) => {
+            const { id, socialLink } = item;
+            return {
+              id,
+            };
+          }),
+        },
+      },
+    });
+
+    console.log("updatedUser", updateUser);
+
+    return { success: true, value: updateUser };
+  } catch (error) {
+    console.log("error creating user", error);
+    return { success: false, error };
+  }
+}

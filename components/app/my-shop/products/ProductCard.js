@@ -83,8 +83,9 @@ function ProductCard({
   accountId,
   handleOpenSnackbar,
   filterDeletedProducts,
-  addToProductsList,
   updateProductList,
+  handleOpenSnackbarGlobal,
+  getAllProducts,
 }) {
   //Props
   const {
@@ -189,6 +190,7 @@ function ProductCard({
   };
 
   const handleDuplicateProduct = async () => {
+    handleClose();
     handleOpenSnackbar("Duplicating product...");
 
     const productSchema = structureProductSchema(product);
@@ -216,7 +218,7 @@ function ProductCard({
     }
 
     handleOpenSnackbar("Duplicated.");
-    addToProductsList(createdProduct);
+    getAllProducts(accountId);
   };
 
   const structureProductSchema = (product) => {
@@ -445,6 +447,8 @@ function ProductCard({
             isEditProduct={true}
             accountId={accountId}
             updateProductList={updateProductList}
+            handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+            getAllProducts={getAllProducts}
           />
         </div>
       </div>

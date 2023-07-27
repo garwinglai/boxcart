@@ -36,17 +36,6 @@ export async function createNewUser(body) {
     typeOfTip,
   } = accountData;
 
-  const { facebookUrl, instagramUrl, tiktokUrl, youtubeUrl } = socialsData;
-  const { tip1, tip2, tip3 } = tipsData;
-  const revampedTipObject = {
-    type: typeOfTip,
-    tipOneStr: tip1.tipStr,
-    tipOneIntPenny: tip1.tipInt,
-    tipTwoStr: tip2.tipStr,
-    tipTwoIntPenny: tip2.tipInt,
-    tipThreeStr: tip3.tipStr,
-    tipThreeIntPenny: tip3.tipInt,
-  };
   const freePeriodEndDateEpochStr = freePeriodEndDateEpoch.toString();
 
   try {
@@ -90,24 +79,9 @@ export async function createNewUser(body) {
                 })),
               },
               socials: {
-                create: [
-                  {
-                    platform: "facebook",
-                    url: facebookUrl,
-                  },
-                  {
-                    platform: "instagram",
-                    url: instagramUrl,
-                  },
-                  {
-                    platform: "youtube",
-                    url: youtubeUrl,
-                  },
-                  {
-                    platform: "tiktok",
-                    url: tiktokUrl,
-                  },
-                ],
+                create: socialsData.map((data) => {
+                  return data;
+                }),
               },
               fulfillmentMethods: {
                 create: fulfillmentData.map((data) => {
@@ -125,7 +99,7 @@ export async function createNewUser(body) {
                 }),
               },
               tips: {
-                create: revampedTipObject,
+                create: tipsData,
               },
               products: {
                 create: [

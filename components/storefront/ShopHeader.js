@@ -10,18 +10,20 @@ import { useRouter } from "next/router";
 function ShopHeader({ isOwner }) {
   const { push } = useRouter();
 
-  const handlePrimaryButtonClick = () => {
-    if (isOwner) {
-      push("/account/my-shop/profile");
-      return;
-    }
+  // Is Owner
+  const handleEditProfile = () => {
+    push("/account/my-shop/profile");
   };
 
-  const handleSecondaryButtonClick = () => {
-    if (isOwner) {
-      // share
-    }
+  const handleShareStore = () => {
+    push("/account/my-shop/share");
   };
+
+  // Is Customer
+  const handleSubscribe = () => {};
+
+  const handleMessage = () => {};
+
   return (
     <React.Fragment>
       <Image
@@ -35,26 +37,18 @@ function ShopHeader({ isOwner }) {
           alt="business logo"
           className="border border-[color:var(--gray-light-med)] bg-white rounded-full w-24 h-24 absolute -top-12 left-4 md:w-32 md:h-32 md:-top-16 md:left-8 "
         />
-        <div className="flex h-10 gap-2 absolute right-4 -top-5 md:-top-20 md:right-8">
-          <button className="text-white font-light text-sm py-1 px-6 bg-[color:var(--black-design-extralight)] active:bg-black">
+        <div className="flex h-10 gap-2 absolute right-4 -top-5 md:top-4 md:right-8">
+          <button
+            onClick={isOwner ? handleEditProfile : handleSubscribe}
+            className="text-white font-light text-sm py-1 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
+          >
             {isOwner ? "Edit Profile" : "Subscribe"}
           </button>
 
-          <button className="md:hidden bg-white py-2 px-4 border border-[color:var(--black-design-extralight)] active:bg-gray-400">
-            {isOwner ? (
-              <ShareIcon
-                fontSize="extrasmall"
-                sx={{ color: "var(--black-design-extralight)" }}
-              />
-            ) : (
-              <ChatBubbleOutlineOutlinedIcon
-                fontSize="extrasmall"
-                sx={{ color: "var(--black-design-extralight)" }}
-              />
-            )}
-          </button>
-
-          <button className="hidden md:block bg-white font-light text-sm py-2 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400">
+          <button
+            onClick={isOwner ? handleShareStore : handleMessage}
+            className="md:block bg-white font-light text-sm py-2 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400"
+          >
             {isOwner ? "Share Store" : "Message"}
           </button>
         </div>

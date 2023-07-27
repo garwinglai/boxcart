@@ -83,10 +83,6 @@ function DesktopNavBar({ pageRoute }) {
     setOpenPremiumList((prev) => !prev);
   };
 
-  const handleShareShop = () => {
-    window.alert("Share shop");
-  };
-
   const handleLogOut = async () => {
     await signOut({
       redirect: false,
@@ -633,15 +629,17 @@ function DesktopNavBar({ pageRoute }) {
         </Link>
       </List>
       <div className={`${styles.navbar_footer_group}`}>
-        <MenuItem onClick={handleShareShop}>
-          <ListItemIcon>
-            <ShareOutlinedIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Share store"
-            sx={{ color: "var(--black-design-extralight)" }}
-          />
-        </MenuItem>
+        <Link href="/account/my-shop/share">
+          <MenuItem>
+            <ListItemIcon>
+              <ShareOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Share store"
+              sx={{ color: "var(--black-design-extralight)" }}
+            />
+          </MenuItem>
+        </Link>
 
         <MenuItem onClick={handleLogOut}>
           <ListItemIcon>

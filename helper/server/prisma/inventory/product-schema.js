@@ -85,7 +85,10 @@ const createProduct = (product) => {
           const { id, categoryName } = category;
           return {
             where: {
-              categoryName,
+              category_identifier: {
+                accountId,
+                categoryName,
+              },
             },
             create: {
               categoryName,
@@ -255,16 +258,19 @@ const updateProduct = (product) => {
       setQuantityByProduct,
       quantity,
       relatedCategories: {
-        disconnect: removedCategories.map((categoryName) => {
+        disconnect: removedCategories.map((id) => {
           return {
-            categoryName,
+            id,
           };
         }),
         connectOrCreate: relatedCategories.map((category) => {
           const { id, categoryName } = category;
           return {
             where: {
-              categoryName,
+              category_identifier: {
+                accountId,
+                categoryName,
+              },
             },
             create: {
               categoryName,
@@ -464,22 +470,26 @@ const updateProduct = (product) => {
 
 export async function getProductsServer(accountId) {
   try {
-    const products = await prisma.product.findMany({
+    const account = await prisma.account.findUnique({
       where: {
-        accountId,
+        id: accountId,
       },
       include: {
-        optionGroups: {
+        products: {
           include: {
-            options: true,
+            optionGroups: {
+              include: {
+                options: true,
+              },
+            },
+            questions: true,
+            relatedCategories: true,
           },
         },
-        questions: true,
-        category: true,
       },
     });
 
-    return { success: true, value: products };
+    return { success: true, value: account };
   } catch (error) {
     console.log("get products server error:", error);
     return { success: false, error };

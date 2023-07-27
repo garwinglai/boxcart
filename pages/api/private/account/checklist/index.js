@@ -2,6 +2,7 @@ import { isAuthServer } from "@/helper/server/auth/isAuthServer";
 import { checkIsChecklistCompleteServer } from "@/helper/server/prisma/account/account-schema";
 import {
   updateFulfillmentChecklistServer,
+  updatePaymentChecklistServer,
   updateProductVerifiedChecklistServer,
 } from "@/helper/server/prisma/checklist";
 
@@ -46,6 +47,17 @@ export default async function handler(req, res) {
 
     if (updateKey === "fulfillmentVerified") {
       const resAccount = await updateFulfillmentChecklistServer(accoundIdInt);
+      const { success, value } = resAccount;
+
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
+    }
+
+    if (updateKey === "paymentVerified") {
+      const resAccount = await updatePaymentChecklistServer(accoundIdInt);
       const { success, value } = resAccount;
 
       if (success) {

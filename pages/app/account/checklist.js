@@ -30,6 +30,7 @@ const style = {
 };
 
 function Checklist({ userSession, userAccount, pageTitle }) {
+  console.log("userAccount:", userAccount);
   // * Props
   const { user } = userSession;
   const { isFirstLogin, email, id, checklist } = userAccount;
