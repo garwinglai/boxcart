@@ -4,6 +4,7 @@ import NewspaperIcon from "@mui/icons-material/Newspaper";
 import article_icon from "@/public/images/icons/article_icon.png";
 import Image from "next/image";
 import { isAuth } from "@/helper/client/auth/isAuth";
+import prisma from "@/lib/prisma";
 
 function NewsRoom() {
 	return (

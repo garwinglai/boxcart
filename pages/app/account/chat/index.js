@@ -5,6 +5,7 @@ import chat_icon from "@/public/images/icons/chat_icon.png";
 import Image from "next/image";
 import Link from "next/link";
 import { isAuth } from "@/helper/client/auth/isAuth";
+import prisma from "@/lib/prisma";
 
 function Chat() {
 	return (

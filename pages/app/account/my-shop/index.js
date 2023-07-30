@@ -17,6 +17,7 @@ import {
 import Snackbar from "@mui/material/Snackbar";
 import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
+import prisma from "@/lib/prisma";
 
 function MyShop({ userAccount }) {
   const {

@@ -1,6 +1,7 @@
 import React from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import ShareIcon from "@mui/icons-material/Share";
+import prisma from "@/lib/prisma";
 
 function ShareShop() {
   return <div>share</div>;

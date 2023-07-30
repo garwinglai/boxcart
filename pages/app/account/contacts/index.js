@@ -2,6 +2,7 @@ import React from "react";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import AppLayout from "@/components/layouts/AppLayout";
 import { isAuth } from "@/helper/client/auth/isAuth";
+import prisma from "@/lib/prisma";
 
 function Contacts() {
 	return <div>Contacts</div>;

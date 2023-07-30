@@ -25,6 +25,7 @@ import youtube_icon from "@/public/images/icons/socials/youtube_icon.png";
 import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 import { updateAccountSettingsClient } from "@/helper/client/api/account/account-schema";
+import prisma from "@/lib/prisma";
 
 const styleMobile = {
   position: "absolute",

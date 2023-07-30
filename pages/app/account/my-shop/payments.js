@@ -25,6 +25,7 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import { updatePaymentChecklistClient } from "@/helper/client/api/checklist";
 import { getLocalStorage } from "@/utils/clientStorage";
+import prisma from "@/lib/prisma";
 
 const styleMobile = {
   position: "absolute",

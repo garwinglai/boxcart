@@ -10,6 +10,7 @@ import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGridHistory from "@/components/app/orders/OrderGridHistory";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { isAuth } from "@/helper/client/auth/isAuth";
+import prisma from "@/lib/prisma";
 
 function AllOrders() {
 	const [state, setState] = React.useState({

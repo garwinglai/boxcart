@@ -29,6 +29,7 @@ import {
   updateScheduleEnabledWeekClient,
 } from "@/helper/client/api/availability/schedule-toggle.crud";
 import { getAvailabilitiesClient } from "@/helper/client/api/availability/availability-crud";
+import prisma from "@/lib/prisma";
 
 const styleMobile = {
   position: "absolute",
