@@ -171,7 +171,7 @@ function Profile({ userAccount }) {
       return;
     }
 
-    getSocialFollowingCount(socialLink);
+    // getSocialFollowingCount(socialLink);
 
     const data = {
       platform,
