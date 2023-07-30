@@ -277,3 +277,25 @@ export async function updateDayOfWeekAvailabilityServer(datesData) {
     return { success: false, error };
   }
 }
+
+export async function updateTimeBlockServer(timeBlockData, accountId) {
+  const accountIdInt = parseInt(accountId);
+
+  try {
+    const res = await prisma.account.update({
+      where: {
+        id: accountIdInt,
+      },
+      data: timeBlockData,
+    });
+
+    return { success: true, value: res };
+  } catch (error) {
+    console.log(
+      "helper/server/prisma/availability updateTimeBlock error:",
+      error
+    );
+
+    return { success: false, error };
+  }
+}

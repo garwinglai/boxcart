@@ -17,7 +17,7 @@ function ShopMenu({
   currCategory,
 }) {
   return (
-    <div className="px-4 flex-grow pb-8 xl:w-4/5">
+    <div className="px-4 flex-grow pb-8 ">
       <h3 className="mb-4 font-light">{currCategory}</h3>
       {products.length > 0 ? (
         <div

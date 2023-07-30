@@ -77,6 +77,9 @@ model Account {
   tips                   Tips?
   user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 Int
+  isTimeBlockEnabled     Boolean              @default(false)
+  timeBlock              String?              @default("15 min")
+  timeBlockSeconds       Int?                 @default(900)
   // new updates to check
   isActive               Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
   isBetaUser             Boolean              @default(true) // Default is true, meantime we are only accepting beta users.

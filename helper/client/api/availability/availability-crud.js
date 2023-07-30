@@ -219,3 +219,25 @@ export async function updateDayOfWeekAvailabilityClient(datesData) {
     return { success: false, error };
   }
 }
+
+export async function updateTimeBlockTimeClient(timeBlockData, accountId) {
+  const apiUrl = `/api/private/availability/timeblock?accountId=${accountId}`;
+  // console.log("data", data);
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      body: JSON.stringify(timeBlockData),
+    });
+
+    const data = await response.json();
+
+    return { success: true, value: data };
+  } catch (error) {
+    console.log(
+      "helper/client/api/availability updateTimeBlockTime error:",
+      error
+    );
+
+    return { success: false, error };
+  }
+}

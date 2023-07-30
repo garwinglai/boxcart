@@ -19,7 +19,7 @@ function CategoryShopList({
   };
 
   return (
-    <div className="hidden xl:block xl:px-4 xl:w-1/5 xl:border-r xl:border-[color:var(--gray-light-med)]">
+    <div className="lg:px-4  lg:border-r lg:h-full lg:border-[color:var(--gray-light-med)]">
       <h4>Categories</h4>
       <div className="flex flex-col justify-between items-between pt-4 pr-4 gap-2">
         <button

@@ -17,7 +17,10 @@ import { isAuth } from "@/helper/client/auth/isAuth";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { updateHasScheduleAccountClient } from "@/helper/client/api/availability/availability-toggles-crud";
+import {
+  updateHasScheduleAccountClient,
+  updateTimeBlockToggleAccountClient,
+} from "@/helper/client/api/availability/availability-toggles-crud";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -30,6 +33,8 @@ import {
 } from "@/helper/client/api/availability/schedule-toggle.crud";
 import { getAvailabilitiesClient } from "@/helper/client/api/availability/availability-crud";
 import prisma from "@/lib/prisma";
+import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
+import TimeBlockDrawer from "@/components/app/my-shop/availability/TimeBlockDrawer";
 
 const styleMobile = {
   position: "absolute",
@@ -47,14 +52,25 @@ function Availability({ userAccount }) {
   const {
     availability,
     hasCustomAvailability,
+    isTimeBlockEnabled,
+    timeBlock,
     id: accountId,
   } = userAccount || {};
 
   const [drawerState, setDrawerState] = useState({
     right: false,
   });
+  const [drawerTimeBlockState, setDrawerTimeBlockState] = useState({
+    right: false,
+  });
   const [hasCustomHours, setHasCustomHours] = useState(
     hasCustomAvailability ? true : false
+  );
+  const [timeBlockEnabled, setTimeBlockEnabled] = useState(
+    isTimeBlockEnabled ? true : false
+  );
+  const [timeBlockCurrentValue, setTimeBlockCurrentValue] = useState(
+    timeBlock ? timeBlock : "15 min"
   );
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
@@ -121,7 +137,7 @@ function Availability({ userAccount }) {
         datesRangedAvailability: sortedDatesRangedAvailability,
         daysOfWeekAvailability: sortedDaysOfWeekAvailability,
       });
-      console.log("sortedDaysOfWeekAvailability", sortedDaysOfWeekAvailability);
+
       closeCancelModal();
     }
   };
@@ -288,6 +304,17 @@ function Availability({ userAccount }) {
     setDrawerState({ ...drawerState, [anchor]: open });
   };
 
+  const toggleDrawerTimeBlock = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setDrawerTimeBlockState({ ...drawerTimeBlockState, [anchor]: open });
+  };
+
   const handleSetHoursSwitch = async () => {
     let isCustomHoursEnabled = true;
 
@@ -303,6 +330,27 @@ function Availability({ userAccount }) {
     if (!success || error) {
       handleOpenSnackbar("Error updating custom hours.");
     }
+  };
+
+  const handleTimeBlockSwitch = async () => {
+    let timeBlockToggle = true;
+
+    if (isTimeBlockEnabled) timeBlockToggle = false;
+
+    setTimeBlockEnabled((prev) => !prev);
+
+    const { success, value, error } = await updateTimeBlockToggleAccountClient(
+      timeBlockToggle,
+      accountId
+    );
+
+    if (!success || error) {
+      handleOpenSnackbar("Error updating time block.");
+    }
+  };
+
+  const updateTimeBlockCurrValue = (value) => {
+    setTimeBlockCurrentValue(value);
   };
 
   function displayMain() {
@@ -495,15 +543,55 @@ function Availability({ userAccount }) {
         message={snackbarMessage}
         action={action}
       />
-      <div className="flex justify-between p-4 bg-white rounded m-4 ">
-        <div className="flex flex-col">
-          <h4>Set custom hours</h4>
-          <p className="font-extralight text-xs">
-            If disabled, customers will be able to order at anytime.
-          </p>
+      <div className="lg:flex">
+        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex flex-col">
+            <h4>Set custom hours</h4>
+            <p className="font-extralight text-xs">
+              If disabled, customers can order at anytime.
+            </p>
+          </div>
+          <IOSSwitch checked={hasCustomHours} onClick={handleSetHoursSwitch} />
         </div>
-        <IOSSwitch checked={hasCustomHours} onClick={handleSetHoursSwitch} />
+        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex flex-col">
+            <h4>Time block</h4>
+            <p className="font-extralight text-xs">
+              Allow orders to block out time. Best for bakers, restaurants, etc.
+            </p>
+          </div>
+          <IOSSwitch
+            checked={timeBlockEnabled}
+            onClick={handleTimeBlockSwitch}
+          />
+        </div>
       </div>
+      {timeBlockEnabled && (
+        <div className="p-4 flex justify-between items-center md:gap-8 md:w-fit md:ml-auto md:pr-6">
+          <div className="flex items-center gap-2">
+            <h3>Time Block:</h3>
+          </div>
+          <div>
+            <ButtonFourth
+              handleClick={toggleDrawerTimeBlock("right", true)}
+              name={timeBlockCurrentValue}
+            />
+          </div>
+          <Drawer
+            anchor={"right"}
+            open={drawerTimeBlockState["right"]}
+            onClose={toggleDrawerTimeBlock("right", false)}
+          >
+            <TimeBlockDrawer
+              toggleDrawer={toggleDrawerTimeBlock("right", false)}
+              accountId={accountId}
+              timeBlock={timeBlockCurrentValue}
+              handleOpenSnackbar={handleOpenSnackbar}
+              updateTimeBlockCurrValue={updateTimeBlockCurrValue}
+            />
+          </Drawer>
+        </div>
+      )}
       {hasCustomHours && (
         <React.Fragment>
           <div className=" flex justify-between items-center p-4 border-b mb-4 md:px-6">

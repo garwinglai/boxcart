@@ -1,5 +1,8 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import { updateHasScheduleAccountServer } from "@/helper/server/prisma/availability/availability-toggle.crud";
+import {
+  updateHasScheduleAccountServer,
+  updateTimeBlockToggleAccountServer,
+} from "@/helper/server/prisma/availability/availability-toggle.crud";
 
 export default async function handler(req, res) {
   const isLoggedIn = await isAuthServer(req, res);
@@ -12,20 +15,37 @@ export default async function handler(req, res) {
   const { method, body, query } = req;
 
   if (method === "POST") {
-    const enabledSchedule = JSON.parse(body);
-    const { accountId } = query;
+    const isToggleEnabled = JSON.parse(body);
+    const { accountId, toggle } = query;
 
-    const resUpdateAccount = await updateHasScheduleAccountServer(
-      enabledSchedule,
-      accountId
-    );
+    if (toggle === "availability") {
+      const resUpdateAccount = await updateHasScheduleAccountServer(
+        isToggleEnabled,
+        accountId
+      );
 
-    const { success, value } = resUpdateAccount;
+      const { success, value } = resUpdateAccount;
 
-    if (success) {
-      res.status(200).json(value);
-    } else {
-      res.status(500).json(value);
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
+    }
+
+    if (toggle === "timeBlock") {
+      const resUpdateAccount = await updateTimeBlockToggleAccountServer(
+        isToggleEnabled,
+        accountId
+      );
+
+      const { success, value } = resUpdateAccount;
+
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
     }
   }
 }

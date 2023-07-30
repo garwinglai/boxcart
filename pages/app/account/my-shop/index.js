@@ -149,28 +149,32 @@ function MyShop({ userAccount }) {
       />
 
       <div className="flex w-full xl:mt-4">
-        <CategoryShopList
-          isOwner={true}
-          categories={currCategories}
-          allProducts={products}
-          getProductsByCategory={getProductsByCategory}
-          getAllProducts={getAllProducts}
-        />
+        <div className="hidden lg:block lg:w-1/5 xl:w-2/12">
+          <CategoryShopList
+            isOwner={true}
+            categories={currCategories}
+            allProducts={products}
+            getProductsByCategory={getProductsByCategory}
+            getAllProducts={getAllProducts}
+          />
+        </div>
         {isLoading ? (
-          <div className="flex justify-center w-full mt-28">
+          <div className="flex justify-center mt-28 h-screen lg:w-4/5 xl:w-10/12">
             <BoxLoader />
           </div>
         ) : (
-          <ShopMenu
-            isOwner={true}
-            products={currProducts}
-            categories={currCategories}
-            accountId={accountId}
-            updateProductList={updateProductList}
-            handleOpenSnackbar={handleOpenSnackbar}
-            getAllProducts={getAllProducts}
-            currCategory={currCategory}
-          />
+          <div className="lg:w-4/5 xl:w-10/12 h-screen">
+            <ShopMenu
+              isOwner={true}
+              products={currProducts}
+              categories={currCategories}
+              accountId={accountId}
+              updateProductList={updateProductList}
+              handleOpenSnackbar={handleOpenSnackbar}
+              getAllProducts={getAllProducts}
+              currCategory={currCategory}
+            />
+          </div>
         )}
       </div>
     </div>
