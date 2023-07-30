@@ -94,7 +94,6 @@ model Account {
   products               Product[]
   categories             Category[]
   availability           Availability?
-  // 
 
   @@index([userId])
 }
