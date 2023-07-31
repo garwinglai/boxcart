@@ -6,7 +6,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TextField from "@mui/material/TextField";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
-import prisma from "@/lib/prisma";
+// import prisma from "@/lib/prisma";
 
 function AccountSettings() {
 	return (
