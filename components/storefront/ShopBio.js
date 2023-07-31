@@ -13,7 +13,6 @@ import Image from "next/image";
 
 function ShopBio({ isOwner, businessData }) {
   const { businessName, businessBio, city, socials } = businessData || {};
-  console.log("socials", socials);
 
   const handleOpenSocialLink = (url) => (value) => {
     // check if url has "https://" if not add it
