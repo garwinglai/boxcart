@@ -116,6 +116,38 @@ function MyShop({ userAccount }) {
     setIsLoading(false);
   };
 
+  const handleSortSearchResults = (sortMethod) => {
+    const currProducts = [...products];
+
+    switch (sortMethod) {
+      case "Newest":
+        const sortedNewest = currProducts.sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        setCurrProducts(sortedNewest);
+
+        break;
+
+      case "Lowest Price":
+        const sortedLowestPrice = currProducts.sort((a, b) => {
+          return a.priceIntPenny - b.priceIntPenny;
+        });
+        setCurrProducts(sortedLowestPrice);
+        break;
+
+      case "Highest Price":
+        const sortedHighestPrice = currProducts.sort((a, b) => {
+          return b.priceIntPenny - a.priceIntPenny;
+        });
+        setCurrProducts(sortedHighestPrice);
+        break;
+
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="bg-white pb-20">
       <Snackbar
@@ -131,11 +163,7 @@ function MyShop({ userAccount }) {
           <ShopBio isOwner={true} businessData={businessData} />
         </div>
         <div className=" lg:mt-16 lg:w-2/5">
-          <ShopFulfillment
-            isOwner={true}
-            fulfillmentMethodInt={fulfillmentMethodInt}
-            hasCustomAvailability={hasCustomAvailability}
-          />
+          <ShopFulfillment isOwner={true} siteData={userAccount} />
         </div>
       </div>
       <div className="px-4 py-2">
@@ -143,9 +171,11 @@ function MyShop({ userAccount }) {
       </div>
       <ShopSearchBar
         isOwner={true}
+        allProducts={products}
         categories={currCategories}
         getProductsByCategory={getProductsByCategory}
         getAllProducts={getAllProducts}
+        handleSortSearchResults={handleSortSearchResults}
       />
 
       <div className="flex w-full xl:mt-4">

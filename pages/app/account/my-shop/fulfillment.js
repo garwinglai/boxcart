@@ -483,12 +483,12 @@ function Fulfillment({ userSession, userAccount }) {
     let fulfillmentPickupData;
     let fulfillmentMethodInt;
 
-    if (isDeliveryChecked) {
+    if (isDeliveryChecked && !isPickupChecked) {
       fulfillmentDeliveryData = structureFulFillmentDelivery();
       fulfillmentMethodInt = 0;
     }
 
-    if (isPickupChecked) {
+    if (isPickupChecked && !isDeliveryChecked) {
       fulfillmentPickupData = structureFulFillmentPickup();
       fulfillmentMethodInt = 1;
 

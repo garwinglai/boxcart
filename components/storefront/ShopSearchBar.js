@@ -13,28 +13,32 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
+import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 
 function ShopSearchBar({
   isOwner,
   categories,
   getProductsByCategory,
   getAllProducts,
+  allProducts,
+  handleSortSearchResults,
 }) {
   const [state, setState] = React.useState({
     bottom: false,
   });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [sortBy, setSortBy] = useState("Newest");
+  const [sortByMethod, setSortByMethod] = useState("Newest");
 
   const handleChangeSort = (event) => {
-    setValue(event.target.value);
+    const { value } = event.target;
+    setSortByMethod(value);
   };
 
-  const handleClick = (event) => {
+  const handleOpenSortMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleCloseSortMenu = () => {
     setAnchorEl(null);
   };
 
@@ -49,9 +53,14 @@ function ShopSearchBar({
     setState({ ...state, [anchor]: open });
   };
 
+  const handleSort = () => {
+    handleSortSearchResults(sortByMethod);
+    setAnchorEl(null);
+  };
+
   return (
-    <div className="flex py-2 px-4 gap-2 items-center justify-between xl:justify-start">
-      <div className="relative flex-grow py-2 xl:flex-grow-0 xl:w-1/4 xl:pr-4">
+    <div className="flex py-2 px-4 gap-2 items-center justify-between lg:justify-start">
+      <div className="relative flex-grow py-2 lg:flex-grow-0 lg:w-2/4 lg:pr-4">
         <label
           htmlFor="search"
           className="absolute flex items-center gap-2 top-[18px] left-4 text-[color:var(--gray-text)] font-light text-sm"
@@ -63,21 +72,22 @@ function ShopSearchBar({
           name="search"
           id="search"
           placeholder="Search all products"
-          className="bg-[color:var(--gray-light)] w-full py-3 rounded-full font-light text-sm indent-12 xl:rounded xl:border xl:border-[color:var(--gray-light-med)]"
+          className="bg-[color:var(--gray-light)] w-full py-3 rounded-full font-light text-sm indent-12 lg:rounded lg:border lg:border-[color:var(--gray-light-med)]"
         />
       </div>
-      <div className="xl:hidden">
+      <div className="lg:hidden">
         <button
           onClick={toggleDrawer("bottom", true)}
           className="bg-[color:var(--gray-light)] text-white rounded-full py-2 px-3 "
         >
-          <SortOutlinedIcon
+          <FilterListOutlinedIcon
             fontSize="small"
             sx={{ color: "var(--black-design-extralight)" }}
           />
         </button>
         <FilterCategoryDrawer
           getAllProducts={getAllProducts}
+          allProducts={allProducts}
           getProductsByCategory={getProductsByCategory}
           categories={categories}
           toggleDrawer={toggleDrawer}
@@ -85,19 +95,30 @@ function ShopSearchBar({
           state={state}
         />
       </div>
-      <div className="hidden xl:block">
+      <div className="lg:hidden">
         <button
-          onClick={handleClick}
-          className="flex gap-2 items-center bg-[color:var(--black-design-extralight)] text-white rounded-full font-extralight px-4 py-2"
+          onClick={handleOpenSortMenu}
+          className="bg-[color:var(--gray-light)] text-white rounded-full py-2 px-3 "
+        >
+          <SortOutlinedIcon
+            fontSize="small"
+            sx={{ color: "var(--black-design-extralight)" }}
+          />
+        </button>
+      </div>
+      <div className="hidden lg:block">
+        <button
+          onClick={handleOpenSortMenu}
+          className="flex gap-2 items-center bg-[color:var(--black-design-extralight)] text-white text-xs rounded-full font-extralight px-4 py-2"
         >
           <p>Sort by Newest</p>
-          <KeyboardArrowDownIcon />
+          <KeyboardArrowDownIcon fontSize="small" />
         </button>
         <Menu
           id="basic-menu"
           anchorEl={anchorEl}
           open={open}
-          onClose={handleClose}
+          onClose={handleCloseSortMenu}
           MenuListProps={{
             "aria-labelledby": "basic-button",
           }}
@@ -109,7 +130,7 @@ function ShopSearchBar({
             <RadioGroup
               aria-labelledby="sort-by-radio-group"
               name="sortBy"
-              value={sortBy}
+              value={sortByMethod}
               onChange={handleChangeSort}
             >
               <FormControlLabel
@@ -130,7 +151,7 @@ function ShopSearchBar({
             </RadioGroup>
           </FormControl>
           <div className="px-3 pb-1 pt-3 border-t border-[color:var(--gray-light-med)] h-12 font-extralight text-sm">
-            <ButtonPrimaryStorefront name="Apply" />
+            <ButtonPrimaryStorefront handleClick={handleSort} name="Apply" />
           </div>
         </Menu>
       </div>

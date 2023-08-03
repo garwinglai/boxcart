@@ -16,7 +16,6 @@ import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
 import prisma from "@/lib/prisma";
 import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
-import Link from "next/link";
 
 function Products({ userAccount }) {
   // Props
@@ -175,8 +174,7 @@ function Products({ userAccount }) {
         />
         <div className="flex gap-2">
           <ButtonFilter handleClick={handleProductRoute} name="Products" />
-          <Link href="/account/inventory/categories">Categories</Link>
-          {/* <ButtonFourth handleClick={handleCategoryRoute} name="Categories" /> */}
+          <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
         </div>
         <div>
           <ButtonPrimary

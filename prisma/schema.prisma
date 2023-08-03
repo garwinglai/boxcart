@@ -61,11 +61,13 @@ model Account {
   businessName           String
   subdomain              String               @unique
   businessTypes          BusinessType[]
-  logoImgStr             String?              @db.LongText
-  businessBio            String?
+  logoImgStr             String?
+  businessBio            String?              @db.VarChar(255)
   socials                Social[]
-  subscriberCount        String?
-  fulfillmentMethodInt   Int
+  subscriberCount        Int                  @default(0)
+  subscribers            Subscriber[]
+  contacts               Contact[]
+  fulfillmentMethodInt   Int // 0: delivery, 1: pickup, 2: both
   fulfillmentMethods     Fulfillment[]
   address_1              String
   address_2              String?
@@ -99,6 +101,26 @@ model Account {
   availability           Availability?
 
   @@index([userId])
+}
+
+model Contact {
+  id        Int     @id @default(autoincrement())
+  fName     String
+  lName     String
+  email     String  @unique
+  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId Int
+
+  @@index([accountId])
+}
+
+model Subscriber {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId Int
+
+  @@index([accountId])
 }
 
 // TODO figure out schema for stripe
@@ -159,7 +181,7 @@ model DatesAvailability {
 }
 
 model DatesRangedAvailability {
-  id                   Int           @id @default(autoincrement())
+  id                   Int          @id @default(autoincrement())
   startDateStrUnformat String?
   startDateStr         String?
   startDateEpochStr    String?
@@ -168,28 +190,28 @@ model DatesRangedAvailability {
   endDateEpochStr      String?
   startTimeStr         String?
   endTimeStr           String?
-  isEnabled            Boolean       @default(true)
-  availability         Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId       Int?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  isEnabled            Boolean      @default(true)
+  availability         Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId       Int
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 
   @@index([availabilityId])
 }
 
 model DaysOfWeekAvailability {
-  id              Int           @id @default(autoincrement())
+  id              Int          @id @default(autoincrement())
   dayStr          String?
   dayInt          Int?
   startTimeStr    String?
   endTimeStr      String?
   repeatOption    String?
   repeatOptionInt Int? //0: no repeat 1: repeat weekly 2: repeat daily 3: repeat weekdays
-  isEnabled       Boolean       @default(true)
-  availability    Availability? @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId  Int?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  isEnabled       Boolean      @default(true)
+  availability    Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId  Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@index([availabilityId])
 }
@@ -212,8 +234,8 @@ model Product {
   optionGroups         OptionGroup[]
   questions            Question[]
   relatedCategories    Category[]
-  account              Account?      @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId            Int?
+  account              Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId            Int
 
   @@index([accountId])
 }

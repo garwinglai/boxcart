@@ -45,6 +45,21 @@ export async function getCategoriesClient(accountId) {
   }
 }
 
+export async function getCategoriesClientPublic(accountId) {
+  const categoryApiRoute = `/api/public/inventory/category?accountId=${accountId}`;
+
+  const resGetCategory = await fetch(categoryApiRoute, {
+    method: "GET",
+  });
+  const resGetCategoryJson = await resGetCategory.json();
+
+  if (resGetCategory.status === 200) {
+    return { success: true, value: resGetCategoryJson };
+  } else {
+    return { success: false, value: null };
+  }
+}
+
 export async function deleteCategoryClient(categoryId) {
   const categoryApiRoute = `/api/private/inventory/category/delete`;
 
@@ -63,6 +78,22 @@ export async function deleteCategoryClient(categoryId) {
 
 export async function getProductsByCategoryIdClient(categoryId) {
   const categoryApiRoute = `/api/private/inventory/category/get?categoryId=${categoryId}`;
+
+  const resGetCategory = await fetch(categoryApiRoute, {
+    method: "GET",
+  });
+
+  const resGetCategoryJson = await resGetCategory.json();
+
+  if (resGetCategory.status === 200) {
+    return { success: true, value: resGetCategoryJson };
+  } else {
+    return { success: false, value: null };
+  }
+}
+
+export async function getProductsByCategoryIdClientPublic(categoryId) {
+  const categoryApiRoute = `/api/public/inventory/category?categoryId=${categoryId}`;
 
   const resGetCategory = await fetch(categoryApiRoute, {
     method: "GET",

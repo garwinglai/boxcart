@@ -46,6 +46,21 @@ export async function getProductsClient(accountId) {
   }
 }
 
+export async function getProductsClientPublic(accountId) {
+  const productApiRoute = `/api/public/inventory/product?accountId=${accountId}`;
+
+  const resGetProduct = await fetch(productApiRoute, {
+    method: "GET",
+  });
+  const resGetProductJson = await resGetProduct.json();
+
+  if (resGetProduct.status === 200) {
+    return { success: true, value: resGetProductJson };
+  } else {
+    return { success: false, value: null };
+  }
+}
+
 export async function deleteProductClient(productId) {
   const productApiRoute = `/api/private/inventory/product/delete`;
 
