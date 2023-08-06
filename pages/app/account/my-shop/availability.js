@@ -109,6 +109,7 @@ function Availability({ userAccount }) {
     timeBlock,
     id: accountId,
   } = userAccount || {};
+
   const requestAbortController = useRef(null);
   const [selectedDateValues, setSelectedDateValues] = useState({
     selectedDate: new Date().toLocaleDateString(),
@@ -209,6 +210,8 @@ function Availability({ userAccount }) {
     const days = [];
     const { datesAvailability } = availability;
 
+    if (!datesAvailability) return;
+
     datesAvailability.forEach((date) => {
       const { dateStr, dateStrUnformat, isEnabled } = date;
 
@@ -237,6 +240,9 @@ function Availability({ userAccount }) {
   const getDaysFromDatesRangedAvailability = (date) => {
     const days = [];
     const { datesRangedAvailability } = availability;
+
+    if (!datesRangedAvailability) return;
+
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
 
@@ -306,6 +312,8 @@ function Availability({ userAccount }) {
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
     const { daysOfWeekAvailability } = availability;
+
+    if (!daysOfWeekAvailability) return;
 
     daysOfWeekAvailability.forEach((schedule) => {
       const { days, isEnabled } = schedule;
