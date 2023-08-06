@@ -175,7 +175,6 @@ function Availability({ userAccount }) {
     availabilityValues;
 
   useEffect(() => {
-    if (!availability) return;
     fetchHighlightedDays(initialValue);
     // TODO: ?? delete past schedules?
 
@@ -183,6 +182,8 @@ function Availability({ userAccount }) {
   }, []);
 
   const fetchHighlightedDays = (date) => {
+    if (!availability) return;
+
     const controller = new AbortController();
     const allDaysWithSchedule = [];
     const daysOfSpecificDatesScheduled = getDaysFromDatesAvailability(date);
@@ -212,8 +213,8 @@ function Availability({ userAccount }) {
     const days = [];
     const { datesAvailability } = availability;
 
-    if (!datesAvailability) return;
-    if (datesAvailability.length === 0) return;
+    if (!datesAvailability) return days;
+    if (datesAvailability.length === 0) return days;
 
     datesAvailability.forEach((date) => {
       const { dateStr, dateStrUnformat, isEnabled } = date;
@@ -244,8 +245,8 @@ function Availability({ userAccount }) {
     const days = [];
     const { datesRangedAvailability } = availability;
 
-    if (!datesRangedAvailability) return;
-    if (datesRangedAvailability.length === 0) return;
+    if (!datesRangedAvailability) return days;
+    if (datesRangedAvailability.length === 0) return days;
 
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
@@ -317,8 +318,8 @@ function Availability({ userAccount }) {
     const actualMonthByNumber = month + 1;
     const { daysOfWeekAvailability } = availability;
 
-    if (!daysOfWeekAvailability) return;
-    if (daysOfWeekAvailability.length === 0) return;
+    if (!daysOfWeekAvailability) return daysArr;
+    if (daysOfWeekAvailability.length === 0) return daysArr;
 
     daysOfWeekAvailability.forEach((schedule) => {
       const { days, isEnabled } = schedule;
