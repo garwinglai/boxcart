@@ -137,19 +137,27 @@ function Availability({ userAccount }) {
   });
   const [availabilityValues, setAvailabilityValues] = useState({
     datesAvailability: availability
-      ? availability.datesAvailability.sort((a, b) => {
-          return parseInt(a.dateEpochStr) - parseInt(b.dateEpochStr);
-        })
+      ? availability.datesAvailability
+        ? availability.datesAvailability.sort((a, b) => {
+            return parseInt(a.dateEpochStr) - parseInt(b.dateEpochStr);
+          })
+        : []
       : [],
     datesRangedAvailability: availability
-      ? availability.datesRangedAvailability.sort((a, b) => {
-          return parseInt(a.startDateEpochStr) - parseInt(b.startDateEpochStr);
-        })
+      ? availability.datesRangedAvailability
+        ? availability.datesRangedAvailability.sort((a, b) => {
+            return (
+              parseInt(a.startDateEpochStr) - parseInt(b.startDateEpochStr)
+            );
+          })
+        : []
       : [],
     daysOfWeekAvailability: availability
-      ? availability.daysOfWeekAvailability.sort((a, b) => {
-          return a.dayInt - b.dayInt;
-        })
+      ? availability.daysOfWeekAvailability
+        ? availability.daysOfWeekAvailability.sort((a, b) => {
+            return a.dayInt - b.dayInt;
+          })
+        : []
       : [],
   });
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
