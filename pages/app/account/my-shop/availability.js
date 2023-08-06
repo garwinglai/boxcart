@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import EditCalendarRoundedIcon from "@mui/icons-material/EditCalendarRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import calendar_icon from "@/public/images/icons/calendar_icon.png";
@@ -35,6 +35,9 @@ import { getAvailabilitiesClient } from "@/helper/client/api/availability/availa
 import prisma from "@/lib/prisma";
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import TimeBlockDrawer from "@/components/app/my-shop/availability/TimeBlockDrawer";
+import dayjs from "dayjs";
+import Badge from "@mui/material/Badge";
+import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 
 const styleMobile = {
   position: "absolute",
@@ -48,6 +51,56 @@ const styleMobile = {
   p: 4,
 };
 
+const initialValue = dayjs();
+
+function getRandomNumber(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
+}
+
+/**
+ * Mimic fetch with abort controller https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
+ * ⚠️ No IE11 support
+ */
+// function fakeFetch(date, { signal }) {
+//   return new Promise((resolve, reject) => {
+//     const timeout = setTimeout(() => {
+//       const daysInMonth = date.daysInMonth();
+//       const daysToHighlight = [1, 2, 3].map(() =>
+//         getRandomNumber(1, daysInMonth)
+//       );
+
+//       resolve({ daysToHighlight });
+//     }, 500);
+
+//     signal.onabort = () => {
+//       clearTimeout(timeout);
+//       reject(new DOMException("aborted", "AbortError"));
+//     };
+//   });
+// }
+
+function ServerDay(props) {
+  const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
+
+  const isSelected =
+    !props.outsideCurrentMonth &&
+    highlightedDays.indexOf(props.day.date()) >= 0;
+
+  return (
+    <Badge
+      key={props.day.toString()}
+      overlap="circular"
+      badgeContent={isSelected ? "🦍" : undefined}
+    >
+      <PickersDay
+        {...other}
+        outsideCurrentMonth={outsideCurrentMonth}
+        day={day}
+      />
+    </Badge>
+  );
+}
+
 function Availability({ userAccount }) {
   const {
     availability,
@@ -56,7 +109,13 @@ function Availability({ userAccount }) {
     timeBlock,
     id: accountId,
   } = userAccount || {};
-
+  const requestAbortController = useRef(null);
+  const [selectedDateValues, setSelectedDateValues] = useState({
+    selectedDate: new Date().toLocaleDateString(),
+    selectedDateHourDisplay: "9:00 AM - 5:00 PM",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [highlightedDays, setHighlightedDays] = useState([]);
   const [drawerState, setDrawerState] = useState({
     right: false,
   });
@@ -98,11 +157,199 @@ function Availability({ userAccount }) {
   const [updateDatesSchedule, setUpdateDatesSchedule] = useState([]);
   const [updateRangedSchedule, setUpdateRangedSchedule] = useState([]);
   const [updateDayOfWeekSchedule, setUpdateDayOfWeekSchedule] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
 
+  const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
   const { snackbarOpen, snackbarMessage } = openSnackbar;
   const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
     availabilityValues;
+
+  useEffect(() => {
+    fetchHighlightedDays(initialValue);
+    // TODO: ?? delete past schedules?
+
+    return () => requestAbortController.current?.abort();
+  }, []);
+
+  const fetchHighlightedDays = (date) => {
+    const controller = new AbortController();
+    const allDaysWithSchedule = [];
+    const daysOfSpecificDatesScheduled = getDaysFromDatesAvailability(date);
+    const daysOfSpecificDatesRangedScheduled =
+      getDaysFromDatesRangedAvailability(date);
+    const daysOfWeekScheduled = getDaysFromDaysOfWeekAvailability(date);
+
+    allDaysWithSchedule.push(...daysOfSpecificDatesScheduled);
+    allDaysWithSchedule.push(...daysOfSpecificDatesRangedScheduled);
+    allDaysWithSchedule.push(...daysOfWeekScheduled);
+    // console.log("allDaysWithSchedule", allDaysWithSchedule);
+
+    // make sure there are no duplicates in the array of all days with schedule
+    const uniqueDaysWithSchedule = [...new Set(allDaysWithSchedule)];
+    console.log("uniqueDaysWithSchedule", uniqueDaysWithSchedule);
+
+    setHighlightedDays(allDaysWithSchedule);
+    setIsLoading(false);
+
+    requestAbortController.current = controller;
+  };
+
+  const getDaysFromDatesAvailability = (date) => {
+    // For month: 0 = January, 11 = December.
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+
+    const days = [];
+    const { datesAvailability } = availability;
+
+    datesAvailability.forEach((date) => {
+      const { dateStr, dateStrUnformat, isEnabled } = date;
+
+      if (!isEnabled) return;
+
+      const dateYear = dateStrUnformat.split("-")[0];
+      const monthDate = dateStrUnformat.split("-")[1];
+      // Remove 0 in front of month if there's one.
+      const monthRemoveZeroPrefixAndIndexed =
+        monthDate.split("")[0] === "0"
+          ? monthDate.split("")[1]
+          : monthDate.split("")[0];
+
+      if (
+        year == dateYear &&
+        actualMonthByNumber == monthRemoveZeroPrefixAndIndexed
+      ) {
+        const day = parseInt(dateStr.split("/")[1]);
+        days.push(day);
+      }
+    });
+
+    return days;
+  };
+
+  const getDaysFromDatesRangedAvailability = (date) => {
+    const days = [];
+    const { datesRangedAvailability } = availability;
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+
+    datesRangedAvailability.forEach((date) => {
+      const {
+        startDateStr,
+        startDateStrUnformat,
+        endDateStr,
+        endDateStrUnformat,
+        isEnabled,
+      } = date;
+
+      if (!isEnabled) return;
+
+      const startYear = parseInt(startDateStrUnformat.split("-")[0]);
+      const endYear = parseInt(endDateStrUnformat.split("-")[0]);
+
+      const startMonth = parseInt(startDateStr.split("/")[0]);
+      const endMonth = parseInt(endDateStr.split("/")[0]);
+
+      const startDay = parseInt(startDateStr.split("/")[1]);
+      const endDay = parseInt(endDateStr.split("/")[1]);
+
+      if (startYear > year || year > endYear) return;
+      if (startMonth > actualMonthByNumber || actualMonthByNumber > endMonth)
+        return;
+
+      if (startMonth === endMonth) {
+        for (let i = startDay; i <= endDay; i++) {
+          days.push(i);
+        }
+      } else {
+        let lastDayOfMonth = 31;
+
+        if (startMonth === 2) {
+          lastDayOfMonth = 28;
+        } else if (
+          startMonth === 4 ||
+          startMonth === 6 ||
+          startMonth === 9 ||
+          startMonth === 11
+        ) {
+          lastDayOfMonth = 30;
+        } else {
+          lastDayOfMonth = 31;
+        }
+
+        if (startMonth === actualMonthByNumber) {
+          for (let i = startDay; i <= lastDayOfMonth; i++) {
+            days.push(i);
+          }
+        }
+
+        if (endMonth === actualMonthByNumber) {
+          for (let i = 1; i <= endDay; i++) {
+            days.push(i);
+          }
+        }
+      }
+    });
+
+    return days;
+  };
+
+  const getDaysFromDaysOfWeekAvailability = (date) => {
+    const daysArr = [];
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+    const { daysOfWeekAvailability } = availability;
+
+    daysOfWeekAvailability.forEach((schedule) => {
+      const { days, isEnabled } = schedule;
+
+      if (!isEnabled) return;
+
+      const daysScheduleArr = days.split(",");
+
+      daysScheduleArr.forEach((day) => {
+        const dayInt = parseInt(day);
+        const weekdays = findWeekdays(year, actualMonthByNumber, dayInt);
+
+        daysArr.push(...weekdays);
+      });
+    });
+
+    return daysArr;
+  };
+
+  const findWeekdays = (year, month, targetWeekday) => {
+    console.log("targetWeekday", targetWeekday);
+    const firstDay = new Date(year, month - 1, 1);
+    const weekdays = [];
+
+    for (let day = 1; day <= 31; day++) {
+      const date = new Date(year, month - 1, day);
+      if (date.getDay() === targetWeekday) {
+        weekdays.push(date.getDate());
+      }
+    }
+
+    return weekdays;
+  };
+
+  const handleMonthChange = (date) => {
+    if (requestAbortController.current) {
+      // make sure that you are aborting useless requests
+      // because it is possible to switch between months pretty quickly
+      requestAbortController.current.abort();
+    }
+
+    setIsLoading(true);
+    setHighlightedDays([]);
+    fetchHighlightedDays(date);
+  };
+
+  const handleDateClick = (date) => {
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+
+    // TODO: show current date : hours
+  };
 
   const getAvailabilities = async (availabilityId) => {
     const { success, value, error } = await getAvailabilitiesClient(
@@ -378,20 +625,47 @@ function Availability({ userAccount }) {
       );
 
     return (
-      <div className="flex flex-col lg:flex-row-reverse md:px-8">
-        <div className=" h-fit lg:w-1/2">
-          <h4 className="mb-2 ml-4 text-[color:var(--third-dark)]">Calendar</h4>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar
-              disabled
-              renderLoading={() => <DayCalendarSkeleton />}
-            />
-          </LocalizationProvider>
+      <div className="flex flex-col lg:flex-row md:px-8">
+        <div className="border-b mb-4 h-fit lg:w-1/2 lg:border-b-0">
+          <div className="mb-6">
+            <h3 className="mb-2 ml-4 underline">Selected date:</h3>
+            <div className="flex gap-4 items-center px-8 mt-5  text-[color:var(--third-dark)]">
+              <p>Date:</p>
+              <p>{selectedDate}</p>
+            </div>
+            <div className="flex gap-4 items-center px-8  text-[color:var(--third-dark)]">
+              <p>Store hours:</p>
+              <p>{selectedDateHourDisplay}</p>
+            </div>
+          </div>
+          <div>
+            <h3 className="mb-2 ml-4 underline">Monthly:</h3>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateCalendar
+                // defaultValue={initialValue}
+                loading={isLoading}
+                onMonthChange={handleMonthChange}
+                onChange={handleDateClick}
+                renderLoading={() => <DayCalendarSkeleton />}
+                slots={{
+                  day: ServerDay,
+                }}
+                slotProps={{
+                  day: {
+                    highlightedDays,
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          </div>
         </div>
         <div className="lg:w-1/2">
+          <h3 className="mb-4 ml-4 underline">All schedules:</h3>
           {datesAvailabilityLength > 0 && (
             <div className="px-4 border-b pb-6">
-              <h4 className="mb-2 text-[color:var(--third-dark)]">Dates:</h4>
+              <h4 className="mb-2 text-[color:var(--third-dark)]">
+                Specific dates:
+              </h4>
               <div className="px-4 flex flex-col gap-2">
                 {datesAvailability.map((date) => {
                   const {
@@ -401,6 +675,7 @@ function Availability({ userAccount }) {
                     endTimeStr,
                     isEnabled,
                     availabilityId,
+                    repeatOption,
                   } = date;
 
                   return (
@@ -414,6 +689,7 @@ function Availability({ userAccount }) {
                       dateId={id}
                       startDateStr={dateStr}
                       startTimeStr={startTimeStr}
+                      repeatOption={repeatOption}
                       endTimeStr={endTimeStr}
                       isEnabled={isEnabled}
                       handleOpenSnackbar={handleOpenSnackbar}
@@ -474,18 +750,16 @@ function Availability({ userAccount }) {
           {daysOfWeekAvailabilityLength > 0 && (
             <div className="px-4 border-b pt-4 pb-6">
               <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Day of Week:
+                Weekly Schedule:
               </h4>
               <div className="px-4 flex flex-col gap-2">
                 {daysOfWeekAvailability.map((date) => {
                   const {
                     id,
-                    dayStr,
-                    dayInt,
+                    daysDisplay,
                     startTimeStr,
                     endTimeStr,
                     isEnabled,
-                    repeatOption,
                     availabilityId,
                   } = date;
 
@@ -498,11 +772,10 @@ function Availability({ userAccount }) {
                       scheduleType="week"
                       key={id}
                       dateId={id}
-                      dayStr={dayStr}
+                      daysDisplay={daysDisplay}
                       startTimeStr={startTimeStr}
                       endTimeStr={endTimeStr}
                       isEnabled={isEnabled}
-                      repeatOption={repeatOption}
                       handleOpenSnackbar={handleOpenSnackbar}
                       toggleUpdated={toggleUpdated}
                       updateDatesScheduleData={updateDatesScheduleData}
@@ -595,7 +868,7 @@ function Availability({ userAccount }) {
       {hasCustomHours && (
         <React.Fragment>
           <div className=" flex justify-between items-center p-4 border-b mb-4 md:px-6">
-            <h3>Scheduled Hours</h3>
+            <h3></h3>
             <div>
               <ButtonPrimary
                 handleClick={toggleDrawer("right", true)}
@@ -680,6 +953,7 @@ export async function getServerSideProps(context) {
       });
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
+      console.log("serializedAccount", serializedAccount);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
     }

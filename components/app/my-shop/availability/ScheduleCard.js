@@ -65,7 +65,8 @@ function ScheduleCard({
   availabilityId,
   scheduleType,
   dateId,
-  dayStr,
+
+  daysDisplay,
   startDateStr,
   endDateStr,
   startTimeStr,
@@ -324,11 +325,13 @@ function ScheduleCard({
               {startDateStr} - {endDateStr}
             </p>
           )}
-          {scheduleType === "week" && <p className="text-xs">{dayStr}</p>}
         </span>
-        {scheduleType === "week" && (
-          <p className="text-xs font-extralight">{repeatOption}</p>
-        )}
+        {scheduleType === "week" &&
+          daysDisplay.split(", ").map((day) => (
+            <p key={day} className="text-xs font-extralight">
+              {day}
+            </p>
+          ))}
       </div>
       <span>
         <p className="text-xs">

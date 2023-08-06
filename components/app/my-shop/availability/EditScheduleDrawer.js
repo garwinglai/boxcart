@@ -37,6 +37,10 @@ function EditScheduleDrawer({
       scheduleTypeEdit === "date" ? scheduleData.startTimeStr : "8:00 AM",
     specificDateEndTime:
       scheduleTypeEdit === "date" ? scheduleData.endTimeStr : "5:00 PM",
+    repeatOption:
+      scheduleTypeEdit === "date"
+        ? scheduleData.repeatOption
+        : "Does not repeat",
   });
   const [dateRangeValus, setDateRangeValues] = useState({
     startDateRange:
@@ -49,24 +53,25 @@ function EditScheduleDrawer({
       scheduleTypeEdit === "range" ? scheduleData.endTimeStr : "5:00 PM",
   });
   const [weekValues, setWeekValues] = useState({
-    weekday: scheduleTypeEdit === "week" ? scheduleData.dayStr : "Monday",
+    openDays:
+      scheduleTypeEdit === "week" ? scheduleData.daysDisplay.split(", ") : [],
     weekStartTime:
       scheduleTypeEdit === "week" ? scheduleData.startTimeStr : "8:00 AM",
     weekEndTime:
       scheduleTypeEdit === "week" ? scheduleData.endTimeStr : "5:00 PM",
-    repeatOption:
-      scheduleTypeEdit === "week"
-        ? scheduleData.repeatOption
-        : "Does not repeat",
   });
   const [isLoading, setIsLoading] = useState(false);
 
   // Destructure
-  const { specificDate, specificDateStartTime, specificDateEndTime } =
-    specificDateValues;
+  const {
+    specificDate,
+    specificDateStartTime,
+    specificDateEndTime,
+    repeatOption,
+  } = specificDateValues;
   const { startDateRange, endDateRange, startTimeRange, endTimeRange } =
     dateRangeValus;
-  const { weekday, weekStartTime, weekEndTime, repeatOption } = weekValues;
+  const { openDays, weekStartTime, weekEndTime } = weekValues;
 
   useEffect(() => {
     generateTimeOptions();
@@ -123,6 +128,23 @@ function EditScheduleDrawer({
     setScheduleType(value);
   };
 
+  const handleWeeklyScheduleChange = (event) => {
+    const { name, checked } = event.target;
+
+    if (checked) {
+      setWeekValues((prev) => ({
+        ...prev,
+        openDays: [...openDays, name],
+      }));
+    } else {
+      const filteredOpenDays = openDays.filter((day) => day !== name);
+      setWeekValues((prev) => ({
+        ...prev,
+        openDays: filteredOpenDays,
+      }));
+    }
+  };
+
   const handleCloseDrawer = (e) => {
     if (scheduleType === "date") {
       setSpecificDateValues({
@@ -143,7 +165,7 @@ function EditScheduleDrawer({
 
     if (scheduleType === "week") {
       setWeekValues({
-        weekday: "",
+        openDays: [],
         weekStartTime: "",
         weekEndTime: "",
         repeatOption: "",
@@ -266,12 +288,12 @@ function EditScheduleDrawer({
     if (scheduleType === "week") {
       // check if all fields are filled if not, return
       if (
-        weekday === "" ||
+        openDays.length === 0 ||
         weekStartTime === "" ||
         weekEndTime === "" ||
         repeatOption === ""
       ) {
-        handleOpenSnackbar("Please fill in all fields.");
+        handleOpenSnackbar("Missing open days.");
         setIsLoading(false);
         return;
       }
@@ -364,6 +386,7 @@ function EditScheduleDrawer({
     const epochDate = formattedStartDate.getTime().toString();
     const epochStartTime = formattedStartTime.getTime().toString();
     const epochEndTime = formattedEndTime.getTime().toString();
+    const repeatOptionInt = convertRepeatOptionToInt(repeatOption);
 
     const datesAvailability = {
       id: scheduleId,
@@ -374,6 +397,8 @@ function EditScheduleDrawer({
       startTimeEpochStr: epochStartTime,
       endTimeStr: specificDateEndTime,
       endTimeEpochStr: epochEndTime,
+      repeatOption,
+      repeatOptionInt,
     };
 
     try {
@@ -436,17 +461,74 @@ function EditScheduleDrawer({
   };
 
   const updateWeekDate = async () => {
-    const dayInt = convertWeekdayToInt(weekday);
-    const repeatOptionInt = convertRepeatOptionToInt(repeatOption);
+    const daysArr = openDays.map((day) => {
+      switch (day) {
+        case "Sunday":
+          return 0;
+          break;
+        case "Monday":
+          return 1;
+          break;
+        case "Tuesday":
+          return 2;
+          break;
+        case "Wednesday":
+          return 3;
+          break;
+        case "Thursday":
+          return 4;
+          break;
+        case "Friday":
+          return 5;
+          break;
+        case "Saturday":
+          return 6;
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    const days = daysArr.sort((a, b) => a - b);
+    const daysDisplay = days.map((day) => {
+      switch (day) {
+        case 0:
+          return "Sunday";
+          break;
+        case 1:
+          return "Monday";
+          break;
+        case 2:
+          return "Tuesday";
+          break;
+        case 3:
+          return "Wednesday";
+          break;
+        case 4:
+          return "Thursday";
+          break;
+        case 5:
+          return "Friday";
+          break;
+        case 6:
+          return "Saturday";
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    const dayDisplayString = daysDisplay.join(", ");
+    const daysString = days.join(",");
 
     const daysOfWeekAvailability = {
       id: scheduleId,
-      dayStr: weekday,
-      dayInt,
+      daysDisplay: dayDisplayString,
+      days: daysString,
       startTimeStr: weekStartTime,
       endTimeStr: weekEndTime,
-      repeatOption,
-      repeatOptionInt,
     };
 
     try {
@@ -465,22 +547,15 @@ function EditScheduleDrawer({
     }
   };
 
-  const convertWeekdayToInt = (weekday) => {
-    // Sunday is 0, Monday is 1, and so on.
-    if (weekday === "Sunday") return 0;
-    if (weekday === "Monday") return 1;
-    if (weekday === "Tuesday") return 2;
-    if (weekday === "Wednesday") return 3;
-    if (weekday === "Thursday") return 4;
-    if (weekday === "Friday") return 5;
-    if (weekday === "Saturday") return 6;
+  const handleIsDaysChecked = (day) => {
+    const isDayChecked = openDays.includes(day);
+
+    return isDayChecked;
   };
 
   const convertRepeatOptionToInt = (repeatOption) => {
     if (repeatOption === "Does not repeat") return 0;
-    if (repeatOption === "Daily") return 1;
-    if (repeatOption === "Weekly") return 2;
-    if (repeatOption === "Monthly") return 3;
+    if (repeatOption === "Once per week") return 1;
   };
 
   const dateFormatter = (dateStr) => {
@@ -594,7 +669,7 @@ function EditScheduleDrawer({
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 border-b pb-4">
               <h4 className="text-[color:var(--third-dark-med)] ">Hours:</h4>
               <div className="flex justify-between items-center mx-4">
                 <p className="font-light text-sm">Start time:</p>
@@ -626,6 +701,24 @@ function EditScheduleDrawer({
                       {time}
                     </option>
                   ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-[color:var(--third-dark-med)] ">
+                Repetition:
+              </h4>
+              <div className="flex justify-between items-center mx-4">
+                <p className="font-light text-sm">Select frequency:</p>
+                <select
+                  id="repeatOption"
+                  name="repeatOption"
+                  value={repeatOption}
+                  onChange={handleChangeSpecificDate}
+                  className="border px-2 py-1 text-xs"
+                >
+                  <option value="Does not repeat">Does not repeat</option>
+                  <option value="Once per week">Once per week</option>
                 </select>
               </div>
             </div>
@@ -706,34 +799,98 @@ function EditScheduleDrawer({
       return (
         <React.Fragment>
           <h3 className="mb-4 text-[color:var(--third-dark-med)] ">
-            By Day of Week
+            Weekly Schedule
           </h3>
           <div className="flex flex-col gap-4">
+            <p className="font-light text-sm">
+              *** This will set your weekly shop hours.
+            </p>
             <div className="flex flex-col gap-2 border-b pb-4">
               <h4 className="text-[color:var(--third-dark-med)] ">
-                Day of week:
+                Open days:
               </h4>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Sunday">Sunday</label>
+                <input
+                  type="checkbox"
+                  name="Sunday"
+                  id="Sunday"
+                  checked={handleIsDaysChecked("Sunday")}
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Monday">Monday</label>
+                <input
+                  type="checkbox"
+                  name="Monday"
+                  checked={handleIsDaysChecked("Monday")}
+                  id="Monday"
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Sunday">Tuesday</label>
+                <input
+                  type="checkbox"
+                  name="Tuesday"
+                  id="Tuesday"
+                  checked={handleIsDaysChecked("Tuesday")}
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Sunday">Wednesday</label>
+                <input
+                  type="checkbox"
+                  name="Wednesday"
+                  id="Wednesday"
+                  checked={handleIsDaysChecked("Wednesday")}
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Sunday">Thursday</label>
+                <input
+                  type="checkbox"
+                  name="Thursday"
+                  checked={handleIsDaysChecked("Thursday")}
+                  id="Thursday"
+                  className="w-5 h-5 focus:bg-orange-600"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
+              <div className="flex justify-between items-center mx-4 border-b pb-2">
+                <label htmlFor="Sunday">Friday</label>
+                <input
+                  type="checkbox"
+                  name="Friday"
+                  checked={handleIsDaysChecked("Friday")}
+                  id="Friday"
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
+              </div>
               <div className="flex justify-between items-center mx-4">
-                <p className="font-light text-sm">Select weekday:</p>
-                <select
-                  id="weekday"
-                  name="weekday"
-                  value={weekday}
-                  onChange={handleDayOfWeekChange}
-                  className="border px-2 py-1 text-xs"
-                >
-                  <option value="Sunday">Sunday</option>
-                  <option value="Monday">Monday</option>
-                  <option value="Tuesday">Tuesday</option>
-                  <option value="Wednesday">Wednesday</option>
-                  <option value="Thursday">Thursday</option>
-                  <option value="Friday">Friday</option>
-                  <option value="Saturday">Saturday</option>
-                </select>
+                <label htmlFor="Sunday">Saturday</label>
+                <input
+                  type="checkbox"
+                  name="Saturday"
+                  checked={handleIsDaysChecked("Saturday")}
+                  id="Saturday"
+                  className="w-5 h-5"
+                  onChange={handleWeeklyScheduleChange}
+                />
               </div>
             </div>
             <div className="flex flex-col gap-2  border-b pb-4">
-              <h4 className="text-[color:var(--third-dark-med)] ">Hours:</h4>
+              <h4 className="text-[color:var(--third-dark-med)] ">
+                Open hours:
+              </h4>
               <div className="flex justify-between items-center mx-4">
                 <p className="font-light text-sm">Start time:</p>
                 <select
@@ -767,28 +924,6 @@ function EditScheduleDrawer({
                 </select>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <h4 className="text-[color:var(--third-dark-med)] ">
-                Repetition:
-              </h4>
-              <div className="flex justify-between items-center mx-4">
-                <p className="font-light text-sm">Select frequency:</p>
-                <select
-                  id="repeatOption"
-                  name="repeatOption"
-                  value={repeatOption}
-                  onChange={handleDayOfWeekChange}
-                  className="border px-2 py-1 text-xs"
-                >
-                  <option value="Does not repeat">Does not repeat</option>
-                  <option value="Once per week">Once per week</option>
-                  <option value="Repeat daily">Repeat daily</option>
-                  <option value="Weekdays (Mon - Fri)">
-                    Weekdays (Mon - Fri)
-                  </option>
-                </select>
-              </div>
-            </div>
           </div>
         </React.Fragment>
       );
@@ -803,7 +938,7 @@ function EditScheduleDrawer({
             alt="calendar icon"
             className=" opacity-50 mx-auto w-8 h-8"
           />
-          <h4>Create Schedule</h4>
+          <h4>Edit Schedule</h4>
         </span>
         <IconButton onClick={toggleDrawer}>
           <CloseIcon />
@@ -851,7 +986,7 @@ function EditScheduleDrawer({
             <FormControlLabel
               value="week"
               control={<Radio color="warning" />}
-              label="By day of week"
+              label="Set Weekly schedule"
               labelPlacement="start"
               sx={{
                 display: "flex",

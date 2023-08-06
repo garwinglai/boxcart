@@ -171,6 +171,8 @@ model DatesAvailability {
   startTimeEpochStr String?
   endTimeStr        String?
   endTimeEpochStr   String?
+  // repeatOption      String?
+  // repeatOptionInt   Int? //0: no repeat 1: repeat weekly 
   isEnabled         Boolean      @default(true)
   availability      Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   availabilityId    Int
@@ -200,18 +202,16 @@ model DatesRangedAvailability {
 }
 
 model DaysOfWeekAvailability {
-  id              Int          @id @default(autoincrement())
-  dayStr          String?
-  dayInt          Int?
-  startTimeStr    String?
-  endTimeStr      String?
-  repeatOption    String?
-  repeatOptionInt Int? //0: no repeat 1: repeat weekly 2: repeat daily 3: repeat weekdays
-  isEnabled       Boolean      @default(true)
-  availability    Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId  Int
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id             Int          @id @default(autoincrement())
+  daysDisplay    String?
+  days           String? //string of days int "0, 1, 2, " 0 = sunday
+  startTimeStr   String?
+  endTimeStr     String?
+  isEnabled      Boolean      @default(true)
+  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([availabilityId])
 }
