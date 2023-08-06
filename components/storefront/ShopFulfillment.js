@@ -45,9 +45,6 @@ function ShopFulfillment({ isOwner, siteData }) {
   const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
     availability || {};
 
-  console.log("fulfillmentMethodInt", fulfillmentMethodInt);
-  console.log("datesAvailability", datesAvailability);
-
   const [fulfillmentType, setFulfillmentType] = useState("pickup");
   const [expanded, setExpanded] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");

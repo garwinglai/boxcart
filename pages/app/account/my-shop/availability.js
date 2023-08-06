@@ -110,6 +110,8 @@ function Availability({ userAccount }) {
     id: accountId,
   } = userAccount || {};
 
+  console.log("availability", availability);
+
   const requestAbortController = useRef(null);
   const [selectedDateValues, setSelectedDateValues] = useState({
     selectedDate: new Date().toLocaleDateString(),
@@ -194,7 +196,6 @@ function Availability({ userAccount }) {
 
     // make sure there are no duplicates in the array of all days with schedule
     const uniqueDaysWithSchedule = [...new Set(allDaysWithSchedule)];
-    console.log("uniqueDaysWithSchedule", uniqueDaysWithSchedule);
 
     setHighlightedDays(allDaysWithSchedule);
     setIsLoading(false);
@@ -969,7 +970,6 @@ export async function getServerSideProps(context) {
       });
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
-      console.log("serializedAccount", serializedAccount);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
     }
