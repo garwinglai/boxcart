@@ -175,6 +175,7 @@ function Availability({ userAccount }) {
     availabilityValues;
 
   useEffect(() => {
+    if (!availability) return;
     fetchHighlightedDays(initialValue);
     // TODO: ?? delete past schedules?
 
@@ -212,6 +213,7 @@ function Availability({ userAccount }) {
     const { datesAvailability } = availability;
 
     if (!datesAvailability) return;
+    if (datesAvailability.length === 0) return;
 
     datesAvailability.forEach((date) => {
       const { dateStr, dateStrUnformat, isEnabled } = date;
@@ -243,6 +245,7 @@ function Availability({ userAccount }) {
     const { datesRangedAvailability } = availability;
 
     if (!datesRangedAvailability) return;
+    if (datesRangedAvailability.length === 0) return;
 
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
@@ -315,6 +318,7 @@ function Availability({ userAccount }) {
     const { daysOfWeekAvailability } = availability;
 
     if (!daysOfWeekAvailability) return;
+    if (daysOfWeekAvailability.length === 0) return;
 
     daysOfWeekAvailability.forEach((schedule) => {
       const { days, isEnabled } = schedule;
