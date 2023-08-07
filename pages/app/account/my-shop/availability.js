@@ -173,8 +173,8 @@ function Availability({ userAccount }) {
       daysOfWeekAvailability
     );
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => requestAbortControllerDay.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     datesAvailability,
     datesRangedAvailability,
@@ -191,8 +191,8 @@ function Availability({ userAccount }) {
     );
     // TODO: ?? delete past schedules?
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => requestAbortControllerMonth.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     datesAvailability,
     datesRangedAvailability,
