@@ -122,7 +122,7 @@ function Availability({ userAccount }) {
   const [timeBlockCurrentValue, setTimeBlockCurrentValue] = useState(
     timeBlock ? timeBlock : "15 min"
   );
-  const [timeBlockTimes, setTimeBlockTimes] = useState([]);
+  // const [timeBlockTimes, setTimeBlockTimes] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
     snackbarMessage: "",
@@ -158,6 +158,7 @@ function Availability({ userAccount }) {
   const [updateRangedSchedule, setUpdateRangedSchedule] = useState([]);
   const [updateDayOfWeekSchedule, setUpdateDayOfWeekSchedule] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(dayjs());
+  const [calendarDate, setCalendarDate] = useState(dayjs());
 
   const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
   const { snackbarOpen, snackbarMessage } = openSnackbar;
@@ -165,103 +166,21 @@ function Availability({ userAccount }) {
     availabilityValues;
 
   useEffect(() => {
-    if (!timeBlockEnabled) return;
-
-    formatTimeBlockTimes(selectedDateValues);
-  }, [timeBlockEnabled, timeBlockCurrentValue]);
-
-  const formatTimeBlockTimes = (selectedDateValues) => {
-    const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
-    if (selectedDateHourDisplay === "Closed") return [];
-
-    const startTime = selectedDateHourDisplay.split("-")[0];
-    const endTime = selectedDateHourDisplay.split("-")[1];
-
-    const startTimeEpoch = convertToEpoch(selectedDate, startTime);
-    const endTimeEpoch = convertToEpoch(selectedDate, endTime);
-
-    const intervals = generateTimeIntervals(
-      startTimeEpoch,
-      endTimeEpoch,
-      timeBlockCurrentValue
-    );
-
-    setTimeBlockTimes(intervals);
-  };
-
-  const convertToEpoch = (date, time) => {
-    const dateTimeString = `${date} ${time}`;
-    const dateTime = new Date(dateTimeString);
-
-    return dateTime.getTime();
-  };
-
-  const generateTimeIntervals = (startTimeEpoch, endTimeEpoch, interval) => {
-    const intervalValue = parseInt(interval.split(" ")[0]);
-    const intervalUnit = interval.split(" ")[1];
-
-    const interValueInMs = convertToMs(intervalValue, intervalUnit);
-    let plusInterval = startTimeEpoch;
-
-    const intervals = [];
-
-    do {
-      intervals.push(plusInterval);
-      plusInterval += interValueInMs;
-    } while (plusInterval <= endTimeEpoch);
-
-    const lastInterval = intervals[intervals.length - 1];
-
-    if (lastInterval + interValueInMs > endTimeEpoch) {
-      intervals.pop();
-    }
-
-    // convert interval epoch times to 12hr time strings
-    const intervalsIn12Hr = convertToIntervalsIn12Hr(intervals);
-    return intervalsIn12Hr;
-  };
-
-  const convertToIntervalsIn12Hr = (intervals) => {
-    const intervalsIn12Hr = intervals.map((interval) => {
-      const date = new Date(interval); // Convert to milliseconds
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      const ampm = hours >= 12 ? "PM" : "AM";
-
-      const hours12 = hours % 12 || 12; // Convert to 12-hour format
-
-      const hoursStr = hours12.toString();
-      const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
-
-      const timeStr = `${hoursStr}:${minutesStr} ${ampm}`;
-
-      return timeStr;
-    });
-
-    return intervalsIn12Hr;
-  };
-
-  const convertToMs = (value, unit) => {
-    if (unit === "min") {
-      return value * 60 * 1000;
-    }
-
-    if (unit === "hour") {
-      return value * 60 * 60 * 1000;
-    }
-  };
-
-  useEffect(() => {
-    const dayJs = dayjs(selectedDate);
     fetchShopHours(
-      dayJs,
+      calendarDate,
       datesAvailability,
       datesRangedAvailability,
       daysOfWeekAvailability
     );
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => requestAbortControllerDay.current?.abort();
-  }, [datesAvailability, datesRangedAvailability, daysOfWeekAvailability]);
+  }, [
+    datesAvailability,
+    datesRangedAvailability,
+    daysOfWeekAvailability,
+    calendarDate,
+  ]);
 
   useEffect(() => {
     fetchHighlightedDays(
@@ -272,8 +191,102 @@ function Availability({ userAccount }) {
     );
     // TODO: ?? delete past schedules?
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => requestAbortControllerMonth.current?.abort();
-  }, [datesAvailability, datesRangedAvailability, daysOfWeekAvailability]);
+  }, [
+    datesAvailability,
+    datesRangedAvailability,
+    daysOfWeekAvailability,
+    currentMonth,
+  ]);
+
+  // useEffect(() => {
+  //   if (!timeBlockEnabled) return;
+
+  //   formatTimeBlockTimes(selectedDateValues);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [timeBlockEnabled, timeBlockCurrentValue, selectedDateValues]);
+
+  // const formatTimeBlockTimes = (selectedDateValues) => {
+  //   const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
+  //   if (selectedDateHourDisplay === "Closed") return [];
+
+  //   const startTime = selectedDateHourDisplay.split("-")[0];
+  //   const endTime = selectedDateHourDisplay.split("-")[1];
+
+  //   const startTimeEpoch = convertToEpoch(selectedDate, startTime);
+  //   const endTimeEpoch = convertToEpoch(selectedDate, endTime);
+
+  //   const intervals = generateTimeIntervals(
+  //     startTimeEpoch,
+  //     endTimeEpoch,
+  //     timeBlockCurrentValue
+  //   );
+
+  //   setTimeBlockTimes(intervals);
+  // };
+
+  // const convertToEpoch = (date, time) => {
+  //   const dateTimeString = `${date} ${time}`;
+  //   const dateTime = new Date(dateTimeString);
+
+  //   return dateTime.getTime();
+  // };
+
+  // const generateTimeIntervals = (startTimeEpoch, endTimeEpoch, interval) => {
+  //   const intervalValue = parseInt(interval.split(" ")[0]);
+  //   const intervalUnit = interval.split(" ")[1];
+
+  //   const interValueInMs = convertToMs(intervalValue, intervalUnit);
+  //   let plusInterval = startTimeEpoch;
+
+  //   const intervals = [];
+
+  //   do {
+  //     intervals.push(plusInterval);
+  //     plusInterval += interValueInMs;
+  //   } while (plusInterval <= endTimeEpoch);
+
+  //   const lastInterval = intervals[intervals.length - 1];
+
+  //   if (lastInterval + interValueInMs > endTimeEpoch) {
+  //     intervals.pop();
+  //   }
+
+  //   // convert interval epoch times to 12hr time strings
+  //   const intervalsIn12Hr = convertToIntervalsIn12Hr(intervals);
+  //   return intervalsIn12Hr;
+  // };
+
+  // const convertToIntervalsIn12Hr = (intervals) => {
+  //   const intervalsIn12Hr = intervals.map((interval) => {
+  //     const date = new Date(interval); // Convert to milliseconds
+  //     const hours = date.getHours();
+  //     const minutes = date.getMinutes();
+  //     const ampm = hours >= 12 ? "PM" : "AM";
+
+  //     const hours12 = hours % 12 || 12; // Convert to 12-hour format
+
+  //     const hoursStr = hours12.toString();
+  //     const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
+
+  //     const timeStr = `${hoursStr}:${minutesStr} ${ampm}`;
+
+  //     return timeStr;
+  //   });
+
+  //   return intervalsIn12Hr;
+  // };
+
+  // const convertToMs = (value, unit) => {
+  //   if (unit === "min") {
+  //     return value * 60 * 1000;
+  //   }
+
+  //   if (unit === "hour") {
+  //     return value * 60 * 60 * 1000;
+  //   }
+  // };
 
   const fetchShopHours = (
     date,
@@ -644,24 +657,12 @@ function Availability({ userAccount }) {
     setIsLoading(true);
     setCurrentMonth(date);
     setHighlightedDays([]);
-    fetchHighlightedDays(
-      date,
-      datesAvailability,
-      datesRangedAvailability,
-      daysOfWeekAvailability
-    );
   };
 
   const handleDateClick = (date) => {
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
-
-    fetchShopHours(
-      date,
-      datesAvailability,
-      datesRangedAvailability,
-      daysOfWeekAvailability
-    );
+    setCalendarDate(date);
   };
 
   const getAvailabilities = async (availabilityId) => {

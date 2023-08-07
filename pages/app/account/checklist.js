@@ -60,7 +60,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
   useEffect(() => {
     const checklistString = JSON.stringify(checklist);
     setLocalStorage("checklist", checklistString);
-  }, []);
+  }, [checklist]);
 
   // * action functions
   const handleClose = () => {

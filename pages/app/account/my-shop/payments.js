@@ -215,7 +215,7 @@ function Payments({ userAccount }) {
         }));
       }
     }
-  }, []);
+  }, [acceptedPayments]);
 
   const handleOpenSnackbar = (message) => {
     setOpenSnackbar({

@@ -129,6 +129,7 @@ function ProductDrawer({
     if (!product) return;
 
     setOptions(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setOptions = (updatedProduct) => {
