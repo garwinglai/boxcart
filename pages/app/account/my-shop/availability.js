@@ -96,7 +96,7 @@ function Availability({ userAccount }) {
     isTimeBlockEnabled,
     timeBlock,
     id: accountId,
-  } = userAccount || {};
+  } = userAccount ? userAccount : {};
 
   const requestAbortControllerMonth = useRef(null);
   const requestAbortControllerDay = useRef(null);
@@ -882,6 +882,7 @@ function Availability({ userAccount }) {
     if (hasCustomHours) isCustomHoursEnabled = false;
 
     setHasCustomHours((prev) => !prev);
+    console.log("swtich", accountId);
 
     const { success, value, error } = await updateHasScheduleAccountClient(
       isCustomHoursEnabled,
@@ -1324,8 +1325,10 @@ export async function getServerSideProps(context) {
       });
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
+
+      console.log("serversideprops  serializedAccount:", serializedAccount);
     } catch (error) {
-      console.log("serversideprops checklist error:", error);
+      console.log("serversideprops  error:", error);
     }
     return {
       props: {
