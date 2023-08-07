@@ -213,6 +213,12 @@ function CreateScheduleDrawer({
         return;
       }
 
+      if (startDateRange === endDateRange) {
+        handleOpenSnackbar("Start date cannot be equal to end date.");
+        setIsLoading(false);
+        return;
+      }
+
       // check if startDate is greater than endDate if not, return
       const isStartDateGreaterThanEndDate = checkStartDateGreaterThanEndDate(
         startDateRange,
@@ -220,7 +226,7 @@ function CreateScheduleDrawer({
       );
 
       if (isStartDateGreaterThanEndDate) {
-        handleOpenSnackbar("Your start date is after your end date.");
+        handleOpenSnackbar("Start date cannot be after end date.");
         setIsLoading(false);
         return;
       }
@@ -356,7 +362,7 @@ function CreateScheduleDrawer({
     const epochDate = formattedStartDate.getTime().toString();
     const epochStartTime = formattedStartTime.getTime().toString();
     const epochEndTime = formattedEndTime.getTime().toString();
-    // const repeatOptionInt = convertRepeatOptionToInt(repeatOption);
+    const hoursDisplay = `${specificDateStartTime} - ${specificDateEndTime}`;
 
     const datesAvailability = {
       dateStrUnformat: specificDate,
@@ -366,8 +372,7 @@ function CreateScheduleDrawer({
       startTimeEpochStr: epochStartTime,
       endTimeStr: specificDateEndTime,
       endTimeEpochStr: epochEndTime,
-      // repeatOption,
-      // repeatOptionInt,
+      hoursDisplay,
     };
 
     const accountInfo = {
@@ -407,6 +412,7 @@ function CreateScheduleDrawer({
       null
     );
     const epochStartDate = formattedStartDate.getTime().toString();
+    const hoursDisplay = `${startTimeRange} - ${endTimeRange}`;
 
     const datesRagnedAvailability = {
       startDateStrUnformat: startDateRange,
@@ -417,6 +423,7 @@ function CreateScheduleDrawer({
       endDateEpochStr: formattedEndDate,
       startTimeStr: startTimeRange,
       endTimeStr: endTimeRange,
+      hoursDisplay,
     };
 
     const accountInfo = {
@@ -504,15 +511,15 @@ function CreateScheduleDrawer({
 
     const dayDisplayString = daysDisplay.join(", ");
     const daysString = days.join(",");
+    const hoursDisplay = `${weekStartTime} - ${weekEndTime}`;
 
     const daysOfWeekAvailability = {
       daysDisplay: dayDisplayString,
       days: daysString,
       startTimeStr: weekStartTime,
       endTimeStr: weekEndTime,
+      hoursDisplay,
     };
-
-    console.log("daysOfWeekAvailability:", daysOfWeekAvailability);
 
     const accountInfo = {
       accountId,
@@ -958,7 +965,7 @@ function CreateScheduleDrawer({
             <FormControlLabel
               value="week"
               control={<Radio color="warning" />}
-              label="Set Weekly schedule"
+              label="Set Weekly schedule - repeats"
               labelPlacement="start"
               sx={{
                 display: "flex",

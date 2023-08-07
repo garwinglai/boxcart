@@ -33,11 +33,15 @@ import {
 } from "@/helper/client/api/availability/schedule-toggle.crud";
 import { getAvailabilitiesClient } from "@/helper/client/api/availability/availability-crud";
 import prisma from "@/lib/prisma";
-import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import TimeBlockDrawer from "@/components/app/my-shop/availability/TimeBlockDrawer";
 import dayjs from "dayjs";
 import Badge from "@mui/material/Badge";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
+import HelpIcon from "@mui/icons-material/Help";
+import HelpCenterIcon from "@mui/icons-material/HelpCenter";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { styled } from "@mui/material/styles";
+import Link from "next/link";
 
 const styleMobile = {
   position: "absolute",
@@ -51,33 +55,17 @@ const styleMobile = {
   p: 4,
 };
 
-const initialValue = dayjs();
-
-function getRandomNumber(min, max) {
-  return Math.round(Math.random() * (max - min) + min);
-}
-
-/**
- * Mimic fetch with abort controller https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
- * ⚠️ No IE11 support
- */
-// function fakeFetch(date, { signal }) {
-//   return new Promise((resolve, reject) => {
-//     const timeout = setTimeout(() => {
-//       const daysInMonth = date.daysInMonth();
-//       const daysToHighlight = [1, 2, 3].map(() =>
-//         getRandomNumber(1, daysInMonth)
-//       );
-
-//       resolve({ daysToHighlight });
-//     }, 500);
-
-//     signal.onabort = () => {
-//       clearTimeout(timeout);
-//       reject(new DOMException("aborted", "AbortError"));
-//     };
-//   });
-// }
+const HtmlTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#f5f5f9",
+    color: "rgba(0, 0, 0, 0.87)",
+    maxWidth: 300,
+    fontSize: theme.typography.pxToRem(12),
+    border: "1px solid #dadde9",
+  },
+}));
 
 function ServerDay(props) {
   const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props;
@@ -110,12 +98,12 @@ function Availability({ userAccount }) {
     id: accountId,
   } = userAccount || {};
 
-  console.log("availability", availability);
+  const requestAbortControllerMonth = useRef(null);
+  const requestAbortControllerDay = useRef(null);
 
-  const requestAbortController = useRef(null);
   const [selectedDateValues, setSelectedDateValues] = useState({
     selectedDate: new Date().toLocaleDateString(),
-    selectedDateHourDisplay: "9:00 AM - 5:00 PM",
+    selectedDateHourDisplay: "Closed",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedDays, setHighlightedDays] = useState([]);
@@ -134,6 +122,7 @@ function Availability({ userAccount }) {
   const [timeBlockCurrentValue, setTimeBlockCurrentValue] = useState(
     timeBlock ? timeBlock : "15 min"
   );
+  const [timeBlockTimes, setTimeBlockTimes] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
     snackbarMessage: "",
@@ -168,6 +157,7 @@ function Availability({ userAccount }) {
   const [updateDatesSchedule, setUpdateDatesSchedule] = useState([]);
   const [updateRangedSchedule, setUpdateRangedSchedule] = useState([]);
   const [updateDayOfWeekSchedule, setUpdateDayOfWeekSchedule] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
   const { snackbarOpen, snackbarMessage } = openSnackbar;
@@ -175,43 +165,333 @@ function Availability({ userAccount }) {
     availabilityValues;
 
   useEffect(() => {
-    fetchHighlightedDays(initialValue);
+    if (!timeBlockEnabled) return;
+
+    formatTimeBlockTimes(selectedDateValues);
+  }, [timeBlockEnabled, timeBlockCurrentValue]);
+
+  const formatTimeBlockTimes = (selectedDateValues) => {
+    const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
+    if (selectedDateHourDisplay === "Closed") return [];
+
+    const startTime = selectedDateHourDisplay.split("-")[0];
+    const endTime = selectedDateHourDisplay.split("-")[1];
+
+    const startTimeEpoch = convertToEpoch(selectedDate, startTime);
+    const endTimeEpoch = convertToEpoch(selectedDate, endTime);
+
+    const intervals = generateTimeIntervals(
+      startTimeEpoch,
+      endTimeEpoch,
+      timeBlockCurrentValue
+    );
+
+    setTimeBlockTimes(intervals);
+  };
+
+  const convertToEpoch = (date, time) => {
+    const dateTimeString = `${date} ${time}`;
+    const dateTime = new Date(dateTimeString);
+
+    return dateTime.getTime();
+  };
+
+  const generateTimeIntervals = (startTimeEpoch, endTimeEpoch, interval) => {
+    const intervalValue = parseInt(interval.split(" ")[0]);
+    const intervalUnit = interval.split(" ")[1];
+
+    const interValueInMs = convertToMs(intervalValue, intervalUnit);
+    let plusInterval = startTimeEpoch;
+
+    const intervals = [];
+
+    do {
+      intervals.push(plusInterval);
+      plusInterval += interValueInMs;
+    } while (plusInterval <= endTimeEpoch);
+
+    const lastInterval = intervals[intervals.length - 1];
+
+    if (lastInterval + interValueInMs > endTimeEpoch) {
+      intervals.pop();
+    }
+
+    // convert interval epoch times to 12hr time strings
+    const intervalsIn12Hr = convertToIntervalsIn12Hr(intervals);
+    return intervalsIn12Hr;
+  };
+
+  const convertToIntervalsIn12Hr = (intervals) => {
+    const intervalsIn12Hr = intervals.map((interval) => {
+      const date = new Date(interval); // Convert to milliseconds
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? "PM" : "AM";
+
+      const hours12 = hours % 12 || 12; // Convert to 12-hour format
+
+      const hoursStr = hours12.toString();
+      const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
+
+      const timeStr = `${hoursStr}:${minutesStr} ${ampm}`;
+
+      return timeStr;
+    });
+
+    return intervalsIn12Hr;
+  };
+
+  const convertToMs = (value, unit) => {
+    if (unit === "min") {
+      return value * 60 * 1000;
+    }
+
+    if (unit === "hour") {
+      return value * 60 * 60 * 1000;
+    }
+  };
+
+  useEffect(() => {
+    const dayJs = dayjs(selectedDate);
+    fetchShopHours(
+      dayJs,
+      datesAvailability,
+      datesRangedAvailability,
+      daysOfWeekAvailability
+    );
+
+    return () => requestAbortControllerDay.current?.abort();
+  }, [datesAvailability, datesRangedAvailability, daysOfWeekAvailability]);
+
+  useEffect(() => {
+    fetchHighlightedDays(
+      currentMonth,
+      datesAvailability,
+      datesRangedAvailability,
+      daysOfWeekAvailability
+    );
     // TODO: ?? delete past schedules?
 
-    return () => requestAbortController.current?.abort();
-  }, []);
+    return () => requestAbortControllerMonth.current?.abort();
+  }, [datesAvailability, datesRangedAvailability, daysOfWeekAvailability]);
 
-  const fetchHighlightedDays = (date) => {
-    if (!availability) return;
+  const fetchShopHours = (
+    date,
+    datesAvailability,
+    datesRangedAvailability,
+    daysOfWeekAvailability
+  ) => {
+    const controlloer = new AbortController();
 
+    const datesAvailabilitySchedules = getDatesAvailabilitySchedules(
+      datesAvailability,
+      date
+    );
+
+    if (datesAvailabilitySchedules) {
+      const { currentDate, hoursDisplay } = datesAvailabilitySchedules;
+      setSelectedDateValues({
+        selectedDate: currentDate,
+        selectedDateHourDisplay: hoursDisplay,
+      });
+      requestAbortControllerDay.current = controlloer;
+      return;
+    }
+
+    const datesRangedAvailabilitySchedules = getDatesRangedSchedules(
+      datesRangedAvailability,
+      date
+    );
+
+    if (datesRangedAvailabilitySchedules) {
+      const { currentDate, hoursDisplay } = datesRangedAvailabilitySchedules;
+      setSelectedDateValues({
+        selectedDate: currentDate,
+        selectedDateHourDisplay: hoursDisplay,
+      });
+      requestAbortControllerDay.current = controlloer;
+      return;
+    }
+
+    const getWeekDaysSchedule = getWeekDaysSchedules(
+      daysOfWeekAvailability,
+      date
+    );
+
+    if (getWeekDaysSchedule) {
+      const { currentDate, hoursDisplay } = getWeekDaysSchedule;
+      setSelectedDateValues({
+        selectedDate: currentDate,
+        selectedDateHourDisplay: hoursDisplay,
+      });
+      requestAbortControllerDay.current = controlloer;
+      return;
+    }
+
+    const { $y: year, $M: month, $D: day, $d: fullDate, $W: dayIndex } = date;
+    const currDate = `${month + 1}/${day}/${year}`;
+
+    setSelectedDateValues({
+      selectedDate: currDate,
+      selectedDateHourDisplay: "Closed",
+    });
+  };
+
+  const getWeekDaysSchedules = (daysOfWeekAvailability, date) => {
+    const { $y: year, $M: month, $D: day, $d: fullDate, $W: dayIndex } = date;
+    const actualMonthByNumber = month + 1;
+
+    const dateFormatted = `${actualMonthByNumber}/${day}`;
+    const dayIndexStr = dayIndex.toString();
+
+    let scheduleToday = null;
+
+    if (!daysOfWeekAvailability) return scheduleToday;
+    if (daysOfWeekAvailability.length === 0) return scheduleToday;
+
+    for (let i = 0; i < daysOfWeekAvailability.length; i++) {
+      const currSchedule = daysOfWeekAvailability[i];
+      const { days, hoursDisplay, isEnabled } = currSchedule;
+      const daysArr = days.split(",");
+
+      if (!isEnabled) continue;
+
+      if (!daysArr.includes(dayIndexStr)) continue;
+
+      const currentDate = dateFormatted + "/" + year;
+      scheduleToday = {
+        currentDate,
+        hoursDisplay,
+      };
+    }
+
+    return scheduleToday;
+  };
+
+  const getDatesAvailabilitySchedules = (datesAvailability, date) => {
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+
+    const dateFormatted = `${actualMonthByNumber}/${day}`;
+
+    let scheduleToday = null;
+
+    if (!datesAvailability) return scheduleToday;
+    if (datesAvailability.length === 0) return scheduleToday;
+
+    for (let i = 0; i < datesAvailability.length; i++) {
+      const currSchedule = datesAvailability[i];
+      const { dateStr, hoursDisplay, isEnabled } = currSchedule;
+
+      if (!isEnabled) continue;
+
+      if (dateStr === dateFormatted) {
+        const currentDate = dateStr + "/" + year;
+        scheduleToday = {
+          currentDate,
+          hoursDisplay,
+        };
+        break;
+      }
+    }
+
+    return scheduleToday;
+  };
+
+  const getDatesRangedSchedules = (datesRangedAvailability, date) => {
+    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
+    const actualMonthByNumber = month + 1;
+
+    const dateFormatted = `${actualMonthByNumber}/${day}`;
+
+    let scheduleToday = null;
+
+    if (!datesRangedAvailability) return scheduleToday;
+    if (datesRangedAvailability.length === 0) return scheduleToday;
+
+    for (let i = 0; i < datesRangedAvailability.length; i++) {
+      const currSchedule = datesRangedAvailability[i];
+      const {
+        startDateStr,
+        endDateStr,
+        startDateStrUnformat,
+        endDateStrUnformat,
+        hoursDisplay,
+        isEnabled,
+      } = currSchedule;
+
+      const startDateYear = startDateStrUnformat.split("-")[0];
+      const endDateYear = endDateStrUnformat.split("-")[0];
+
+      const startDateMonth = startDateStr.split("/")[0];
+      const startDateDay = startDateStr.split("/")[1];
+
+      const endDateMonth = endDateStr.split("/")[0];
+      const endDateDay = endDateStr.split("/")[1];
+
+      if (!isEnabled) continue;
+
+      if (startDateYear > year) continue;
+      if (endDateYear < year) continue;
+      if (startDateMonth > actualMonthByNumber) continue;
+      if (endDateMonth < actualMonthByNumber) continue;
+
+      if (
+        startDateMonth <= actualMonthByNumber &&
+        endDateMonth >= actualMonthByNumber
+      ) {
+        if (startDateDay > day) continue;
+        if (endDateDay < day) continue;
+
+        const currentDate = dateFormatted + "/" + year;
+        scheduleToday = {
+          currentDate,
+          hoursDisplay,
+        };
+      }
+    }
+
+    return scheduleToday;
+  };
+
+  const fetchHighlightedDays = (
+    date,
+    datesAvailability,
+    datesRagnedAvailability,
+    daysOfWeekAvailability
+  ) => {
     const controller = new AbortController();
     const allDaysWithSchedule = [];
-    const daysOfSpecificDatesScheduled = getDaysFromDatesAvailability(date);
+    const daysOfSpecificDatesScheduled = getDaysFromDatesAvailability(
+      date,
+      datesAvailability
+    );
     const daysOfSpecificDatesRangedScheduled =
-      getDaysFromDatesRangedAvailability(date);
-    const daysOfWeekScheduled = getDaysFromDaysOfWeekAvailability(date);
+      getDaysFromDatesRangedAvailability(date, datesRagnedAvailability);
+    const daysOfWeekScheduled = getDaysFromDaysOfWeekAvailability(
+      date,
+      daysOfWeekAvailability
+    );
 
     allDaysWithSchedule.push(...daysOfSpecificDatesScheduled);
     allDaysWithSchedule.push(...daysOfSpecificDatesRangedScheduled);
     allDaysWithSchedule.push(...daysOfWeekScheduled);
-    // console.log("allDaysWithSchedule", allDaysWithSchedule);
 
     // make sure there are no duplicates in the array of all days with schedule
     const uniqueDaysWithSchedule = [...new Set(allDaysWithSchedule)];
 
-    setHighlightedDays(allDaysWithSchedule);
+    setHighlightedDays(uniqueDaysWithSchedule);
     setIsLoading(false);
 
-    requestAbortController.current = controller;
+    requestAbortControllerMonth.current = controller;
   };
 
-  const getDaysFromDatesAvailability = (date) => {
+  const getDaysFromDatesAvailability = (date, datesAvailability) => {
     // For month: 0 = January, 11 = December.
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
 
     const days = [];
-    const { datesAvailability } = availability;
 
     if (!datesAvailability) return days;
     if (datesAvailability.length === 0) return days;
@@ -241,9 +521,11 @@ function Availability({ userAccount }) {
     return days;
   };
 
-  const getDaysFromDatesRangedAvailability = (date) => {
+  const getDaysFromDatesRangedAvailability = (
+    date,
+    datesRangedAvailability
+  ) => {
     const days = [];
-    const { datesRangedAvailability } = availability;
 
     if (!datesRangedAvailability) return days;
     if (datesRangedAvailability.length === 0) return days;
@@ -312,11 +594,10 @@ function Availability({ userAccount }) {
     return days;
   };
 
-  const getDaysFromDaysOfWeekAvailability = (date) => {
+  const getDaysFromDaysOfWeekAvailability = (date, daysOfWeekAvailability) => {
     const daysArr = [];
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
-    const { daysOfWeekAvailability } = availability;
 
     if (!daysOfWeekAvailability) return daysArr;
     if (daysOfWeekAvailability.length === 0) return daysArr;
@@ -340,7 +621,6 @@ function Availability({ userAccount }) {
   };
 
   const findWeekdays = (year, month, targetWeekday) => {
-    console.log("targetWeekday", targetWeekday);
     const firstDay = new Date(year, month - 1, 1);
     const weekdays = [];
 
@@ -355,22 +635,33 @@ function Availability({ userAccount }) {
   };
 
   const handleMonthChange = (date) => {
-    if (requestAbortController.current) {
+    if (requestAbortControllerMonth.current) {
       // make sure that you are aborting useless requests
       // because it is possible to switch between months pretty quickly
-      requestAbortController.current.abort();
+      requestAbortControllerMonth.current.abort();
     }
 
     setIsLoading(true);
+    setCurrentMonth(date);
     setHighlightedDays([]);
-    fetchHighlightedDays(date);
+    fetchHighlightedDays(
+      date,
+      datesAvailability,
+      datesRangedAvailability,
+      daysOfWeekAvailability
+    );
   };
 
   const handleDateClick = (date) => {
     const { $y: year, $M: month, $D: day, $d: fullDate } = date;
     const actualMonthByNumber = month + 1;
 
-    // TODO: show current date : hours
+    fetchShopHours(
+      date,
+      datesAvailability,
+      datesRangedAvailability,
+      daysOfWeekAvailability
+    );
   };
 
   const getAvailabilities = async (availabilityId) => {
@@ -659,12 +950,28 @@ function Availability({ userAccount }) {
               <p>Store hours:</p>
               <p>{selectedDateHourDisplay}</p>
             </div>
+            {/* {timeBlockEnabled && (
+              <div className="flex gap-4 items-center px-8  text-[color:var(--third-dark)]">
+                <p className=" whitespace-nowrap">Availability:</p>
+                <div className="flex gap-2 overflow-x-scroll border px-2 py-1 shadow-inner rounded border-[color:var(--primary-light-soft)]">
+                  {timeBlockTimes.map((time, i) => {
+                    return (
+                      <p
+                        key={i}
+                        className="w-fit whitespace-nowrap text-[color:var(--gray-text)] font-light"
+                      >
+                        {time}
+                      </p>
+                    );
+                  })}
+                </div>
+              </div>
+            )} */}
           </div>
           <div>
             <h3 className="mb-2 ml-4 underline">Monthly:</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateCalendar
-                // defaultValue={initialValue}
                 loading={isLoading}
                 onMonthChange={handleMonthChange}
                 onChange={handleDateClick}
@@ -682,7 +989,40 @@ function Availability({ userAccount }) {
           </div>
         </div>
         <div className="lg:w-1/2">
-          <h3 className="mb-4 ml-4 underline">All schedules:</h3>
+          <div className="flex justify-between items-center mb-4 ">
+            <h3 className="ml-4 underline">All schedules:</h3>
+            <div className="flex items-center mr-4">
+              <p className="font-light text-sm">Schedule overlap: </p>
+              <HtmlTooltip
+                leaveTouchDelay={10000}
+                enterTouchDelay={0}
+                title={
+                  <div className="px-4 py-2">
+                    <h4 className="font-bold text-xs">Schedule priority:</h4>
+                    <ul className="pl-4">
+                      <li className="list-disc">Specific dates</li>
+                      <li className="list-disc">Date ranges</li>
+                      <li className="list-disc">Weekly schedules</li>
+                    </ul>
+                    <p className="my-4">
+                      You may have overlappting store hours. In that case, store
+                      hours will take priority based on the order above.
+                    </p>
+                    <Link
+                      href="/account/my-shop/availability"
+                      className="underline mt-4"
+                    >
+                      Watch video
+                    </Link>
+                  </div>
+                }
+              >
+                <IconButton>
+                  <HelpIcon fontSize="small" />
+                </IconButton>
+              </HtmlTooltip>
+            </div>
+          </div>
           {datesAvailabilityLength > 0 && (
             <div className="px-4 border-b pb-6">
               <h4 className="mb-2 text-[color:var(--third-dark)]">
@@ -695,6 +1035,7 @@ function Availability({ userAccount }) {
                     dateStr,
                     startTimeStr,
                     endTimeStr,
+                    hoursDisplay,
                     isEnabled,
                     availabilityId,
                     repeatOption,
@@ -709,6 +1050,7 @@ function Availability({ userAccount }) {
                       scheduleType="date"
                       key={id}
                       dateId={id}
+                      hoursDisplay={hoursDisplay}
                       startDateStr={dateStr}
                       startTimeStr={startTimeStr}
                       repeatOption={repeatOption}
@@ -729,7 +1071,7 @@ function Availability({ userAccount }) {
           {datesRangedAvailabilityLength > 0 && (
             <div className="px-4 border-b pt-4 pb-6">
               <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Date Range:
+                Date range:
               </h4>
               <div className="px-4 flex flex-col gap-2">
                 {datesRangedAvailability.map((date) => {
@@ -738,6 +1080,7 @@ function Availability({ userAccount }) {
                     startDateStr,
                     endDateStr,
                     startTimeStr,
+                    hoursDisplay,
                     endTimeStr,
                     isEnabled,
                     availabilityId,
@@ -752,6 +1095,7 @@ function Availability({ userAccount }) {
                       scheduleType="range"
                       key={id}
                       dateId={id}
+                      hoursDisplay={hoursDisplay}
                       startDateStr={startDateStr}
                       endDateStr={endDateStr}
                       startTimeStr={startTimeStr}
@@ -772,13 +1116,14 @@ function Availability({ userAccount }) {
           {daysOfWeekAvailabilityLength > 0 && (
             <div className="px-4 border-b pt-4 pb-6">
               <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Weekly Schedule:
+                Weekly schedule: (repeats)
               </h4>
               <div className="px-4 flex flex-col gap-2">
                 {daysOfWeekAvailability.map((date) => {
                   const {
                     id,
                     daysDisplay,
+                    hoursDisplay,
                     startTimeStr,
                     endTimeStr,
                     isEnabled,
@@ -794,6 +1139,7 @@ function Availability({ userAccount }) {
                       scheduleType="week"
                       key={id}
                       dateId={id}
+                      hoursDisplay={hoursDisplay}
                       daysDisplay={daysDisplay}
                       startTimeStr={startTimeStr}
                       endTimeStr={endTimeStr}
@@ -861,8 +1207,9 @@ function Availability({ userAccount }) {
           />
         </div>
       </div>
+
       {timeBlockEnabled && (
-        <div className="p-4 flex justify-between items-center md:gap-8 md:w-fit md:ml-auto md:pr-6">
+        <div className="px-4 flex justify-between items-center md:gap-8 md:w-fit md:ml-auto md:pr-6">
           <div className="flex items-center gap-2">
             <h3>Time Block:</h3>
           </div>
@@ -889,14 +1236,15 @@ function Availability({ userAccount }) {
       )}
       {hasCustomHours && (
         <React.Fragment>
-          <div className=" flex justify-between items-center p-4 border-b mb-4 md:px-6">
-            <h3></h3>
-            <div>
-              <ButtonPrimary
-                handleClick={toggleDrawer("right", true)}
-                name="Create"
-                icon={<AddIcon sx={{ fontSize: "14px" }} />}
-              />
+          <div className=" w-full flex justify-end items-center p-4 border-b mb-4 md:px-6">
+            <div className="flex justify-betweenitems-center">
+              <div>
+                <ButtonPrimary
+                  handleClick={toggleDrawer("right", true)}
+                  name="Schedule"
+                  icon={<AddIcon sx={{ fontSize: "14px" }} />}
+                />
+              </div>
             </div>
             <Drawer
               anchor={"right"}

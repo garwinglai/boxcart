@@ -8,7 +8,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import paper_plan_icon from "@/public/images/icons/paper_plane.png";
 import Image from "next/image";

@@ -599,8 +599,6 @@ function Payments({ userAccount }) {
       removedPayments,
     };
 
-    console.log(data);
-
     try {
       const { success, value } = await updatePaymentClient(data);
 

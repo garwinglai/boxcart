@@ -9,9 +9,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import SaveCancelButtons from "../../design/SaveCancelButtons";
 import {
-  createDatesAvailabilityClient,
-  createDatesRangedAvailabilityClient,
-  createDaysOfWeekAvailabilityClient,
   updateDatesAvailabilityClient,
   updateDatesRangedAvailabilityClient,
   updateDayOfWeekAvailabilityClient,
@@ -37,10 +34,6 @@ function EditScheduleDrawer({
       scheduleTypeEdit === "date" ? scheduleData.startTimeStr : "8:00 AM",
     specificDateEndTime:
       scheduleTypeEdit === "date" ? scheduleData.endTimeStr : "5:00 PM",
-    repeatOption:
-      scheduleTypeEdit === "date"
-        ? scheduleData.repeatOption
-        : "Does not repeat",
   });
   const [dateRangeValus, setDateRangeValues] = useState({
     startDateRange:
@@ -63,12 +56,8 @@ function EditScheduleDrawer({
   const [isLoading, setIsLoading] = useState(false);
 
   // Destructure
-  const {
-    specificDate,
-    specificDateStartTime,
-    specificDateEndTime,
-    repeatOption,
-  } = specificDateValues;
+  const { specificDate, specificDateStartTime, specificDateEndTime } =
+    specificDateValues;
   const { startDateRange, endDateRange, startTimeRange, endTimeRange } =
     dateRangeValus;
   const { openDays, weekStartTime, weekEndTime } = weekValues;
@@ -168,7 +157,6 @@ function EditScheduleDrawer({
         openDays: [],
         weekStartTime: "",
         weekEndTime: "",
-        repeatOption: "",
       });
     }
 
@@ -238,6 +226,12 @@ function EditScheduleDrawer({
         return;
       }
 
+      if (startDateRange === endDateRange) {
+        handleOpenSnackbar("Start date cannot be equal to end date.");
+        setIsLoading(false);
+        return;
+      }
+
       // check if startDate is greater than endDate if not, return
       const isStartDateGreaterThanEndDate = checkStartDateGreaterThanEndDate(
         startDateRange,
@@ -245,7 +239,7 @@ function EditScheduleDrawer({
       );
 
       if (isStartDateGreaterThanEndDate) {
-        handleOpenSnackbar("Your start date is after your end date.");
+        handleOpenSnackbar("Start date cannot be after end date.");
         setIsLoading(false);
         return;
       }
@@ -287,12 +281,7 @@ function EditScheduleDrawer({
 
     if (scheduleType === "week") {
       // check if all fields are filled if not, return
-      if (
-        openDays.length === 0 ||
-        weekStartTime === "" ||
-        weekEndTime === "" ||
-        repeatOption === ""
-      ) {
+      if (openDays.length === 0 || weekStartTime === "" || weekEndTime === "") {
         handleOpenSnackbar("Missing open days.");
         setIsLoading(false);
         return;
@@ -386,7 +375,7 @@ function EditScheduleDrawer({
     const epochDate = formattedStartDate.getTime().toString();
     const epochStartTime = formattedStartTime.getTime().toString();
     const epochEndTime = formattedEndTime.getTime().toString();
-    const repeatOptionInt = convertRepeatOptionToInt(repeatOption);
+    const hoursDisplay = `${specificDateStartTime} - ${specificDateEndTime}`;
 
     const datesAvailability = {
       id: scheduleId,
@@ -397,8 +386,7 @@ function EditScheduleDrawer({
       startTimeEpochStr: epochStartTime,
       endTimeStr: specificDateEndTime,
       endTimeEpochStr: epochEndTime,
-      repeatOption,
-      repeatOptionInt,
+      hoursDisplay,
     };
 
     try {
@@ -431,6 +419,7 @@ function EditScheduleDrawer({
       null
     );
     const epochStartDate = formattedStartDate.getTime().toString();
+    const hoursDisplay = `${startTimeRange} - ${endTimeRange}`;
 
     const datesRagnedAvailability = {
       id: scheduleId,
@@ -442,6 +431,7 @@ function EditScheduleDrawer({
       endDateEpochStr: formattedEndDate,
       startTimeStr: startTimeRange,
       endTimeStr: endTimeRange,
+      hoursDisplay,
     };
 
     try {
@@ -522,6 +512,7 @@ function EditScheduleDrawer({
 
     const dayDisplayString = daysDisplay.join(", ");
     const daysString = days.join(",");
+    const hoursDisplay = `${weekStartTime} - ${weekEndTime}`;
 
     const daysOfWeekAvailability = {
       id: scheduleId,
@@ -529,6 +520,7 @@ function EditScheduleDrawer({
       days: daysString,
       startTimeStr: weekStartTime,
       endTimeStr: weekEndTime,
+      hoursDisplay,
     };
 
     try {
@@ -551,11 +543,6 @@ function EditScheduleDrawer({
     const isDayChecked = openDays.includes(day);
 
     return isDayChecked;
-  };
-
-  const convertRepeatOptionToInt = (repeatOption) => {
-    if (repeatOption === "Does not repeat") return 0;
-    if (repeatOption === "Once per week") return 1;
   };
 
   const dateFormatter = (dateStr) => {
@@ -701,24 +688,6 @@ function EditScheduleDrawer({
                       {time}
                     </option>
                   ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <h4 className="text-[color:var(--third-dark-med)] ">
-                Repetition:
-              </h4>
-              <div className="flex justify-between items-center mx-4">
-                <p className="font-light text-sm">Select frequency:</p>
-                <select
-                  id="repeatOption"
-                  name="repeatOption"
-                  value={repeatOption}
-                  onChange={handleChangeSpecificDate}
-                  className="border px-2 py-1 text-xs"
-                >
-                  <option value="Does not repeat">Does not repeat</option>
-                  <option value="Once per week">Once per week</option>
                 </select>
               </div>
             </div>
@@ -959,42 +928,48 @@ function EditScheduleDrawer({
             onChange={handleChangeScheduleType}
             sx={{ width: "100%" }}
           >
-            <FormControlLabel
-              value="date"
-              control={<Radio color="warning" />}
-              label="By date"
-              labelPlacement="start"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-                paddingRight: "20px",
-              }}
-            />
-            <FormControlLabel
-              value="range"
-              control={<Radio color="warning" />}
-              label="By date range"
-              labelPlacement="start"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-                paddingRight: "20px",
-              }}
-            />
-            <FormControlLabel
-              value="week"
-              control={<Radio color="warning" />}
-              label="Set Weekly schedule"
-              labelPlacement="start"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-                paddingRight: "20px",
-              }}
-            />
+            {scheduleTypeEdit === "date" && (
+              <FormControlLabel
+                value="date"
+                control={<Radio color="warning" />}
+                label="By date"
+                labelPlacement="start"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  paddingRight: "20px",
+                }}
+              />
+            )}
+            {scheduleTypeEdit === "range" && (
+              <FormControlLabel
+                value="range"
+                control={<Radio color="warning" />}
+                label="By date range"
+                labelPlacement="start"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  paddingRight: "20px",
+                }}
+              />
+            )}
+            {scheduleTypeEdit === "week" && (
+              <FormControlLabel
+                value="week"
+                control={<Radio color="warning" />}
+                label="Set Weekly schedule - repeats"
+                labelPlacement="start"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  paddingRight: "20px",
+                }}
+              />
+            )}
           </RadioGroup>
         </FormControl>
       </div>

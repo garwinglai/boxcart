@@ -30,9 +30,9 @@ model Waitlist {
 
 model User {
   id              Int       @id @default(autoincrement())
-  name            String?
-  firstName       String?
-  lastName        String?
+  name            String
+  firstName       String
+  lastName        String
   email           String    @unique
   isEmailVerified Boolean   @default(false)
   password        String
@@ -54,9 +54,9 @@ model Account {
   isFirstLogin           Boolean              @default(true)
   email                  String               @unique
   isEmailVerified        Boolean              @default(false)
-  userName               String?
-  firstName              String?
-  lastName               String?
+  userName               String
+  firstName              String
+  lastName               String
   // accessCode             String?        @unique
   businessName           String
   subdomain              String               @unique
@@ -164,13 +164,15 @@ model Availability {
 
 model DatesAvailability {
   id                Int          @id @default(autoincrement())
-  dateStrUnformat   String?
-  dateStr           String?
-  dateEpochStr      String?
-  startTimeStr      String?
-  startTimeEpochStr String?
-  endTimeStr        String?
-  endTimeEpochStr   String?
+  dateStrUnformat   String
+  dateStr           String
+  dateEpochStr      String
+  startTimeStr      String
+  startTimeEpochStr String
+  endTimeStr        String
+  endTimeEpochStr   String
+  hoursDisplay      String
+  timeBlockDisplay  String?
   // repeatOption      String?
   // repeatOptionInt   Int? //0: no repeat 1: repeat weekly 
   isEnabled         Boolean      @default(true)
@@ -184,14 +186,16 @@ model DatesAvailability {
 
 model DatesRangedAvailability {
   id                   Int          @id @default(autoincrement())
-  startDateStrUnformat String?
-  startDateStr         String?
-  startDateEpochStr    String?
-  endDateStrUnformat   String?
-  endDateStr           String?
-  endDateEpochStr      String?
-  startTimeStr         String?
-  endTimeStr           String?
+  startDateStrUnformat String
+  startDateStr         String
+  startDateEpochStr    String
+  endDateStrUnformat   String
+  endDateStr           String
+  endDateEpochStr      String
+  startTimeStr         String
+  endTimeStr           String
+  hoursDisplay         String
+  timeBlockDisplay     String?
   isEnabled            Boolean      @default(true)
   availability         Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   availabilityId       Int
@@ -202,16 +206,18 @@ model DatesRangedAvailability {
 }
 
 model DaysOfWeekAvailability {
-  id             Int          @id @default(autoincrement())
-  daysDisplay    String?
-  days           String? //string of days int "0, 1, 2, " 0 = sunday
-  startTimeStr   String?
-  endTimeStr     String?
-  isEnabled      Boolean      @default(true)
-  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-  availabilityId Int
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id               Int          @id @default(autoincrement())
+  daysDisplay      String
+  days             String //string of days int "0, 1, 2, " 0 = sunday
+  startTimeStr     String
+  endTimeStr       String
+  hoursDisplay     String
+  timeBlockDisplay String?
+  isEnabled        Boolean      @default(true)
+  availability     Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  availabilityId   Int
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@index([availabilityId])
 }
@@ -222,10 +228,10 @@ model Product {
   updatedAt            DateTime      @updatedAt
   isSampleProduct      Boolean       @default(false)
   isEnabled            Boolean       @default(true)
-  productName          String?
-  description          String?
-  priceIntPenny        Int?
-  priceStr             String?
+  productName          String
+  description          String
+  priceIntPenny        Int
+  priceStr             String
   defaultImgStr        String?
   images               Image[]
   hasUnlimitedQuantity Boolean       @default(true)
@@ -272,8 +278,8 @@ model Question {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  question    String?
-  productName String?
+  question    String
+  productName String
   isRequired  Boolean  @default(true)
   product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId   Int?
@@ -285,8 +291,8 @@ model OptionGroup {
   id              Int      @id @default(autoincrement())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  optionGroupName String?
-  productName     String?
+  optionGroupName String
+  productName     String
   product         Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId       Int?
   options         Option[]
@@ -298,8 +304,8 @@ model Option {
   id              Int         @id @default(autoincrement())
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  optionGroupName String?
-  optionName      String?
+  optionGroupName String
+  optionName      String
   priceStr        String?
   priceIntPenny   Int?
   quantityStr     String?
@@ -426,17 +432,17 @@ model Fulfillment {
 model Tips {
   id                   Int      @id @default(autoincrement())
   account              Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId            Int?     @unique
-  tipOneStr            String?
+  accountId            Int      @unique
+  tipOneStr            String
   tipOneIntPenny       Int?
   tipOneIntHundredth   Int?
-  tipTwoStr            String?
+  tipTwoStr            String
   tipTwoIntPenny       Int?
   tipTwoIntHundredth   Int?
-  tipThreeStr          String?
+  tipThreeStr          String
   tipThreeIntPenny     Int?
   tipThreeIntHundredth Int?
-  type                 String?
+  type                 String
   enabled              Boolean  @default(true)
 }
 

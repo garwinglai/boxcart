@@ -6,9 +6,6 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
 import {
-  createDatesAvailabilityClient,
-  createDatesRangedAvailabilityClient,
-  createDaysOfWeekAvailabilityClient,
   deleteDatesAvailabilityClient,
   deleteDatesRangedAvailabilityClient,
   deleteDaysOfWeekAvailabilityClient,
@@ -65,9 +62,9 @@ function ScheduleCard({
   availabilityId,
   scheduleType,
   dateId,
-
   daysDisplay,
   startDateStr,
+  hoursDisplay,
   endDateStr,
   startTimeStr,
   endTimeStr,
@@ -151,138 +148,6 @@ function ScheduleCard({
     handleClose();
   };
 
-  const handleDuplicate = async () => {
-    if (scheduleType === "date") {
-      const { success, value, error } = await duplicateSpecificDate();
-
-      if (success) {
-        const { availabilityId } = value;
-        getAvailabilities(availabilityId);
-        handleOpenSnackbar("Schedule duplicated.");
-        handleClose();
-        return;
-      }
-
-      handleOpenSnackbar("Error duplicating schedule. Please refresh.");
-      handleClose();
-      return;
-    }
-
-    if (scheduleType === "range") {
-      const { success, value, error } = await duplicateRangedDate();
-
-      if (success) {
-        const { availabilityId } = value;
-        console.log("availabilityId", availabilityId);
-        getAvailabilities(availabilityId);
-        handleOpenSnackbar("Schedule duplicated.");
-        handleClose();
-        return;
-      }
-
-      handleOpenSnackbar("Error duplicating schedule. Please refresh.");
-      handleClose();
-      return;
-    }
-
-    if (scheduleType === "week") {
-      const { success, value, error } = await duplicateDaysOfWeekDates();
-
-      if (success) {
-        const { availabilityId } = value;
-        getAvailabilities(availabilityId);
-        handleOpenSnackbar("Schedule duplicated.");
-        handleClose();
-        return;
-      }
-
-      handleOpenSnackbar("Error duplicating schedule. Please refresh.");
-      handleClose();
-      return;
-    }
-  };
-
-  const duplicateSpecificDate = async () => {
-    const dateAvailability = { ...scheduleData };
-    delete dateAvailability.id;
-    delete dateAvailability.createdAt;
-    delete dateAvailability.updatedAt;
-    delete dateAvailability.availabilityId;
-
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
-    try {
-      const { success, value } = await createDatesAvailabilityClient(
-        dateAvailability,
-        accountInfoString
-      );
-
-      return { success, value };
-    } catch (error) {
-      console.log("error", error);
-
-      return { success: false, error };
-    }
-  };
-
-  const duplicateRangedDate = async () => {
-    const dateAvailability = { ...scheduleData };
-    delete dateAvailability.id;
-    delete dateAvailability.createdAt;
-    delete dateAvailability.updatedAt;
-    delete dateAvailability.availabilityId;
-
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
-    try {
-      const { success, value } = await createDatesRangedAvailabilityClient(
-        dateAvailability,
-        accountInfoString
-      );
-
-      return { success, value };
-    } catch (error) {
-      console.log("error", error);
-
-      return { success: false, error };
-    }
-  };
-
-  const duplicateDaysOfWeekDates = async () => {
-    const dateAvailability = { ...scheduleData };
-    delete dateAvailability.id;
-    delete dateAvailability.createdAt;
-    delete dateAvailability.updatedAt;
-    delete dateAvailability.availabilityId;
-
-    const accountInfo = {
-      accountId,
-      availability,
-    };
-    const accountInfoString = JSON.stringify(accountInfo);
-
-    try {
-      const { success, value } = await createDaysOfWeekAvailabilityClient(
-        dateAvailability,
-        accountInfoString
-      );
-
-      return { success, value };
-    } catch (error) {
-      console.log("error", error);
-
-      return { success: false, error };
-    }
-  };
-
   const handleToggleEnableSchedule = async () => {
     let toggleEnabled = true;
 
@@ -306,18 +171,10 @@ function ScheduleCard({
 
   return (
     <div
-      className={`grid items-center justify-center bg-white rounded px-4 py-1 ${
-        scheduleType === "week"
-          ? "grid-cols-[1fr_2fr_1.75fr_0.5fr]"
-          : "grid-cols-[.75fr_2.5fr_2.5fr_0.5fr]"
-      } `}
+      className={`grid items-center justify-center bg-white rounded px-4 py-1 grid-cols-[.75fr_2.5fr_2.5fr_0.5fr]`}
     >
       <IOSSwitch checked={isEnabled} onClick={handleToggleEnableSchedule} />
-      <div
-        className={`flex flex-col justify-center  ${
-          scheduleType == "week" ? "items-start" : "items-center"
-        }`}
-      >
+      <div className={`flex flex-col justify-center items-center`}>
         <span>
           {scheduleType === "date" && <p className="text-xs">{startDateStr}</p>}
           {scheduleType === "range" && (
@@ -325,18 +182,16 @@ function ScheduleCard({
               {startDateStr} - {endDateStr}
             </p>
           )}
+          {scheduleType === "week" &&
+            daysDisplay.split(", ").map((day) => (
+              <p key={day} className="text-xs font-extralight text-center">
+                {day}
+              </p>
+            ))}
         </span>
-        {scheduleType === "week" &&
-          daysDisplay.split(", ").map((day) => (
-            <p key={day} className="text-xs font-extralight">
-              {day}
-            </p>
-          ))}
       </div>
       <span>
-        <p className="text-xs">
-          {startTimeStr} - {endTimeStr}
-        </p>
+        <p className="text-xs">{hoursDisplay}</p>
       </span>
 
       <StyledMenu
@@ -364,9 +219,6 @@ function ScheduleCard({
         </MenuItem>
         <MenuItem onClick={handleDelete} sx={{ fontSize: "12px" }}>
           Delete
-        </MenuItem>
-        <MenuItem onClick={handleDuplicate} sx={{ fontSize: "12px" }}>
-          Duplicate
         </MenuItem>
       </StyledMenu>
       <Drawer
