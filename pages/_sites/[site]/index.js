@@ -60,8 +60,6 @@ function Sites({ siteData, test }) {
     const category = await getProductsByCategoryIdClientPublic(categoryId);
     // fetch categories to get category list and product count in each category.
 
-    console.log("category", category);
-
     const { success, value, error } = category;
     const { products } = value;
 
@@ -161,7 +159,11 @@ function Sites({ siteData, test }) {
             <ShopBio isOwner={false} businessData={businessData} />
           </div>
           <div className=" md:mt-16 md:w-2/5">
-            <ShopFulfillment isOwner={false} siteData={siteData} />
+            <ShopFulfillment
+              isOwner={false}
+              siteData={siteData}
+              handleOpenSnackbar={handleOpenSnackbar}
+            />
           </div>
         </div>
         <div className="px-4">

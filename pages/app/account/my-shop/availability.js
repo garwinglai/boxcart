@@ -660,8 +660,6 @@ function Availability({ userAccount }) {
   };
 
   const handleDateClick = (date) => {
-    const { $y: year, $M: month, $D: day, $d: fullDate } = date;
-    const actualMonthByNumber = month + 1;
     setCalendarDate(date);
   };
 
@@ -971,7 +969,7 @@ function Availability({ userAccount }) {
             )} */}
           </div>
           <div>
-            <h3 className="mb-2 ml-4 underline">Monthly:</h3>
+            <h3 className="mb-2 ml-4 underline">Calendar:</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateCalendar
                 loading={isLoading}

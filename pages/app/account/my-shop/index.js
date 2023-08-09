@@ -29,8 +29,9 @@ function MyShop({ userAccount }) {
     fulfillmentMethodInt,
     hasCustomAvailability,
     categories,
+    availability,
     id: accountId,
-  } = userAccount || {};
+  } = userAccount ? userAccount : {};
 
   const businessData = {
     businessName,
@@ -241,6 +242,13 @@ export async function getServerSideProps(context) {
               },
               questions: true,
               relatedCategories: true,
+            },
+          },
+          availability: {
+            include: {
+              datesAvailability: true,
+              datesRangedAvailability: true,
+              daysOfWeekAvailability: true,
             },
           },
         },
