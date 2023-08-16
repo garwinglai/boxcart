@@ -40,7 +40,7 @@ function ShopPreview({
           </div>
         ) : (
           <div className="rounded w-full h-36 bg-[color:var(--gray-light)] flex justify-center items-center text-[color:var(--gray-text)] border">
-            "Banner image"
+            Banner image
           </div>
         )}
       </div>
@@ -58,7 +58,7 @@ function ShopPreview({
           </div>
         ) : (
           <div className="rounded-full w-24 h-24 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
-            "Logo"
+            Logo
           </div>
         )}
 

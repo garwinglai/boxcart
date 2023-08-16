@@ -116,7 +116,7 @@ function DesktopNavBar({ pageRoute }) {
           </div>
         ) : (
           <div className="rounded-full w-28 h-28 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
-            "Logo"
+            Logo
           </div>
         )}
         <h4>BoxCart</h4>

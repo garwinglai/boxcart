@@ -142,18 +142,19 @@ function Profile({ userAccount }) {
       setShowCancelSaveButtons(true);
     }
   }, [
-    businessName,
-    email,
-    businessBio,
-    address_1,
-    address_2,
-    city,
-    state,
-    zip,
+    businessInfo.businessName,
+    businessInfo.email,
+    businessInfo.businessBio,
+    addressValues.address_1,
+    addressValues.address_2,
+    addressValues.city,
+    addressValues.state,
+    addressValues.zip,
     platform,
     socialLink,
     logoFileName,
     bannerFileName,
+    userAccount,
   ]);
 
   const handleEditBannerClick = (e) => {

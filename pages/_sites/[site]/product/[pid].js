@@ -160,11 +160,10 @@ function Product({ producted }) {
           {imgArr.map((imgItem, index) => {
             if (imgItem.isDefault) {
               return (
-                <div>
+                <div key={index}>
                   <Image
                     src={imgItem.imgStr}
                     alt={imgItem.imgAlt}
-                    key={index}
                     className="object-cover md:col-span-2 md:w-full snap-center"
                   />
                 </div>
@@ -263,10 +262,7 @@ function Product({ producted }) {
           {exampleImages.length !== 0 &&
             exampleImages.map((item, idx) => (
               <div key={idx} className="flex flex-col max-w-[5rem] gap-1">
-                <div
-                  key={idx}
-                  className="relative h-[5rem] min-w-[5rem] inline-block"
-                >
+                <div className="relative h-[5rem] min-w-[5rem] inline-block">
                   <Image
                     src={item.imgUrl}
                     alt={item.fileName}
