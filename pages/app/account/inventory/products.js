@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CategoryIcon from "@mui/icons-material/Category";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
@@ -194,7 +194,7 @@ function Products({ userAccount }) {
       </div>
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
         {currProducts.length === 0 ? (
-          <div className="flex flex-col justify-center items-center gap-4 mt-16">
+          <div className="flex flex-col justify-center items-center gap-4 mt-16 lg:col-span-2 xl:col-span-3">
             <Image
               src={boxes_icon}
               alt="boxes icon"
@@ -211,6 +211,7 @@ function Products({ userAccount }) {
               <ProductCard
                 key={id}
                 product={product}
+                userAccount={userAccount}
                 accountId={accountId}
                 categories={categories}
                 handleOpenSnackbar={handleOpenSnackbar}
@@ -251,6 +252,7 @@ export async function getServerSideProps(context) {
               },
               questions: true,
               relatedCategories: true,
+              images: true,
             },
           },
         },

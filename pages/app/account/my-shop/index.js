@@ -158,7 +158,7 @@ function MyShop({ userAccount }) {
         message={snackbarMessage}
         // action={action}
       />
-      <ShopHeader isOwner={true} />
+      <ShopHeader isOwner={true} userAccount={userAccount} />
       <div className="lg:flex lg:justify-between">
         <div className="lg:w-2/5">
           <ShopBio isOwner={true} businessData={businessData} />
@@ -194,7 +194,7 @@ function MyShop({ userAccount }) {
             <BoxLoader />
           </div>
         ) : (
-          <div className="lg:w-4/5 xl:w-10/12 h-screen">
+          <div className="w-full lg:w-4/5 xl:w-10/12 h-screen">
             <ShopMenu
               isOwner={true}
               products={currProducts}
@@ -204,6 +204,7 @@ function MyShop({ userAccount }) {
               handleOpenSnackbar={handleOpenSnackbar}
               getAllProducts={getAllProducts}
               currCategory={currCategory}
+              userAccount={userAccount}
             />
           </div>
         )}

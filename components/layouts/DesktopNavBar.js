@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/components/layouts/desktop-navbar.module.css";
 import Image from "next/image";
-import candle_logo from "@/public/images/temp/candle_logo_temp.jpeg";
 import Link from "next/link";
 import List from "@mui/material/List";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,14 +11,11 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
-import AddIcon from "@mui/icons-material/Add";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
-import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import HistoryIcon from "@mui/icons-material/History";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
@@ -28,15 +24,18 @@ import StoreIcon from "@mui/icons-material/Store";
 import StarIcon from "@mui/icons-material/Star";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SmsIcon from "@mui/icons-material/Sms";
-import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import ButtonThird from "../global/buttons/ButtonThird";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { deleteLocalStorage } from "@/utils/clientStorage";
 import { Divider } from "@mui/material";
+import { useAccountStore } from "@/lib/store";
 
 function DesktopNavBar({ pageRoute }) {
+  const account = useAccountStore((state) => state.account);
+  const removeAccount = useAccountStore((state) => state.removeAccount);
+
   const [openStoreList, setOpenStoreList] = useState(
     pageRoute === "availability" ||
       pageRoute === "fulfillment" ||
@@ -60,8 +59,15 @@ function DesktopNavBar({ pageRoute }) {
   const [openPremiumList, setOpenPremiumList] = useState(
     pageRoute === "membership" || pageRoute === "add-ons" ? true : false
   );
+  const [logoImage, setLogoImage] = useState(null);
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    const { logoImg } = account;
+
+    setLogoImage(logoImg);
+  }, [account]);
 
   const handleNestedStoreList = () => {
     setOpenStoreList((prev) => !prev);
@@ -87,6 +93,8 @@ function DesktopNavBar({ pageRoute }) {
     await signOut({
       redirect: false,
     });
+
+    removeAccount();
     deleteLocalStorage("checklist");
     deleteLocalStorage("isChecklistComplete");
     push("/auth/signin");
@@ -95,11 +103,22 @@ function DesktopNavBar({ pageRoute }) {
   return (
     <div className={`${styles.navbar_box} ${styles.flexCol}`}>
       <div className={`${styles.navbar_header_group} ${styles.flexCol}`}>
-        <Image
-          alt="business logo"
-          src={candle_logo}
-          className={`${styles.avatar_image}`}
-        />
+        {logoImage ? (
+          <div className="w-28 h-28 relative">
+            <Image
+              src={logoImage}
+              alt="logo icon"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              fill
+              className="object-contain rounded-full border border-gray-300 shadow-md bg-white"
+            />
+          </div>
+        ) : (
+          <div className="rounded-full w-28 h-28 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+            "Logo"
+          </div>
+        )}
         <h4>BoxCart</h4>
 
         <Link href="/account/my-shop">

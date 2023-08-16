@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import styles from "@/styles/app/auth/signin.module.css";
 import Link from "next/link";
-import { Avatar } from "@mui/material";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { CircularProgress } from "@mui/material";
@@ -14,13 +12,16 @@ import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIsChecklistCompleteClient } from "@/helper/client/api/account/account-schema";
 import { setLocalStorage } from "@/utils/clientStorage";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
+import { useAccountStore } from "@/lib/store";
 
 const adminLoginTemp = {
-  email: "",
-  password: "",
+  email: "garwingl@usc.edu",
+  password: "asdfghjkl",
 };
 
-const Signin = ({ providers }) => {
+const Signin = () => {
+  const setAccount = useAccountStore((state) => state.setAccount);
+
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState(
     adminLoginTemp ? adminLoginTemp.email : ""
@@ -87,14 +88,15 @@ const Signin = ({ providers }) => {
 
         if (!success) {
           console.log("error checking if checklist is complete");
-        } else {
-          if (account) {
-            const { isChecklistComplete, checklist } = account;
-            const checklistStringify = JSON.stringify(checklist);
-            setLocalStorage("isChecklistComplete", isChecklistComplete);
-            setLocalStorage("checklist", checklistStringify);
-            checklistComplete = isChecklistComplete;
-          }
+        }
+
+        if (account) {
+          const { isChecklistComplete, checklist } = account;
+          const checklistStringify = JSON.stringify(checklist);
+          setLocalStorage("isChecklistComplete", isChecklistComplete);
+          setLocalStorage("checklist", checklistStringify);
+          checklistComplete = isChecklistComplete;
+          setAccountStore(account);
         }
 
         const signedInRoute =
@@ -131,6 +133,36 @@ const Signin = ({ providers }) => {
 
     setIsLoading(false);
   }
+
+  const setAccountStore = async (account) => {
+    const {
+      id: accountId,
+      logoImageFileName,
+      bannerImageFileName,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+      bannerImage,
+      logoImage,
+    } = account;
+
+    const storedAccount = {
+      accountId,
+      logoImg: logoImage,
+      bannerImg: bannerImage,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+    };
+
+    setAccount(storedAccount);
+  };
 
   return (
     <div className={`${styles.signin} md:bg-[color:var(--brown-bg)] h-screen`}>

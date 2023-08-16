@@ -1,10 +1,4 @@
 import React from "react";
-import candle_banner_temp from "@/public/images/temp/candle_banner.jpeg";
-import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import LinkIcon from "@mui/icons-material/Link";
 import IconButton from "@mui/material/IconButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { styled } from "@mui/material/styles";
@@ -16,7 +10,14 @@ import youtube_icon from "@/public/images/icons/socials/youtube_icon.png";
 import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 
-function ShopPreview({ businessName, businessBio, city, socialLinks }) {
+function ShopPreview({
+  businessName,
+  businessBio,
+  city,
+  socialLinks,
+  bannerImage,
+  logoImage,
+}) {
   const handleOpenSocialLink = (url) => (value) => {
     // check if url has "https://" if not add it
     const newUrl = url.includes("https://") ? url : `https://${url}`;
@@ -25,20 +26,41 @@ function ShopPreview({ businessName, businessBio, city, socialLinks }) {
 
   return (
     <div className="bg-white m-4 relative flex flex-col shadow-lg  rounded md:ml-0 md:shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
-      <div className="absolute">
-        <Image
-          src={candle_banner_temp}
-          alt="business banner image"
-          className=" block object-cover w-screen h-[9rem]  rounded-t"
-        />
+      <div className="relative">
+        {bannerImage ? (
+          <div className="w-full h-36 relative">
+            <Image
+              src={bannerImage}
+              alt="banner image"
+              fill
+              priority
+              className=" object-cover rounded"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        ) : (
+          <div className="rounded w-full h-36 bg-[color:var(--gray-light)] flex justify-center items-center text-[color:var(--gray-text)] border">
+            "Banner image"
+          </div>
+        )}
       </div>
-      <div className="pt-[6.5rem] mb-4 flex flex-col items-start gap-2 w-full">
-        <Image
-          src={candle_logo_temp}
-          alt={`logo`}
-          priority={true}
-          className="w-20 h-20 object-contain rounded-full border ml-4 border-gray-300 shadow-md z-10"
-        />
+      <div className="mb-4 flex flex-col items-start gap-2 w-full">
+        {logoImage ? (
+          <div className="w-24 h-24 relative -mt-12 ml-2">
+            <Image
+              src={logoImage}
+              alt="logo icon"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              fill
+              priority
+              className="object-contain rounded-full border border-gray-300 shadow-md bg-white"
+            />
+          </div>
+        ) : (
+          <div className="rounded-full w-24 h-24 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+            "Logo"
+          </div>
+        )}
 
         <h5 className="ml-4 mt-2">
           {businessName ? businessName : "Your business name"}

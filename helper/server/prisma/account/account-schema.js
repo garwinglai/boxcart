@@ -40,7 +40,6 @@ export async function checkIsChecklistCompleteServer(email) {
 }
 
 export async function updateAccountSettingsServer(body) {
-  console.log("body", body);
   const { accountId, updatedSettings, socialLinks, removedSocialLinks } =
     JSON.parse(body);
 
@@ -77,8 +76,6 @@ export async function updateAccountSettingsServer(body) {
         },
       },
     });
-
-    console.log("updatedUser", updateUser);
 
     return { success: true, value: updateUser };
   } catch (error) {

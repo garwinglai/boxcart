@@ -2,13 +2,10 @@ import React, { useRef, useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import TextField from "@mui/material/TextField";
-import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
-import candle_banner_temp from "@/public/images/temp/candle_banner.jpeg";
 import Image from "next/image";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import group_icon from "@/public/images/icons/group_icon.png";
 import ShopPreview from "@/components/app/my-shop/ShopPreview";
-import { Alert, Switch } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -26,6 +23,14 @@ import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 import { updateAccountSettingsClient } from "@/helper/client/api/account/account-schema";
 import prisma from "@/lib/prisma";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
+import { storage } from "@/firebase/fireConfig";
+import { useAccountStore } from "@/lib/store";
 
 const styleMobile = {
   position: "absolute",
@@ -41,7 +46,17 @@ const styleMobile = {
 };
 
 function Profile({ userAccount }) {
-  const { id: accountId } = userAccount || {};
+  const {
+    id: accountId,
+    subdomain,
+    logoImage: logoImg,
+    bannerImage: bannerImg,
+    logoImageFileName,
+    bannerImageFileName,
+  } = userAccount || {};
+
+  const account = useAccountStore((state) => state.account);
+  const setAccount = useAccountStore((state) => state.setAccount);
 
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [businessInfo, setBusinessInfo] = useState({
@@ -70,33 +85,101 @@ function Profile({ userAccount }) {
   });
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [bannerImage, setBannerImage] = useState(bannerImg ? bannerImg : null);
+  const [bannerImageValues, setBannerImageValues] = useState({
+    bannerFile: null,
+    bannerFileName: "",
+  });
+  const [logoImage, setLogoImage] = useState(logoImg ? logoImg : null);
+  const [logoImageValues, setLogoImageValues] = useState({
+    logoFile: null,
+    logoFileName: "",
+  });
+  const [isBannerImageUploading, setIsBannerImageUploading] = useState(false);
+  const [bannerUploadPercent, setBannerUploadPercent] = useState("0%");
+  const [isLogoImageUploading, setIsLogoImageUploading] = useState(false);
+  const [logoUploadPercent, setLogoUploadPercent] = useState("0%");
+  const [showCancelSaveButtons, setShowCancelSaveButtons] = useState(false);
 
   const { businessName, email, businessBio } = businessInfo;
   const { address_1, address_2, city, state, zip } = addressValues;
   const { platform, socialLink } = socialLinkInput;
   const { showAlert, alertMsg } = alert;
+  const { bannerFile, bannerFileName } = bannerImageValues;
+  const { logoFile, logoFileName } = logoImageValues;
 
   const uploadLogoRef = useRef(null);
   const uploadBannerRef = useRef(null);
 
-  const handleEditLogoClick = (imageType) => () => {
-    if (imageType === "banner") {
-      uploadBannerRef.current.click();
-    }
+  // Check if any changes - show save cancel buttons.
+  useEffect(() => {
+    const {
+      businessName,
+      email,
+      businessBio,
+      address_1,
+      address_2,
+      city,
+      state,
+      zip,
+    } = userAccount;
 
-    if (imageType === "logo") {
-      uploadLogoRef.current.click();
+    // check if any of the values are different from the original, if so, show the save/cancel buttons
+    if (
+      businessName !== businessInfo.businessName ||
+      email !== businessInfo.email ||
+      businessBio !== businessInfo.businessBio ||
+      address_1 !== addressValues.address_1 ||
+      address_2 !== addressValues.address_2 ||
+      city !== addressValues.city ||
+      state !== addressValues.state ||
+      zip !== addressValues.zip ||
+      logoFileName !== "" ||
+      bannerFileName !== "" ||
+      platform !== "" ||
+      socialLink !== ""
+    ) {
+      setShowCancelSaveButtons(true);
     }
+  }, [
+    businessName,
+    email,
+    businessBio,
+    address_1,
+    address_2,
+    city,
+    state,
+    zip,
+    platform,
+    socialLink,
+    logoFileName,
+    bannerFileName,
+  ]);
+
+  const handleEditBannerClick = (e) => {
+    uploadBannerRef.current.click();
   };
 
-  const handleFileChange = (e) => {
-    const [name, files] = e.target;
-    const logoFile = files[0];
+  const handleEditLogoClick = (e) => {
+    uploadLogoRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+
+    if (!file) return;
+    const fileName = file.name;
+    const imgUrl = URL.createObjectURL(file);
 
     if (name === "banner") {
+      setBannerImage(imgUrl);
+      setBannerImageValues({ bannerFile: file, bannerFileName: fileName });
     }
 
     if (name === "logo") {
+      setLogoImage(imgUrl);
+      setLogoImageValues({ logoFile: file, logoFileName: fileName });
     }
   };
 
@@ -214,6 +297,18 @@ function Profile({ userAccount }) {
 
   const handleCancelAllUpdates = () => {
     setIsCancelModalOpen(false);
+    setShowCancelSaveButtons(false);
+
+    setLogoImage(logoImg ? logoImg : null);
+    setBannerImage(bannerImg ? bannerImg : null);
+    setBannerImageValues({
+      bannerFile: null,
+      bannerFileName: "",
+    });
+    setLogoImageValues({
+      logoFile: null,
+      logoFileName: "",
+    });
 
     // reset all values
     setBusinessInfo({
@@ -241,8 +336,61 @@ function Profile({ userAccount }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
     setIsLoading(true);
+
+    let updatedAccount;
+    let bannerImageStorage = bannerImage;
+    let logoImageStorage = logoImage;
+    let bannerError = false;
+    let logoError = false;
+    // TODO: stop each action if failed
+    if (bannerFile) {
+      // Delete if bannerImageFileName was fetched from storage
+      if (bannerImageFileName) {
+        const { success } = await deleteImageFromFirebaseStorage(
+          bannerImageFileName,
+          subdomain,
+          "banner"
+        );
+      }
+
+      const { url, error } = await updateImageToFirebaseStorage(
+        bannerFile,
+        bannerFileName,
+        subdomain,
+        "banner"
+      );
+
+      if (error) {
+        bannerError = true;
+      } else {
+        bannerImageStorage = url;
+      }
+    }
+
+    if (logoFile) {
+      // Delete if logoImageFileName was fetched from storage
+      if (logoImageFileName) {
+        const { success } = await deleteImageFromFirebaseStorage(
+          logoImageFileName,
+          subdomain,
+          "logo"
+        );
+      }
+
+      const { url, error } = await updateImageToFirebaseStorage(
+        logoFile,
+        logoFileName,
+        subdomain,
+        "logo"
+      );
+
+      if (error) {
+        logoError = true;
+      } else {
+        logoImageStorage = url;
+      }
+    }
 
     const updatedSettings = {
       businessName,
@@ -253,6 +401,12 @@ function Profile({ userAccount }) {
       city,
       state,
       zip,
+      logoImage: logoImageStorage,
+      bannerImage: bannerImageStorage,
+      logoImageFileName: logoFileName ? logoFileName : logoImageFileName,
+      bannerImageFileName: bannerFileName
+        ? bannerFileName
+        : bannerImageFileName,
     };
 
     const data = {
@@ -265,17 +419,15 @@ function Profile({ userAccount }) {
     try {
       const { success, value, error } = await updateAccountSettingsClient(data);
 
-      if (success) {
-        setAlert({
-          showAlert: true,
-          alertMsg: "Saved.",
-        });
-      } else {
+      if (!success) {
         setAlert({
           showAlert: true,
           alertMsg: "Error saving.",
         });
+        setIsLoading(false);
+        return;
       }
+      updatedAccount = value;
     } catch (error) {
       console.log("error", error);
       setAlert({
@@ -284,7 +436,105 @@ function Profile({ userAccount }) {
       });
     }
 
+    if (bannerError) {
+      setAlert({
+        showAlert: true,
+        alertMsg: "Error saving banner image.",
+      });
+      setIsLoading(false);
+      setAccountStore(updatedAccount, logoImg, bannerImg);
+      return;
+    }
+
+    if (logoError) {
+      setAlert({
+        showAlert: true,
+        alertMsg: "Error saving logo image.",
+      });
+      setAccountStore(updatedAccount, logoImg, bannerImg);
+      setIsLoading(false);
+      return;
+    }
+
+    setAlert({
+      showAlert: true,
+      alertMsg: "Saved.",
+    });
+    setAccountStore(updatedAccount, logoImageStorage, bannerImageStorage);
     setIsLoading(false);
+    setShowCancelSaveButtons(false);
+  };
+
+  const setAccountStore = async (
+    updatedAccount,
+    logoImageStorage,
+    bannerImageStorage
+  ) => {
+    const {
+      id: accountId,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+    } = updatedAccount;
+
+    const storedAccount = {
+      accountId,
+      logoImg: logoImageStorage,
+      bannerImage: bannerImageStorage,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+    };
+
+    setAccount(storedAccount);
+  };
+
+  const deleteImageFromFirebaseStorage = async (
+    fileName,
+    subdomain,
+    folderName
+  ) => {
+    const storageRef = ref(
+      storage,
+      `account/${subdomain}/profile/${folderName}/${fileName}`
+    );
+    return deleteObject(storageRef)
+      .then(() => {
+        return { success: true };
+      })
+      .catch((error) => {
+        console.log("error deleting image", error);
+        return { success: false };
+      });
+  };
+
+  const updateImageToFirebaseStorage = async (
+    file,
+    fileName,
+    subdomain,
+    folderName
+  ) => {
+    const storageRef = ref(
+      storage,
+      `account/${subdomain}/profile/${folderName}/${fileName}`
+    );
+
+    await uploadBytes(storageRef, file).catch((error) => {
+      console.log("error uploading image", error);
+      return { error };
+    });
+    const url = await getDownloadURL(storageRef).catch((error) => {
+      console.log("error getting image url", error);
+      return { error };
+    });
+
+    return { url };
   };
 
   return (
@@ -296,18 +546,38 @@ function Profile({ userAccount }) {
         message={alertMsg}
       />
 
-      <form onSubmit={handleSave} className="lg:w-1/2 p-4 flex flex-col gap-4 ">
-        <div className="p-4 rounded flex flex-col gap-2 relative  bg-white   shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
-          <h3>Business Info</h3>
-          <div className="absolute mt-11 pr-4">
-            <Image
-              src={candle_banner_temp}
-              alt="banner image"
-              className="rounded w-screen h-32 block  object-cover"
-            />
+      <form
+        onSubmit={handleSave}
+        className="lg:w-1/2 py-4 flex flex-col gap-4 "
+      >
+        <div className="p-4 mx-4 rounded flex flex-col gap-2 relative  bg-white   shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+          <div className="flex justify-between items-end">
+            <h3>Business Info</h3>
+            <p className="text-xs font-light">Supported files: jpeg, png</p>
+          </div>
+          <div className=" relative">
+            {bannerImage ? (
+              <div className="w-full h-36 relative">
+                <Image
+                  src={bannerImage}
+                  alt="banner image"
+                  fill
+                  priority
+                  className=" object-cover rounded"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+            ) : (
+              <div className="rounded w-full h-36 bg-[color:var(--gray-light)] flex justify-center items-center text-[color:var(--gray-text)] border">
+                {isBannerImageUploading
+                  ? `Uploading ... ${bannerUploadPercent}`
+                  : " Banner_image"}
+              </div>
+            )}
             <button
-              onClick={handleEditLogoClick("banner")}
-              className="flex border border-gray-300 w-fit py-1 px-2 gap-1 rounded-full absolute -bottom-4 ml-auto right-3 bg-gray-100"
+              type="button"
+              onClick={handleEditBannerClick}
+              className="flex border z-50 border-gray-300 w-fit py-1 px-2 gap-1 rounded-full absolute -bottom-4 ml-auto right-1 bg-gray-100"
             >
               <CameraAltIcon fontSize="small" color="disabled" />
               <p className="text-gray-600 font-light text-sm">Edit</p>
@@ -316,32 +586,50 @@ function Profile({ userAccount }) {
               type="file"
               id="banner"
               name="banner"
+              value=""
               ref={uploadBannerRef}
               onChange={handleFileChange}
               className="hidden"
             />
           </div>
-          <div className="flex flex-col items-center mt-16 pt-2 z-10">
-            <Image
-              src={candle_logo_temp}
-              alt="logo icon"
-              className="w-28 h-28 object-contain rounded-full border border-gray-300 shadow-md"
-            />
-            <button
-              onClick={handleEditLogoClick("logo")}
-              className="flex border border-gray-300 w-fit py-1 px-2 gap-1 rounded-full relative bottom-3 bg-gray-100"
-            >
-              <CameraAltIcon fontSize="small" color="disabled" />
-              <p className="text-gray-600 font-light text-sm">Edit</p>
-            </button>
-            <input
-              type="file"
-              id="logo"
-              name="logo"
-              ref={uploadLogoRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
+          <div className="flex flex-col items-center z-10 ">
+            <div className="-mt-14 relative">
+              {logoImage ? (
+                <div className="w-28 h-28 relative">
+                  <Image
+                    src={logoImage}
+                    alt="logo icon"
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    fill
+                    className="bg-white object-contain rounded-full border border-gray-300 shadow-md "
+                  />
+                </div>
+              ) : (
+                <div className="rounded-full w-28 h-28 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+                  {isLogoImageUploading
+                    ? `Uploading ... ${logoUploadPercent}`
+                    : "Logo"}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleEditLogoClick}
+                className="flex border border-gray-300 w-fit py-1 px-2 gap-1 rounded-full relative bottom-3 left-[20%] bg-gray-100"
+              >
+                <CameraAltIcon fontSize="small" color="disabled" />
+                <p className="text-gray-600 font-light text-sm">Edit</p>
+              </button>
+              <input
+                type="file"
+                id="logo"
+                name="logo"
+                value=""
+                ref={uploadLogoRef}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-3">
             <div>
@@ -399,7 +687,7 @@ function Profile({ userAccount }) {
             </div>
           </div>
         </div>
-        <div className="p-4 flex flex-col gap-2 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+        <div className="p-4 mx-4 flex flex-col gap-2 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
           <h3>Address</h3>
           <div className="flex flex-col gap-3">
             <div>
@@ -487,7 +775,7 @@ function Profile({ userAccount }) {
             </div>
           </div>
         </div>
-        <div className="p-4 flex flex-col gap-4 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+        <div className="p-4 mx-4 flex flex-col gap-4 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
           <h3>Social links</h3>
           <div>
             <label htmlFor="platform" className="font-light text-sm">
@@ -574,38 +862,42 @@ function Profile({ userAccount }) {
             })
           )}
         </div>
-        <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
-          <div className="lg:w-2/5 lg:ml-auto">
-            <SaveCancelButtons
-              handleCancel={handleCancel}
-              cancelButtonType="button"
-              isLoading={isLoading}
-              saveButtonType="submit"
-            />
+        {showCancelSaveButtons && (
+          <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
+            <div className="lg:w-2/5 lg:ml-auto">
+              <SaveCancelButtons
+                handleCancel={handleCancel}
+                cancelButtonType="button"
+                isLoading={isLoading}
+                saveButtonType="submit"
+              />
+            </div>
+            <Modal
+              open={isCancelModalOpen}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={styleMobile}>
+                {/* <h4>Cancel</h4> */}
+                <p>Cancel all updates?</p>
+                <div className="flex justify-end mt-6 gap-4">
+                  <ButtonFourth name="No" handleClick={closeCancelModal} />
+                  <ButtonThird
+                    name="Yes, cancel"
+                    handleClick={handleCancelAllUpdates}
+                  />
+                </div>
+              </Box>
+            </Modal>
           </div>
-          <Modal
-            open={isCancelModalOpen}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={styleMobile}>
-              {/* <h4>Cancel</h4> */}
-              <p>Cancel all updates?</p>
-              <div className="flex justify-end mt-6 gap-4">
-                <ButtonFourth name="No" handleClick={closeCancelModal} />
-                <ButtonThird
-                  name="Yes, cancel"
-                  handleClick={handleCancelAllUpdates}
-                />
-              </div>
-            </Box>
-          </Modal>
-        </div>
+        )}
       </form>
       <div className="hidden lg:block lg:w-1/2 lg:mt-4 ">
         <div className="sticky top-[2rem]">
           <h4>Shop Preview</h4>
           <ShopPreview
+            bannerImage={bannerImage}
+            logoImage={logoImage}
             businessName={businessName}
             businessBio={businessBio}
             city={city}

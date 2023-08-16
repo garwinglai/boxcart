@@ -23,7 +23,8 @@ export async function createNewUser(body) {
     freePeriodEndDateStr,
     freePeriodEndDateEpoch,
     subdomain,
-    logoImgStr,
+    logoImageFileName,
+    logoImage,
     businessBio,
     fulfillmentMethodInt,
     address_1,
@@ -58,7 +59,8 @@ export async function createNewUser(body) {
               // accessCode,
               businessName,
               subdomain,
-              logoImgStr,
+              logoImageFileName,
+              logoImage,
               businessBio,
               fulfillmentMethodInt,
               address_1,
@@ -109,8 +111,9 @@ export async function createNewUser(body) {
                     priceIntPenny: 599,
                     priceStr: "$5.99",
                     hasUnlimitedQuantity: false,
-                    defaultImgStr:
+                    defaultImage:
                       "https://static.gotprint.com/tl/products/generic/images/mugs/11oz_white_mug.jpg",
+                    defaultImageFileName: "",
                     description: "This is a sample product description.",
                     quantity: 28,
                     questions: {

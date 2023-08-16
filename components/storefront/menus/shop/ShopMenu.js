@@ -1,5 +1,4 @@
 import React from "react";
-import { products } from "@/helper/temp/tempData";
 import ShopCard from "./ShopCard";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
@@ -15,15 +14,16 @@ function ShopMenu({
   handleOpenSnackbar,
   getAllProducts,
   currCategory,
+  userAccount,
 }) {
   return (
     <div className="px-4 flex-grow w-full pb-8">
       <h3 className="mb-4 font-light">{currCategory}</h3>
       {products.length > 0 ? (
         <div
-          className={`grid grid-cols-2 gap-x-2 gap-y-6 ${
+          className={`w-full grid grid-cols-2 gap-x-2 gap-y-6 ${
             isOwner ? "md:grid-cols-3" : "md:grid-cols-3"
-          }  xl:grid-cols-4`}
+          } lg:grid-cols-4  xl:grid-cols-5`}
         >
           {products &&
             products.map((item, idx) => (
@@ -36,6 +36,7 @@ function ShopMenu({
                 updateProductList={updateProductList}
                 handleOpenSnackbar={handleOpenSnackbar}
                 getAllProducts={getAllProducts}
+                userAccount={userAccount}
               />
             ))}
         </div>

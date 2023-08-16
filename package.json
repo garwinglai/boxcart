@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@emotion/react": "^11.10.6",
 		"@emotion/styled": "^11.10.6",
+		"@google-cloud/storage": "^7.0.1",
 		"@mui/icons-material": "^5.11.16",
 		"@mui/material": "^5.11.16",
 		"@mui/x-date-pickers": "^6.5.0",
@@ -22,13 +23,15 @@
 		"dayjs": "^1.11.7",
 		"eslint": "8.32.0",
 		"eslint-config-next": "^13.2.4",
+		"firebase": "^10.1.0",
+		"nanoid": "^4.0.2",
 		"next": "^13.2.4",
 		"next-auth": "^4.20.1",
 		"react": "^18.2.0",
 		"react-currency-input-field": "^3.6.11",
 		"react-dom": "^18.2.0",
-		"react-redux": "^8.0.5",
-		"swr": "^2.1.0"
+		"swr": "^2.1.0",
+		"zustand": "^4.4.1"
 	},
 	"devDependencies": {
 		"@prisma/client": "^5.1.1",

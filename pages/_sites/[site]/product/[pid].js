@@ -13,8 +13,10 @@ import ButtonSecondaryStorefront from "@/components/global/buttons/ButtonSeconda
 import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-function Product() {
+function Product({ producted }) {
+  console.log("product", producted);
   const [selectedQuantity, setSelectedQuantity] = useState("1");
   const [exampleImages, setExampleImages] = useState([]);
 
@@ -154,16 +156,18 @@ function Product() {
             </IconButton>
           </div>
         </div>
-        <div className="flex w-full overflow-x-scroll relative md:grid md:grid-cols-2 md:overflow-x-hidden md:gap-1">
+        <div className="flex snap-x w-full overflow-x-scroll relative md:grid md:grid-cols-2 md:overflow-x-hidden md:gap-1">
           {imgArr.map((imgItem, index) => {
             if (imgItem.isDefault) {
               return (
-                <Image
-                  src={imgItem.imgStr}
-                  alt={imgItem.imgAlt}
-                  key={index}
-                  className="object-cover md:col-span-2 md:w-full"
-                />
+                <div>
+                  <Image
+                    src={imgItem.imgStr}
+                    alt={imgItem.imgAlt}
+                    key={index}
+                    className="object-cover md:col-span-2 md:w-full snap-center"
+                  />
+                </div>
               );
             } else {
               return (
@@ -171,11 +175,17 @@ function Product() {
                   src={imgItem.imgStr}
                   alt={imgItem.imgAlt}
                   key={index}
-                  className="object-cover md:col-span-1 md:w-full"
+                  className="object-cover md:col-span-1 md:w-full snap-center"
                 />
               );
             }
           })}
+          <div>hi</div>
+          {/* <div className="absolute right-0 top-1/2 bg-[color:var(--black-design-extralight)] rounded-full">
+            <IconButton sx={{ backgroundColor: "black" }}>
+              <ArrowForwardIosIcon sx={{ color: "white" }} />
+            </IconButton>
+          </div> */}
         </div>
         <div className="text-center md:hidden">
           <MoreHorizIcon
@@ -307,16 +317,31 @@ Product.getLayout = function getLayout(page) {
 };
 
 // TODO: get products
-// export async function getServerSideProps(context) {
-// 	console.log(context.query.pid);
+export async function getServerSideProps(context) {
+  console.log(context.query.pid);
+  const { pid } = context.query;
+  const id = parseInt(pid);
 
-// 	const user = await prisma.user.findFirst({
-// 		where: {
-// 			email: "garwingl@usc.edu",
-// 		},
-// 	});
+  const product = await prisma.product.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      images: true,
+      optionGroups: {
+        include: {
+          options: true,
+        },
+      },
+      questions: true,
+    },
+  });
 
-// 	console.log(user);
+  const serializedProduct = JSON.parse(JSON.stringify(product));
 
-// 	return { props: {} };
-// }
+  return {
+    props: {
+      producted: serializedProduct,
+    },
+  };
+}

@@ -20,6 +20,10 @@ import {
 } from "@/helper/client/api/inventory/product-schema";
 import { styled, alpha } from "@mui/material/styles";
 import Menu from "@mui/material/Menu";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
+import { useAccountStore } from "@/lib/store";
+import { storage } from "@/firebase/fireConfig";
+import { nanoid } from "@/utils/generateId";
 
 function ShopCard({
   subdomain,
@@ -30,7 +34,10 @@ function ShopCard({
   updateProductList,
   handleOpenSnackbar,
   getAllProducts,
+  userAccount,
 }) {
+  const { account } = useAccountStore((state) => state.account);
+
   const {
     id,
     isSampleProduct,
@@ -40,6 +47,8 @@ function ShopCard({
     priceIntPenny,
     priceStr,
     defaultImgStr,
+    defaultImageFileName,
+    defaultImage,
     images,
     hasUnlimitedQuantity,
     setQuantityByProduct,
@@ -90,25 +99,116 @@ function ShopCard({
 
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
+    handleClose();
   };
 
-  const handleDeleteProduct = (productId) => async (e) => {
+  const handleDeleteProduct = (productId, images) => async (e) => {
     setIsLoading(true);
 
-    const deleteProduct = await deleteProductClient(productId);
-    const { success, value, error } = deleteProduct;
-    setIsLoading(false);
-    handleClose();
+    // Delete firestore product images
+    const { subdomain } = userAccount;
+    let deleteProductFromStorageSuccess = true;
 
-    if (!success) {
+    for (let i = 0; i < images.length; i++) {
+      const currImage = images[i];
+      const { imgFileName: fileName, fireStorageId } = currImage;
+
+      const { success } = await deleteProductImagesFromFirebase(
+        fileName,
+        subdomain,
+        fireStorageId
+      );
+
+      if (!success) {
+        deleteProductFromStorageSuccess = false;
+      }
+    }
+
+    if (!deleteProductFromStorageSuccess) {
       handleCloseDeleteModal();
       handleOpenSnackbar("Could not delete product.");
+      handleClose();
+      setIsLoading(false);
       return;
     }
 
+    const deleteProduct = await deleteProductClient(productId);
+    const { success, value, error } = deleteProduct;
+
+    if (!success) {
+      // Resave images
+      for (let i = 0; i < images.length; i++) {
+        const currImage = images[i];
+        const {
+          imgFileName: fileName,
+          image: imageFile,
+          fireStorageId,
+        } = currImage;
+
+        const { success, error } = await saveProductImagesToFirebase(
+          fileName,
+          imageFile,
+          subdomain,
+          fireStorageId
+        );
+
+        if (!success) {
+          // TODO: save errorLogs
+          // console.log("error saving product image:", error);
+        }
+      }
+
+      handleClose();
+      handleCloseDeleteModal();
+      handleOpenSnackbar("Could not delete product.");
+      setIsLoading(false);
+      return;
+    }
+
+    handleClose();
     handleCloseDeleteModal();
     getAllProducts(accountId);
     handleOpenSnackbar("Product deleted.");
+    setIsLoading(false);
+  };
+
+  const deleteProductImagesFromFirebase = async (
+    fileName,
+    subdomain,
+    fireStorageId
+  ) => {
+    const photoRef = ref(
+      storage,
+      `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+    );
+
+    try {
+      await deleteObject(photoRef);
+      return { success: true };
+    } catch (error) {
+      console.log("error deleting images from firebase:", error);
+      return { success: false };
+    }
+  };
+
+  const saveProductImagesToFirebase = async (
+    fileName,
+    imageFile,
+    subdomain,
+    fireStorageId
+  ) => {
+    const photoRef = ref(
+      storage,
+      `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+    );
+
+    try {
+      await uploadBytes(photoRef, imageFile);
+      return { success: true };
+    } catch (error) {
+      console.log("error uploading product image:", error);
+      return { success: false, error };
+    }
   };
 
   const handleDuplicateProduct = async () => {
@@ -116,31 +216,113 @@ function ShopCard({
     handleOpenSnackbar("Duplicating product...");
 
     const productSchema = structureProductSchema(product);
-    const imageSchema = structureImageSchema();
     const questionSchema = structureQuestionSchema(product);
     const structuredOptions = structureOptionGroupSchema(product);
-
     const { optionGroupSchema, optionSchema } = structuredOptions;
+
+    let uploadProductImageError = false;
+    const productImageUrls = [];
+    const { images } = product;
+    const { subdomain } = userAccount;
+    const fireStorageId = nanoid();
+
+    for (let i = 0; i < images.length; i++) {
+      const currPhoto = images[i];
+      const {
+        imgFileName: fileName,
+        image: imageFile,
+        isDefault,
+        fireStorageId: oldStorageId,
+      } = currPhoto;
+
+      const { success, error } = await copyImageFile(
+        fileName,
+        imageFile,
+        subdomain,
+        fireStorageId,
+        oldStorageId
+      );
+
+      if (error) {
+        uploadProductImageError = true;
+        break;
+      }
+
+      const photoData = {
+        imgFileName: fileName,
+        isDefault,
+        image: imageFile,
+        fireStorageId,
+      };
+
+      productImageUrls.push(photoData);
+    }
+
+    if (uploadProductImageError) {
+      handleOpenSnackbar("Error uploading images.");
+      // TODO: remove all the uploaded images before error at break.
+      return;
+    }
 
     const productObject = {
       productSchema,
-      imageSchema,
       optionGroupSchema,
       optionSchema,
       questionSchema,
     };
+
+    productObject.imageSchema = productImageUrls;
+    productObject.productSchema.defaultImage = productImageUrls[0].image;
+    productObject.productSchema.defaultImageFileName =
+      productImageUrls[0].imgFileName;
+    productObject.productSchema.fireStorageId = fireStorageId;
 
     const resProductCreate = await createProductClient(productObject);
     const { success, value } = resProductCreate;
     const { createdProduct } = value;
 
     if (!success) {
+      for (let i = 0; i < images.length; i++) {
+        const currPhoto = images[i];
+        const { imgFileName: fileName, fireStorageId } = currPhoto;
+
+        await deleteProductImagesFromFirebase(
+          fileName,
+          subdomain,
+          fireStorageId
+        );
+      }
       handleOpenSnackbar("Error duplicating product.");
       return;
     }
 
     handleOpenSnackbar("Duplicated.");
     getAllProducts(accountId);
+  };
+
+  const copyImageFile = async (
+    fileName,
+    imageFile,
+    subdomain,
+    fireStorageId,
+    oldStorageId
+  ) => {
+    const api = "/api/private/inventory/images/copy";
+    const { success, message } = fetch(api, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileName,
+        imageFile,
+        subdomain,
+        fireStorageId,
+        oldStorageId,
+      }),
+    });
+
+    return { success, message };
   };
 
   const structureProductSchema = (product) => {
@@ -240,18 +422,15 @@ function ShopCard({
   return (
     <div className={`${styles.card_box}`}>
       {isOwner ? (
-        <div className={`${styles.card_button_box_link} ${styles.flexCol}  `}>
-          <div className="">
+        <div className="w-full">
+          <div className="relative w-full aspect-square">
             <Image
-              src={candle_2}
+              src={defaultImage}
               alt="default product image"
-              className="object-cover aspect-square w-full"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              fill
+              className="object-cover rounded-t"
             />
-            {/* <Image
-            src={imgDefaultStr}
-            alt={imgDefaultAlt}
-            className="block w-full h-[calc(50vw-28px)] object-cover md:h-[calc(33vw-28px)] lg:h-[calc(22vw-28px)] xl:h-[calc(14vw-28px)]"
-          /> */}
           </div>
           <div className="flex items-start justify-between h-full pt-1 pr-1">
             <div className="flex flex-col">
@@ -328,7 +507,7 @@ function ShopCard({
                               <ButtonPrimary
                                 name="Delete"
                                 type="button"
-                                handleClick={handleDeleteProduct(id)}
+                                handleClick={handleDeleteProduct(id, images)}
                                 isLoading={isLoading}
                               />
                             </div>

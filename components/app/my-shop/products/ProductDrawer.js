@@ -7,9 +7,6 @@ import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import candle_4 from "@/public/images/temp/candle_4.jpeg";
-import candle_2 from "@/public/images/temp/candle_2.jpeg";
-import custom_mug from "@/public/images/temp/custom_mug.jpg";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -26,6 +23,15 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import { updateProductVerifiedChecklist } from "@/helper/client/api/checklist";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
+import { storage } from "@/firebase/fireConfig";
+import { nanoid } from "@/utils/generateId";
+import { useAccountStore } from "@/lib/store";
 
 const style = {
   position: "absolute",
@@ -51,6 +57,9 @@ function ProductDrawer({
   handleOpenSnackbarGlobal,
   getAllProducts,
 }) {
+  const account = useAccountStore((state) => state.account);
+  const { subdomain } = account;
+
   const [isSaveProductLoading, setIsSaveProductLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     isSnackbarOpen: false,
@@ -70,13 +79,22 @@ function ProductDrawer({
   );
   const [customerQuestionInput, setCustomerQuestionInput] = useState("");
   const [variantPhotos, setVariantPhotos] = useState([]);
-  const [productPhotos, setProductPhotos] = useState([]);
+  const [productPhotos, setProductPhotos] = useState(
+    product
+      ? product.images
+        ? product.images.length > 0
+          ? product.images
+          : []
+        : []
+      : []
+  );
+  const [defaultImageValues, setDefaultImageValues] = useState(null);
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
     priceInt: product ? product.priceIntPenny / 100 : "",
     priceStr: product ? product.priceStr : "",
-    defaultImgStr: product ? product.defaultImgStr : "",
+    defaultImgStr: product ? product.defaultImageFileName : "",
     imgArrJson: product ? product.imgArrJson : "",
     quantity: product ? (!product.quantity ? 0 : product.quantity) : 1,
     setQuantityByProduct: product ? product.setQuantityByProduct : true,
@@ -385,53 +403,69 @@ function ProductDrawer({
     setCustomerQuestions(updatedQuestionArray);
   };
 
-  const handlePhotoFileChange = (optionPosition) => (e) => {
+  const handlePhotoFileChange = (e) => {
     const { name, files } = e.target;
     const selectedImage = files[0];
 
     if (!selectedImage) return;
 
-    if (name === "variantImage") {
-      const fileName = selectedImage.name;
-      const imgUrl = URL.createObjectURL(selectedImage);
-      const imgData = { imgUrl, fileName, optionPosition };
+    const fileName = selectedImage.name;
+    const productPhotosArr = productPhotos.map((item) => {
+      const fName = item.imgFileName ? item.imgFileName : item.fileName;
+      return fName;
+    });
 
-      if (!variantPhotos.includes(imgData))
-        setVariantPhotos((prev) => [...prev, imgData]);
+    if (productPhotosArr.includes(fileName)) {
+      handleOpenSnackbar("Photo already exists");
+      return;
     }
 
-    if (name === "productImage") {
-      const fileName = selectedImage.name;
-      const imgUrl = URL.createObjectURL(selectedImage);
-      const imgData = { imgUrl, fileName };
+    const isDefault = productPhotos.length === 0;
+    const image = URL.createObjectURL(selectedImage);
+    const imgData = { image, fileName, imageFile: selectedImage, isDefault };
 
-      if (!productPhotos.includes(imgData))
-        setProductPhotos((prev) => [...prev, imgData]);
+    setProductPhotos((prev) => [...prev, imgData]);
+
+    if (isDefault) {
+      setProductValues((prev) => ({
+        ...prev,
+        defaultImgStr: fileName,
+      }));
     }
   };
 
-  const removeImageClick = (file, state) => (e) => {
-    if (state === "variantImage") {
-      const photoArrayAfterRemoval = variantPhotos.filter(
-        (currFiles) => currFiles.imgUrl !== file.imgUrl
-      );
+  const removeImageClick = (file) => (e) => {
+    const { image, isDefault } = file;
 
-      setVariantPhotos(photoArrayAfterRemoval);
-    }
+    const photoArrayAfterRemoval = productPhotos.filter(
+      (currFiles) => currFiles.image !== image
+    );
 
-    if (state === "productImage") {
-      const photoArrayAfterRemoval = productPhotos.filter(
-        (currFiles) => currFiles.imgUrl !== file.imgUrl
-      );
-
+    if (productPhotos.length === 1) {
       setProductPhotos(photoArrayAfterRemoval);
+      return;
     }
+
+    if (isDefault) {
+      const newDefault = photoArrayAfterRemoval[0];
+      newDefault.isDefault = true;
+      const newDefaultFileName = newDefault.imgFileName
+        ? newDefault.imgFileName
+        : newDefault.fileName;
+
+      setDefaultImageValues(newDefault);
+      setProductValues((prev) => ({
+        ...prev,
+        defaultImgStr: newDefaultFileName,
+      }));
+
+      // photoArrayAfterRemoval[0].isDefault = true;
+    }
+
+    setProductPhotos(photoArrayAfterRemoval);
   };
 
   const handleAddOptionGroup = () => {
-    // create a function that adds the next number to the array each time this function is called
-    // this is so that the option group number is unique
-
     if (optionGroupPositions.length === 0) {
       setShowOptionInputs((prev) => ({ ...prev, optionGroupPositions: [0] }));
       return;
@@ -854,7 +888,6 @@ function ProductDrawer({
       setNewCategories((prev) => [...prev, categoryName]);
     }
 
-    // TODO: update, removed categories
     // check if categoryName is in initialRelatedProducts, if it is, add categoryName to removedCategories
     const initialRelatedProductsArr = initialRelatedProducts.map(
       (item) => item.categoryName
@@ -867,6 +900,11 @@ function ProductDrawer({
 
   const handleSave = async (e) => {
     e.preventDefault();
+
+    if (productPhotos.length === 0) {
+      handleOpenSnackbar("Please upload at least one photo.");
+      return;
+    }
 
     setIsSaveProductLoading(true);
 
@@ -892,7 +930,6 @@ function ProductDrawer({
     }
 
     const productSchema = structureProductSchema();
-    const imageSchema = structureImageSchema();
     const questionSchema = structureQuestionSchema();
     const structuredOptions = structureOptionGroupSchema();
 
@@ -934,22 +971,197 @@ function ProductDrawer({
       return;
     }
 
-    const productObject = {
+    let productObject = {
       productSchema,
-      imageSchema,
       optionGroupSchema,
       optionSchema,
       questionSchema,
     };
 
+    if (isCreateProduct) {
+      let uploadProductImageError = false;
+      const productImageUrls = [];
+      const fireStorageId = nanoid();
+
+      for (let i = 0; i < productPhotos.length; i++) {
+        const currPhoto = productPhotos[i];
+        const { fileName, imageFile, isDefault } = currPhoto;
+
+        const { photoUrl, error } = await saveProductImagesToFirebase(
+          fileName,
+          imageFile,
+          subdomain,
+          fireStorageId
+        );
+
+        if (error) {
+          uploadProductImageError = true;
+        }
+
+        const photoData = {
+          fileName,
+          isDefault,
+          image: photoUrl,
+          fireStorageId,
+        };
+
+        productImageUrls.push(photoData);
+      }
+
+      if (uploadProductImageError) {
+        handleOpenSnackbarGlobal("Error uploading images.");
+        // TODO: delete photos that were already stored into firebase before error.
+        return;
+      }
+
+      productObject.imageSchema = productImageUrls;
+      productObject.productSchema.defaultImage = productImageUrls[0].image;
+      productObject.productSchema.fireStorageId = fireStorageId;
+
+      const resProductCreate = await createProductClient(productObject);
+      const { success, value } = resProductCreate;
+      const { createdProduct, createdCategories } = value;
+
+      if (!success) {
+        for (let i = 0; i < productPhotos.length; i++) {
+          const currPhoto = productPhotos[i];
+          const { fileName } = currPhoto;
+
+          await deleteProductImagesFromFirebase(
+            fileName,
+            subdomain,
+            fireStorageId
+          );
+        }
+        handleOpenSnackbar("Error creating product.");
+        setIsSaveProductLoading(false);
+        return;
+      }
+
+      if (createdCategories && createdCategories.length > 0) {
+        setAllCategories((prev) => [...prev, ...createdCategories]);
+      }
+
+      handleOpenSnackbarGlobal("Product created.");
+      unsetAllStates();
+    }
+
     if (isEditProduct) {
+      const removedPhotos = product.images.filter((item) => {
+        const productPhotosArr = productPhotos.map((item) => item.image);
+        if (!productPhotosArr.includes(item.image)) return item;
+      });
+
+      if (removedPhotos.length > 0) {
+        for (let i = 0; i < removedPhotos.length; i++) {
+          const currPhoto = removedPhotos[i];
+          const { imgFileName: fileName, fireStorageId } = currPhoto;
+
+          await deleteProductImagesFromFirebase(
+            fileName,
+            subdomain,
+            fireStorageId
+          );
+          // ? Need to catch error, but not detrimental, still let pass.
+        }
+      }
+
+      const newProductPhotos = productPhotos.filter((item) => {
+        if (!item.fireStorageId) return item;
+      });
+
+      let uploadProductImageError = false;
+      const newProductImages = [];
+      const { fireStorageId } = product;
+
+      if (newProductPhotos.length > 0) {
+        for (let i = 0; i < newProductPhotos.length; i++) {
+          const currPhoto = newProductPhotos[i];
+          const { fileName, imageFile, isDefault } = currPhoto;
+
+          const { photoUrl, error } = await saveProductImagesToFirebase(
+            fileName,
+            imageFile,
+            subdomain,
+            fireStorageId
+          );
+
+          if (error) {
+            uploadProductImageError = true;
+          }
+
+          const photoData = {
+            imgFileName: fileName,
+            isDefault,
+            image: photoUrl,
+            fireStorageId,
+          };
+          newProductImages.push(photoData);
+        }
+
+        productObject.imageSchema = newProductImages;
+      }
+
+      if (defaultImageValues) {
+        if (newProductImages.length === 0) {
+          newProductImages.push(defaultImageValues);
+
+          productObject.productSchema.defaultImage = defaultImageValues.image;
+          productObject.updatedImages = [defaultImageValues];
+        } else {
+          // check if default image is in productImageUrls, if is not, add it to productImageUrls
+          const defaultImageFileName = defaultImageValues.imgFileName
+            ? defaultImageValues.imgFileName
+            : defaultImageValues.fileName;
+
+          const newProductImagesFileNames = newProductImages.map(
+            (item) => item.imgFileName
+          );
+
+          if (!newProductImagesFileNames.includes(defaultImageFileName)) {
+            productObject.productSchema.defaultImage = defaultImageValues.image;
+            productObject.updatedImages = [defaultImageValues];
+          } else {
+            // Loop through newProductImages to find the default image and set to object below.
+            for (let i = 0; i < newProductImages.length; i++) {
+              const currPhoto = newProductImages[i];
+              const { imgFileName, image, isDefault } = currPhoto;
+              if (isDefault) {
+                productObject.productSchema.defaultImage = image;
+              }
+            }
+          }
+        }
+      }
+
+      if (uploadProductImageError) {
+        handleOpenSnackbarGlobal("Error uploading images.");
+        // TODO: remove images that were uploaded already
+        return;
+      }
+
+      productObject.removedImages = removedPhotos;
+
       const resProductUpdate = await updateProductClient(productObject);
       const { success, value } = resProductUpdate;
       const { updatedProduct } = value;
-      setIsSaveProductLoading(false);
 
       if (!success) {
+        if (newProductPhotos.length > 0) {
+          for (let i = 0; i < newProductPhotos.length; i++) {
+            const currPhoto = newProductPhotos[i];
+            const { fileName } = currPhoto;
+
+            await deleteProductImagesFromFirebase(
+              fileName,
+              subdomain,
+              fireStorageId
+            );
+          }
+        }
+
         handleOpenSnackbar("Error updating product.");
+        setIsSaveProductLoading(false);
         return;
       }
 
@@ -957,29 +1169,54 @@ function ProductDrawer({
       unsetAllStates(updatedProduct);
       updateProductList(updatedProduct);
     }
-
-    if (isCreateProduct) {
-      const resProductCreate = await createProductClient(productObject);
-      const { success, value } = resProductCreate;
-      const { createdProduct, createdCategories } = value;
-
-      setIsSaveProductLoading(false);
-
-      if (!success) {
-        handleOpenSnackbar("Error creating product.");
-        return;
-      }
-      handleOpenSnackbarGlobal("Product created.");
-      // addToProductsList(createdProduct);
-      if (createdCategories && createdCategories.length > 0) {
-        setAllCategories((prev) => [...prev, ...createdCategories]);
-      }
-      unsetAllStates();
-    }
-
+    setIsSaveProductLoading(false);
     getAllProducts(accountId);
     updateChecklist();
     toggleDrawer("right", false)(e);
+  };
+
+  const deleteProductImagesFromFirebase = async (
+    fileName,
+    subdomain,
+    fireStorageId
+  ) => {
+    const photoRef = ref(
+      storage,
+      `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+    );
+
+    try {
+      await deleteObject(photoRef);
+    } catch (error) {
+      console.log("error deleting images from firebase:", error);
+    }
+  };
+
+  const saveProductImagesToFirebase = async (
+    fileName,
+    imageFile,
+    subdomain,
+    fireStorageId
+  ) => {
+    const photoRef = ref(
+      storage,
+      `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+    );
+
+    try {
+      await uploadBytes(photoRef, imageFile);
+    } catch (error) {
+      console.log("error uploading product image:", error);
+      return { error };
+    }
+
+    try {
+      const photoUrl = await getDownloadURL(photoRef);
+      return { photoUrl };
+    } catch (error) {
+      console.log("error getting download url");
+      return { error };
+    }
   };
 
   const updateChecklist = async () => {
@@ -1042,6 +1279,7 @@ function ProductDrawer({
         priceIntPenny,
         priceStr,
         defaultImgStr,
+        defaultImageFileName,
         imgArrJson,
         quantity,
         setQuantityByProduct,
@@ -1051,6 +1289,7 @@ function ProductDrawer({
         questions,
         hasUnlimitedQuantity,
         optionGroups,
+        images,
       } = updatedProduct ? updatedProduct : product;
 
       setProductValues({
@@ -1058,7 +1297,7 @@ function ProductDrawer({
         description,
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
-        defaultImgStr,
+        defaultImgStr: defaultImageFileName,
         imgArrJson,
         quantity,
         setQuantityByProduct,
@@ -1070,9 +1309,11 @@ function ProductDrawer({
       setOptions(updatedProduct);
       setCustomerQuestions(questions);
       setVariantPhotos([]);
-      setProductPhotos([]);
+      setProductPhotos(images ? (images.length > 0 ? images : []) : []);
       setCustomerQuestionInput("");
       setHasUnlimitedQuantity(hasUnlimitedQuantity);
+      setAllCategories(categories ? categories : []);
+      setDefaultImageValues(null);
     }
 
     setRemovedCategories([]);
@@ -1104,6 +1345,7 @@ function ProductDrawer({
       isSampleProduct: false,
       productName,
       description,
+      defaultImageFileName: defaultImgStr,
       priceIntPenny,
       priceStr: convertToPriceStr,
       quantity: quantity ? (quantity === 0 ? 0 : parseInt(quantity)) : 0,
@@ -1120,9 +1362,19 @@ function ProductDrawer({
 
     return productSchema;
   };
-  const structureImageSchema = () => {
-    // TODO: no image schema yet
-    // TODO: Save to AWD
+  const structureImageSchema = (images) => {
+    const photoDatatArr = [];
+
+    for (let i = 0; i < productPhotos.length; i++) {
+      const currPhoto = productPhotos[i];
+
+      const { fileName, imageFile, isDefault } = currPhoto;
+      const newPhotoData = { fileName, imageFile, isDefault };
+
+      photoDatatArr.push(newPhotoData);
+    }
+
+    return photoDatatArr;
   };
 
   const structureOptionGroupSchema = () => {
@@ -1392,113 +1644,50 @@ function ProductDrawer({
             <span className="flex items-end justify-between gap-2">
               <h4 className="text-black font-semibold text-sm ">Photos:</h4>
               <p className="text-xs text-[color:var(--gray)] font-light">
-                1st image = default
+                * png or jpeg files only.
               </p>
             </span>
             <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
-              <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-                <Image
-                  src={candle_4}
-                  alt="candle image"
-                  fill
-                  className="object-cover rounded inline-block"
-                />
-                <IconButton
-                  // onClick={removeImageClick(file)}
-                  sx={{
-                    position: "absolute",
-                    backgroundColor: "var(--black)",
-                    opacity: "50%",
-                    right: "0.25rem",
-                    top: "0.25rem",
-                  }}
-                >
-                  <CloseIcon
-                    sx={{ color: "var(--white)", fontSize: "0.75rem" }}
-                  />
-                </IconButton>
-              </div>
-              <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-                <Image
-                  src={candle_2}
-                  alt="product image"
-                  fill
-                  className="object-cover rounded inline-block"
-                />
-                <IconButton
-                  // onClick={removeImageClick(file)}
-                  sx={{
-                    position: "absolute",
-                    backgroundColor: "var(--black)",
-                    opacity: "50%",
-                    right: "0.25rem",
-                    top: "0.25rem",
-                  }}
-                >
-                  <CloseIcon
-                    sx={{ color: "var(--white)", fontSize: "0.75rem" }}
-                  />
-                </IconButton>
-              </div>
-              <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-                <Image
-                  src={custom_mug}
-                  alt="product image"
-                  fill
-                  className="object-cover rounded inline-block"
-                />
-                <IconButton
-                  // onClick={removeImageClick(file)}
-                  sx={{
-                    position: "absolute",
-                    backgroundColor: "var(--black)",
-                    opacity: "50%",
-                    right: "0.25rem",
-                    top: "0.25rem",
-                  }}
-                >
-                  <CloseIcon
-                    sx={{ color: "var(--white)", fontSize: "0.75rem" }}
-                  />
-                </IconButton>
-              </div>
-              {productPhotos.length !== 0 &&
-                productPhotos.map((photo, idx) => (
-                  <div
-                    key={idx}
-                    className={`relative h-[8rem] min-w-[8rem] inline-block $`}
-                  >
-                    <Image
-                      src={photo.imgUrl}
-                      alt={photo.fileName}
-                      fill
-                      className="object-cover rounded inline-block"
-                    />
-                    <IconButton
-                      onClick={removeImageClick(photo, "productImage")}
-                      sx={{
-                        position: "absolute",
-                        backgroundColor: "var(--black)",
-                        opacity: "50%",
-                        right: "0.25rem",
-                        top: "0.25rem",
-                      }}
+              {productPhotos.length !== 0 ? (
+                productPhotos.map((photo, idx) => {
+                  const { image, fileName, isDefault } = photo;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`relative h-[8rem] min-w-[8rem] inline-block $`}
                     >
-                      <CloseIcon
-                        sx={{ color: "var(--white)", fontSize: "0.75rem" }}
+                      <Image
+                        src={image}
+                        alt="product image"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover rounded inline-block"
                       />
-                    </IconButton>
-                    {idx === 0 && (
-                      <p className="absolute font-extralight bottom-1 left-1 text-white rounded text-sm px-1 bg-[color:var(--black-design-extralight)]">
-                        Default
-                      </p>
-                    )}
-                  </div>
-                ))}
+                      <div className="absolute bg-[color:var(--black-design-extralight)] rounded-full right-1 top-1 opacity-70">
+                        <IconButton onClick={removeImageClick(photo)}>
+                          <CloseIcon
+                            sx={{ color: "var(--white)", fontSize: "1rem" }}
+                          />
+                        </IconButton>
+                      </div>
+                      {isDefault && (
+                        <p className="absolute font-extralight bottom-1 left-1 text-white rounded text-sm px-1 bg-[color:var(--black-design-extralight)]">
+                          Default
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="h-32 w-32 border roudned flex justify-center items-center text-[color:var(--gray-text)] text-sm font-light">
+                  Image
+                </div>
+              )}
             </div>
             <span className="flex justify-between">
               <p className="text-sm text-[color:var(--gray)] font-light">
-                3 images uploaded.
+                {productPhotos.length} images uploaded.
               </p>
               <div>
                 <span>
@@ -1511,7 +1700,8 @@ function ProductDrawer({
                     </label>
                   </span>
                   <input
-                    onChange={handlePhotoFileChange("")}
+                    onChange={handlePhotoFileChange}
+                    value=""
                     type="file"
                     name="productImage"
                     id="productImageInput"

@@ -1,26 +1,12 @@
 import React, { useState } from "react";
-import candle_banner_temp from "@/public/images/temp/candle_banner.jpeg";
-import candle_logo_temp from "@/public/images/temp/candle_logo_temp.jpeg";
-import boxcart_logo from "@/public/images/logos/boxcart_logo_full.png";
 import Image from "next/image";
-import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import ShareIcon from "@mui/icons-material/Share";
 import { useRouter } from "next/router";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
 import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import { useAccountStore } from "@/lib/store";
 
 const style = {
   position: "absolute",
@@ -34,7 +20,16 @@ const style = {
   p: 4,
 };
 
-function ShopHeader({ isOwner, accountId, handleOpenSnackbar }) {
+function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
+  const {
+    id: accountId,
+    logoImage,
+    bannerImage,
+  } = userAccount ? userAccount : {};
+
+  const account = useAccountStore((state) => state.account);
+  const { subdomain } = account;
+
   const [openMessage, setOpenMessage] = useState({
     right: false,
   });
@@ -187,17 +182,37 @@ function ShopHeader({ isOwner, accountId, handleOpenSnackbar }) {
 
   return (
     <React.Fragment>
-      <Image
-        src={candle_banner_temp}
-        alt="business banner image"
-        className="w-full object-contain xl:h-[20rem] xl:object-cover border-b"
-      />
+      {bannerImage ? (
+        <div className="w-full h-40 relative border-b">
+          <Image
+            src={bannerImage}
+            alt="business banner"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div className="rounded w-full h-40 bg-[color:var(--gray-light)] flex justify-center items-center text-[color:var(--gray-text)] border">
+          Banner image
+        </div>
+      )}
       <div className="relative">
-        <Image
-          src={boxcart_logo}
-          alt="business logo"
-          className="border border-[color:var(--gray-light-med)] bg-white rounded-full w-24 h-24 absolute -top-12 left-4 md:w-32 md:h-32 md:-top-16 md:left-8 "
-        />
+        {logoImage ? (
+          <div className="w-24 h-24 absolute -top-12 left-4">
+            <Image
+              src={logoImage}
+              alt="business logo"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="border border-[color:var(--gray-light-med)] bg-white rounded-full object-contain"
+            />
+          </div>
+        ) : (
+          <div className="absolute -top-12 left-4 rounded-full w-24 h-24 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+            Logo
+          </div>
+        )}
         <div className="flex h-10 gap-2 absolute right-4 -top-5 md:top-4 md:right-8">
           <button
             type="button"

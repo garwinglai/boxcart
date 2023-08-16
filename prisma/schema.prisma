@@ -61,7 +61,11 @@ model Account {
   businessName           String
   subdomain              String               @unique
   businessTypes          BusinessType[]
-  logoImgStr             String?
+  // logoImgStr             String?
+  logoImageFileName      String?
+  logoImage              String?              @db.Text
+  bannerImageFileName    String?
+  bannerImage            String?              @db.Text
   businessBio            String?              @db.VarChar(255)
   socials                Social[]
   subscriberCount        Int                  @default(0)
@@ -229,8 +233,11 @@ model Product {
   description          String
   priceIntPenny        Int
   priceStr             String
-  defaultImgStr        String?
+  defaultImgStr        String? //no longer used
+  defaultImageFileName String?
+  defaultImage         String?       @db.Text
   images               Image[]
+  fireStorageId        String?       @unique //id to find image file in firebase storage.
   hasUnlimitedQuantity Boolean       @default(true)
   setQuantityByProduct Boolean       @default(true) //If false, set qty by variant and total up for qty.
   quantity             Int?
@@ -244,15 +251,15 @@ model Product {
 }
 
 model Image {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isDefault   Boolean  @default(false)
-  imgStr      String?
-  imgFileName String?
-  productName String?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId   Int?
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isDefault     Boolean  @default(false)
+  imgFileName   String?
+  image         String?  @db.Text
+  fireStorageId String? //id to find image file in firebase storage.
+  product       Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     Int?
 
   @@index([productId])
 }

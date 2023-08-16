@@ -42,6 +42,7 @@ function ProductModal({
     productName,
     priceIntPenny,
     priceStr,
+    images,
     defaultImgStr,
     imgArrJson,
     description,
@@ -75,34 +76,40 @@ function ProductModal({
           <h4 className="text-black font-semibold text-sm lg:text-base ">
             Photos:
           </h4>
-          <div className="flex overflow-x-scroll w-full gap-2 my-1">
-            <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-              <Image
-                src={candle_4}
-                alt="candle image"
-                fill
-                className="object-cover rounded inline-block"
-              />
-            </div>
-            <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-              <Image
-                src={candle_2}
-                alt="product image"
-                fill
-                className="object-cover rounded inline-block"
-              />
-            </div>
-            <div className={`relative h-[8rem] min-w-[8rem] inline-block $`}>
-              <Image
-                src={custom_mug}
-                alt="product image"
-                fill
-                className="object-cover rounded inline-block"
-              />
-            </div>
+
+          <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
+            {images && images.length !== 0 ? (
+              images.map((photo, idx) => {
+                const { image, imgFileName, isDefault } = photo;
+                return (
+                  <div
+                    key={idx}
+                    className={`relative h-[7rem] min-w-[7rem] inline-block $`}
+                  >
+                    <Image
+                      src={image}
+                      alt={imgFileName}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover rounded inline-block"
+                    />
+                    {isDefault && (
+                      <p className="absolute font-extralight bottom-1 left-1 text-white rounded text-sm px-1 bg-[color:var(--black-design-extralight)]">
+                        Default
+                      </p>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="h-32 w-32 border roudned flex justify-center items-center text-[color:var(--gray-text)] text-sm font-light">
+                Image
+              </div>
+            )}
           </div>
+
           <p className="text-xs text-right text-[color:var(--gray)] font-light mt-4">
-            3 images uploaded.
+            {images && images.length} images uploaded.
           </p>
         </div>
         <div className="flex justify-between items-start relative w-full">
@@ -223,13 +230,10 @@ function ProductModal({
               )}
             </div>
           </div>
-          <div className="flex gap-4">
-            <ButtonFilter
-              name="Close"
-              handleClick={handleClickListenerExpand}
-            />
-            <ButtonPrimary name="Edit" handleClick={handleEditClick} />
-          </div>
+        </div>
+        <div className="flex gap-4 pt-4 border-t">
+          <ButtonFilter name="Close" handleClick={handleClickListenerExpand} />
+          <ButtonPrimary name="Edit" handleClick={handleEditClick} />
         </div>
       </Box>
     </Modal>

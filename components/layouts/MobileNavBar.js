@@ -1,6 +1,5 @@
-import candle_logo from "@/public/images/temp/candle_logo_temp.jpeg";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/components/layouts/mobile-navbar.module.css";
-import AddIcon from "@mui/icons-material/Add";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -14,17 +13,21 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import ContactEmergencyOutlinedIcon from "@mui/icons-material/ContactEmergencyOutlined";
 import ButtonThird from "../global/buttons/ButtonThird";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { deleteLocalStorage } from "@/utils/clientStorage";
+import { useAccountStore } from "@/lib/store";
+import { getDownloadURL, ref } from "firebase/storage";
+import { storage } from "@/firebase/fireConfig";
 
 function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
+  const account = useAccountStore((state) => state.account);
+  const removeAccount = useAccountStore((state) => state.removeAccount);
+
   const [openStoreList, setOpenStoreList] = useState(
     mobilePageRoute === "profile" ||
       mobilePageRoute === "products" ||
@@ -50,8 +53,15 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
       ? true
       : false
   );
+  const [logoImage, setLogoImage] = useState(null);
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    const { logoImg } = account;
+
+    setLogoImage(logoImg);
+  }, [account]);
 
   const handleNestedStoreList = () => {
     setOpenStoreList((prev) => !prev);
@@ -73,6 +83,8 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
     await signOut({
       redirect: false,
     });
+
+    removeAccount();
     deleteLocalStorage("checklist");
     deleteLocalStorage("isChecklistComplete");
     push("/auth/signin");
@@ -81,11 +93,22 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
   return (
     <div className={`${styles.mobile_nav_box} ${styles.flexCol}`}>
       <div className={`${styles.navbar_header_group} ${styles.flexCol}`}>
-        <Image
-          alt="business logo"
-          src={candle_logo}
-          className={`${styles.avatar_image}`}
-        />
+        {logoImage ? (
+          <div className="w-28 h-28 relative">
+            <Image
+              src={logoImage}
+              alt="logo icon"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              fill
+              className="bg-white object-contain rounded-full border border-gray-300 shadow-md "
+            />
+          </div>
+        ) : (
+          <div className="rounded-full w-28 h-28 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+            "Logo"
+          </div>
+        )}
         <h3>BoxCart</h3>
 
         <Link href="/account/my-shop" className="mt-2">

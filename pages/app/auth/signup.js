@@ -22,22 +22,18 @@ import SignupFormDistance from "@/components/auth/signup/SignupFormDistance";
 import SignupFormEnableTips from "@/components/auth/signup/SignupFormEnableTips";
 import CredentialsForm from "@/components/auth/CredentialsForm";
 import SignupFormSetTip from "@/components/auth/signup/SignupFormSetTip";
-import {
-  checkAccessCode,
-  checkAccessCodeUsed,
-} from "@/helper/client/api/account/early-bird-code";
 import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
-import { checkSubdomainAvail } from "@/helper/client/api/waitlist/waitlist";
-import {
-  checkEmailAvailableAccount,
-  checkEmailAvailableWaitlist,
-} from "@/helper/client/api/account/email";
+import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { newUserSignup } from "@/helper/client/api/auth/registration";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import { setLocalStorage } from "@/utils/clientStorage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/firebase/fireConfig";
+import { useAccountStore } from "@/lib/store";
+import prisma from "@/lib/prisma";
 
 // steps:
 // 0: accessCode
@@ -55,7 +51,9 @@ import { setLocalStorage } from "@/utils/clientStorage";
 // 12: a.1 if (set tips) =  creds		a.2 if (enable tips) = set tips else (creds)
 // 13:																	a.2 if (set tips) = creds
 
-function Signup() {
+function Signup({ nextAccountId }) {
+  const setAccount = useAccountStore((state) => state.setAccount);
+
   const [waitlistId, setWaitlistId] = useState("");
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +63,8 @@ function Signup() {
   const [canSkip, setCanSkip] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [openError, setOpenError] = useState(false);
+  const [displayLogo, setDisplayLogo] = useState("");
+  const [logoFile, setLogoFile] = useState("");
   const [signupValues, setSignupValues] = useState({
     firstName: "",
     lastName: "",
@@ -75,7 +75,7 @@ function Signup() {
     subdomain: "",
     businessTypes: [],
     otherBusinessType: "",
-    logoImgStr: "",
+    logoImageFileName: "",
     businessBio: "",
     socialLinks: {
       facebookUrl: "",
@@ -127,7 +127,7 @@ function Signup() {
     subdomain,
     businessTypes,
     otherBusinessType,
-    logoImgStr,
+    logoImageFileName,
     businessBio,
     socialLinks,
     fulfillmentMethodInt,
@@ -166,7 +166,7 @@ function Signup() {
 
       // Upload logo step
       if (step == 4) {
-        if (logoImgStr !== "") {
+        if (logoImageFileName !== "") {
           setCanSkip(false);
         } else {
           setCanSkip(true);
@@ -319,7 +319,7 @@ function Signup() {
   }, [
     step,
     accessCode,
-    logoImgStr,
+    logoImageFileName,
     businessBio,
     facebookUrl,
     instagramUrl,
@@ -487,7 +487,7 @@ function Signup() {
     }
 
     if (step == 4) {
-      if (logoImgStr == "")
+      if (logoImageFileName == "")
         return { isEmpty: false, errorMsg: "Upload logo or skip." };
     }
 
@@ -806,11 +806,21 @@ function Signup() {
     return false;
   }
 
+  const handleRemoveLogoImage = () => {
+    setDisplayLogo("");
+    setSignupValues((prev) => ({ ...prev, logoImageFileName: "" }));
+  };
+
   const handleImageUpload = async (e) => {
     const selectedImage = e.target.files[0];
+
+    if (!selectedImage) return;
+    const fileName = selectedImage.name;
     const imgUrl = URL.createObjectURL(selectedImage);
 
-    setSignupValues((prev) => ({ ...prev, logoImgStr: imgUrl }));
+    setLogoFile(selectedImage);
+    setDisplayLogo(imgUrl);
+    setSignupValues((prev) => ({ ...prev, logoImageFileName: fileName }));
   };
 
   async function handleSignup(e) {
@@ -854,9 +864,20 @@ function Signup() {
       }
     }
 
-    const newUserData = structureUserData(signupValues);
+    const { url: logoImg, error: logoErr } = await storeLogoImageFirebase(
+      logoFile,
+      subdomain
+    );
+
+    if (logoErr) {
+      console.log("Error saving logo image", error);
+    }
+
+    const newUserData = structureUserData(logoImg);
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
+
+    console.log("success user", user);
 
     const { accounts } = user;
 
@@ -873,6 +894,7 @@ function Signup() {
           if (status == 200 && ok) {
             const userId = user.id;
             const accountId = accounts[0].id;
+            const account = accounts[0];
             const checklist = {
               accountId,
               hasViewedShareStore: false,
@@ -888,6 +910,7 @@ function Signup() {
             sendVerificationEmail(userId, accountId, email);
             setLocalStorage("isChecklistComplete", "false");
             setLocalStorage("checklist", checklistString);
+            setAccountStore(account, logoImg);
 
             const signedInRoute =
               process.env.NODE_ENV && process.env.NODE_ENV === "production"
@@ -930,9 +953,54 @@ function Signup() {
     setIsLoading(false);
   }
 
+  const setAccountStore = async (account, logoImg) => {
+    const {
+      id: accountId,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+    } = account;
+
+    const storedAccount = {
+      accountId,
+      logoImg,
+      businessName,
+      businessBio,
+      city,
+      firstName,
+      lastName,
+      subdomain,
+    };
+
+    setAccount(storedAccount);
+  };
+
+  const storeLogoImageFirebase = async (logoFile, subdomain) => {
+    const logoRef = ref(
+      storage,
+      `account/${subdomain}.boxcart.shop/profile/logo/${logoFile.name}`
+    );
+
+    try {
+      await uploadBytes(logoRef, logoFile);
+    } catch (error) {
+      return { error };
+    }
+
+    try {
+      const url = await getDownloadURL(logoRef);
+      return { url };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   // * Helpers
 
-  function structureUserData(signupValues) {
+  function structureUserData(logoImg) {
     const name = firstName + " " + lastName;
     let fullAddress;
 
@@ -969,7 +1037,8 @@ function Signup() {
       accessCode,
       businessName,
       subdomain: subdomain + ".boxcart.shop",
-      logoImgStr,
+      logoImageFileName,
+      logoImage: logoImg,
       businessBio,
       fulfillmentMethodInt,
       address_1,
@@ -1436,7 +1505,7 @@ function Signup() {
             <div className={`${styles.form_section_group}`}>
               <h4 className="">Upload your logo.</h4>
 
-              {logoImgStr === "" ? (
+              {logoImageFileName === "" ? (
                 <Avatar
                   sx={{ width: 100, height: 100 }}
                   variant="rounded"
@@ -1446,7 +1515,7 @@ function Signup() {
                 </Avatar>
               ) : (
                 <Image
-                  src={logoImgStr}
+                  src={displayLogo}
                   alt="uploaded business logo"
                   width={50}
                   height={50}
@@ -1463,9 +1532,20 @@ function Signup() {
                 id="logo_file"
                 type="file"
                 accept="image/"
+                value=""
                 className={`${styles.upload_logo_input}`}
                 onChange={handleImageUpload}
+                // onClick={handleImageUpload}
               />
+              {displayLogo !== "" && (
+                <button
+                  type="button"
+                  className="underline mt-4 text-sm w-fit mx-auto"
+                  onClick={handleRemoveLogoImage}
+                >
+                  remove
+                </button>
+              )}
             </div>
           )}
 
@@ -1806,3 +1886,21 @@ function Signup() {
 }
 
 export default Signup;
+
+export async function getServerSideProps(context) {
+  const lastInsertedId = await prisma.account.findFirst({
+    select: { id: true },
+    orderBy: { id: "desc" },
+  });
+
+  let nextAccountId = 0;
+
+  if (lastInsertedId) {
+    const lastAccountid = lastInsertedId.id;
+    nextAccountId = lastAccountid + 1;
+  }
+
+  return {
+    props: { nextAccountId },
+  };
+}

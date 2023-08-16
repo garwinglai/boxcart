@@ -33,8 +33,6 @@ export async function checkIsChecklistCompleteClient(email) {
 }
 
 export async function updateAccountSettingsClient(data) {
-  console.log("here")
-  console.log("data", data);
   const apiUrl = `/api/private/account/update`;
 
   const resAccount = await fetch(apiUrl, {
@@ -44,10 +42,11 @@ export async function updateAccountSettingsClient(data) {
 
   const accountJSON = await resAccount.json();
   const { status } = resAccount;
+  console.log("accountJSON", accountJSON);
 
   if (status === 200) {
-    return { success: true, account: accountJSON };
+    return { success: true, value: accountJSON.value };
   } else {
-    return { success: false, account: null };
+    return { success: false, value: null };
   }
 }

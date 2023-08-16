@@ -21,7 +21,6 @@ export async function createProductServer(product) {
         createdCategories,
       };
     } else {
-      console.log("no new categories");
       const createdProduct = await createProduct(product);
       data = {
         createdProduct,
@@ -49,10 +48,9 @@ const createCategories = (newCategories, accountId) => {
 };
 
 const createProduct = (product) => {
-  console.log("product", product);
   const {
     productSchema,
-    imageSchmea,
+    imageSchema,
     optionGroupSchema,
     optionSchema,
     questionSchema,
@@ -69,9 +67,10 @@ const createProduct = (product) => {
     hasUnlimitedQuantity,
     setQuantityByProduct,
     relatedCategories,
+    defaultImageFileName,
+    fireStorageId,
+    defaultImage,
   } = productSchema;
-
-  console.log("creating product", product);
 
   return prisma.product.create({
     data: {
@@ -98,6 +97,21 @@ const createProduct = (product) => {
                 },
               },
             },
+          };
+        }),
+      },
+      defaultImageFileName,
+      defaultImage,
+      fireStorageId,
+      images: {
+        create: imageSchema.map((imageItem) => {
+          const { fileName, imgFileName, isDefault, image, fireStorageId } =
+            imageItem;
+          return {
+            imgFileName: imgFileName ? imgFileName : fileName,
+            isDefault,
+            image,
+            fireStorageId,
           };
         }),
       },
@@ -142,13 +156,12 @@ const createProduct = (product) => {
                         : quantityInt
                       : null,
                   };
-                  console.log("optionData", optionData);
+
                   return optionData;
                 }
               }),
             },
           };
-          console.log("optionGroupData", optionGroupData);
           return optionGroupData;
         }),
       },
@@ -174,12 +187,12 @@ const createProduct = (product) => {
           options: true,
         },
       },
+      images: true,
     },
   });
 };
 
 export async function updateProductServer(product) {
-  console.log("update product server", product);
   const { productSchema, questionSchema } = product;
   const { accountId, newCategories, removedQuestions } = productSchema;
 
@@ -212,7 +225,9 @@ export async function updateProductServer(product) {
 const updateProduct = (product) => {
   const {
     productSchema,
-    imageSchmea,
+    imageSchema,
+    updatedImages,
+    removedImages,
     optionGroupSchema,
     optionSchema,
     questionSchema,
@@ -235,13 +250,10 @@ const updateProduct = (product) => {
     newQuestionsAdded,
     removedOptionGroups,
     removedOptions,
+    defaultImageFileName,
+    fireStorageId,
+    defaultImage,
   } = productSchema;
-
-  //  TODO:
-  // 1. update product
-  // console.log("relatedCategories", relatedCategories);
-  // console.log("optionGroupSchema", optionGroupSchema);
-  // console.log("optionSchema", optionSchema);
 
   return prisma.product.update({
     where: {
@@ -253,10 +265,44 @@ const updateProduct = (product) => {
       description,
       priceIntPenny,
       priceStr,
-      // defaultImgStr,
+      defaultImageFileName,
+      defaultImage,
       hasUnlimitedQuantity,
       setQuantityByProduct,
       quantity,
+      images: {
+        update:
+          updatedImages &&
+          updatedImages.map((imageItem) => {
+            const { id, imgFileName, isDefault, image, fireStorageId } =
+              imageItem;
+            return {
+              where: {
+                id,
+              },
+              data: {
+                isDefault,
+              },
+            };
+          }),
+        create:
+          imageSchema &&
+          imageSchema.map((imageItem) => {
+            const { imgFileName, isDefault, image, fireStorageId } = imageItem;
+            return {
+              imgFileName,
+              isDefault,
+              image,
+              fireStorageId,
+            };
+          }),
+        deleteMany: removedImages.map((images) => {
+          const { id } = images;
+          return {
+            id,
+          };
+        }),
+      },
       relatedCategories: {
         disconnect: removedCategories.map((id) => {
           return {
@@ -286,7 +332,7 @@ const updateProduct = (product) => {
       questions: {
         update: questionSchema.map((questionObj) => {
           const { id, isRequired, question } = questionObj;
-          console.log("inside question update", isRequired, id);
+
           if (!id) return;
           const questionData = {
             where: {
@@ -301,7 +347,7 @@ const updateProduct = (product) => {
         }),
         create: newQuestionsAdded.map((item) => {
           const { isRequired, question } = item;
-          console.log("isRequired", isRequired);
+
           const questionData = {
             question,
             productName,
@@ -453,6 +499,7 @@ const updateProduct = (product) => {
       },
     },
     include: {
+      images: true,
       questions: true,
       relatedCategories: true,
       optionGroups: {
@@ -462,10 +509,6 @@ const updateProduct = (product) => {
       },
     },
   });
-
-  // 2. update options groups: update original, create new, delete removed
-  // 3. update questions: create new, delete removed
-  // 4. update related categories: update original, delete removed
 };
 
 export async function getProductsServer(accountId) {
@@ -484,6 +527,7 @@ export async function getProductsServer(accountId) {
             },
             questions: true,
             relatedCategories: true,
+            images: true,
           },
         },
       },
