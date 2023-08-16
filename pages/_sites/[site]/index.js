@@ -257,14 +257,14 @@ export async function getServerSideProps(context) {
     },
   });
 
-  if (!siteData) {
-    return {
-      redirect: {
-        destination: "https://www.boxcart.site",
-        permanent: false,
-      },
-    };
-  }
+  // if (!siteData) {
+  //   return {
+  //     redirect: {
+  //       destination: "https://www.boxcart.site",
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   const serializedData = JSON.parse(JSON.stringify(siteData));
 
