@@ -47,7 +47,7 @@ function FilterCategoryDrawer({
           </span>
         </button>
         {/* <Divider /> */}
-        {categories &&
+        {/* {categories &&
           categories.map((category, idx) => {
             const { categoryName, id, products } = category;
             const productCount = products.length;
@@ -64,7 +64,7 @@ function FilterCategoryDrawer({
                 </span>
               </button>
             );
-          })}
+          })} */}
       </div>
     </Drawer>
   );
