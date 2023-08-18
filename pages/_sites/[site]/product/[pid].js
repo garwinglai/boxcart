@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/router";
 import ShareIcon from "@mui/icons-material/Share";
 import { IconButton } from "@mui/material";
-import { products } from "@/helper/temp/tempData";
+// import { products } from "@/helper/temp/tempData";
 import Image from "next/image";
 import Rating from "@mui/material/Rating";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -15,12 +15,15 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-function Product({ producted }) {
-  console.log("product", producted);
+// generate item quantity constant to 100 values in an array from 1
+const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
+
+function Product({ product }) {
+  // console.log("product", producted);
   const [selectedQuantity, setSelectedQuantity] = useState("1");
   const [exampleImages, setExampleImages] = useState([]);
 
-  const product = products[0];
+  // const product = products[0];
   const {
     id,
     name,
@@ -30,13 +33,18 @@ function Product({ producted }) {
     reviewDouble,
     reviewCountStr,
     quantity,
-    options,
-    enableNote,
-    hasOptions,
-    notePlaceHOlder,
+    images,
+    hasUnlimitedQuantity,
+    setQuantityByProduct,
+    optionGroups,
+    questions,
+    enableCustomNote,
   } = product;
   // Show default image first
-  const imgArr = product.imgArr.sort((a, b) => b.isDefault - a.isDefault);
+  const imgArr = images.sort((a, b) => b.isDefault - a.isDefault);
+
+  // create an array from 1 to quantity
+  const productQuantity = Array.from({ length: quantity }, (_, i) => i + 1);
 
   const router = useRouter();
   const selectRef = useRef(null);
@@ -80,35 +88,18 @@ function Product({ producted }) {
     setExampleImages(remainingImages);
   }
 
-  function displayOptions() {
+  function displayOptions(optionGroups) {
     return (
       <div className="">
-        {options.map((option, index) => {
-          const diffOptionsArr = Object.keys(option);
+        {optionGroups.map((group, index) => {
+          const { id, selectionType, options, isRequired } = group;
+          if (selectionType === 0) {
+            return <RadioGroupComponent key={id} currOption={group} />;
+          }
 
-          return diffOptionsArr.map((optionName) => {
-            const currOption = option[optionName];
-            const selectOne = currOption.selectOne;
-            const selectMany = currOption.selectMany;
-
-            if (selectOne) {
-              return (
-                <RadioGroupComponent
-                  key={currOption.id}
-                  currOption={currOption}
-                />
-              );
-            }
-
-            if (selectMany) {
-              return (
-                <CheckGroupComponent
-                  key={currOption.id}
-                  currOption={currOption}
-                />
-              );
-            }
-          });
+          if (selectionType === 1) {
+            return <CheckGroupComponent key={id} currOption={group} />;
+          }
         })}
       </div>
     );
@@ -116,13 +107,13 @@ function Product({ producted }) {
 
   function displayNote() {
     return (
-      <div className="flex flex-col px-6 py-4">
-        <p className="font-medium">Personalization</p>
+      <div className="flex flex-col pt-4 pb-6 px-6">
+        <h4 className="font-medium text-sm">Custom note:</h4>
         <label
           htmlFor="customNote"
           className="text-[color:var(--gray-text)] font-extralight mb-2 text-sm"
         >
-          Know exactly what you want? Let us know and share references.
+          Have something to add? Let us know here!
         </label>
         <textarea
           name="customNote"
@@ -132,6 +123,29 @@ function Product({ producted }) {
         />
       </div>
     );
+  }
+
+  function displayQuestions(questions) {
+    return questions.map((item) => {
+      const { id, question, isRequired } = item;
+
+      return (
+        <div key={id} className="flex flex-col pt-4 pb-6 px-6">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="font-medium text-sm">{question}</h4>
+            <p className="text-xs font-extralight opacity-70">
+              {isRequired ? "required" : "optional"}
+            </p>
+          </div>
+          <textarea
+            name="customNote"
+            id="customNote"
+            rows={1}
+            className="border border-[color:var(--black-design-extralight)] focus:outline-[color:var(--black)] p-2 "
+          />
+        </div>
+      );
+    });
   }
 
   return (
@@ -156,35 +170,27 @@ function Product({ producted }) {
             </IconButton>
           </div>
         </div>
-        <div className="flex snap-x w-full overflow-x-scroll relative md:grid md:grid-cols-2 md:overflow-x-hidden md:gap-1">
-          {imgArr.map((imgItem, index) => {
-            if (imgItem.isDefault) {
-              return (
-                <div key={index}>
-                  <Image
-                    src={imgItem.imgStr}
-                    alt={imgItem.imgAlt}
-                    className="object-cover md:col-span-2 md:w-full snap-center"
-                  />
-                </div>
-              );
-            } else {
-              return (
+        <div className="flex overflow-x-scroll w-full md:grid md:grid-cols-2 lg:w-5/6 lg:mx-auto xl:w-3/4">
+          {images.map((imgItem, index) => {
+            const { isDefault, image, id } = imgItem;
+
+            return (
+              <div
+                className={`min-w-full relative aspect-square ${
+                  isDefault ? "md:col-span-2" : "md:col-span-1 "
+                }`}
+              >
                 <Image
-                  src={imgItem.imgStr}
-                  alt={imgItem.imgAlt}
+                  src={image}
+                  alt="product image"
+                  fill
                   key={index}
-                  className="object-cover md:col-span-1 md:w-full snap-center"
+                  className="object-cover snap-center"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-              );
-            }
+              </div>
+            );
           })}
-          <div>hi</div>
-          {/* <div className="absolute right-0 top-1/2 bg-[color:var(--black-design-extralight)] rounded-full">
-            <IconButton sx={{ backgroundColor: "black" }}>
-              <ArrowForwardIosIcon sx={{ color: "white" }} />
-            </IconButton>
-          </div> */}
         </div>
         <div className="text-center md:hidden">
           <MoreHorizIcon
@@ -219,7 +225,7 @@ function Product({ producted }) {
         <div className="relative px-6 pb-6">
           <label
             htmlFor="quantitySelect"
-            className="block mb-1 font-medium text-base text-[color:var(--black-design-extralight)] "
+            className="block mb-1 font-medium text-sm text-[color:var(--black-design-extralight)] "
             ref={selectRef}
           >
             Item Quantity:
@@ -230,33 +236,56 @@ function Product({ producted }) {
             onChange={handleQuantityChange}
             className="appearance-none w-full px-4 py-2 border text-sm font-light border-gray-300 rounded focus:outline-[color:var(--third)] "
           >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
+            {hasUnlimitedQuantity ? (
+              unlimitedQuantity.map((item, idx) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))
+            ) : setQuantityByProduct ? (
+              productQuantity.map((item, idx) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </>
+            )}
           </select>
         </div>
-        {hasOptions && displayOptions()}
-        {enableNote && displayNote()}
-        <div className="flex justify-between items-center px-6 pt-2">
-          <p>3 uploads max</p>
-          {exampleImages.length < 3 && (
-            <label
-              htmlFor="file"
-              aria-disabled
-              className="text-white bg-[color:var(--black-design-extralight)] font-extralight text-sm px-4 py-2 active:bg-black"
-            >
-              Upload image
-              <input
-                type="file"
-                id="file"
-                accept="image/"
-                onChange={handleExampleFile}
-                className="hidden"
-              />
-            </label>
-          )}
+        <div className="border-y py-8 my-4">{displayOptions(optionGroups)}</div>
+        {displayQuestions(questions)}
+        {enableCustomNote && displayNote()}
+        <div className="border-t py-4">
+          <div className="flex items-center justify-between px-6">
+            <h4 className="font-medium text-sm">Upload examples:</h4>
+            <p className="text-xs font-extralight opacity-70">optional</p>
+          </div>
+          <div className="flex flex-row-reverse justify-between gap-4 items-center px-6 pt-4">
+            <p className="text-xs font-extralight">3 uploads max</p>
+            {exampleImages.length < 3 && (
+              <label
+                htmlFor="file"
+                aria-disabled
+                className="text-white bg-[color:var(--black-design-extralight)] font-extralight text-xs px-4 py-2 active:bg-black"
+              >
+                Upload image
+                <input
+                  type="file"
+                  id="file"
+                  accept="image/"
+                  onChange={handleExampleFile}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
         </div>
         <div className="flex overflow-x-scroll w-full gap-2 px-6 py-4">
           {exampleImages.length !== 0 &&
@@ -266,26 +295,20 @@ function Product({ producted }) {
                   <Image
                     src={item.imgUrl}
                     alt={item.fileName}
-                    fill={true}
+                    fill
                     className="object-cover inline-block"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <IconButton
-                    onClick={(e) => handleRemoveImage(e, item)}
-                    sx={{
-                      position: "absolute",
-                      backgroundColor: "var(--black)",
-                      opacity: "50%",
-                      right: "0.25rem",
-                      top: "0.25rem",
-                    }}
-                  >
-                    <CloseIcon
-                      sx={{
-                        color: "var(--white)",
-                        fontSize: "0.75rem",
-                      }}
-                    />
-                  </IconButton>
+                  <div className="absolute bg-[color:var(--black-design-extralight)] rounded-full right-1 top-1 opacity-70">
+                    <IconButton onClick={(e) => handleRemoveImage(e, item)}>
+                      <CloseIcon
+                        sx={{
+                          color: "var(--white)",
+                          fontSize: "0.75rem",
+                        }}
+                      />
+                    </IconButton>
+                  </div>
                 </div>
                 <p className="truncate font-extralight text-xs">
                   {item.fileName}
@@ -293,10 +316,10 @@ function Product({ producted }) {
               </div>
             ))}
         </div>
-        <div className="sticky bottom-0 p-4 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none">
-          <div className="h-10">
+        <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
+          {/* <div className="h-10">
             <ButtonSecondaryStorefront name="1 Click Buy" />
-          </div>
+          </div> */}
           <div className="h-10">
             <ButtonPrimaryStorefront name="Add to Cart" />
           </div>
@@ -314,7 +337,6 @@ Product.getLayout = function getLayout(page) {
 
 // TODO: get products
 export async function getServerSideProps(context) {
-  console.log(context.query.pid);
   const { pid } = context.query;
   const id = parseInt(pid);
 
@@ -337,7 +359,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      producted: serializedProduct,
+      product: serializedProduct,
     },
   };
 }

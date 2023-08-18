@@ -8,6 +8,12 @@ const nextConfig = {
         port: "",
         // pathname: "/account123/**",
       },
+      {
+        protocol: "https",
+        hostname: "static.gotprint.com",
+        port: "",
+        // pathname: "/account123/**",
+      },
     ],
   },
   reactStrictMode: true,

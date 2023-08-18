@@ -454,11 +454,23 @@ function ProductCard({
     const { optionGroups } = product;
     let optionsArr = [];
     const optionGroupSchema = optionGroups.map((group) => {
-      const { optionGroupName, productName, options } = group;
+      const {
+        optionGroupName,
+        productName,
+        options,
+        selectionType,
+        selectionDisplay,
+        isRequired,
+        isRequiredDisplay,
+      } = group;
       optionsArr.push(...options);
       const data = {
         optionGroupName,
         productName,
+        selectionType,
+        selectionDisplay,
+        isRequired,
+        isRequiredDisplay,
       };
 
       return data;
@@ -720,11 +732,24 @@ function ProductCard({
               </p>
             ) : (
               optionGroups.map((group) => {
-                const { optionGroupName, options, id: groupId } = group;
+                const {
+                  optionGroupName,
+                  options,
+                  id: groupId,
+                  selectionDisplay,
+                  isRequiredDisplay,
+                } = group;
 
                 return (
                   <div className="px-8 pt-2" key={groupId}>
-                    <h5 className="text-sm mb-2">{optionGroupName}:</h5>
+                    <div className="flex justify-between items-center  mb-2">
+                      <span className="flex items-center gap-2">
+                        <h5 className="text-sm">{optionGroupName}:</h5>
+                      </span>
+                      <p className="text-xs font-extralight">
+                        {isRequiredDisplay} - ({selectionDisplay})
+                      </p>
+                    </div>
                     {options.map((option) => {
                       const {
                         id: optionId,

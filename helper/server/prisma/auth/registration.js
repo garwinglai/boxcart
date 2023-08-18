@@ -120,15 +120,15 @@ export async function createNewUser(body) {
                       create: [
                         {
                           question: "These are sample questions",
-                          productName: "Sample test product",
+                          productName: "Sample product",
                         },
                         {
                           question: "Do you have any special requests?",
-                          productName: "Sample test product",
+                          productName: "Sample product",
                         },
                         {
                           question: "Market required for mandatory questions.",
-                          productName: "Sample test product",
+                          productName: "Sample product",
                         },
                       ],
                     },
@@ -136,7 +136,11 @@ export async function createNewUser(body) {
                       create: [
                         {
                           optionGroupName: "Size",
-                          productName: "Sample test product",
+                          productName: "Sample product",
+                          selectionType: 0,
+                          selectionDisplay: "select one",
+                          isRequired: true,
+                          isRequiredDisplay: "required",
                           options: {
                             create: [
                               {

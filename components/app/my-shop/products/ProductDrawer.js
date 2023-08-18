@@ -74,6 +74,7 @@ function ProductDrawer({
     optionPositions: [],
     groupOfOptions: [],
   });
+  const [groupOptionSettings, setGroupOptionSettings] = useState([]);
   const [customerQuestions, setCustomerQuestions] = useState(
     product ? product.questions : []
   );
@@ -101,6 +102,11 @@ function ProductDrawer({
     id: product ? product.id : "",
     isSampleProduct: product ? product.isSampleProduct : false,
     relatedCategories: product ? product.relatedCategories : [],
+    enableCustomNote: product
+      ? product.enableCustomNote
+        ? product.enableCustomNote
+        : false
+      : false,
   });
   const [allCategories, setAllCategories] = useState(
     categories ? categories : []
@@ -130,6 +136,7 @@ function ProductDrawer({
     id,
     isSampleProduct,
     relatedCategories,
+    enableCustomNote,
   } = productValues;
 
   const {
@@ -170,6 +177,27 @@ function ProductDrawer({
       title: item.optionGroupName,
       groupId: item.id,
     }));
+
+    // optionGroupSettings
+    const groupSettings = optionGroups.map((item) => {
+      const {
+        id: position,
+        isRequired,
+        isRequiredDisplay,
+        selectionType,
+        selectionDisplay,
+      } = item;
+
+      const data = {
+        position,
+        isRequired,
+        isRequiredDisplay,
+        selectionType,
+        selectionDisplay,
+      };
+
+      return data;
+    });
 
     // optionPosition
     const oPositions = optionGroups.map((item) => {
@@ -230,6 +258,7 @@ function ProductDrawer({
       groupOfOptions: groupOptionsArr,
     };
 
+    setGroupOptionSettings(groupSettings);
     setShowOptionInputs(optionInputs);
   };
 
@@ -403,6 +432,12 @@ function ProductDrawer({
     setCustomerQuestions(updatedQuestionArray);
   };
 
+  const handleCustomNoteChange = (e) => {
+    const { checked } = e.target;
+
+    setProductValues((prev) => ({ ...prev, enableCustomNote: checked }));
+  };
+
   const handlePhotoFileChange = (e) => {
     const { name, files } = e.target;
     const selectedImage = files[0];
@@ -431,6 +466,7 @@ function ProductDrawer({
         ...prev,
         defaultImgStr: fileName,
       }));
+      setDefaultImageValues(imgData);
     }
   };
 
@@ -468,6 +504,15 @@ function ProductDrawer({
   const handleAddOptionGroup = () => {
     if (optionGroupPositions.length === 0) {
       setShowOptionInputs((prev) => ({ ...prev, optionGroupPositions: [0] }));
+      setGroupOptionSettings((prev) => [
+        {
+          position: 0,
+          isRequired: true,
+          isRequiredDisplay: "required",
+          selectionType: 0,
+          selectionDisplay: "select one",
+        },
+      ]);
       return;
     }
 
@@ -478,12 +523,23 @@ function ProductDrawer({
       ...prev,
       optionGroupPositions: [...prev.optionGroupPositions, higherNumber],
     }));
+    setGroupOptionSettings((prev) => [
+      ...prev,
+      {
+        position: higherNumber,
+        isRequired: true,
+        isRequiredDisplay: "required",
+        selectionType: 0,
+        selectionDisplay: "select one",
+      },
+    ]);
   };
 
   const handleAddVariantClick = (position) => (e) => {
     // * Throw error if title is empty
     const optionGroupTitleLen = optionGroupTitles.length;
 
+    // Get position of group title
     const currPositionTitleArr = optionGroupTitles.filter((item) => {
       if (position === item.position) return item.title;
     });
@@ -504,7 +560,11 @@ function ProductDrawer({
       return;
     }
 
-    const optionPositionsArrLen = optionPositions.length;
+    const optionPositionArrPerGroupPosition = optionPositions.filter(
+      (item) => item.groupPosition === position
+    );
+
+    const optionPositionsArrLen = optionPositionArrPerGroupPosition.length;
 
     // if there are no option positions, then the first option position is 0
     if (optionPositionsArrLen === 0) {
@@ -515,7 +575,7 @@ function ProductDrawer({
 
       setShowOptionInputs((prev) => ({
         ...prev,
-        optionPositions: [data],
+        optionPositions: [...optionPositions, data],
       }));
       return;
     }
@@ -558,6 +618,7 @@ function ProductDrawer({
   };
 
   const handleRemoveOptionGroup = (e) => {
+    //value is current position
     const { value } = e.target;
 
     // remove the option group from the array
@@ -580,6 +641,13 @@ function ProductDrawer({
     const newOptionPositions = optionPositions.filter(
       (item) => item.groupPosition != value
     );
+
+    // Remove option settings
+    const newGroupOptionSettings = groupOptionSettings.filter(
+      (item) => item.position != value
+    );
+
+    setGroupOptionSettings(newGroupOptionSettings);
 
     if (isEditProduct) {
       // check optionGroupTitles to see if value matches any of the positions, if it does, check if groupId exists. If groupId exists, add the groupId to removedOptionGroups
@@ -645,6 +713,48 @@ function ProductDrawer({
       ...prev,
       optionGroupTitles: [...optionGroupTitles, { position, title: value }],
     }));
+  };
+
+  const handleOptionGroupSettingsChange = (position) => (e) => {
+    const { name, value } = e.target;
+    let selectionType;
+    let selectionDisplay;
+    let isRequired;
+    let isRequiredDisplay;
+
+    if (name === "selectionQuantity") {
+      selectionType = value === "one" ? 0 : 1;
+      selectionDisplay = value === "one" ? "select one" : "select many";
+
+      setGroupOptionSettings((prev) =>
+        prev.map((item) => {
+          if (item.position === position) {
+            return {
+              ...item,
+              selectionType,
+              selectionDisplay,
+            };
+          }
+
+          return item;
+        })
+      );
+    }
+
+    if (name === "selectionRequirement") {
+      isRequired = value === "required" ? true : false;
+      isRequiredDisplay = value === "required" ? "required" : "optional";
+
+      setGroupOptionSettings((prev) =>
+        prev.map((item) => {
+          if (item.position === position) {
+            return { ...item, isRequired, isRequiredDisplay };
+          }
+
+          return item;
+        })
+      );
+    }
   };
 
   const removeOptionPosition = (item) => (e) => {
@@ -933,8 +1043,6 @@ function ProductDrawer({
     const questionSchema = structureQuestionSchema();
     const structuredOptions = structureOptionGroupSchema();
 
-    // setIsSaveProductLoading(false);
-    // return;
     if (!structuredOptions) {
       setIsSaveProductLoading(false);
       return;
@@ -1101,7 +1209,6 @@ function ProductDrawer({
 
         productObject.imageSchema = newProductImages;
       }
-
       if (defaultImageValues) {
         if (newProductImages.length === 0) {
           newProductImages.push(defaultImageValues);
@@ -1254,6 +1361,7 @@ function ProductDrawer({
         id: "",
         isSampleProduct: false,
         relatedCategories: [],
+        enableCustomNote: false,
       });
 
       setShowOptionInputs({
@@ -1269,6 +1377,14 @@ function ProductDrawer({
       setCustomerQuestionInput("");
       setHasUnlimitedQuantity(true);
       setAllCategories(categories ? categories : []);
+      setGroupOptionSettings([
+        {
+          position: 0,
+          isRequired: true,
+          selectionType: 0,
+          selectionDisplay: "select one",
+        },
+      ]);
     }
 
     if (isEditProduct) {
@@ -1290,6 +1406,7 @@ function ProductDrawer({
         hasUnlimitedQuantity,
         optionGroups,
         images,
+        enableCustomNote,
       } = updatedProduct ? updatedProduct : product;
 
       setProductValues({
@@ -1304,6 +1421,7 @@ function ProductDrawer({
         id,
         isSampleProduct,
         relatedCategories,
+        enableCustomNote: enableCustomNote ? enableCustomNote : false,
       });
 
       setOptions(updatedProduct);
@@ -1314,6 +1432,28 @@ function ProductDrawer({
       setHasUnlimitedQuantity(hasUnlimitedQuantity);
       setAllCategories(categories ? categories : []);
       setDefaultImageValues(null);
+
+      const groupSettings = optionGroups.map((item) => {
+        const {
+          id: position,
+          isRequired,
+          isRequiredDisplay,
+          selectionType,
+          selectionDisplay,
+        } = item;
+
+        const data = {
+          position,
+          isRequired,
+          isRequiredDisplay,
+          selectionType,
+          selectionDisplay,
+        };
+
+        return data;
+      });
+
+      setGroupOptionSettings(groupSettings);
     }
 
     setRemovedCategories([]);
@@ -1358,6 +1498,7 @@ function ProductDrawer({
       newQuestionsAdded,
       removedOptionGroups,
       removedOptions,
+      enableCustomNote,
     };
 
     return productSchema;
@@ -1380,7 +1521,31 @@ function ProductDrawer({
   const structureOptionGroupSchema = () => {
     const optionGroupSchema = optionGroupTitles.map((group) => {
       const { position, title: optionGroupName, groupId } = group;
-      return { productName, optionGroupName, groupId };
+
+      const data = {
+        productName,
+        optionGroupName,
+        groupId,
+      };
+
+      for (let i = 0; i < groupOptionSettings.length; i++) {
+        const currSettings = groupOptionSettings[i];
+        const {
+          selectionType,
+          selectionDisplay,
+          isRequired,
+          isRequiredDisplay,
+        } = currSettings;
+
+        if (position === currSettings.position) {
+          data.selectionType = selectionType;
+          data.selectionDisplay = selectionDisplay;
+          data.isRequired = isRequired;
+          data.isRequiredDisplay = isRequiredDisplay;
+        }
+      }
+
+      return data;
     });
 
     let groupOfOptionsInsertGroupTitles = [];
@@ -1473,7 +1638,7 @@ function ProductDrawer({
           priceIntPenny,
           quantityStr: qtyStr,
           quantityInt: qtyInt,
-          groupId,
+          groupId: groupPosition,
           optionId,
         };
       }
@@ -1995,11 +2160,10 @@ function ProductDrawer({
                   className={` bg-[color:var(--brown-bg)]  p-4  my-1 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]`}
                 >
                   <div>
-                    <span className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-center mb-2">
                       <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
                         Option group
                       </h4>
-
                       <button
                         type="button"
                         value={position}
@@ -2008,8 +2172,8 @@ function ProductDrawer({
                       >
                         remove group
                       </button>
-                    </span>
-                    <span className="flex flex-col py-2 pl-4 relative">
+                    </div>
+                    <div className="flex flex-col py-2 pl-4 relative">
                       <label
                         htmlFor="optionTitle"
                         className="text-[color:var(--black-design-extralight)] font-medium text-sm "
@@ -2027,8 +2191,109 @@ function ProductDrawer({
                         placeholder="Size, flavor, toppings ... "
                         className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
                       />
-                    </span>
-                    <span className="flex justify-between items-center mt-4">
+                    </div>
+                    <div className="border-y py-4 mt-4">
+                      <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
+                        Settings
+                      </h4>
+                      {groupOptionSettings.map((groupSettingItem) => {
+                        const { selectionType, isRequired } = groupSettingItem;
+                        if (groupSettingItem.position === position) {
+                          return (
+                            <div key={groupSettingItem.position}>
+                              <div>
+                                <FormControl>
+                                  <ul className="my-2">
+                                    <li className="text-xs list-disc font-light ml-5 md:text-sm">
+                                      Require customers to select options.
+                                    </li>
+                                  </ul>
+                                  <RadioGroup
+                                    aria-labelledby="radio buttons for setting quantity"
+                                    name="selectionRequirement"
+                                    value={isRequired ? "required" : "optional"}
+                                    defaultValue="required"
+                                    onChange={handleOptionGroupSettingsChange(
+                                      position
+                                    )}
+                                    sx={{ marginLeft: "1rem" }}
+                                  >
+                                    <FormControlLabel
+                                      value="required"
+                                      control={
+                                        <Radio size="small" color="warning" />
+                                      }
+                                      label={
+                                        <p className="text-[color:var(--black-design)] text-sm">
+                                          Required
+                                        </p>
+                                      }
+                                    />
+
+                                    <FormControlLabel
+                                      value="optional"
+                                      control={
+                                        <Radio size="small" color="warning" />
+                                      }
+                                      label={
+                                        <p className="text-[color:var(--black-design)] text-sm">
+                                          Optional
+                                        </p>
+                                      }
+                                    />
+                                  </RadioGroup>
+                                </FormControl>
+                              </div>
+
+                              <div>
+                                <FormControl>
+                                  <ul className="my-2">
+                                    <li className="text-xs list-disc font-light ml-5 md:text-sm">
+                                      How many can customers select?
+                                    </li>
+                                  </ul>
+                                  <RadioGroup
+                                    aria-labelledby="radio buttons for setting quantity"
+                                    name="selectionQuantity"
+                                    defaultValue="one"
+                                    value={selectionType == 0 ? "one" : "many"}
+                                    onChange={handleOptionGroupSettingsChange(
+                                      position
+                                    )}
+                                    sx={{ marginLeft: "1rem" }}
+                                  >
+                                    <FormControlLabel
+                                      value="one"
+                                      control={
+                                        <Radio size="small" color="warning" />
+                                      }
+                                      label={
+                                        <p className="text-[color:var(--black-design)] text-sm">
+                                          Select one
+                                        </p>
+                                      }
+                                    />
+
+                                    <FormControlLabel
+                                      value="many"
+                                      control={
+                                        <Radio size="small" color="warning" />
+                                      }
+                                      label={
+                                        <p className="text-[color:var(--black-design)] text-sm">
+                                          Select many
+                                        </p>
+                                      }
+                                    />
+                                  </RadioGroup>
+                                </FormControl>
+                              </div>
+                            </div>
+                          );
+                        }
+                      })}
+                    </div>
+                    <div className="flex justify-between items-center mt-4">
                       <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
                         Options:
                       </h4>
@@ -2040,7 +2305,7 @@ function ProductDrawer({
                           handleClick={handleAddVariantClick(position)}
                         />
                       </div>
-                    </span>
+                    </div>
                     {optionPositions.length !== 0 &&
                       optionPositions.map((item, idx) => {
                         if (item.groupPosition === position)
@@ -2198,6 +2463,20 @@ function ProductDrawer({
               </div>
             )}
           </div>
+        </div>
+        <div className="flex items-center justify-between rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+          <div>
+            <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
+              Enable custom note:
+            </h4>
+            <p className="text-xs font-extralight">
+              Allow your customers to leave you a custom note.
+            </p>
+          </div>
+          <IOSSwitch
+            checked={enableCustomNote}
+            onChange={handleCustomNoteChange}
+          />
         </div>
 
         <div className="absolute left-0 bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">

@@ -163,11 +163,24 @@ function ProductModal({
               </p>
             ) : (
               optionGroups.map((group) => {
-                const { optionGroupName, options, id: groupId } = group;
+                const {
+                  optionGroupName,
+                  options,
+                  id: groupId,
+                  selectionDisplay,
+                  isRequiredDisplay,
+                } = group;
 
                 return (
                   <div className="px-8 pt-2" key={groupId}>
-                    <h5 className="text-sm mb-2">{optionGroupName}:</h5>
+                    <div className="flex justify-between items-center  mb-2">
+                      <span className="flex items-center gap-2">
+                        <h5 className="text-sm">{optionGroupName}:</h5>
+                      </span>
+                      <p className="text-xs font-extralight">
+                        {isRequiredDisplay} - ({selectionDisplay})
+                      </p>
+                    </div>
                     {options.map((option) => {
                       const {
                         id: optionId,

@@ -65,7 +65,6 @@ export function middleware(req) {
       // }
 
       url.pathname = `/app${url.pathname}`;
-      console.log("url", url);
       return NextResponse.rewrite(url);
     }
 
@@ -77,7 +76,6 @@ export function middleware(req) {
     ) {
       // console.log("rewrite to home/");
       url.pathname = `/home${url.pathname}`;
-      console.log("second url", url);
       return NextResponse.rewrite(url);
     }
 

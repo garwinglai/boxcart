@@ -50,6 +50,7 @@ function Products({ userAccount }) {
 
     if (success) {
       const { products } = value;
+      console.log("products:", products);
       setCurrProducts(products);
       return;
     }

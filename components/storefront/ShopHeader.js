@@ -188,6 +188,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
             src={bannerImage}
             alt="business banner"
             fill
+            priority
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
           />
@@ -204,6 +205,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
               src={logoImage}
               alt="business logo"
               fill
+              priority
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="border border-[color:var(--gray-light-med)] bg-white rounded-full object-contain"
             />

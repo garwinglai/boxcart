@@ -26,19 +26,24 @@ function ShopMenu({
           } lg:grid-cols-4  xl:grid-cols-5`}
         >
           {products &&
-            products.map((item, idx) => (
-              <ShopCard
-                key={idx}
-                product={item}
-                isOwner={isOwner}
-                categories={categories}
-                accountId={accountId}
-                updateProductList={updateProductList}
-                handleOpenSnackbar={handleOpenSnackbar}
-                getAllProducts={getAllProducts}
-                userAccount={userAccount}
-              />
-            ))}
+            products.map((item, idx) => {
+              const { isEnabled } = item;
+              if (isEnabled) {
+                return (
+                  <ShopCard
+                    key={idx}
+                    product={item}
+                    isOwner={isOwner}
+                    categories={categories}
+                    accountId={accountId}
+                    updateProductList={updateProductList}
+                    handleOpenSnackbar={handleOpenSnackbar}
+                    getAllProducts={getAllProducts}
+                    userAccount={userAccount}
+                  />
+                );
+              }
+            })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center w-full">

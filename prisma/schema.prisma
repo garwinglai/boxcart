@@ -241,6 +241,7 @@ model Product {
   hasUnlimitedQuantity Boolean       @default(true)
   setQuantityByProduct Boolean       @default(true) //If false, set qty by variant and total up for qty.
   quantity             Int?
+  enableCustomNote     Boolean       @default(false)
   optionGroups         OptionGroup[]
   questions            Question[]
   relatedCategories    Category[]
@@ -292,14 +293,18 @@ model Question {
 }
 
 model OptionGroup {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  optionGroupName String
-  productName     String
-  product         Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId       Int?
-  options         Option[]
+  id                Int      @id @default(autoincrement())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  optionGroupName   String
+  productName       String
+  selectionType     Int      @default(0) // 0: select 1, 1 select many
+  selectionDisplay  String   @default("select one") // select one, select many
+  isRequired        Boolean  @default(false)
+  isRequiredDisplay String   @default("optional") // optional, required
+  product           Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId         Int?
+  options           Option[]
 
   @@index([productId])
 }

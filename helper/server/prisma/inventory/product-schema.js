@@ -70,6 +70,7 @@ const createProduct = (product) => {
     defaultImageFileName,
     fireStorageId,
     defaultImage,
+    enableCustomNote,
   } = productSchema;
 
   return prisma.product.create({
@@ -116,6 +117,7 @@ const createProduct = (product) => {
         }),
       },
       isSampleProduct,
+      enableCustomNote,
       productName,
       description,
       priceIntPenny: productPricePenny,
@@ -125,10 +127,20 @@ const createProduct = (product) => {
       quantity: quantity ? (quantity === "" ? null : quantity) : null,
       optionGroups: {
         create: optionGroupSchema.map((optionGroup) => {
-          const { optionGroupName } = optionGroup;
+          const {
+            optionGroupName,
+            isRequired,
+            isRequiredDisplay,
+            selectionType,
+            selectionDisplay,
+          } = optionGroup;
           const optionGroupData = {
             optionGroupName,
             productName,
+            isRequired,
+            isRequiredDisplay,
+            selectionType,
+            selectionDisplay,
             options: {
               create: optionSchema.filter((option) => {
                 const {
@@ -253,6 +265,7 @@ const updateProduct = (product) => {
     defaultImageFileName,
     fireStorageId,
     defaultImage,
+    enableCustomNote,
   } = productSchema;
 
   return prisma.product.update({
@@ -269,6 +282,7 @@ const updateProduct = (product) => {
       defaultImage,
       hasUnlimitedQuantity,
       setQuantityByProduct,
+      enableCustomNote,
       quantity,
       images: {
         update:
@@ -364,7 +378,14 @@ const updateProduct = (product) => {
       },
       optionGroups: {
         update: optionGroupSchema.map((optionGroup) => {
-          const { optionGroupName, groupId } = optionGroup;
+          const {
+            optionGroupName,
+            groupId,
+            selectionType,
+            selectionDisplay,
+            isRequired,
+            isRequiredDisplay,
+          } = optionGroup;
 
           if (!groupId) return;
 
@@ -374,6 +395,10 @@ const updateProduct = (product) => {
             },
             data: {
               optionGroupName,
+              selectionType,
+              selectionDisplay,
+              isRequired,
+              isRequiredDisplay,
               options: {
                 update: optionSchema.map((option) => {
                   const {

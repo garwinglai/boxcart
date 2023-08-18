@@ -540,21 +540,15 @@ function ShopCard({
           </div>
         </div>
       ) : (
-        <Link
-          href={`/product/${id}`}
-          className={`${styles.card_button_box_link} ${styles.flexCol}  `}
-        >
-          <div className="">
+        <Link href={`/product/${id}`} className="w-full">
+          <div className="relative w-full aspect-square">
             <Image
-              src={candle_2}
+              src={defaultImage}
               alt="default product image"
-              className="object-cover aspect-square w-full"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              fill
+              className="object-cover rounded-t"
             />
-            {/* <Image
-            src={imgDefaultStr}
-            alt={imgDefaultAlt}
-            className="block w-full h-[calc(50vw-28px)] object-cover md:h-[calc(33vw-28px)] lg:h-[calc(22vw-28px)] xl:h-[calc(14vw-28px)]"
-          /> */}
           </div>
           <div className={`${styles.card_context_box} ${styles.flexCol}`}>
             <h4>{productName}</h4>
@@ -566,12 +560,12 @@ function ShopCard({
           </div>
         </Link>
       )}
-      <div className={`${styles.add_to_cart_btn}`}>
+      <div className="absolute bottom-0 right-0 bg-[color:var(--white-design)] rounded-full">
         {!isOwner && (
           <IconButton>
             <AddShoppingCartIcon
               fontSize="small"
-              sx={{ color: "var(--brown-text)" }}
+              sx={{ color: "var(--primary)" }}
             />
           </IconButton>
         )}

@@ -31,6 +31,8 @@ function Sites({ siteData, test }) {
     hasCustomAvailability,
     categories,
     availability,
+    bannerImage,
+    logoImage,
     id: accountId,
   } = siteData || {};
 
@@ -151,8 +153,8 @@ function Sites({ siteData, test }) {
       <div className="flex-grow lg:overflow-y-auto ">
         <ShopHeader
           isOwner={false}
-          accountId={accountId}
           handleOpenSnackbar={handleOpenSnackbar}
+          userAccount={siteData}
         />
         <div className="md:flex md:justify-between">
           <div className="md:w-3/5 lg:w-2/5">
@@ -198,6 +200,7 @@ function Sites({ siteData, test }) {
                 categories={categories}
                 products={currProducts}
                 currCategory={currCategory}
+                userAccount={siteData}
               />
             </div>
           )}
@@ -257,14 +260,14 @@ export async function getServerSideProps(context) {
     },
   });
 
-  // if (!siteData) {
-  //   return {
-  //     redirect: {
-  //       destination: "https://www.boxcart.site",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
+  if (!siteData) {
+    return {
+      redirect: {
+        destination: "https://www.boxcart.site",
+        permanent: false,
+      },
+    };
+  }
 
   const serializedData = JSON.parse(JSON.stringify(siteData));
 

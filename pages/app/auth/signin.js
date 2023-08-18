@@ -53,6 +53,8 @@ const Signin = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("hi");
+
     const emailInUse = await checkEmailAvailableAccount(email);
     const { value, error } = emailInUse;
 
@@ -77,7 +79,6 @@ const Signin = () => {
         redirect: false,
       });
       const { status, error, ok, url } = signinResult;
-      // console.log(status, error, ok, url);
 
       if (status == 200 && ok) {
         const resChecklistComplete = await checkIsChecklistCompleteClient(
