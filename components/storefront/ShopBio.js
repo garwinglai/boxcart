@@ -11,8 +11,8 @@ import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 import Image from "next/image";
 
-function ShopBio({ isOwner, businessData }) {
-  const { businessName, businessBio, city, socials } = businessData || {};
+function ShopBio({ isOwner, userAccount }) {
+  const { businessName, businessBio, city, socials } = userAccount || {};
 
   const handleOpenSocialLink = (url) => (value) => {
     // check if url has "https://" if not add it

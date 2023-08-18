@@ -56,7 +56,7 @@ function ServerDay(props) {
 let stagedDeliveryDate = "Select date";
 let stagedDeliveryTime = "time";
 
-function ShopFulfillment({ isOwner, siteData, handleOpenSnackbar }) {
+function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const {
     fulfillmentMethodInt,
     hasCustomAvailability,
@@ -65,7 +65,7 @@ function ShopFulfillment({ isOwner, siteData, handleOpenSnackbar }) {
     timeBlockSeconds,
     availability,
     id: accountId,
-  } = siteData ? siteData : {};
+  } = userAccount ? userAccount : {};
 
   const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
     availability ? availability : {};

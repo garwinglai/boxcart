@@ -158,12 +158,12 @@ function Sites({ siteData, test }) {
         />
         <div className="md:flex md:justify-between">
           <div className="md:w-3/5 lg:w-2/5">
-            <ShopBio isOwner={false} businessData={businessData} />
+            <ShopBio isOwner={false} userAccount={siteData} />
           </div>
           <div className=" md:mt-16 md:w-2/5">
             <ShopFulfillment
               isOwner={false}
-              siteData={siteData}
+              userAccount={siteData}
               handleOpenSnackbar={handleOpenSnackbar}
             />
           </div>
