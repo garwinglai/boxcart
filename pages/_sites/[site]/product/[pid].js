@@ -4,16 +4,14 @@ import ShareIcon from "@mui/icons-material/Share";
 import { IconButton } from "@mui/material";
 // import { products } from "@/helper/temp/tempData";
 import Image from "next/image";
-import Rating from "@mui/material/Rating";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import RadioGroupComponent from "@/components/storefront/options/RadioGroupComponent";
 import CheckGroupComponent from "@/components/storefront/options/CheckGroupComponent";
 import ButtonPrimaryStorefront from "@/components/global/buttons/ButtonPrimaryStorefront";
-import ButtonSecondaryStorefront from "@/components/global/buttons/ButtonSecondaryStorefront";
 import CloseIcon from "@mui/icons-material/Close";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import prisma from "@/lib/prisma";
 
 // generate item quantity constant to 100 values in an array from 1
 const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
