@@ -161,10 +161,10 @@ function MyShop({ userAccount }) {
       <ShopHeader isOwner={true} userAccount={userAccount} />
       <div className="lg:flex lg:justify-between">
         <div className="lg:w-2/5">
-          <ShopBio isOwner={true} userAccount={siteData} />
+          <ShopBio isOwner={true} userAccount={userAccount} />
         </div>
         <div className=" lg:mt-16 lg:w-2/5">
-          <ShopFulfillment isOwner={true} userAccount={siteData} />
+          <ShopFulfillment isOwner={true} userAccount={userAccount} />
         </div>
       </div>
       <div className="px-4 py-2">
