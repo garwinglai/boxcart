@@ -176,6 +176,7 @@ function Product({ product }) {
 
             return (
               <div
+                key={id}
                 className={`min-w-full relative aspect-square ${
                   isDefault ? "md:col-span-2" : "md:col-span-1 "
                 }`}
