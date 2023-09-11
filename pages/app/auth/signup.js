@@ -1164,21 +1164,27 @@ function Signup({ nextAccountId }) {
           ? parseInt((parseFloat(tip1.tipInt) * 100).toFixed(2))
           : null,
       tipOnePercent:
-        typeOfTip === "percentage" ? parseFloat(tip1.tipInt).toFixed(2) : null,
+        typeOfTip === "percentage"
+          ? parseFloat(parseFloat(tip1.tipInt).toFixed(2))
+          : null,
       tipTwoStr: tip2.tipStr,
       tipTwoIntPenny:
         typeOfTip === "dollar"
           ? parseInt((parseFloat(tip2.tipInt) * 100).toFixed(2))
           : null,
       tipTwoPercent:
-        typeOfTip === "percentage" ? parseFloat(tip2.tipInt).toFixed(2) : null,
+        typeOfTip === "percentage"
+          ? parseFloat(parseFloat(tip2.tipInt).toFixed(2))
+          : null,
       tipThreeStr: tip3.tipStr,
       tipThreeIntPenny:
         typeOfTip === "dollar"
           ? parseInt((parseFloat(tip3.tipInt) * 100).toFixed(2))
           : null,
       tipThreePercent:
-        typeOfTip === "percentage" ? parseFloat(tip3.tipInt).toFixed(2) : null,
+        typeOfTip === "percentage"
+          ? parseFloat(parseFloat(tip3.tipInt).toFixed(2))
+          : null,
     };
 
     const fulfillmentData = fulfillmentMethods.map((method) => {

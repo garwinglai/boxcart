@@ -64,7 +64,7 @@ function Sites({ siteData }) {
   useEffect(() => {
     if (!availability) return;
     const { hasCustomAvailability, isTimeBlockEnabled } = availability;
-    const { taxRate, taxRateDisplay } = tax;
+    const { taxRate, taxRateDisplay } = tax ? tax : {};
     const {
       type,
       tipOneStr,
