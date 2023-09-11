@@ -7,31 +7,26 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormHelperText from "@mui/material/FormHelperText";
 import Checkbox from "@mui/material/Checkbox";
 
-function CheckGroupComponent({ currOption }) {
-  const { optionGroupName, selectionDisplay, isRequiredDisplay, options } =
-    currOption;
-
-  const [checkedArr, setCheckedArr] = useState([]);
-
-  const handleChange = (event) => {
-    const { name, checked } = event.target;
-    if (checked) {
-      if (!checkedArr.includes(name)) setCheckedArr((prev) => [...prev, name]);
-    }
-
-    if (!checked) {
-      const removedOptionArr = checkedArr.filter((item) => item !== name);
-      if (checkedArr.includes(name)) setCheckedArr(removedOptionArr);
-    }
-  };
+function CheckGroupComponent({
+  currOption,
+  handleOptionCheckedGroupChange,
+  checkedOptions,
+}) {
+  const {
+    optionGroupName,
+    selectionDisplay,
+    isRequiredDisplay,
+    options,
+    id: groupId,
+  } = currOption;
 
   return (
     <FormControl
       className={`${styles.option_box}`}
       sx={{
-        paddingLeft: "1.5rem",
-        paddingRight: "1.5rem",
-        paddingTop: "1.25rem",
+        // paddingLeft: "1.5rem",
+        // paddingRight: "1.5rem",
+        paddingBottom: "1.25rem",
       }}
       component="fieldset"
       variant="standard"
@@ -44,19 +39,74 @@ function CheckGroupComponent({ currOption }) {
       </div>
       <FormGroup className="pr-1">
         {options.map((option) => {
-          const { id, optionName, priceStr } = option;
+          const { id, optionName, priceStr, quantityInt } = option;
+
+          const optionValue =
+            optionName +
+            "-" +
+            priceStr +
+            "-" +
+            groupId +
+            "-" +
+            quantityInt +
+            "-" +
+            optionGroupName +
+            "-" +
+            id;
+
+          const findCurrentOption = checkedOptions.find(
+            (findOption) => findOption.optionId == id
+          );
+
+          let selectedOptionValue = "";
+          let isOptionChecked = false;
+
+          if (findCurrentOption) {
+            const {
+              optionName: selectedOptionName,
+              price,
+              optionQuantity,
+              optionId,
+            } = findCurrentOption;
+
+            selectedOptionValue =
+              selectedOptionName +
+              "-" +
+              price +
+              "-" +
+              groupId +
+              "-" +
+              optionQuantity +
+              "-" +
+              optionGroupName +
+              "-" +
+              optionId;
+
+            isOptionChecked = selectedOptionValue == optionValue;
+          }
+
           return (
             <FormControlLabel
               key={id}
               control={
                 <Checkbox
-                  onChange={handleChange}
-                  name={optionName}
+                  onChange={handleOptionCheckedGroupChange}
+                  value={optionValue}
                   color="warning"
+                  checked={isOptionChecked}
                 />
               }
               label={
-                <p className="font-light text-[color:var(--black-design-extralight)] text-sm">{`${optionName} - ${priceStr}`}</p>
+                <div className="flex flex-grow justify-between gap-2">
+                  <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
+                    {`${optionName} - ${priceStr}`}
+                  </p>
+                  {quantityInt && (
+                    <p className="text-xs font-extralight -mr-1">
+                      ({quantityInt} left)
+                    </p>
+                  )}
+                </div>
               }
               labelPlacement="start"
               className={`${styles.checkbox_box}`}

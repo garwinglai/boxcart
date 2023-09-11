@@ -71,6 +71,7 @@ const createProduct = (product) => {
     fireStorageId,
     defaultImage,
     enableCustomNote,
+    enableCustomerImageUploads,
   } = productSchema;
 
   return prisma.product.create({
@@ -118,6 +119,7 @@ const createProduct = (product) => {
       },
       isSampleProduct,
       enableCustomNote,
+      enableCustomerImageUploads,
       productName,
       description,
       priceIntPenny: productPricePenny,
@@ -266,6 +268,7 @@ const updateProduct = (product) => {
     fireStorageId,
     defaultImage,
     enableCustomNote,
+    enableCustomerImageUploads,
   } = productSchema;
 
   return prisma.product.update({
@@ -283,6 +286,7 @@ const updateProduct = (product) => {
       hasUnlimitedQuantity,
       setQuantityByProduct,
       enableCustomNote,
+      enableCustomerImageUploads,
       quantity,
       images: {
         update:

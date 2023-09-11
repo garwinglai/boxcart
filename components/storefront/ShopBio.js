@@ -21,7 +21,7 @@ function ShopBio({ isOwner, userAccount }) {
   };
 
   return (
-    <div className="mt-16 px-4 md:mt-20 md:px-8 md:mb-4">
+    <div className="mt-20 px-4 md:mt-24 md:px-8 md:mb-4">
       <h4 className="mb-2">{businessName}</h4>
       {/* <p className="text-xs font-light">
         <span className=" text-base font-medium">12.2k </span>
@@ -32,8 +32,8 @@ function ShopBio({ isOwner, userAccount }) {
       </p>
       <div className="flex justify-between flex-wrap items-center mt-2">
         <div className="flex gap-1">
-          {socials && socials.length === 0 ? (
-            <p className="font-extralight text-xs">No socials added.</p>
+          {socials && socials.length === 0 && isOwner ? (
+            <p className="font-extralight text-xs">- No socials added -</p>
           ) : (
             socials &&
             socials.map((link, index) => {
@@ -77,7 +77,7 @@ function ShopBio({ isOwner, userAccount }) {
             sx={{ color: "var(--gray-text)" }}
           />
           <p className="font-light text-sm text-[color:var(--black-design-extralight)] ">
-            los angeles
+            {city}
           </p>
         </div>
       </div>

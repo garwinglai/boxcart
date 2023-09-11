@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
+import * as geofire from "geofire-common";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,6 +23,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 const storage = getStorage(app);
+const createGeoHash = async (lat, lng) => {
+  const hash = geofire.geohashForLocation([lat, lng]);
+  return hash;
+};
 
 export default app;
-export { storage };
+export { storage, createGeoHash };

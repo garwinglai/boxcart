@@ -9,9 +9,9 @@
 
 .cart_item_box {
 	background-color: var(--white);
-	padding: 1rem 1.5rem 0;
+	padding: 1rem 1.5rem;
 	gap: 0.5rem;
-	border-bottom: 4px solid var(--gray-light);
+	border-bottom: 4px solid var(--brown-bg);
 }
 
 .cart_item_box p {

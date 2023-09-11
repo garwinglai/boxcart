@@ -14,6 +14,7 @@ module.exports = {
   theme: {
     extend: {
       screens: {
+        sm: "375px",
         md: "769px",
       },
       gridTemplateRows: {

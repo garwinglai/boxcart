@@ -100,7 +100,6 @@ function ProductCard({
     priceStr,
     defaultImage,
     images,
-    defaultImgStr,
     imgArrJson,
     description,
     quantity,

@@ -7,9 +7,9 @@ export async function updateHasScheduleAccountServer(
   const accountIdInt = parseInt(accountId);
 
   try {
-    const account = await prisma.account.update({
+    const account = await prisma.availability.update({
       where: {
-        id: accountIdInt,
+        accountId: accountIdInt,
       },
       data: {
         hasCustomAvailability: enableSchedule,
@@ -34,12 +34,42 @@ export async function updateTimeBlockToggleAccountServer(
   const accountIdInt = parseInt(accountId);
 
   try {
-    const account = await prisma.account.update({
+    const account = await prisma.availability.update({
       where: {
-        id: accountIdInt,
+        accountId: accountIdInt,
       },
       data: {
         isTimeBlockEnabled: enableTimeBlock,
+      },
+    });
+
+    return { success: true, value: account };
+  } catch (error) {
+    console.log(
+      "helper/server/prisma/availability updateTimeBlockToggleAccount error:",
+      error
+    );
+
+    return { success: false, error };
+  }
+}
+
+export async function updateOrderInAdvanceToggleAccountServer(
+  orderInAdvanceEnabled,
+  accountId
+) {
+  const accountIdInt = parseInt(accountId);
+
+  console.log("orderInAdvanceEnabled", orderInAdvanceEnabled);
+  console.log("accountIdInt", accountIdInt);
+
+  try {
+    const account = await prisma.availability.update({
+      where: {
+        accountId: accountIdInt,
+      },
+      data: {
+        requireOrderInAdvance: orderInAdvanceEnabled,
       },
     });
 

@@ -31,9 +31,10 @@ import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import { setLocalStorage } from "@/utils/clientStorage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storage } from "@/firebase/fireConfig";
 import { useAccountStore } from "@/lib/store";
 import prisma from "@/lib/prisma";
+import { storage, createGeoHash } from "@/firebase/fireConfig";
+import Geocode from "react-geocode";
 
 // steps:
 // 0: accessCode
@@ -50,6 +51,9 @@ import prisma from "@/lib/prisma";
 // 11: a.1 if(enable tips) = set tips else (creds)  a.2 if (address) = enable tips
 // 12: a.1 if (set tips) =  creds		a.2 if (enable tips) = set tips else (creds)
 // 13:																	a.2 if (set tips) = creds
+
+Geocode.setApiKey(process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY);
+Geocode.setLanguage("en");
 
 function Signup({ nextAccountId }) {
   const setAccount = useAccountStore((state) => state.setAccount);
@@ -600,6 +604,11 @@ function Signup({ nextAccountId }) {
   }
 
   // * Form management
+
+  const onChangeTipValues = (value, name) => {
+    setCorrectTipValues(name, value);
+  };
+
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
 
@@ -669,13 +678,13 @@ function Signup({ nextAccountId }) {
 
     if (step == 11) {
       // Set tip values for outsource delivery.
-      if (
-        (fulfillmentMethodInt == 0 && deliveryTypeInt == 0 && enableTips) ||
-        (fulfillmentMethodInt == 1 && enableTips)
-      ) {
-        setCorrectTipValues(name, value);
-        return;
-      }
+      // if (
+      //   (fulfillmentMethodInt == 0 && deliveryTypeInt == 0 && enableTips) ||
+      //   (fulfillmentMethodInt == 1 && enableTips)
+      // ) {
+      //   setCorrectTipValues(name, value);
+      //   return;
+      // }
 
       // pickup note
       if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1) {
@@ -689,20 +698,20 @@ function Signup({ nextAccountId }) {
 
     if (step == 12) {
       // Set tip values for in-house delivery.
-      if (
-        (fulfillmentMethodInt == 0 && deliveryTypeInt == 1 && enableTips) ||
-        (fulfillmentMethodInt == 2 && enableTips)
-      ) {
-        setCorrectTipValues(name, value);
-        return;
-      }
+      // if (
+      //   (fulfillmentMethodInt == 0 && deliveryTypeInt == 1 && enableTips) ||
+      //   (fulfillmentMethodInt == 2 && enableTips)
+      // ) {
+      //   setCorrectTipValues(name, value);
+      //   return;
+      // }
     }
 
     if (step == 13) {
-      if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1 && enableTips) {
-        setCorrectTipValues(name, value);
-        return;
-      }
+      // if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1 && enableTips) {
+      //   setCorrectTipValues(name, value);
+      //   return;
+      // }
     }
 
     // Set state values for step 0,1,2,3-(input for other business type)
@@ -711,14 +720,48 @@ function Signup({ nextAccountId }) {
   }
 
   function setCorrectTipValues(name, value) {
-    const tipInt = value ? parseInt(value) : null;
-    const tipStr = typeOfTip === "percentage" ? value + "%" : "$" + value;
+    if (!value) {
+      setSignupValues((prev) => ({
+        ...prev,
+        tipValues: {
+          ...prev.tipValues,
+          [name]: { tipInt: "", tipStr: "" },
+        },
+      }));
+      return;
+    }
+
+    // const tipInt = value
+    //   ? typeOfTip === "percentage"
+    //     ? parseFloat(value)
+    //     : parseFloat(value)
+    //   : null;
+    let tipStr;
+
+    if (typeOfTip === "percentage") {
+      const [numBeforeDecimal, numAfterDecimal] = value.split(".");
+
+      if (numAfterDecimal === "00") {
+        tipStr = numBeforeDecimal + "%";
+      } else {
+        tipStr = value + "%";
+      }
+    } else {
+      tipStr = "$" + value;
+    }
+
+    // const tipStr =
+    //   typeOfTip === "percentage"
+    //     ? value + "%"
+    //     : "$" + parseFloat(value).toString();
+
+    // console.log("tipStr", tipStr);
 
     setSignupValues((prev) => ({
       ...prev,
       tipValues: {
         ...prev.tipValues,
-        [name]: { tipInt: tipInt, tipStr: tipStr },
+        [name]: { tipInt: value, tipStr: tipStr },
       },
     }));
   }
@@ -743,6 +786,29 @@ function Signup({ nextAccountId }) {
 
   function handleChangeSetTips(e) {
     const { name, checked } = e.target;
+    // check if tip1, tip2, and tip3 has tipInt values
+
+    if (tip1.tipInt !== "" && tip2.tipInt !== "" && tip3.tipInt !== "") {
+      if (typeOfTip !== name) {
+        const tip1Str =
+          name === "percentage" ? tip1.tipInt + "%" : "$" + tip1.tipInt;
+        const tip2Str =
+          name === "percentage" ? tip2.tipInt + "%" : "$" + tip2.tipInt;
+        const tip3Str =
+          name === "percentage" ? tip3.tipInt + "%" : "$" + tip3.tipInt;
+
+        setSignupValues((prev) => ({
+          ...prev,
+          typeOfTip: name,
+          tipValues: {
+            tip1: { tipInt: tip1.tipInt, tipStr: tip1Str },
+            tip2: { tipInt: tip2.tipInt, tipStr: tip2Str },
+            tip3: { tipInt: tip3.tipInt, tipStr: tip3Str },
+          },
+        }));
+        return;
+      }
+    }
 
     if (checked) setSignupValues((prev) => ({ ...prev, typeOfTip: name }));
   }
@@ -873,7 +939,7 @@ function Signup({ nextAccountId }) {
       console.log("Error saving logo image", error);
     }
 
-    const newUserData = structureUserData(logoImg);
+    const newUserData = await structureUserData(logoImg);
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 
@@ -1000,15 +1066,50 @@ function Signup({ nextAccountId }) {
 
   // * Helpers
 
-  function structureUserData(logoImg) {
-    const name = firstName + " " + lastName;
-    let fullAddress;
+  const getLatLngFromAddress = (address) => {
+    return Geocode.fromAddress(address).then(
+      (response) => {
+        const { lat, lng } = response.results[0].geometry.location;
 
-    if (address_2 !== "") {
-      fullAddress =
-        address_1 + " " + address_2 + " " + city + " " + state + " " + zip;
-    } else {
-      fullAddress = address_1 + " " + city + " " + state + " " + zip;
+        return { lat, lng };
+      },
+      (error) => {
+        console.error(error);
+        // return { error };
+      }
+    );
+  };
+
+  const structureUserData = async (logoImg) => {
+    const name = firstName + " " + lastName;
+    let fullAddress = address_2
+      ? address_1 + " " + address_2 + " " + city + " " + state + " " + zip
+      : address_1 + " " + city + " " + state + " " + zip;
+    let geohash = "";
+    let lat = "";
+    let lng = "";
+
+    if (address_1 !== "" && city !== "" && state !== "" && zip !== "") {
+      try {
+        const { lat: latitude, lng: longitude } = await getLatLngFromAddress(
+          fullAddress
+        );
+        lat = latitude;
+        lng = longitude;
+      } catch (error) {
+        console.log("getAddylatlng", error);
+      }
+    }
+
+    // create geoHash with lat lng
+    if (lat !== "" && lng !== "") {
+      try {
+        const geoHash = await createGeoHash(lat, lng);
+        geohash = geoHash;
+      } catch (error) {
+        console.log("geohash error", error);
+        // todo: handle geohash error
+      }
     }
 
     const date = new Date();
@@ -1033,6 +1134,9 @@ function Signup({ nextAccountId }) {
       password,
       name,
       firstName,
+      lat,
+      lng,
+      geohash,
       lastName,
       accessCode,
       businessName,
@@ -1055,16 +1159,28 @@ function Signup({ nextAccountId }) {
     const tipsData = {
       type: typeOfTip,
       tipOneStr: tip1.tipStr,
-      tipOneIntPenny: typeOfTip === "dollar" ? tip1.tipInt * 100 : null,
-      tipOneIntHundredth: typeOfTip === "percentage" ? tip1.tipInt * 100 : null,
+      tipOneIntPenny:
+        typeOfTip === "dollar"
+          ? parseInt((parseFloat(tip1.tipInt) * 100).toFixed(2))
+          : null,
+      tipOnePercent:
+        typeOfTip === "percentage" ? parseFloat(tip1.tipInt).toFixed(2) : null,
       tipTwoStr: tip2.tipStr,
-      tipTwoIntPenny: typeOfTip === "dollar" ? tip2.tipInt * 100 : null,
-      tipTwoIntHundredth: typeOfTip === "percentage" ? tip2.tipInt * 100 : null,
+      tipTwoIntPenny:
+        typeOfTip === "dollar"
+          ? parseInt((parseFloat(tip2.tipInt) * 100).toFixed(2))
+          : null,
+      tipTwoPercent:
+        typeOfTip === "percentage" ? parseFloat(tip2.tipInt).toFixed(2) : null,
       tipThreeStr: tip3.tipStr,
-      tipThreeIntPenny: typeOfTip === "dollar" ? tip3.tipInt * 100 : null,
-      tipThreeIntHundredth:
-        typeOfTip === "percentage" ? tip3.tipInt * 100 : null,
+      tipThreeIntPenny:
+        typeOfTip === "dollar"
+          ? parseInt((parseFloat(tip3.tipInt) * 100).toFixed(2))
+          : null,
+      tipThreePercent:
+        typeOfTip === "percentage" ? parseFloat(tip3.tipInt).toFixed(2) : null,
     };
+
     const fulfillmentData = fulfillmentMethods.map((method) => {
       if (method === "delivery") {
         return {
@@ -1140,7 +1256,7 @@ function Signup({ nextAccountId }) {
     };
 
     return newUserData;
-  }
+  };
 
   function checkEmailRegex(email) {
     const emailRegex =
@@ -1810,7 +1926,7 @@ function Signup({ nextAccountId }) {
                 signupValues={signupValues}
                 onChangeTipType={handleChangeSetTips}
                 isChecked={isTipTypeChecked}
-                onChangeTipValues={handleChange}
+                onChangeTipValues={onChangeTipValues}
               />
             </div>
           )}

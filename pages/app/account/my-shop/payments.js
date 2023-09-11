@@ -26,6 +26,7 @@ import IconButton from "@mui/material/IconButton";
 import { updatePaymentChecklistClient } from "@/helper/client/api/checklist";
 import { getLocalStorage } from "@/utils/clientStorage";
 import prisma from "@/lib/prisma";
+import { useRouter } from "next/router";
 
 const styleMobile = {
   position: "absolute",
@@ -46,6 +47,7 @@ function Payments({ userAccount }) {
     tips,
     deposit,
     requireDeposit,
+    tax,
     acceptedPayments,
     id: accountId,
   } = userAccount || {};
@@ -76,15 +78,17 @@ function Payments({ userAccount }) {
       : ""
   );
   const [depositPercentageFee, setDepositPercentageFee] = useState(
-    deposit
-      ? deposit.feeTypeSymbol === "%"
-        ? deposit.feeIntHundredth / 100
-        : ""
-      : ""
+    deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPercent : "") : ""
   );
   const [hasTips, setHasTips] = useState(enableTips ? enableTips : false);
   const [tipType, setTipType] = useState(
     enableTips ? (tips.type ? tips.type : "dollar") : "dollar"
+  );
+  const [enableTaxes, setEnableTaxes] = useState(
+    tax ? tax.isTaxRateEnabled : false
+  );
+  const [taxAmt, setTaxAmt] = useState(
+    tax ? (tax.taxRate ? tax.taxRate : "") : ""
   );
   const [tipValuesDollar, setTipValuesDollar] = useState({
     tipOneDollar: enableTips
@@ -112,22 +116,22 @@ function Payments({ userAccount }) {
   const [tipValuesPercentage, setTipValuesPercentage] = useState({
     tipOnePercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipOneIntHundredth / 100
-          ? tips.tipOneIntHundredth / 100
+        ? tips.tipOnePercent
+          ? tips.tipOnePercent
           : ""
         : ""
       : "",
     tipTwoPercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipTwoIntHundredth / 100
-          ? tips.tipTwoIntHundredth / 100
+        ? tips.tipTwoPercent
+          ? tips.tipTwoPercent
           : ""
         : ""
       : "",
     tipThreePercentage: enableTips
       ? tips.type === "percentage"
-        ? tips.tipThreeIntHundredth / 100
-          ? tips.tipThreeIntHundredth / 100
+        ? tips.tipThreePercent
+          ? tips.tipThreePercent
           : ""
         : ""
       : "",
@@ -169,6 +173,8 @@ function Payments({ userAccount }) {
   const { zellePayInstructions, zelleAccount } = zelleValues;
   const { paypalInstructions, paypalAccount } = paypalValues;
   const { venmoPayInstructions, venmoAccount } = venmoValues;
+
+  const { push } = useRouter();
 
   useEffect(() => {
     for (let i = 0; i < acceptedPayments.length; i++) {
@@ -230,6 +236,19 @@ function Payments({ userAccount }) {
     }
 
     setOpenSnackbar(false);
+  };
+
+  const handleEnabletaxes = (e) => {
+    setEnableTaxes((prev) => !prev);
+  };
+
+  const handleChangeTaxAmt = (value) => {
+    setTaxAmt(value);
+  };
+
+  const handleViewTaxRatesClick = () => {
+    const taxRateUrl = "https://www.cdtfa.ca.gov/taxes-and-fees/rates.aspx";
+    window.open(taxRateUrl, "_blank", "noreferrer");
   };
 
   const handleChangeInPayment = (e) => {
@@ -578,6 +597,40 @@ function Payments({ userAccount }) {
     });
   };
 
+  const structureTaxData = () => {
+    let taxData = {};
+
+    if (!enableTaxes) {
+      taxData = {
+        isTaxRateEnabled: enableTaxes,
+      };
+    } else {
+      let taxRateDisplay;
+
+      if (taxAmt.toString().includes(".")) {
+        const [numBeforeDecimal, numAfterDecimal] = taxAmt
+          .toString()
+          .split(".");
+
+        if (numAfterDecimal === "00") {
+          taxRateDisplay = numBeforeDecimal + "%";
+        } else {
+          taxRateDisplay = parseFloat(taxAmt).toFixed(2).toString() + "%";
+        }
+      } else {
+        taxRateDisplay = taxAmt + "%";
+      }
+
+      taxData = {
+        taxRate: parseFloat(taxAmt),
+        taxRateDisplay,
+        isTaxRateEnabled: enableTaxes,
+      };
+    }
+
+    return taxData;
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -589,6 +642,7 @@ function Payments({ userAccount }) {
     const tipsData = structureTipsData();
     const depositData = structureDepositData();
     const paymentData = structurePaymentData();
+    const taxData = structureTaxData();
 
     const data = {
       accountData,
@@ -597,8 +651,10 @@ function Payments({ userAccount }) {
       paymentData,
       accountId,
       removedPayments,
+      taxData,
     };
 
+    console.log("data", data);
     try {
       const { success, value } = await updatePaymentClient(data);
 
@@ -657,31 +713,92 @@ function Payments({ userAccount }) {
   };
 
   const structureTipsData = () => {
-    if (!hasTips) return {};
+    let tipOne;
+    let tipTwo;
+    let tipThree;
 
-    const tipOne =
-      tipType === "dollar" ? "$" + tipOneDollar : tipOnePercentage + "%";
-    const tipOnePenny = parseInt(tipOneDollar) * 100;
-    const tipOneHundredth = parseInt(tipOnePercentage) * 100;
-    const tipTwo =
-      tipType === "dollar" ? "$" + tipTwoDollar : tipTwoPercentage + "%";
-    const tipTwoPenny = parseInt(tipTwoDollar) * 100;
-    const tipTwoHundredth = parseInt(tipTwoPercentage) * 100;
-    const tipThree =
-      tipType === "dollar" ? "$" + tipThreeDollar : tipThreePercentage + "%";
-    const tipThreePenny = parseInt(tipThreeDollar) * 100;
-    const tipThreeHundredth = parseInt(tipThreePercentage) * 100;
+    if (tipType === "dollar") {
+      if (!tipOneDollar.toString().includes(".")) {
+        tipOne = "$" + tipOneDollar + ".00";
+      } else {
+        tipOne = "$" + parseFloat(tipOneDollar).toFixed(2).toString();
+      }
+
+      if (!tipTwoDollar.toString().includes(".")) {
+        tipTwo = "$" + tipTwoDollar + ".00";
+      } else {
+        tipTwo = "$" + parseFloat(tipTwoDollar).toFixed(2).toString();
+      }
+
+      if (!tipThreeDollar.toString().includes(".")) {
+        tipThree = "$" + tipThreeDollar + ".00";
+      } else {
+        tipThree = "$" + parseFloat(tipThreeDollar).toFixed(2).toString();
+      }
+    } else {
+      // percentage
+      if (tipOnePercentage.toString().includes(".")) {
+        const [tipOneNumBeforeDecimal, tipOneNumAfterDecimal] = tipOnePercentage
+          .toString()
+          .split(".");
+        if (tipOneNumAfterDecimal === "00") {
+          tipOne = tipOneNumBeforeDecimal + "%";
+        } else {
+          tipOne = parseFloat(tipOnePercentage).toFixed(2).toString() + "%";
+        }
+      } else {
+        tipOne = tipOnePercentage + "%";
+      }
+
+      if (tipTwoPercentage.toString().includes(".")) {
+        const [tipTwoNumBeforeDecimal, tipTwoNumAfterDecimal] = tipTwoPercentage
+          .toString()
+          .split(".");
+
+        if (tipTwoNumAfterDecimal === "00") {
+          tipTwo = tipTwoNumBeforeDecimal + "%";
+        } else {
+          tipTwo = parseFloat(tipTwoPercentage).toFixed(2).toString() + "%";
+        }
+      } else {
+        tipTwo = tipTwoPercentage + "%";
+      }
+
+      if (tipThreePercentage.toString().includes(".")) {
+        const [tipThreeNumBeforeDecimal, tipThreeNumAfterDecimal] =
+          tipThreePercentage.toString().split(".");
+
+        if (tipThreeNumAfterDecimal === "00") {
+          tipThree = tipThreeNumBeforeDecimal + "%";
+        } else {
+          tipThree = parseFloat(tipThreePercentage).toFixed(2).toString() + "%";
+        }
+      } else {
+        tipThree = tipThreePercentage + "%";
+      }
+    }
+
+    const tipOnePenny = parseInt((parseFloat(tipOneDollar) * 100).toFixed(2));
+    const tipOneHundredth = parseFloat(tipOnePercentage);
+
+    const tipTwoPenny = parseInt((parseFloat(tipTwoDollar) * 100).toFixed(2));
+    const tipTwoHundredth = parseFloat(tipTwoPercentage);
+
+    const tipThreePenny = parseInt(
+      (parseFloat(tipThreeDollar) * 100).toFixed(2)
+    );
+    const tipThreeHundredth = parseFloat(tipThreePercentage);
 
     const tipsData = {
       tipOneStr: tipOne,
       tipOneIntPenny: tipOnePenny ? tipOnePenny : null,
-      tipOneIntHundredth: tipOneHundredth ? tipOneHundredth : null,
+      tipOnePercent: tipOneHundredth ? tipOneHundredth : null,
       tipTwoStr: tipTwo,
       tipTwoIntPenny: tipTwoPenny ? tipTwoPenny : null,
-      tipTwoIntHundredth: tipTwoHundredth ? tipTwoHundredth : null,
+      tipTwoPercent: tipTwoHundredth ? tipTwoHundredth : null,
       tipThreeStr: tipThree,
       tipThreeIntPenny: tipThreePenny ? tipThreePenny : null,
-      tipThreeIntHundredth: tipThreeHundredth ? tipThreeHundredth : null,
+      tipThreePercent: tipThreeHundredth ? tipThreeHundredth : null,
       type: tipType,
     };
 
@@ -691,16 +808,47 @@ function Payments({ userAccount }) {
   const structureDepositData = () => {
     if (!hasDeposit) return {};
 
+    let depositFeeStr;
+    console.log(depositPercentageFee);
+
+    if (depositFeeType === "percentage") {
+      if (depositPercentageFee.toString().includes(".")) {
+        const [numBeforeDecimal, numAfterDecimal] = depositPercentageFee
+          .toString()
+          .split(".");
+
+        if (numAfterDecimal === "00") {
+          depositFeeStr = numBeforeDecimal + "%";
+        } else {
+          depositFeeStr =
+            parseFloat(depositPercentageFee).toFixed(2).toString() + "%";
+        }
+      } else {
+        depositFeeStr = depositPercentageFee + "%";
+      }
+    }
+
+    if (depositFeeType === "dollar") {
+      if (!depositDollarFee.toString().includes(".")) {
+        depositFeeStr = "$" + depositDollarFee + ".00";
+      } else {
+        depositFeeStr =
+          "$" + parseFloat(depositDollarFee).toFixed(2).toString();
+      }
+    }
+
     const depositData = {
       feeTypeStr: depositFeeType,
       feeTypeSymbol: depositFeeType === "dollar" ? "$" : "%",
-      feeIntPenny: depositFeeType === "dollar" ? depositDollarFee * 100 : null,
-      feeIntHundredth:
-        depositFeeType === "percentage" ? depositPercentageFee * 100 : null,
-      feeStr:
+      feeIntPenny:
         depositFeeType === "dollar"
-          ? "$" + depositDollarFee
-          : depositPercentageFee + "%",
+          ? parseInt((parseFloat(depositDollarFee) * 100).toFixed(2))
+          : null,
+      feeIntPercent:
+        depositFeeType === "percentage"
+          ? parseFloat(depositPercentageFee)
+          : null,
+      feeStr: depositFeeStr,
     };
 
     return depositData;
@@ -783,23 +931,115 @@ function Payments({ userAccount }) {
         message={snackbarMessage}
         action={action}
       />
-      <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:mx-0 lg:mb-0 ">
-        <div>
+      <div className="lg:flex lg:flex-col lg:gap-4">
+        <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] h-fit rounded bg-white lg:mx-0 lg:mb-0 ">
+          <div>
+            <div className="flex justify-between pr-4">
+              <h3>Deposits</h3>
+              <IOSSwitch
+                checked={hasDeposit}
+                onChange={handleChangeInPayment}
+                value="deposit"
+              />
+            </div>
+            <p className="text-gray-800 font-light text-xs mt-2">
+              Deposits will be charged immediately. The rest of the payment can
+              be charged in orders-live page.
+            </p>
+            <div
+              className={`transition-opactiy ${
+                hasDeposit
+                  ? "visible opacity-100 px-4 mt-4"
+                  : "invisible h-0 opacity-0"
+              } `}
+            >
+              <FormControl className="w-full ">
+                <RadioGroup
+                  // aria-labelledby="demo-radio-buttons-group-label"
+                  defaultValue="dollar"
+                  value={depositFeeType}
+                  onChange={handleDepositFeeTypeChange}
+                  name="deposit-fee-type-radio-group-buttons"
+                  className="flex flex-col gap-2 "
+                >
+                  <div className="flex justify-between w-full">
+                    <FormControlLabel
+                      value="dollar"
+                      control={<Radio />}
+                      label={
+                        <p className="text-black text-xs font-light">
+                          Dollar fee
+                        </p>
+                      }
+                    />
+                    <div className="w-1/6 flex gap-2 items-center">
+                      <CurrencyInput
+                        name="dollar"
+                        required
+                        placeholder="$"
+                        disabled={depositFeeType == "dollar" ? false : true}
+                        value={depositDollarFee}
+                        onValueChange={handleDepositFeeChange}
+                        decimalsLimit={2}
+                        decimalScale={2}
+                        prefix="$"
+                        className={`w-full transition-colors duration-300  rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
+                          depositFeeType == "dollar"
+                            ? "border border-[color:var(--primary-light-med)]"
+                            : "border-none"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between w-full">
+                    <FormControlLabel
+                      value="percentage"
+                      control={<Radio />}
+                      label={
+                        <p className="text-black text-xs font-light">
+                          Percentage fee
+                        </p>
+                      }
+                    />
+                    <div className="w-1/6 flex gap-2 items-center">
+                      <CurrencyInput
+                        name="percentage"
+                        required
+                        placeholder="%"
+                        disabled={depositFeeType == "percentage" ? false : true}
+                        value={depositPercentageFee}
+                        onValueChange={handleDepositFeeChange}
+                        decimalsLimit={2}
+                        decimalScale={2}
+                        suffix="%"
+                        className={`w-full transition-colors duration-300  rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
+                          depositFeeType == "percentage"
+                            ? "border border-[color:var(--primary-light-med)]"
+                            : "border-none"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] h-fit rounded bg-white lg:mb-0 lg:mx-0">
           <div className="flex justify-between pr-4">
-            <h3>Deposits</h3>
+            <h3>Tips</h3>
             <IOSSwitch
-              checked={hasDeposit}
+              checked={hasTips}
               onChange={handleChangeInPayment}
-              value="deposit"
+              value="tips"
             />
           </div>
           <p className="text-gray-800 font-light text-xs mt-2">
-            Deposits will be charged immediately. The rest of the payment can be
-            charged in orders-live page.
+            Accept tips from customers.
           </p>
           <div
             className={`transition-opactiy ${
-              hasDeposit
+              hasTips
                 ? "visible opacity-100 px-4 mt-4"
                 : "invisible h-0 opacity-0"
             } `}
@@ -807,63 +1047,159 @@ function Payments({ userAccount }) {
             <FormControl className="w-full ">
               <RadioGroup
                 // aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="dollar"
-                value={depositFeeType}
-                onChange={handleDepositFeeTypeChange}
-                name="deposit-fee-type-radio-group-buttons"
+                defaultValue="free"
+                name="radio-buttons-group"
                 className="flex flex-col gap-2 "
+                value={tipType}
+                onChange={handleTipType}
               >
-                <div className="flex justify-between w-full">
-                  <FormControlLabel
-                    value="dollar"
-                    control={<Radio />}
-                    label={
-                      <p className="text-black text-xs font-light">
-                        Dollar fee
-                      </p>
-                    }
-                  />
-                  <div className="w-1/6 flex gap-2 items-center">
+                <div>
+                  <div className="flex justify-between w-full">
+                    <FormControlLabel
+                      value="dollar"
+                      control={<Radio />}
+                      label={
+                        <div className="flex items-center">
+                          <AttachMoneyOutlinedIcon
+                            fontSize="small"
+                            sx={{ color: "black" }}
+                          />
+                          <p className="text-black font-light text-xs">
+                            Flat fee
+                          </p>
+                        </div>
+                      }
+                    />
+                  </div>
+                  <div
+                    className={`${
+                      tipType === "dollar"
+                        ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
+                        : " h-0 opacity-0"
+                    }`}
+                  >
                     <CurrencyInput
-                      name="dollar"
-                      required
+                      name="tipOneDollar"
                       placeholder="$"
-                      disabled={depositFeeType == "dollar" ? false : true}
-                      value={depositDollarFee}
-                      onValueChange={handleDepositFeeChange}
+                      required
+                      disabled={
+                        hasTips ? (tipType == "dollar" ? false : true) : true
+                      }
+                      value={tipOneDollar}
+                      onValueChange={handleChangeTipValuesDollar}
                       decimalsLimit={2}
+                      decimalScale={2}
                       prefix="$"
-                      className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
-                        depositFeeType == "dollar" ? "ring-1" : "border-none"
-                      }`}
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
+                    />
+                    <CurrencyInput
+                      name="tipTwoDollar"
+                      placeholder="$"
+                      required
+                      value={tipTwoDollar}
+                      onValueChange={handleChangeTipValuesDollar}
+                      disabled={
+                        hasTips ? (tipType == "dollar" ? false : true) : true
+                      }
+                      decimalsLimit={2}
+                      decimalScale={2}
+                      prefix="$"
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
+                    />
+                    <CurrencyInput
+                      name="tipThreeDollar"
+                      placeholder="$"
+                      required
+                      value={tipThreeDollar}
+                      onValueChange={handleChangeTipValuesDollar}
+                      disabled={
+                        hasTips ? (tipType == "dollar" ? false : true) : true
+                      }
+                      decimalsLimit={2}
+                      decimalScale={2}
+                      prefix="$"
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
                     />
                   </div>
                 </div>
-                <div className="flex justify-between w-full">
-                  <FormControlLabel
-                    value="percentage"
-                    control={<Radio />}
-                    label={
-                      <p className="text-black text-xs font-light">
-                        Percentage fee
-                      </p>
-                    }
-                  />
-                  <div className="w-1/6 flex gap-2 items-center">
+                <div>
+                  <div className="flex justify-between w-full">
+                    <FormControlLabel
+                      value="percentage"
+                      control={<Radio />}
+                      label={
+                        <div className="flex items-center">
+                          <PercentOutlinedIcon
+                            fontSize="small"
+                            sx={{ color: "black" }}
+                          />
+                          <p className="text-black font-light text-xs">
+                            Percentage fee
+                          </p>
+                        </div>
+                      }
+                    />
+                  </div>
+                  <div
+                    className={`${
+                      tipType === "percentage"
+                        ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
+                        : " h-0 opacity-0"
+                    }`}
+                  >
                     <CurrencyInput
-                      name="percentage"
+                      name="tipOnePercentage"
                       required
                       placeholder="%"
-                      disabled={depositFeeType == "percentage" ? false : true}
-                      value={depositPercentageFee}
-                      onValueChange={handleDepositFeeChange}
+                      value={tipOnePercentage}
+                      onValueChange={handleChangeTipValuesPercentage}
+                      disabled={
+                        hasTips
+                          ? tipType == "percentage"
+                            ? false
+                            : true
+                          : true
+                      }
                       decimalsLimit={2}
+                      decimalScale={2}
                       suffix="%"
-                      className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs ${
-                        depositFeeType == "percentage"
-                          ? "ring-1"
-                          : "border-none"
-                      }`}
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
+                    />
+                    <CurrencyInput
+                      name="tipTwoPercentage"
+                      required
+                      placeholder="%"
+                      value={tipTwoPercentage}
+                      onValueChange={handleChangeTipValuesPercentage}
+                      disabled={
+                        hasTips
+                          ? tipType == "percentage"
+                            ? false
+                            : true
+                          : true
+                      }
+                      decimalsLimit={2}
+                      decimalScale={2}
+                      suffix="%"
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
+                    />
+                    <CurrencyInput
+                      name="tipThreePercentage"
+                      required
+                      placeholder="%"
+                      value={tipThreePercentage}
+                      onValueChange={handleChangeTipValuesPercentage}
+                      disabled={
+                        hasTips
+                          ? tipType == "percentage"
+                            ? false
+                            : true
+                          : true
+                      }
+                      decimalsLimit={2}
+                      decimalScale={2}
+                      suffix="%"
+                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
                     />
                   </div>
                 </div>
@@ -871,160 +1207,53 @@ function Payments({ userAccount }) {
             </FormControl>
           </div>
         </div>
-      </div>
-      <div className="p-4 mx-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:mx-0">
-        <div className="flex justify-between pr-4">
-          <h3>Tips</h3>
-          <IOSSwitch
-            checked={hasTips}
-            onChange={handleChangeInPayment}
-            value="tips"
-          />
-        </div>
-        <p className="text-gray-800 font-light text-xs mt-2">
-          Accept tips from customers.
-        </p>
-        <div
-          className={`transition-opactiy ${
-            hasTips
-              ? "visible opacity-100 px-4 mt-4"
-              : "invisible h-0 opacity-0"
-          } `}
-        >
-          <FormControl className="w-full ">
-            <RadioGroup
-              // aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="free"
-              name="radio-buttons-group"
-              className="flex flex-col gap-2 "
-              value={tipType}
-              onChange={handleTipType}
-            >
-              <div>
-                <div className="flex justify-between w-full">
-                  <FormControlLabel
-                    value="dollar"
-                    control={<Radio />}
-                    label={
-                      <div className="flex items-center">
-                        <AttachMoneyOutlinedIcon
-                          fontSize="small"
-                          sx={{ color: "black" }}
-                        />
-                        <p className="text-black font-light text-xs">
-                          Flat fee
-                        </p>
-                      </div>
-                    }
-                  />
-                </div>
-                <div
-                  className={`${
-                    tipType === "dollar"
-                      ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
-                      : " h-0 opacity-0"
-                  }`}
-                >
-                  <CurrencyInput
-                    name="tipOneDollar"
-                    required
-                    placeholder="$"
-                    disabled={tipType == "dollar" ? false : true}
-                    value={tipOneDollar}
-                    onValueChange={handleChangeTipValuesDollar}
-                    decimalsLimit={2}
-                    prefix="$"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                  <CurrencyInput
-                    name="tipTwoDollar"
-                    required
-                    placeholder="$"
-                    value={tipTwoDollar}
-                    onValueChange={handleChangeTipValuesDollar}
-                    disabled={tipType == "dollar" ? false : true}
-                    decimalsLimit={2}
-                    prefix="$"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                  <CurrencyInput
-                    name="tipThreeDollar"
-                    required
-                    placeholder="$"
-                    value={tipThreeDollar}
-                    onValueChange={handleChangeTipValuesDollar}
-                    disabled={tipType == "dollar" ? false : true}
-                    decimalsLimit={2}
-                    prefix="$"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                </div>
+        <div className="p-4 mx-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded h-fit bg-white lg:mx-0">
+          <div className="flex justify-between pr-4">
+            <h3>Taxes</h3>
+            <IOSSwitch
+              checked={enableTaxes}
+              onChange={handleEnabletaxes}
+              value="tips"
+            />
+          </div>
+          <p className="text-gray-800 font-light text-xs mt-2">
+            Apply sales tax.
+          </p>
+          <div
+            className={`transition-opactiy ${
+              enableTaxes
+                ? "visible opacity-100 px-4 mt-4"
+                : "invisible h-0 opacity-0"
+            } `}
+          >
+            <div className="flex flex-end w-full items-center">
+              <button
+                type="button"
+                role="link"
+                onClick={handleViewTaxRatesClick}
+                className="underline text-blue-500 text-sm font-light"
+              >
+                View tax rates
+              </button>
+              <div className="w-1/6 flex gap-2 items-center ml-auto">
+                <CurrencyInput
+                  name="percentage"
+                  required
+                  placeholder="%"
+                  disabled={enableTaxes ? false : true}
+                  value={taxAmt}
+                  onValueChange={handleChangeTaxAmt}
+                  decimalsLimit={2}
+                  decimalScale={2}
+                  suffix="%"
+                  className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs`}
+                />
               </div>
-              <div>
-                <div className="flex justify-between w-full">
-                  <FormControlLabel
-                    value="percentage"
-                    control={<Radio />}
-                    label={
-                      <div className="flex items-center">
-                        <PercentOutlinedIcon
-                          fontSize="small"
-                          sx={{ color: "black" }}
-                        />
-                        <p className="text-black font-light text-xs">
-                          Percentage fee
-                        </p>
-                      </div>
-                    }
-                  />
-                </div>
-                <div
-                  className={`${
-                    tipType === "percentage"
-                      ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
-                      : " h-0 opacity-0"
-                  }`}
-                >
-                  <CurrencyInput
-                    name="tipOnePercentage"
-                    required
-                    placeholder="%"
-                    value={tipOnePercentage}
-                    onValueChange={handleChangeTipValuesPercentage}
-                    disabled={tipType == "percentage" ? false : true}
-                    decimalsLimit={2}
-                    suffix="%"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                  <CurrencyInput
-                    name="tipTwoPercentage"
-                    required
-                    placeholder="%"
-                    value={tipTwoPercentage}
-                    onValueChange={handleChangeTipValuesPercentage}
-                    disabled={tipType == "percentage" ? false : true}
-                    decimalsLimit={2}
-                    suffix="%"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                  <CurrencyInput
-                    name="tipThreePercentage"
-                    required
-                    placeholder="%"
-                    value={tipThreePercentage}
-                    onValueChange={handleChangeTipValuesPercentage}
-                    disabled={tipType == "percentage" ? false : true}
-                    decimalsLimit={2}
-                    suffix="%"
-                    className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                  />
-                </div>
-              </div>
-            </RadioGroup>
-          </FormControl>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="px-4 pt-4 m-4  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:m-0">
+      <div className="px-4 pt-4 m-4 h-fit  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:m-0">
         <h3>Payments</h3>
         <p className="text-gray-800 font-light text-xs mt-2 mb-4">
           Allow your customers the flexibility to pay in any way.
@@ -1335,6 +1564,7 @@ export async function getServerSideProps(context) {
           email,
         },
         include: {
+          tax: true,
           tips: true,
           deposit: true,
           acceptedPayments: true,

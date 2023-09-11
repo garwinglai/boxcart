@@ -282,11 +282,36 @@ export async function updateTimeBlockServer(timeBlockData, accountId) {
   const accountIdInt = parseInt(accountId);
 
   try {
-    const res = await prisma.account.update({
+    const res = await prisma.availability.update({
       where: {
-        id: accountIdInt,
+        accountId: accountIdInt,
       },
       data: timeBlockData,
+    });
+
+    return { success: true, value: res };
+  } catch (error) {
+    console.log(
+      "helper/server/prisma/availability updateTimeBlock error:",
+      error
+    );
+
+    return { success: false, error };
+  }
+}
+
+export async function updateOrderInAdvanceTimeServer(
+  orderInAdvanceTimeData,
+  accountId
+) {
+  const accountIdInt = parseInt(accountId);
+
+  try {
+    const res = await prisma.availability.update({
+      where: {
+        accountId: accountIdInt,
+      },
+      data: orderInAdvanceTimeData,
     });
 
     return { success: true, value: res };

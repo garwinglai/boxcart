@@ -27,6 +27,9 @@ export async function createNewUser(body) {
     logoImage,
     businessBio,
     fulfillmentMethodInt,
+    lat,
+    lng,
+    geohash,
     address_1,
     address_2,
     city,
@@ -63,6 +66,9 @@ export async function createNewUser(body) {
               logoImage,
               businessBio,
               fulfillmentMethodInt,
+              lat,
+              lng,
+              geohash,
               address_1,
               address_2,
               city,
@@ -89,12 +95,6 @@ export async function createNewUser(body) {
                 create: fulfillmentData.map((data) => {
                   const dataToSave = {
                     ...data,
-                    address_1,
-                    address_2,
-                    city,
-                    state,
-                    zip,
-                    fullAddress,
                   };
 
                   return dataToSave;
@@ -102,6 +102,12 @@ export async function createNewUser(body) {
               },
               tips: {
                 create: tipsData,
+              },
+              tax: {
+                create: {},
+              },
+              availability: {
+                create: {},
               },
               products: {
                 create: [

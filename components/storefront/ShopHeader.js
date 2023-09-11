@@ -183,7 +183,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
   return (
     <React.Fragment>
       {bannerImage ? (
-        <div className="w-full h-40 relative border-b">
+        <div className="w-full h-40 md:h-52 relative border-b">
           <Image
             src={bannerImage}
             alt="business banner"
@@ -194,13 +194,11 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           />
         </div>
       ) : (
-        <div className="rounded w-full h-40 bg-[color:var(--gray-light)] flex justify-center items-center text-[color:var(--gray-text)] border">
-          Banner image
-        </div>
+        <div className="h-16"></div>
       )}
       <div className="relative">
         {logoImage ? (
-          <div className="w-24 h-24 absolute -top-12 left-4">
+          <div className="w-28 h-28 absolute -top-16 left-4 md:w-32 md:h-32 lg:left-12">
             <Image
               src={logoImage}
               alt="business logo"
@@ -215,11 +213,11 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
             Logo
           </div>
         )}
-        <div className="flex h-10 gap-2 absolute right-4 -top-5 md:top-4 md:right-8">
+        <div className=" flex-col h-18 -top-9  gap-2  flex  absolute right-4 md:top-4 md:right-8 sm:h-10 sm:-top-5 sm:flex-row">
           <button
             type="button"
             onClick={isOwner ? handleEditProfile : handleOpenSubscribe}
-            className="text-white font-light text-sm py-1 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
+            className="text-white font-light text-xs h-8 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
           >
             {isOwner ? "Edit Profile" : "Subscribe"}
           </button>
@@ -233,13 +231,16 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
               <form onSubmit={submitCustomerEmail} className="flex flex-col">
                 {!customerEmailSubmitted ? (
                   <>
-                    <button
-                      onClick={handleSubscriptionSubmitted}
-                      type="button"
-                      className="text-right text-sm font-light mb-2 "
-                    >
-                      Close
-                    </button>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-light">Stay connected 👋</h3>
+                      <button
+                        onClick={handleSubscriptionSubmitted}
+                        type="button"
+                        className="text-right text-sm font-ligh "
+                      >
+                        Close
+                      </button>
+                    </div>
                     <label
                       htmlFor="customerEmail"
                       className="text-[color:var(--black-design-extralight)]"
@@ -255,7 +256,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
                       value={customerEmail}
                       onChange={handleCustomerEmailChange}
                     />
-                    <div className="mt-4 h-8">
+                    <div className="mt-4 h-10">
                       <ButtonPrimaryStorefront
                         disabled={isLoading}
                         type="submit"
@@ -274,7 +275,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
                     <p className="text-center font-light mt-1">
                       Look out for updates &amp; deals in your email.
                     </p>
-                    <div className="mt-4 h-8">
+                    <div className="mt-4 h-10">
                       <ButtonPrimaryStorefront
                         handleClick={handleSubscriptionSubmitted}
                         type="button"
@@ -289,7 +290,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           <button
             type="button"
             onClick={isOwner ? handleShareStore : handleMessage}
-            className="md:block bg-white font-light text-sm py-2 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400"
+            className="md:block bg-white font-light text-xs h-8 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400"
           >
             {isOwner ? "Share Store" : "Message"}
           </button>

@@ -8,6 +8,7 @@ export async function updatePaymentServer(data) {
     paymentData,
     accountId,
     removedPayments,
+    taxData,
   } = data;
 
   const { enableTips, requireDeposit } = accountData;
@@ -20,6 +21,15 @@ export async function updatePaymentServer(data) {
       data: {
         enableTips,
         requireDeposit,
+        tax: {
+          upsert: {
+            where: {
+              accountId,
+            },
+            update: taxData,
+            create: taxData,
+          },
+        },
         tips: {
           upsert: {
             where: {

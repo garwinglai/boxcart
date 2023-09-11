@@ -93,7 +93,7 @@ function ProductDrawer({
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
-    priceInt: product ? product.priceIntPenny / 100 : "",
+    priceInt: product ? (product.priceIntPenny / 100).toFixed(2) : "",
     priceStr: product ? product.priceStr : "",
     defaultImgStr: product ? product.defaultImageFileName : "",
     imgArrJson: product ? product.imgArrJson : "",
@@ -105,6 +105,11 @@ function ProductDrawer({
     enableCustomNote: product
       ? product.enableCustomNote
         ? product.enableCustomNote
+        : false
+      : false,
+    enableCustomerImageUploads: product
+      ? product.enableCustomerImageUploads
+        ? product.enableCustomerImageUploads
         : false
       : false,
   });
@@ -137,6 +142,7 @@ function ProductDrawer({
     isSampleProduct,
     relatedCategories,
     enableCustomNote,
+    enableCustomerImageUploads,
   } = productValues;
 
   const {
@@ -318,10 +324,6 @@ function ProductDrawer({
     });
   };
 
-  const handleCloseProductImageModal = () => {
-    setOpenProductImageModal(false);
-  };
-
   // create openproductimagemode function
   const handleOpenProductImageModal = () => {
     setOpenProductImageModal(true);
@@ -436,6 +438,15 @@ function ProductDrawer({
     const { checked } = e.target;
 
     setProductValues((prev) => ({ ...prev, enableCustomNote: checked }));
+  };
+
+  const handleCustomerUploadSampleImagesChange = (e) => {
+    const { checked } = e.target;
+
+    setProductValues((prev) => ({
+      ...prev,
+      enableCustomerImageUploads: checked,
+    }));
   };
 
   const handlePhotoFileChange = (e) => {
@@ -1362,6 +1373,7 @@ function ProductDrawer({
         isSampleProduct: false,
         relatedCategories: [],
         enableCustomNote: false,
+        enableCustomerImageUploads: false,
       });
 
       setShowOptionInputs({
@@ -1407,6 +1419,7 @@ function ProductDrawer({
         optionGroups,
         images,
         enableCustomNote,
+        enableCustomerImageUploads,
       } = updatedProduct ? updatedProduct : product;
 
       setProductValues({
@@ -1422,6 +1435,9 @@ function ProductDrawer({
         isSampleProduct,
         relatedCategories,
         enableCustomNote: enableCustomNote ? enableCustomNote : false,
+        enableCustomerImageUploads: enableCustomerImageUploads
+          ? enableCustomerImageUploads
+          : false,
       });
 
       setOptions(updatedProduct);
@@ -1466,7 +1482,7 @@ function ProductDrawer({
   };
 
   const structureProductSchema = () => {
-    const priceIntPenny = parseInt(priceInt * 100);
+    const priceIntPenny = parseInt((priceInt * 100).toFixed(2));
     let priceValue = priceInt.toString();
 
     if (priceValue.includes(".") && priceValue.split(".")[1].length === 1) {
@@ -1499,6 +1515,7 @@ function ProductDrawer({
       removedOptionGroups,
       removedOptions,
       enableCustomNote,
+      enableCustomerImageUploads,
     };
 
     return productSchema;
@@ -1586,7 +1603,9 @@ function ProductDrawer({
         const isPriceFormat = regex.test(price);
 
         if (!isPriceFormat) priceError = true;
-        priceIntPenny = price ? parseInt(parseFloat(price) * 100) : 0;
+        priceIntPenny = price
+          ? parseInt((parseFloat(price) * 100).toFixed(2))
+          : 0;
 
         let priceValue = price;
         if (priceValue.includes(".") && priceValue.split(".")[1].length === 1) {
@@ -2476,6 +2495,20 @@ function ProductDrawer({
           <IOSSwitch
             checked={enableCustomNote}
             onChange={handleCustomNoteChange}
+          />
+        </div>
+        <div className="flex items-center justify-between rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+          <div>
+            <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
+              Enable customer image uploads:
+            </h4>
+            <p className="text-xs font-extralight">
+              Allow your customers to upload a max of 3 images for reference.
+            </p>
+          </div>
+          <IOSSwitch
+            checked={enableCustomerImageUploads}
+            onChange={handleCustomerUploadSampleImagesChange}
           />
         </div>
 

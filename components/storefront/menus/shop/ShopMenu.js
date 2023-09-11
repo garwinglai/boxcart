@@ -1,9 +1,8 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import ShopCard from "./ShopCard";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
-
-// TODO: Pull Products for Shop Menu
+import { useCartStore } from "@/lib/store";
 
 function ShopMenu({
   isOwner,
@@ -16,6 +15,14 @@ function ShopMenu({
   currCategory,
   userAccount,
 }) {
+  const cart = useCartStore((state) => state.cart);
+
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    setCartItems(cart);
+  }, [cart]);
+
   return (
     <div className="px-4 flex-grow w-full pb-8">
       <h3 className="mb-4 font-light">{currCategory}</h3>
@@ -26,13 +33,18 @@ function ShopMenu({
           } lg:grid-cols-4  xl:grid-cols-5`}
         >
           {products &&
-            products.map((item, idx) => {
-              const { isEnabled } = item;
+            products.map((product, idx) => {
+              const { isEnabled } = product;
+              const productsInCart = cartItems.filter(
+                (cartItem) => cartItem.productId == product.id
+              );
+              const numProductInCart = productsInCart.length;
+
               if (isEnabled) {
                 return (
                   <ShopCard
                     key={idx}
-                    product={item}
+                    product={product}
                     isOwner={isOwner}
                     categories={categories}
                     accountId={accountId}
@@ -40,6 +52,7 @@ function ShopMenu({
                     handleOpenSnackbar={handleOpenSnackbar}
                     getAllProducts={getAllProducts}
                     userAccount={userAccount}
+                    numProductInCart={numProductInCart}
                   />
                 );
               }

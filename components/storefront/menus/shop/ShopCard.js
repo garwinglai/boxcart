@@ -24,6 +24,7 @@ import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import { useAccountStore } from "@/lib/store";
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
+import Badge from "@mui/material/Badge";
 
 function ShopCard({
   subdomain,
@@ -35,6 +36,7 @@ function ShopCard({
   handleOpenSnackbar,
   getAllProducts,
   userAccount,
+  numProductInCart,
 }) {
   const { account } = useAccountStore((state) => state.account);
 
@@ -46,7 +48,6 @@ function ShopCard({
     description,
     priceIntPenny,
     priceStr,
-    defaultImgStr,
     defaultImageFileName,
     defaultImage,
     images,
@@ -65,8 +66,6 @@ function ShopCard({
   const [anchorEl, setAnchorEl] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const open = Boolean(anchorEl);
-
-  function handleClickProduct(e) {}
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -425,6 +424,7 @@ function ShopCard({
         <div className="w-full">
           <div className="relative w-full aspect-square">
             <Image
+              priority={true}
               src={defaultImage}
               alt="default product image"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -432,7 +432,7 @@ function ShopCard({
               className="object-cover rounded-t"
             />
           </div>
-          <div className="flex items-start justify-between h-full pt-1 pr-1">
+          <div className="flex items-start justify-between h-full pt-1">
             <div className="flex flex-col">
               <h4>{productName}</h4>
 
@@ -540,36 +540,44 @@ function ShopCard({
           </div>
         </div>
       ) : (
-        <Link href={`/product/${id}`} className="w-full">
-          <div className="relative w-full aspect-square">
-            <Image
-              src={defaultImage}
-              alt="default product image"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              fill
-              className="object-cover rounded-t"
-            />
-          </div>
-          <div className={`${styles.card_context_box} ${styles.flexCol}`}>
-            <h4>{productName}</h4>
+        <div className="">
+          <Link href={`/product/${id}`} className="w-full">
+            <div className="relative w-full aspect-square">
+              <Image
+                src={defaultImage}
+                alt="default product image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                fill
+                className="object-cover rounded-t"
+              />
+            </div>
+            <div className="flex flex-col">
+              <h4 className="leading-5 mt-1 text-sm">{productName}</h4>
 
-            <p className={`${styles.price}`}>{priceStr}</p>
-            {quantity == 0 && (
-              <p className={`${styles.sold_out_text}`}>Sold out</p>
-            )}
-          </div>
-        </Link>
+              <div className="flex justify-between items-end">
+                <p className={`${styles.price}`}>{priceStr}</p>
+                {quantity == 0 && (
+                  <p className={`${styles.sold_out_text}`}>Sold out</p>
+                )}
+                <div className="bg-[color:var(--white-design)] rounded-full">
+                  <IconButton>
+                    <StyledBadge
+                      badgeContent={numProductInCart}
+                      color="warning"
+                      fontSize="small"
+                    >
+                      <AddShoppingCartIcon
+                        sx={{ color: "var(--black-design-extralight)" }}
+                        fontSize="small"
+                      />
+                    </StyledBadge>
+                  </IconButton>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
       )}
-      <div className="absolute bottom-0 right-0 bg-[color:var(--white-design)] rounded-full">
-        {!isOwner && (
-          <IconButton>
-            <AddShoppingCartIcon
-              fontSize="small"
-              sx={{ color: "var(--primary)" }}
-            />
-          </IconButton>
-        )}
-      </div>
     </div>
   );
 }
@@ -627,5 +635,14 @@ const StyledMenu = styled((props) => (
         ),
       },
     },
+  },
+}));
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    right: 0,
+    top: -2,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: "0 4px",
   },
 }));

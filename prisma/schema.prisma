@@ -79,19 +79,19 @@ model Account {
   state                  String
   zip                    String
   fullAddress            String
+  lat                    Float?
+  lng                    Float?
+  geohash                String?
   enableTips             Boolean              @default(false)
   tips                   Tips?
+  tax                    Tax?
   user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 Int
-  isTimeBlockEnabled     Boolean              @default(false)
-  timeBlock              String?              @default("15 min")
-  timeBlockSeconds       Int?                 @default(900)
   // new updates to check
   isActive               Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
   isBetaUser             Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
   isBetaPromoActive      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
   isChecklistComplete    Boolean              @default(false) // Default false until checklist is complete.
-  hasCustomAvailability  Boolean              @default(false) // Default false until user sets own availabilitly.
   hasPremiumPlan         Boolean              @default(false) // Default false until user pays for premium plan.
   hasPaymentMethod       Boolean              @default(false)
   requireDeposit         Boolean              @default(false)
@@ -103,8 +103,119 @@ model Account {
   products               Product[]
   categories             Category[]
   availability           Availability?
+  orders                 Order[]
+  taxId                  Int?
 
   @@index([userId])
+}
+
+model Tax {
+  id               Int     @id @default(autoincrement())
+  taxRate          Float?
+  taxRateDisplay   String?
+  isTaxRateEnabled Boolean @default(false)
+  Account          Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int     @unique
+
+  @@index([accountId])
+}
+
+model Order {
+  id                  Int         @id @default(autoincrement())
+  orderId             String      @unique
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  orderItems          OrderItem[]
+  subTotalPenny       Int
+  subTotalDisplay     String
+  totalPricePenny     Int
+  totalPriceDisplay   String
+  taxFeePenny         Int?
+  taxFeeDisplay       String?
+  cardFeePenny        Int?
+  cardFeeDisplay      String?
+  forDate             String //epoch in milliseconds
+  fulfillmentType     Int // 0: delivery, 1: pickup
+  fulfillmentDisplay  String //"delivery", "pickup"
+  deliveryAddressFull String?
+  deliveryAddy1       String?
+  deliveryAddy2       String?
+  deliveryCity        String?
+  deliveryState       String?
+  deliveryZip         String?
+  deliveryFeePenny    Int?
+  deliveryFeeDisplay  String?
+  customerName        String
+  customerFName       String
+  customerLName       String
+  customerEmail       String
+  customerPhone       String?
+
+  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId Int
+
+  @@index([accountId])
+}
+
+model OrderItem {
+  id                    Int                   @id @default(autoincrement())
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  productName           String
+  quantity              Int
+  customNote            String?               @db.Text
+  pricePenny            Int
+  priceDisplay          String
+  orderOptionGroups     OrderOptionGroup[]
+  orderExampleImages    OrderExampleImage[]
+  orderQuestionsAnswers OrderQuestionAnswer[]
+
+  Order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
+
+  @@index([orderId])
+}
+
+model OrderQuestionAnswer {
+  id          Int        @id @default(autoincrement())
+  question    String
+  answer      String
+  OrderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId Int?
+
+  @@index([orderItemId])
+}
+
+model OrderExampleImage {
+  id            Int        @id @default(autoincrement())
+  image         String     @db.Text
+  fireStorageId String     @unique
+  fileName      String
+  OrderItem     OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId   Int?
+
+  @@index([orderItemId])
+}
+
+model OrderOptionGroup {
+  id              Int           @id @default(autoincrement())
+  optionGroupName String
+  orderOptions    OrderOption[]
+  OrderItem       OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId     Int?
+
+  @@index([orderItemId])
+}
+
+model OrderOption {
+  id                 Int               @id @default(autoincrement())
+  optionName         String
+  optionPrice        Int
+  optionPriceDisplay String
+  OrderOptionGroup   OrderOptionGroup? @relation(fields: [orderOptionGroupId], references: [id], onDelete: Cascade)
+  orderOptionGroupId Int?
+
+  @@index([orderOptionGroupId])
 }
 
 model Contact {
@@ -143,21 +254,30 @@ model AcceptedPayment {
 }
 
 model Deposit {
-  id              Int     @id @default(autoincrement())
-  feeTypeStr      String?
-  feeTypeSymbol   String?
-  feeStr          String?
-  feeIntPenny     Int?
-  feeIntHundredth Int?
-  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId       Int     @unique
+  id            Int     @id @default(autoincrement())
+  feeTypeStr    String?
+  feeTypeSymbol String?
+  feeStr        String?
+  feeIntPenny   Int?
+  feeIntPercent Float?
+  account       Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId     Int     @unique
 }
 
 model Availability {
   id                      Int                       @id @default(autoincrement())
+  hasCustomAvailability   Boolean                   @default(false)
   datesAvailability       DatesAvailability[]
   datesRangedAvailability DatesRangedAvailability[]
   daysOfWeekAvailability  DaysOfWeekAvailability[]
+  requireOrderInAdvance   Boolean                   @default(false)
+  orderInAdvanceDisplay   String?                   @default("24 hours")
+  orderInAdvanceValue     Int?                      @default(24)
+  orderInAdvanceInSeconds Int?                      @default(86400)
+  orderInAdvanceMetric    String?                   @default("hour")
+  isTimeBlockEnabled      Boolean                   @default(false)
+  timeBlock               String?                   @default("15 min")
+  timeBlockSeconds        Int?                      @default(900)
   account                 Account                   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId               Int                       @unique
   createdAt               DateTime                  @default(now())
@@ -224,29 +344,29 @@ model DaysOfWeekAvailability {
 }
 
 model Product {
-  id                   Int           @id @default(autoincrement())
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  isSampleProduct      Boolean       @default(false)
-  isEnabled            Boolean       @default(true)
-  productName          String
-  description          String
-  priceIntPenny        Int
-  priceStr             String
-  defaultImgStr        String? //no longer used
-  defaultImageFileName String?
-  defaultImage         String?       @db.Text
-  images               Image[]
-  fireStorageId        String?       @unique //id to find image file in firebase storage.
-  hasUnlimitedQuantity Boolean       @default(true)
-  setQuantityByProduct Boolean       @default(true) //If false, set qty by variant and total up for qty.
-  quantity             Int?
-  enableCustomNote     Boolean       @default(false)
-  optionGroups         OptionGroup[]
-  questions            Question[]
-  relatedCategories    Category[]
-  account              Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId            Int
+  id                         Int           @id @default(autoincrement())
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+  isSampleProduct            Boolean       @default(false)
+  isEnabled                  Boolean       @default(true)
+  productName                String
+  description                String
+  priceIntPenny              Int
+  priceStr                   String
+  defaultImageFileName       String?
+  defaultImage               String?       @db.Text
+  images                     Image[]
+  fireStorageId              String?       @unique //id to find image file in firebase storage.
+  hasUnlimitedQuantity       Boolean       @default(true)
+  setQuantityByProduct       Boolean       @default(true) //If false, set qty by variant and total up for qty.
+  quantity                   Int?
+  enableCustomNote           Boolean       @default(false)
+  enableCustomerImageUploads Boolean       @default(false)
+  optionGroups               OptionGroup[]
+  questions                  Question[]
+  relatedCategories          Category[]
+  account                    Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId                  Int
 
   @@index([accountId])
 }
@@ -406,53 +526,47 @@ model Social {
 }
 
 model Fulfillment {
-  id                             Int      @id @default(autoincrement())
-  createdAt                      DateTime @default(now())
-  updatedAt                      DateTime @updatedAt
-  method                         String
-  methodInt                      Int
-  deliveryTypeInt                Int?
-  deliveryTypeStr                String?
-  localDeliveryDistanceStr       String?
-  localDeliveryDistanceMi        Int?
-  localDeliveryDistanceKm        Int?
-  pickupNote                     String?
-  deliveryFeeType                String?
-  deliveryFeePriceStr            String?
-  deliveryFeePriceIntPenny       Int?
-  deliveryFeeByDistanceStr       String?
-  deliveryFeeByDistanceIntPenny  Int?
-  deliveryFeeDistanceMetric      String?
-  deliveryFeeByPercentStr        String?
-  deliveryFeeByPercentIntHundred Int?
-  address_1                      String?
-  address_2                      String?
-  city                           String?
-  state                          String?
-  zip                            String?
-  fullAddress                    String?
-  account                        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId                      Int
+  id                            Int      @id @default(autoincrement())
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+  method                        String //"delivery", "pickup"
+  methodInt                     Int //0: delivery, 1: pickup
+  deliveryTypeInt               Int? //0: third party 1: self-delivery
+  deliveryTypeStr               String? //"outsource", "in-house"
+  localDeliveryDistanceStr      String?
+  localDeliveryDistanceMi       Int?
+  localDeliveryDistanceKm       Int?
+  pickupNote                    String?
+  deliveryFeeType               String? //"flat", "distance", "percetange"
+  deliveryFeePriceStr           String?
+  deliveryFeePriceIntPenny      Int?
+  deliveryFeeByDistanceStr      String?
+  deliveryFeeByDistanceIntPenny Int?
+  deliveryFeeDistanceMetric     String?
+  deliveryFeeByPercentStr       String?
+  deliveryFeeByPercent          Float?
+  account                       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId                     Int
 
   @@unique(fields: [accountId, method], name: "fulfillment_identifier")
   @@index([accountId])
 }
 
 model Tips {
-  id                   Int      @id @default(autoincrement())
-  account              Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId            Int      @unique
-  tipOneStr            String
-  tipOneIntPenny       Int?
-  tipOneIntHundredth   Int?
-  tipTwoStr            String
-  tipTwoIntPenny       Int?
-  tipTwoIntHundredth   Int?
-  tipThreeStr          String
-  tipThreeIntPenny     Int?
-  tipThreeIntHundredth Int?
-  type                 String
-  enabled              Boolean  @default(true)
+  id               Int      @id @default(autoincrement())
+  account          Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int      @unique
+  tipOneStr        String
+  tipOneIntPenny   Int?
+  tipOnePercent    Float?
+  tipTwoStr        String
+  tipTwoIntPenny   Int?
+  tipTwoPercent    Float?
+  tipThreeStr      String
+  tipThreeIntPenny Int?
+  tipThreePercent  Float?
+  type             String
+  enabled          Boolean  @default(true)
 }
 
 enum Role {

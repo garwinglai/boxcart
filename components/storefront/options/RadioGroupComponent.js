@@ -6,17 +6,26 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 
-function RadioGroupComponent({ currOption }) {
-  const { optionGroupName, selectionDisplay, isRequiredDisplay, options } =
-    currOption;
+function RadioGroupComponent({
+  currOption,
+  handleOptionRadioGroupChange,
+  selectedValue,
+}) {
+  const {
+    id: groupId,
+    optionGroupName,
+    selectionDisplay,
+    isRequiredDisplay,
+    options,
+  } = currOption;
 
   return (
     <FormControl
       className={`${styles.option_box}`}
       sx={{
-        paddingLeft: "1.5rem",
-        paddingRight: "1.5rem",
-        paddingTop: "1.25rem",
+        // paddingLeft: "1.5rem",
+        // paddingRight: "1.5rem",
+        paddingBottom: "1.25rem",
       }}
     >
       <div className={`${styles.flex} ${styles.title_box}`}>
@@ -29,12 +38,16 @@ function RadioGroupComponent({ currOption }) {
         aria-labelledby="radio-buttons-group-label"
         defaultValue="female"
         name="radio-buttons-group"
+        value={selectedValue}
+        onChange={handleOptionRadioGroupChange}
+        required
       >
         <FormControlLabel
-          value="none"
+          defaultValue={`none-$0-${groupId}`}
+          value={`none-$0-${groupId}`}
           control={<Radio color="warning" />}
           label={
-            <p className="font-light text-sm text-[color:var(--black-design-extralight)] ">
+            <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
               none
             </p>
           }
@@ -42,18 +55,38 @@ function RadioGroupComponent({ currOption }) {
           className=" justify-between"
         />
         {options.map((option) => {
-          const { id, optionName, priceStr } = option;
+          const { id, optionName, priceStr, quantityInt } = option;
+
+          const controlValue =
+            optionName +
+            "-" +
+            priceStr +
+            "-" +
+            groupId +
+            "-" +
+            quantityInt +
+            "-" +
+            optionGroupName;
 
           return (
             <FormControlLabel
               key={id}
-              value={optionName}
+              value={controlValue}
               control={<Radio color="warning" />}
               label={
-                <p className="font-light text-sm text-[color:var(--black-design-extralight)] ">{`${optionName} - ${priceStr}`}</p>
+                <div className="flex flex-grow justify-between gap-2">
+                  <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
+                    {`${optionName} - ${priceStr}`}
+                  </p>
+                  {quantityInt && (
+                    <p className="text-xs font-extralight -mr-1">
+                      ({quantityInt} left)
+                    </p>
+                  )}
+                </div>
               }
               labelPlacement="start"
-              className=" justify-between"
+              className="justify-between w-full"
             />
           );
         })}

@@ -19,6 +19,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   updateHasScheduleAccountClient,
+  updateOrderInAdvanceToggleAccountClient,
   updateTimeBlockToggleAccountClient,
 } from "@/helper/client/api/availability/availability-toggles-crud";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
@@ -31,7 +32,10 @@ import {
   updateScheduleEnabledRangeClient,
   updateScheduleEnabledWeekClient,
 } from "@/helper/client/api/availability/schedule-toggle.crud";
-import { getAvailabilitiesClient } from "@/helper/client/api/availability/availability-crud";
+import {
+  getAvailabilitiesClient,
+  updateOrderInAdvanceTimeClient,
+} from "@/helper/client/api/availability/availability-crud";
 import prisma from "@/lib/prisma";
 import TimeBlockDrawer from "@/components/app/my-shop/availability/TimeBlockDrawer";
 import dayjs from "dayjs";
@@ -42,6 +46,8 @@ import HelpCenterIcon from "@mui/icons-material/HelpCenter";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import Link from "next/link";
+import TimeAdvanceDrawer from "@/components/app/my-shop/availability/TimeAdvanceDrawer";
+import { useHasHydrated } from "@/utils/useHasHydrated";
 
 const styleMobile = {
   position: "absolute",
@@ -92,14 +98,9 @@ function ServerDay(props) {
 function Availability({ userAccount }) {
   const {
     availability,
-    hasCustomAvailability,
     isTimeBlockEnabled,
-    timeBlock,
     id: accountId,
   } = userAccount ? userAccount : {};
-
-  const requestAbortControllerMonth = useRef(null);
-  const requestAbortControllerDay = useRef(null);
 
   const [selectedDateValues, setSelectedDateValues] = useState({
     selectedDate: new Date().toLocaleDateString(),
@@ -113,15 +114,59 @@ function Availability({ userAccount }) {
   const [drawerTimeBlockState, setDrawerTimeBlockState] = useState({
     right: false,
   });
+  const [drawerTimeAdvanceState, setDrawerTimeAdvanceState] = useState({
+    right: false,
+  });
   const [hasCustomHours, setHasCustomHours] = useState(
-    hasCustomAvailability ? true : false
+    availability
+      ? availability.hasCustomAvailability
+        ? availability.hasCustomAvailability
+        : false
+      : false
   );
   const [timeBlockEnabled, setTimeBlockEnabled] = useState(
-    isTimeBlockEnabled ? true : false
+    availability
+      ? availability.isTimeBlockEnabled
+        ? availability.isTimeBlockEnabled
+        : false
+      : false
   );
   const [timeBlockCurrentValue, setTimeBlockCurrentValue] = useState(
-    timeBlock ? timeBlock : "15 min"
+    availability
+      ? availability.timeBlock
+        ? availability.timeBlock
+        : "15 min"
+      : "15 min"
   );
+  const [orderInAdvanceDisplay, setOrderInAdvanceDisplay] = useState(
+    availability
+      ? availability.orderInAdvanceDisplay
+        ? availability.orderInAdvanceDisplay
+        : "24 hours"
+      : "24 hours"
+  );
+  const [orderInAdvanceEnabled, setOrderInAdvanceEnabled] = useState(
+    availability
+      ? availability.requireOrderInAdvance
+        ? availability.requireOrderInAdvance
+        : false
+      : false
+  );
+  const [orderTimeAdvance, setOrderTimeAdvance] = useState(
+    availability
+      ? availability.orderInAdvanceValue
+        ? availability.orderInAdvanceValue
+        : "24"
+      : "24"
+  );
+  const [orderTimeAdvanceMetric, setOrderTimeAdvanceMetric] = useState(
+    availability
+      ? availability.orderInAdvanceMetric
+        ? availability.orderInAdvanceMetric
+        : "hour"
+      : "hour"
+  );
+
   // const [timeBlockTimes, setTimeBlockTimes] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
@@ -165,6 +210,10 @@ function Availability({ userAccount }) {
   const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
     availabilityValues;
 
+  const requestAbortControllerMonth = useRef(null);
+  const requestAbortControllerDay = useRef(null);
+  const hydrated = useHasHydrated();
+
   useEffect(() => {
     fetchShopHours(
       calendarDate,
@@ -199,94 +248,6 @@ function Availability({ userAccount }) {
     daysOfWeekAvailability,
     currentMonth,
   ]);
-
-  // useEffect(() => {
-  //   if (!timeBlockEnabled) return;
-
-  //   formatTimeBlockTimes(selectedDateValues);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [timeBlockEnabled, timeBlockCurrentValue, selectedDateValues]);
-
-  // const formatTimeBlockTimes = (selectedDateValues) => {
-  //   const { selectedDate, selectedDateHourDisplay } = selectedDateValues;
-  //   if (selectedDateHourDisplay === "Closed") return [];
-
-  //   const startTime = selectedDateHourDisplay.split("-")[0];
-  //   const endTime = selectedDateHourDisplay.split("-")[1];
-
-  //   const startTimeEpoch = convertToEpoch(selectedDate, startTime);
-  //   const endTimeEpoch = convertToEpoch(selectedDate, endTime);
-
-  //   const intervals = generateTimeIntervals(
-  //     startTimeEpoch,
-  //     endTimeEpoch,
-  //     timeBlockCurrentValue
-  //   );
-
-  //   setTimeBlockTimes(intervals);
-  // };
-
-  // const convertToEpoch = (date, time) => {
-  //   const dateTimeString = `${date} ${time}`;
-  //   const dateTime = new Date(dateTimeString);
-
-  //   return dateTime.getTime();
-  // };
-
-  // const generateTimeIntervals = (startTimeEpoch, endTimeEpoch, interval) => {
-  //   const intervalValue = parseInt(interval.split(" ")[0]);
-  //   const intervalUnit = interval.split(" ")[1];
-
-  //   const interValueInMs = convertToMs(intervalValue, intervalUnit);
-  //   let plusInterval = startTimeEpoch;
-
-  //   const intervals = [];
-
-  //   do {
-  //     intervals.push(plusInterval);
-  //     plusInterval += interValueInMs;
-  //   } while (plusInterval <= endTimeEpoch);
-
-  //   const lastInterval = intervals[intervals.length - 1];
-
-  //   if (lastInterval + interValueInMs > endTimeEpoch) {
-  //     intervals.pop();
-  //   }
-
-  //   // convert interval epoch times to 12hr time strings
-  //   const intervalsIn12Hr = convertToIntervalsIn12Hr(intervals);
-  //   return intervalsIn12Hr;
-  // };
-
-  // const convertToIntervalsIn12Hr = (intervals) => {
-  //   const intervalsIn12Hr = intervals.map((interval) => {
-  //     const date = new Date(interval); // Convert to milliseconds
-  //     const hours = date.getHours();
-  //     const minutes = date.getMinutes();
-  //     const ampm = hours >= 12 ? "PM" : "AM";
-
-  //     const hours12 = hours % 12 || 12; // Convert to 12-hour format
-
-  //     const hoursStr = hours12.toString();
-  //     const minutesStr = minutes < 10 ? `0${minutes}` : minutes;
-
-  //     const timeStr = `${hoursStr}:${minutesStr} ${ampm}`;
-
-  //     return timeStr;
-  //   });
-
-  //   return intervalsIn12Hr;
-  // };
-
-  // const convertToMs = (value, unit) => {
-  //   if (unit === "min") {
-  //     return value * 60 * 1000;
-  //   }
-
-  //   if (unit === "hour") {
-  //     return value * 60 * 60 * 1000;
-  //   }
-  // };
 
   const fetchShopHours = (
     date,
@@ -637,7 +598,17 @@ function Availability({ userAccount }) {
     const firstDay = new Date(year, month - 1, 1);
     const weekdays = [];
 
-    for (let day = 1; day <= 31; day++) {
+    let daysInMonth = 31;
+    //write a function to find the days in each month and set it to daysInMonth.
+    if (month === 2) {
+      daysInMonth = 28;
+    } else if (month === 4 || month === 6 || month === 9 || month === 11) {
+      daysInMonth = 30;
+    } else {
+      daysInMonth = 31;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month - 1, day);
       if (date.getDay() === targetWeekday) {
         weekdays.push(date.getDate());
@@ -874,13 +845,23 @@ function Availability({ userAccount }) {
     setDrawerTimeBlockState({ ...drawerTimeBlockState, [anchor]: open });
   };
 
+  const toggleDrawerTimeAdvance = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setDrawerTimeAdvanceState({ ...drawerTimeAdvanceState, [anchor]: open });
+  };
+
   const handleSetHoursSwitch = async () => {
     let isCustomHoursEnabled = true;
 
     if (hasCustomHours) isCustomHoursEnabled = false;
 
     setHasCustomHours((prev) => !prev);
-    console.log("swtich", accountId);
 
     const { success, value, error } = await updateHasScheduleAccountClient(
       isCustomHoursEnabled,
@@ -889,13 +870,14 @@ function Availability({ userAccount }) {
 
     if (!success || error) {
       handleOpenSnackbar("Error updating custom hours.");
+      setHasCustomHours((prev) => !prev);
     }
   };
 
   const handleTimeBlockSwitch = async () => {
     let timeBlockToggle = true;
 
-    if (isTimeBlockEnabled) timeBlockToggle = false;
+    if (timeBlockEnabled) timeBlockToggle = false;
 
     setTimeBlockEnabled((prev) => !prev);
 
@@ -906,12 +888,44 @@ function Availability({ userAccount }) {
 
     if (!success || error) {
       handleOpenSnackbar("Error updating time block.");
+      setTimeBlockEnabled((prev) => !prev);
     }
   };
 
   const updateTimeBlockCurrValue = (value) => {
     setTimeBlockCurrentValue(value);
   };
+
+  const updateOrderInAdvanceTimeDisplay = (
+    orderInAdvanceDisplay,
+    orderInAdvanceMetric,
+    orderInAdvanceValue
+  ) => {
+    setOrderInAdvanceDisplay(orderInAdvanceDisplay);
+    setOrderTimeAdvanceMetric(orderInAdvanceMetric);
+    setOrderTimeAdvance(orderInAdvanceValue);
+  };
+
+  const handleOrderInAdvanceSwitch = async (e) => {
+    let orderInAdvanceToggle = true;
+
+    if (orderInAdvanceEnabled) orderInAdvanceToggle = false;
+
+    setOrderInAdvanceEnabled((prev) => !prev);
+
+    const { success, value, error } =
+      await updateOrderInAdvanceToggleAccountClient(
+        orderInAdvanceToggle,
+        accountId
+      );
+
+    if (!success || error) {
+      handleOpenSnackbar("Error.");
+      setOrderInAdvanceEnabled((prev) => !prev);
+    }
+  };
+
+  // TODO: after lunch : 1. timeblock, update savings to availability model 2. on register, create
 
   function displayMain() {
     // Length of each different way to schedule.
@@ -950,42 +964,27 @@ function Availability({ userAccount }) {
               <p>Store hours:</p>
               <p>{selectedDateHourDisplay}</p>
             </div>
-            {/* {timeBlockEnabled && (
-              <div className="flex gap-4 items-center px-8  text-[color:var(--third-dark)]">
-                <p className=" whitespace-nowrap">Availability:</p>
-                <div className="flex gap-2 overflow-x-scroll border px-2 py-1 shadow-inner rounded border-[color:var(--primary-light-soft)]">
-                  {timeBlockTimes.map((time, i) => {
-                    return (
-                      <p
-                        key={i}
-                        className="w-fit whitespace-nowrap text-[color:var(--gray-text)] font-light"
-                      >
-                        {time}
-                      </p>
-                    );
-                  })}
-                </div>
-              </div>
-            )} */}
           </div>
           <div>
             <h3 className="mb-2 ml-4 underline">Calendar:</h3>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateCalendar
-                loading={isLoading}
-                onMonthChange={handleMonthChange}
-                onChange={handleDateClick}
-                renderLoading={() => <DayCalendarSkeleton />}
-                slots={{
-                  day: ServerDay,
-                }}
-                slotProps={{
-                  day: {
-                    highlightedDays,
-                  },
-                }}
-              />
-            </LocalizationProvider>
+            {hydrated && (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateCalendar
+                  loading={isLoading}
+                  onMonthChange={handleMonthChange}
+                  onChange={handleDateClick}
+                  renderLoading={() => <DayCalendarSkeleton />}
+                  slots={{
+                    day: ServerDay,
+                  }}
+                  slotProps={{
+                    day: {
+                      highlightedDays,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            )}
           </div>
         </div>
         <div className="lg:w-1/2">
@@ -1187,12 +1186,24 @@ function Availability({ userAccount }) {
       <div className="lg:flex">
         <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
           <div className="flex flex-col">
-            <h4>Set custom hours</h4>
+            <h4>Set ordering hours</h4>
             <p className="font-extralight text-xs">
               If disabled, customers can order at anytime.
             </p>
           </div>
           <IOSSwitch checked={hasCustomHours} onClick={handleSetHoursSwitch} />
+        </div>
+        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex flex-col">
+            <h4>Order in advance:</h4>
+            <p className="font-extralight text-xs">
+              Customers must order ahead of time. (Best for custom orders.)
+            </p>
+          </div>
+          <IOSSwitch
+            checked={orderInAdvanceEnabled}
+            onClick={handleOrderInAdvanceSwitch}
+          />
         </div>
         <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
           <div className="flex flex-col">
@@ -1207,33 +1218,61 @@ function Availability({ userAccount }) {
           />
         </div>
       </div>
-
-      {timeBlockEnabled && (
-        <div className="px-4 flex justify-between items-center md:gap-8 md:w-fit md:ml-auto md:pr-6">
-          <div className="flex items-center gap-2">
-            <h3>Time Block:</h3>
+      <div className="md flex flex-col items-end gap-2 md:gap-4">
+        {timeBlockEnabled && (
+          <div className="px-4 pb-2 flex gap-4 justify-between items-center md:pb-0 md:gap-8 md:w-fit  md:pr-6">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base">Time Block:</h3>
+            </div>
+            <div>
+              <ButtonFourth
+                handleClick={toggleDrawerTimeBlock("right", true)}
+                name={timeBlockCurrentValue}
+              />
+            </div>
+            <Drawer
+              anchor={"right"}
+              open={drawerTimeBlockState["right"]}
+              onClose={toggleDrawerTimeBlock("right", false)}
+            >
+              <TimeBlockDrawer
+                toggleDrawer={toggleDrawerTimeBlock("right", false)}
+                accountId={accountId}
+                timeBlock={timeBlockCurrentValue}
+                handleOpenSnackbar={handleOpenSnackbar}
+                updateTimeBlockCurrValue={updateTimeBlockCurrValue}
+              />
+            </Drawer>
           </div>
-          <div>
-            <ButtonFourth
-              handleClick={toggleDrawerTimeBlock("right", true)}
-              name={timeBlockCurrentValue}
-            />
+        )}
+        {orderInAdvanceEnabled && (
+          <div className="px-4 gap-4  flex justify-between items-center md:gap-8 md:w-fit  md:pr-6 md:pb-0 ">
+            <h3 className=" text-base">Time in advance:</h3>
+            <div>
+              <ButtonFourth
+                handleClick={toggleDrawerTimeAdvance("right", true)}
+                name={orderInAdvanceDisplay}
+              />
+            </div>
+            <Drawer
+              anchor={"right"}
+              open={drawerTimeAdvanceState["right"]}
+              onClose={toggleDrawerTimeAdvance("right", false)}
+            >
+              <TimeAdvanceDrawer
+                toggleDrawer={toggleDrawerTimeAdvance("right", false)}
+                accountId={accountId}
+                orderTimeInAdvance={orderTimeAdvance}
+                orderTimeInAdvanceMetric={orderTimeAdvanceMetric}
+                handleOpenSnackbar={handleOpenSnackbar}
+                updateOrderInAdvanceTimeDisplay={
+                  updateOrderInAdvanceTimeDisplay
+                }
+              />
+            </Drawer>
           </div>
-          <Drawer
-            anchor={"right"}
-            open={drawerTimeBlockState["right"]}
-            onClose={toggleDrawerTimeBlock("right", false)}
-          >
-            <TimeBlockDrawer
-              toggleDrawer={toggleDrawerTimeBlock("right", false)}
-              accountId={accountId}
-              timeBlock={timeBlockCurrentValue}
-              handleOpenSnackbar={handleOpenSnackbar}
-              updateTimeBlockCurrValue={updateTimeBlockCurrValue}
-            />
-          </Drawer>
-        </div>
-      )}
+        )}
+      </div>
       {hasCustomHours && (
         <React.Fragment>
           <div className=" w-full flex justify-end items-center p-4 border-b mb-4 md:px-6">
@@ -1323,8 +1362,6 @@ export async function getServerSideProps(context) {
       });
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
-
-      console.log("serversideprops  serializedAccount:", serializedAccount);
     } catch (error) {
       console.log("serversideprops  error:", error);
     }

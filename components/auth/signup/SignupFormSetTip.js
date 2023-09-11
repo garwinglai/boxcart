@@ -3,6 +3,7 @@ import styles from "@/styles/components/signup/signupformsettips.module.css";
 import SignupFormRadioGroup from "./SignupFormRadioGroup";
 import percentIcon from "@/public/images/icons/signupflow/percent_icon.png";
 import dollarIcon from "@/public/images/icons/signupflow/dollar_icon.png";
+import CurrencyInput from "react-currency-input-field";
 
 function SignupFormSetTip({
   signupValues,
@@ -44,50 +45,46 @@ function SignupFormSetTip({
         </div>
         <div className={`${styles.inputs_box} ${styles.flex}`}>
           <div className={`${styles.input_group}`}>
-            <input
-              autoFocus
-              className={`${styles.tip_input}`}
-              type="number"
-              id="input_1"
-              value={tip1.tipInt}
+            <CurrencyInput
               name="tip1"
-              pattern="\d*"
-              inputMode="numeric"
-              onChange={onChangeTipValues}
+              required
+              placeholder="%"
+              value={tip1.tipInt}
+              onValueChange={onChangeTipValues}
+              decimalsLimit={2}
+              decimalScale={2}
+              suffix={typeOfTipInt === 0 ? "%" : ""}
+              prefix={typeOfTipInt === 1 ? "$" : ""}
+              className={`${styles.tip_input}`}
             />
-            <label className={`${styles.tip_label}`} htmlFor="input_1">
-              {typeOfTipInt === 0 ? "%" : "$"}
-            </label>
           </div>
           <div className={`${styles.input_group}`}>
-            <input
-              className={`${styles.tip_input}`}
-              type="number"
-              id="input_2"
+            <CurrencyInput
               name="tip2"
+              required
+              placeholder="%"
               value={tip2.tipInt}
-              pattern="\d*"
-              inputMode="numeric"
-              onChange={onChangeTipValues}
+              onValueChange={onChangeTipValues}
+              decimalsLimit={2}
+              decimalScale={2}
+              suffix={typeOfTipInt === 0 ? "%" : ""}
+              prefix={typeOfTipInt === 1 ? "$" : ""}
+              className={`${styles.tip_input}`}
             />
-            <label className={`${styles.tip_label}`} htmlFor="input_2">
-              {typeOfTipInt === 0 ? "%" : "$"}
-            </label>
           </div>
           <div className={`${styles.input_group}`}>
-            <input
-              className={`${styles.tip_input}`}
-              type="number"
-              id="input_3"
+            <CurrencyInput
               name="tip3"
+              required
+              placeholder="%"
               value={tip3.tipInt}
-              pattern="\d*"
-              inputMode="numeric"
-              onChange={onChangeTipValues}
+              onValueChange={onChangeTipValues}
+              decimalsLimit={2}
+              decimalScale={2}
+              suffix={typeOfTipInt === 0 ? "%" : ""}
+              prefix={typeOfTipInt === 1 ? "$" : ""}
+              className={`${styles.tip_input}`}
             />
-            <label className={`${styles.tip_label}`} htmlFor="input_3">
-              {typeOfTipInt === 0 ? "%" : "$"}
-            </label>
           </div>
         </div>
       </div>

@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { ShopSwitch } from "../global/switches/ShopSwitch";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import TakeoutDiningOutlinedIcon from "@mui/icons-material/TakeoutDiningOutlined";
-import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import Accordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
@@ -17,13 +16,18 @@ import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
 import dayjs from "dayjs";
 import Badge from "@mui/material/Badge";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
+import PlacesAutoComplete from "./PlacesAutoComplete";
+import { getGeocode, getLatLng } from "use-places-autocomplete";
+import { useLoadScript } from "@react-google-maps/api";
+import { useCartStore } from "@/lib/store";
+import { useHasHydrated } from "@/utils/useHasHydrated";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "min-content",
   bgcolor: "background.paper",
   // border: "2px solid #000",
   boxShadow: 24,
@@ -57,26 +61,61 @@ let stagedDeliveryDate = "Select date";
 let stagedDeliveryTime = "time";
 
 function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
+  const hydrated = useHasHydrated();
+  const cartDetails = useCartStore((state) => state.cartDetails);
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
+
+  const {
+    fulfillmentDisplay,
+    fulfillmentType,
+    deliveryAddress,
+    orderForDateDisplay,
+    orderForTimeDisplay,
+  } = cartDetails;
+
   const {
     fulfillmentMethodInt,
-    hasCustomAvailability,
-    isTimeBlockEnabled,
-    timeBlock,
-    timeBlockSeconds,
+    fulfillmentMethods,
     availability,
+    lat: bizLat,
+    lng: bizLng,
     id: accountId,
   } = userAccount ? userAccount : {};
 
-  const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
-    availability ? availability : {};
+  const {
+    timeBlock,
+    isTimeBlockEnabled,
+    orderInAdvanceInSeconds,
+    requireOrderInAdvance,
+    orderInAdvanceDisplay,
+  } = availability ? availability : {};
 
-  const [fulfillmentType, setFulfillmentType] = useState("pickup");
+  const {
+    datesAvailability,
+    datesRangedAvailability,
+    daysOfWeekAvailability,
+    hasCustomAvailability,
+  } = availability ? availability : {};
+
+  // const libraries = useMemo(() => ["places"], []);
+  const [libraries] = useState(["places"]);
+
+  // Store lat, lng as State Variables
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+
+  // const [fulfillmentType, setFulfillmentType] = useState("pickup");
   const [expanded, setExpanded] = useState(false);
-  const [deliveryAddress, setDeliveryAddress] = useState("");
+
+  const [deliveryDistanceInMi, setDeliveryDistanceInMi] = useState("");
+  const [deliveryDistanceInKm, setDeliveryDistanceInKm] = useState("");
+  const [isDeliveryTooFar, setIsDeliveryTooFar] = useState(false);
 
   // Delivery states
-  const [deliveryDate, setDeliveryDate] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("");
+  // const [deliveryDate, setDeliveryDate] = useState("");
+  // const [deliveryTime, setDeliveryTime] = useState("");
+  const [localDeliveryDistanceMi, setLocalDeliveryDistanceMi] = useState("");
+  const [localDeliveryDistanceKm, setLocalDeliveryDistanceKm] = useState("");
 
   // Calendar availability states
   const [openAvailabilityModalOwner, setOpenAvailabilityModalOwner] =
@@ -86,7 +125,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     selectedDate: new Date().toLocaleDateString(),
     selectedDateHourDisplay: "Closed",
   });
-  const [highlightedDays, setHighlightedDays] = useState([1, 2, 3]);
+  const [highlightedDays, setHighlightedDays] = useState([]);
   const [timeBlockTimes, setTimeBlockTimes] = useState([]);
   const [calendarMonth, setCalendarMonth] = useState(dayjs());
   const [calendarDate, setCalendarDate] = useState(dayjs());
@@ -97,13 +136,43 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const requestAbortControllerDay = useRef(null);
   const { push } = useRouter();
 
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY,
+    libraries,
+  });
+
+  useEffect(() => {
+    for (let i = 0; i < fulfillmentMethods.length; i++) {
+      const fulfillment = fulfillmentMethods[i];
+      const { methodInt, localDeliveryDistanceKm, localDeliveryDistanceMi } =
+        fulfillment;
+
+      //0: delivery, 1:pickup
+      if (methodInt === 0) {
+        setLocalDeliveryDistanceKm(localDeliveryDistanceKm);
+        setLocalDeliveryDistanceMi(localDeliveryDistanceMi);
+      }
+    }
+  }, [fulfillmentMethods]);
+
+  // useEffect(() => {
+  //   const { fulfillmentTypeDisplay } = cartDetails;
+  //   setFulfillmentType(fulfillmentTypeDisplay);
+  // }, [cartDetails]);
+
   const handleOpenAvailabilityModalOwner = () => {
     let date = dayjs();
 
-    if (deliveryDate !== "" && deliveryDate !== "Select date") {
-      date = dayjs(deliveryDate);
+    if (orderForDateDisplay !== "" && orderForDateDisplay !== "Select date") {
+      date = dayjs(orderForDateDisplay);
       setCalendarDate(date);
       setCalendarMonth(date);
+    } else {
+      const dateStr = new Date(date).toLocaleDateString();
+
+      setCartDetails({
+        orderForDateDisplay: dateStr,
+      });
     }
 
     const selectedDateValues = fetchShopHours(
@@ -400,8 +469,10 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
       date,
       datesAvailability
     );
+
     const daysOfSpecificDatesRangedScheduled =
       getDaysFromDatesRangedAvailability(date, datesRagnedAvailability);
+
     const daysOfWeekScheduled = getDaysFromDaysOfWeekAvailability(
       date,
       daysOfWeekAvailability
@@ -558,7 +629,17 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     const firstDay = new Date(year, month - 1, 1);
     const weekdays = [];
 
-    for (let day = 1; day <= 31; day++) {
+    let daysInMonth = 31;
+    //write a function to find the days in each month and set it to daysInMonth.
+    if (month === 2) {
+      daysInMonth = 28;
+    } else if (month === 4 || month === 6 || month === 9 || month === 11) {
+      daysInMonth = 30;
+    } else {
+      daysInMonth = 31;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month - 1, day);
       if (date.getDay() === targetWeekday) {
         weekdays.push(date.getDate());
@@ -604,7 +685,10 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     );
 
     const selectedDate = new Date(date).toLocaleDateString();
-    setDeliveryDate(selectedDate);
+
+    setCartDetails({
+      orderForDateDisplay: selectedDate,
+    });
 
     if (isTimeBlockEnabled && selectedDateValues) {
       // TODO: stageDeliveryTime
@@ -618,8 +702,12 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const handleCancelDeliveryChange = () => {
     setOpenAvailabilityModalOwner(false);
     setTimeBlockTimes([]);
-    setDeliveryTime(stagedDeliveryTime);
-    setDeliveryDate(stagedDeliveryDate);
+    // setDeliveryTime(stagedDeliveryTime);
+    // setDeliveryDate(stagedDeliveryDate);
+    setCartDetails({
+      orderForDateDisplay: stagedDeliveryDate,
+      orderForTimeDisplay: stagedDeliveryTime,
+    });
   };
 
   const handleSetDeliveryChange = () => {
@@ -627,18 +715,60 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
       handleOpenSnackbar("Store is closed on this day.");
       return;
     }
-    stagedDeliveryDate = deliveryDate;
-    setDeliveryDate(stagedDeliveryDate);
+
+    if (isTimeBlockEnabled) {
+      if (orderForTimeDisplay === "" || orderForTimeDisplay === "time") {
+        handleOpenSnackbar("Please select a time.");
+        return;
+      }
+    }
+
+    if (requireOrderInAdvance) {
+      if (isTimeBlockEnabled) {
+        const selectedDateTime = `${orderForDateDisplay} ${orderForTimeDisplay}`;
+        const selectedDateTimeEpoch = new Date(selectedDateTime).getTime();
+
+        const nowEpoch = new Date().getTime();
+        const difference = selectedDateTimeEpoch - nowEpoch;
+        const orderInAdvanceMiliseconds = orderInAdvanceInSeconds * 1000;
+
+        if (difference < orderInAdvanceMiliseconds) {
+          handleOpenSnackbar(`Must order ${orderInAdvanceDisplay} in advance.`);
+          return;
+        }
+      } else {
+        const selectedDateEpoch = new Date(orderForDateDisplay).getTime();
+        const nowEpoch = new Date();
+        const todayStart = nowEpoch.setHours(0, 0, 0, 0);
+        const todayStartEpoch = new Date(todayStart).getTime();
+        const difference = selectedDateEpoch - todayStartEpoch;
+        const orderInAdvanceMiliseconds = orderInAdvanceInSeconds * 1000;
+
+        if (difference < orderInAdvanceMiliseconds) {
+          handleOpenSnackbar(
+            `Must place order ${orderInAdvanceDisplay} in advance.`
+          );
+          return;
+        }
+      }
+    }
+
+    stagedDeliveryDate = orderForDateDisplay;
+
+    setCartDetails({
+      orderForDateDisplay: stagedDeliveryDate,
+    });
     setOpenAvailabilityModalOwner(false);
     setTimeBlockTimes([]);
 
     if (!isTimeBlockEnabled) return;
-    stagedDeliveryTime = deliveryTime;
+    stagedDeliveryTime = orderForTimeDisplay;
   };
 
   const handleSelectTime = (e) => {
     const { name } = e.target;
-    setDeliveryTime(name);
+    // setDeliveryTime(name);
+    setCartDetails({ orderForTimeDisplay: name });
   };
 
   const handleChange = (panel) => (event, isExpanded) => {
@@ -646,14 +776,102 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   };
 
   const handleSwitch = () => {
-    if (fulfillmentType === "delivery") {
-      setFulfillmentType("pickup");
+    if (fulfillmentType === 0) {
+      setCartDetails({
+        fulfillmentType: 1,
+        fulfillmentDisplay: "pickup",
+        deliveryFeeType: 0,
+        deliveryFeeTypeDisplay: "free",
+        deliveryFeePenny: 0,
+        deliveryFeeDisplay: "$0.00",
+      });
       return;
     }
 
+    setCartDetails({
+      fulfillmentType: 0,
+      fulfillmentDisplay: "delivery",
+      deliveryAddress: "",
+    });
+
     handleChange("panel1");
-    setFulfillmentType("delivery");
     return;
+  };
+
+  const updateDeliveryFee = (distanceInMi, distanceInKm) => {
+    const deliveryMethod = fulfillmentMethods.find(
+      (method) => method.methodInt === 0
+    );
+
+    const {
+      deliveryFeeType,
+      deliveryFeePriceStr,
+      deliveryFeePriceIntPenny,
+      deliveryFeeByDistanceStr,
+      deliveryFeeByDistanceIntPenny,
+      deliveryFeeDistanceMetric,
+      deliveryFeeByPercentStr,
+      deliveryFeeByPercent,
+    } = deliveryMethod;
+
+    const deliveryFeeTypeInt =
+      deliveryFeeType === "free"
+        ? 0
+        : deliveryFeeType === "flat"
+        ? 1
+        : deliveryFeeType === "percentage"
+        ? 2
+        : 3;
+
+    let deliveryFeeByDistancePenny = deliveryFeeByDistanceIntPenny;
+    let deliveryFeeByDistanceDisplay = deliveryFeeByDistanceStr;
+    let deliveryFeeByPercentNum = deliveryFeeByPercent;
+    let deliveryFeeByPercentDisplay = deliveryFeeByPercentStr;
+
+    if (deliveryFeeTypeInt === 2) {
+      const { subtotalPenny } = cartDetails;
+
+      deliveryFeeByPercentNum = subtotalPenny * (deliveryFeeByPercent / 100);
+      deliveryFeeByPercentDisplay = `$${(deliveryFeeByPercentNum / 100).toFixed(
+        2
+      )}`;
+    }
+
+    if (deliveryFeeTypeInt === 3) {
+      deliveryFeeByDistancePenny =
+        deliveryFeeDistanceMetric === "mi"
+          ? deliveryFeeByDistanceIntPenny * distanceInMi
+          : deliveryFeeByDistanceIntPenny * distanceInKm;
+
+      deliveryFeeByDistanceDisplay = `$${(
+        deliveryFeeByDistancePenny / 100
+      ).toFixed(2)}`;
+    }
+
+    const deliveryFeePenny =
+      deliveryFeeTypeInt === 0
+        ? 0
+        : deliveryFeeTypeInt === 1
+        ? deliveryFeePriceIntPenny
+        : deliveryFeeTypeInt === 2
+        ? deliveryFeeByPercentNum
+        : deliveryFeeByDistancePenny;
+
+    const deliveryFeeDisplay =
+      deliveryFeeTypeInt === 0
+        ? "$0.00"
+        : deliveryFeeTypeInt === 1
+        ? deliveryFeePriceStr
+        : deliveryFeeTypeInt === 2
+        ? deliveryFeeByPercentDisplay
+        : deliveryFeeByDistanceDisplay;
+
+    setCartDetails({
+      deliveryFeeType: deliveryFeeTypeInt,
+      deliveryFeeTypeDisplay: deliveryFeeType,
+      deliveryFeePenny,
+      deliveryFeeDisplay,
+    });
   };
 
   const handleChangeDeliveryClick = () => {
@@ -664,9 +882,53 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     push("/account/my-shop/availability");
   };
 
-  const handleDeliveryAddressChange = (e) => {
-    const { value } = e.target;
-    setDeliveryAddress(value);
+  const getDistance = (lat1, lng1, lat2, lng2) => {
+    const radiusOfEarnMiles = 3958.8;
+    const degreeLat = degToRadius(lat2 - lat1);
+    const degreeLng = degToRadius(lng2 - lng1);
+    const a =
+      Math.sin(degreeLat / 2) * Math.sin(degreeLat / 2) +
+      Math.cos(degToRadius(lat1)) *
+        Math.cos(degToRadius(lat2)) *
+        Math.sin(degreeLng / 2) *
+        Math.sin(degreeLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distanceInMi = radiusOfEarnMiles * c; // Distance in miles
+    const distanceInKm = distanceInMi * 1.609344; // Distance in km
+
+    const roundedNumInMi = round(distanceInMi);
+    const roundedNumInKm = round(distanceInKm);
+
+    if (roundedNumInMi > localDeliveryDistanceMi) {
+      setIsDeliveryTooFar(true);
+      return null;
+    }
+
+    const distanceInMiStr = roundedNumInMi.toString() + " mi";
+    const distanceInKmStr = roundedNumInKm.toString() + " km";
+
+    setCartDetails({
+      delvieryDistanceMi: roundedNumInMi,
+      deliveryDistanceMiDisplay: distanceInMiStr,
+      deliveryDistanceKm: roundedNumInKm,
+      deliveryDistanceKmDisplay: distanceInKmStr,
+    });
+
+    setDeliveryDistanceInMi(roundedNumInMi);
+    setDeliveryDistanceInKm(roundedNumInKm);
+
+    return { roundedNumInMi, roundedNumInKm };
+  };
+
+  const degToRadius = (deg) => {
+    return (deg * Math.PI) / 180;
+  };
+
+  const round = (num) => {
+    let m = Number((Math.abs(num) * 100).toPrecision(2));
+    const result = (Math.round(m) / 100) * Math.sign(num);
+
+    return result;
   };
 
   return (
@@ -675,19 +937,20 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         fulfillmentMethodInt === 2 ? (
           <Accordion
             onChange={handleSwitch}
+            expanded={hydrated && fulfillmentType === 0}
             aria-controls="panel1bh-content"
             id="panel1bh-header"
             sx={{
-              backgroundColor: "var(--brown-bg)",
+              border: "1px solid var(--black-design-extralight)",
               boxShadow: "none",
               width: "100%",
-              borderRadius: "8px",
+              borderRadius: "4px",
             }}
           >
             <AccordionSummary
               expandIcon={
                 <ShopSwitch
-                  checked={fulfillmentType === "delivery"}
+                  checked={hydrated && fulfillmentType === 0}
                   onClick={handleSwitch}
                 />
               }
@@ -695,47 +958,147 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               id="panel1a-header"
             >
               {/* <div className=""> */}
-              {fulfillmentType === "delivery" ? (
-                <span className="flex gap-1 items-center">
+              {hydrated && fulfillmentType === 0 ? (
+                <div className="flex gap-1 items-center">
+                  <TakeoutDiningOutlinedIcon
+                    fontSize="small"
+                    sx={{ color: "var(--gray-light-med)" }}
+                  />
+                  <p className="text-sm font-light text-[color:var(--gray-light-med)]">
+                    pickup
+                  </p>
+                  <p className="text-sm text-[color:var(--black-design-extralight)]">
+                    {" "}
+                    /{" "}
+                  </p>
                   <DeliveryDiningOutlinedIcon
                     fontSize="small"
-                    sx={{ color: "var(--brown-text)" }}
+                    sx={{ color: "var(--black-design-extralight)" }}
                   />
-                  <p className="text-sm text-[color:var(--brown-text)]  ">
-                    delivery
-                  </p>
-                </span>
+                  {fulfillmentMethods.map((method) => {
+                    const {
+                      id,
+                      methodInt,
+                      deliveryTypeInt,
+                      localDeliveryDistanceStr,
+                    } = method;
+
+                    // methodInt 0: delivery, 1: pickup
+                    if (methodInt === 0) {
+                      // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
+                      if (methodInt === 0 && deliveryTypeInt === 1) {
+                        return (
+                          <div key={id} className="flex items-center">
+                            <p className="text-sm text-[color:var(--black-design-extralight)]  ">
+                              delivery :
+                            </p>
+                            <p className="text-xs font-light text-[color:var(--black-design-extralight)] ml-1 ">
+                              {localDeliveryDistanceStr}
+                            </p>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div key={id} className="flex items-center">
+                            <p className="text-sm text-[color:var(--black-design-extralight)]  ">
+                              delivery
+                            </p>
+                          </div>
+                        );
+                      }
+                    }
+                  })}
+                </div>
               ) : (
                 <span className="flex gap-1 items-center">
                   <TakeoutDiningOutlinedIcon
                     fontSize="small"
-                    sx={{ color: "var(--brown-text)" }}
+                    sx={{ color: "var(--black-design-extralight)" }}
                   />
-                  <p className="text-sm text-[color:var(--brown-text)]">
+                  <p className="text-sm text-[color:var(--black-design-extralight)]">
                     pickup
                   </p>
+                  <p className="text-sm text-[color:var(--black-design-extralight)]">
+                    /
+                  </p>
+                  <div className="flex gap-1 items-center">
+                    <DeliveryDiningOutlinedIcon
+                      fontSize="small"
+                      sx={{ color: "var(--gray-light-med)" }}
+                    />
+                    {fulfillmentMethods.map((method) => {
+                      const {
+                        id,
+                        methodInt,
+                        deliveryTypeInt,
+                        localDeliveryDistanceStr,
+                      } = method;
+
+                      // methodInt 0: delivery, 1: pickup
+                      if (methodInt === 0) {
+                        // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
+                        if (methodInt === 0 && deliveryTypeInt === 1) {
+                          return (
+                            <div key={id} className="flex items-center">
+                              <p className="text-sm font-light text-[color:var(--gray-light-med)]  ">
+                                delivery :
+                              </p>
+                              <p className="text-xs font-light text-[color:var(--gray-light-med)] ml-1 ">
+                                {localDeliveryDistanceStr}
+                              </p>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={id} className="flex items-center">
+                              <p className="text-sm text-[color:var(--gray-light-med)]  ">
+                                delivery
+                              </p>
+                            </div>
+                          );
+                        }
+                      }
+                    })}
+                  </div>
                 </span>
               )}
               {/* </div> */}
             </AccordionSummary>
             <AccordionDetails>
-              <div className="relative flex-grow">
-                <label
-                  htmlFor="deliveryAddress"
-                  className="absolute flex items-center gap-2 top-[12px] left-4 text-[color:var(--brown-text)] font-light text-sm"
-                >
-                  <LocationOnOutlinedIcon fontSize="small" />
-                </label>
-                <input
-                  type="text"
-                  name="deliveryAddress"
-                  id="deliveryAddress"
-                  value={deliveryAddress}
-                  onChange={handleDeliveryAddressChange}
-                  placeholder="deliver to: address"
-                  className="border border-[color:var(--brown-bg)] rounded w-full py-3 placeholder:text-[color:var(--brown-text)] placeholder:text-sm  font-light text-sm indent-10"
-                />
-              </div>
+              {isLoaded ? (
+                <React.Fragment>
+                  <PlacesAutoComplete
+                    setIsDeliveryTooFar={setIsDeliveryTooFar}
+                    address={deliveryAddress}
+                    placeholder="deliver to: address"
+                    onAddressSelect={(address) => {
+                      getGeocode({ address: address }).then((results) => {
+                        const { lat, lng } = getLatLng(results[0]);
+
+                        const distance = getDistance(lat, lng, bizLat, bizLng);
+
+                        if (distance) {
+                          const { roundedNumInMi, roundedNumInKm } = distance;
+                          setCartDetails({ deliveryAddress: address });
+                          updateDeliveryFee(roundedNumInMi, roundedNumInKm);
+                        } else {
+                          setCartDetails({ deliveryAddress: "" });
+                        }
+
+                        setLat(lat);
+                        setLng(lng);
+                      });
+                    }}
+                  />
+                  {isDeliveryTooFar && (
+                    <p className="font-light text-sm mt-2 ml-2 text-[color:var(--primary)]">
+                      * Location too far.
+                    </p>
+                  )}
+                </React.Fragment>
+              ) : (
+                <p className="font-light text-xs">Loading...</p>
+              )}
             </AccordionDetails>
           </Accordion>
         ) : fulfillmentMethodInt === 1 ? (
@@ -751,15 +1114,75 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
             </div>
           </div>
         ) : (
-          <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded">
-            <div className="flex gap-1 items-center">
-              <LocationOnOutlinedIcon
-                fontSize="small"
-                sx={{ color: "var(--brown-text)" }}
-              />
-              <p className="text-sm text-[color:var(--brown-text)]">
-                delivery only
-              </p>
+          <div>
+            <div className="flex justify-between items-center border-b bg-[color:var(--brown-bg)] p-4 rounded-t">
+              <div className="flex gap-1 items-center">
+                <DeliveryDiningOutlinedIcon
+                  fontSize="small"
+                  sx={{ color: "var(--brown-text)" }}
+                />
+                {fulfillmentMethods.map((method) => {
+                  const {
+                    id,
+                    methodInt,
+                    deliveryTypeInt,
+                    localDeliveryDistanceStr,
+                  } = method;
+
+                  // methodInt 0: delivery, 1: pickup
+                  // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
+                  if (methodInt === 0) {
+                    if (methodInt === 0 && deliveryTypeInt === 1) {
+                      return (
+                        <div key={id} className="flex items-center">
+                          <p className="text-sm text-[color:var(--brown-text)]  ">
+                            delivery :
+                          </p>
+                          <p className="text-xs font-light text-[color:var(--brown-text)] ml-1 ">
+                            within {localDeliveryDistanceStr}
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={id} className="flex items-center">
+                          <p className="text-sm text-[color:var(--brown-text)]  ">
+                            delivery
+                          </p>
+                        </div>
+                      );
+                    }
+                  }
+                })}
+              </div>
+            </div>
+            <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded-b">
+              {isLoaded ? (
+                <PlacesAutoComplete
+                  setIsDeliveryTooFar={setIsDeliveryTooFar}
+                  placeholder="deliver to: address"
+                  onAddressSelect={(address) => {
+                    getGeocode({ address: address }).then((results) => {
+                      const { lat, lng } = getLatLng(results[0]);
+
+                      const distance = getDistance(lat, lng, bizLat, bizLng);
+
+                      if (distance) {
+                        const { roundedNumInMi, roundedNumInKm } = distance;
+                        setCartDetails({ deliveryAddress: address });
+                        updateDeliveryFee(roundedNumInMi, roundedNumInKm);
+                      } else {
+                        setCartDetails({ deliveryAddress: "" });
+                      }
+
+                      setLat(lat);
+                      setLng(lng);
+                    });
+                  }}
+                />
+              ) : (
+                <p className="font-light text-xs">Loading...</p>
+              )}
             </div>
           </div>
         )
@@ -767,9 +1190,9 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded">
           {fulfillmentMethodInt == 0 && (
             <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]">Enabled:</p>
+              <p className="text-sm text-[color:var(--brown-text)]"></p>
               <div className="flex gap-1 items-center">
-                <LocationOnOutlinedIcon
+                <DeliveryDiningOutlinedIcon
                   fontSize="small"
                   sx={{ color: "var(--brown-text)" }}
                 />
@@ -781,21 +1204,23 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
           )}
           {fulfillmentMethodInt == 1 && (
             <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]">Enabled:</p>
+              <p className="text-sm text-[color:var(--brown-text)]"></p>
               <div className="flex gap-1 items-center">
                 <TakeoutDiningOutlinedIcon
                   fontSize="small"
                   sx={{ color: "var(--brown-text)" }}
                 />
-                <p className="text-sm text-[color:var(--brown-text)]">pickup</p>
+                <p className="text-sm text-[color:var(--brown-text)]">
+                  pickup only
+                </p>
               </div>
             </div>
           )}
           {fulfillmentMethodInt == 2 && (
             <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]">Enabled:</p>
+              <p className="text-sm text-[color:var(--brown-text)]"></p>
               <div className="flex gap-1 items-center">
-                <LocationOnOutlinedIcon
+                <DeliveryDiningOutlinedIcon
                   fontSize="small"
                   sx={{ color: "var(--brown-text)" }}
                 />
@@ -822,15 +1247,13 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         </div>
       )}
 
-      {hasCustomAvailability && isOwner ? (
+      {availability.hasCustomAvailability && isOwner ? (
         <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded md:mb-4 ">
           <span className="flex items-center gap-2">
-            <p className="font-extralight text-sm text-[color:var(--gray-text)] ">
-              Store hours:
-            </p>
+            <p className="font-extralight text-sm ">Store hours:</p>
             <button
               onClick={handleOpenAvailabilityModalOwner}
-              className="font-extralight text-xs border border-[color:var(--black-design-extralight)] rounded px-2 py-1"
+              className="font-extralight text-xs underline"
             >
               View availabilities
             </button>
@@ -844,20 +1267,28 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
           </button>
         </div>
       ) : (
-        availability && (
-          <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded md:mb-4 ">
+        availability.hasCustomAvailability &&
+        availability &&
+        (datesAvailability.length !== 0 ||
+          datesRangedAvailability.length !== 0 ||
+          daysOfWeekAvailability.length !== 0) && (
+          <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--black-design-extralight)] rounded md:mb-4 ">
             <span className="flex flex-col">
-              <p className="font-extralight text-[color:var(--gray-text)] ">
+              <p className="font-extralight text-[color:var(--gray-light-med)] ">
                 Get it by
               </p>
               <div className="flex gap-2">
                 <p className="text-[color:var(--black-design-extralight)] text-sm font-light ">
-                  {deliveryDate === "" ? "Select a date" : deliveryDate}
+                  {hydrated && orderForDateDisplay === ""
+                    ? "Select a date"
+                    : hydrated && orderForDateDisplay}
                 </p>
 
                 {isTimeBlockEnabled && (
                   <p className="text-[color:var(--black-design-extralight)] text-sm font-light ">
-                    {deliveryTime === "" ? "& time" : `@ ${deliveryTime}`}
+                    {hydrated && orderForTimeDisplay === ""
+                      ? "& time"
+                      : `@ ${hydrated && orderForTimeDisplay}`}
                   </p>
                 )}
               </div>
@@ -881,50 +1312,56 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         <Box sx={style}>
           <div className="max-h-[36rem] overflow-y-scroll">
             <div className="mb-4 border-b pb-4">
-              <h3 className="mb-2 ml-4 underline">Availability:</h3>
-              <div className="flex gap-4 items-center px-8 mt-4  text-[color:var(--black-design-extralight)]">
-                <p>Date:</p>
-                <p>{selectedDate}</p>
+              <h3 className="pb-2  border-b">Availability:</h3>
+              <div className="flex gap-2 items-center mt-4  text-[color:var(--black-design-extralight)]">
+                <p className="font-medium">Date:</p>
+                <p className="font-light">{selectedDate}</p>
               </div>
-              <div className="flex gap-4 items-center px-8  text-[color:var(--black-design-extralight)]">
-                <p>Store hours:</p>
-                <p>{selectedDateHourDisplay}</p>
+              <div className="flex gap-2 items-center text-[color:var(--black-design-extralight)]">
+                <p className="font-medium">Store hours:</p>
+                <p className="font-light">{selectedDateHourDisplay}</p>
               </div>
+              {requireOrderInAdvance && (
+                <div className="flex gap-4 items-center mt-2 text-[color:var(--black-design-extralight)]">
+                  <p className="text-sm font-light">
+                    👉 Must order {orderInAdvanceDisplay} ahead
+                  </p>
+                </div>
+              )}
             </div>
-            <div>
-              {/* <h3 className="mb-2 ml-4 underline">Availability:</h3> */}
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateCalendar
-                  disablePast
-                  defaultValue={calendarDate}
-                  defaultCalendarMonth={calendarMonth}
-                  loading={isLoading}
-                  onMonthChange={handleMonthChange}
-                  onChange={handleDateClick}
-                  renderLoading={() => <DayCalendarSkeleton />}
-                  slots={{
-                    day: ServerDay,
-                  }}
-                  slotProps={{
-                    day: {
-                      highlightedDays,
-                    },
-                  }}
-                />
-              </LocalizationProvider>
-            </div>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateCalendar
+                disablePast
+                defaultValue={calendarDate}
+                defaultCalendarMonth={calendarMonth}
+                loading={isLoading}
+                onMonthChange={handleMonthChange}
+                onChange={handleDateClick}
+                renderLoading={() => <DayCalendarSkeleton />}
+                slots={{
+                  day: ServerDay,
+                }}
+                slotProps={{
+                  day: {
+                    highlightedDays,
+                  },
+                }}
+              />
+            </LocalizationProvider>
+
             {isTimeBlockEnabled && timeBlockTimes.length !== 0 && (
-              <div className="border-t pt-4 pb-16 flex flex-col gap-4 px-4 text-[color:var(--black-design-extralight)]">
+              <div className="border-t pt-4 pb-16 flex flex-col gap-4 text-[color:var(--black-design-extralight)]">
                 <div className="flex items-center gap-2">
                   <p className=" whitespace-nowrap">Available times:</p>
-                  {isOwner && <p className="font-light text-xs">(View only)</p>}
+                  {isOwner && <p className="font-light text-xs">View only</p>}
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   {timeBlockTimes.map((time, i) => {
                     return isOwner ? (
                       <p
                         key={i}
-                        className="whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-text)] w-fit"
+                        className="whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-light-med)] w-fit"
                       >
                         {time}
                       </p>
@@ -933,9 +1370,9 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                         name={time}
                         onClick={handleSelectTime}
                         key={i}
-                        className={`whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-text)] w-fit hover:bg-[color:var(--gray)] hover:text-white focus:bg-[color:var(--black-design-extralight)] focus:text-white
+                        className={`whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-light-med)] w-fit hover:bg-[color:var(--gray)] hover:text-white focus:bg-[color:var(--black-design-extralight)] focus:text-white
                         ${
-                          deliveryTime == time
+                          hydrated && orderForTimeDisplay == time
                             ? "bg-[color:var(--black-design-extralight)] text-white"
                             : ""
                         }
@@ -950,7 +1387,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               </div>
             )}
             {!isOwner && (
-              <div className="flex gap-4 fixed bottom-0 w-full left-0 p-4 bg-white border-t">
+              <div className="flex gap-4 fixed bottom-0 w-full left-0 py-3 px-9 sm:p-4 bg-white border-t">
                 <button
                   onClick={handleCancelDeliveryChange}
                   className="w-1/2 border border-[color:var(--black-design-extralight)] rounded text-[color:var(--black-design-extralight)] py-1 active:bg-[color:var(--black-design-extralight)] active:text-white"

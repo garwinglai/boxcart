@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import DeliveryDiningRoundedIcon from "@mui/icons-material/DeliveryDiningRounded";
 import Radio from "@mui/material/Radio";
@@ -27,6 +27,8 @@ import { upsertFulfillmentClient } from "@/helper/client/api/fulfillment/fulfill
 import { getLocalStorage } from "@/utils/clientStorage";
 import { updateFulfillmentChecklistClient } from "@/helper/client/api/checklist";
 import prisma from "@/lib/prisma";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const styleMobile = {
   position: "absolute",
@@ -56,7 +58,8 @@ const styleDesktop = {
 
 function Fulfillment({ userSession, userAccount }) {
   // fulfillmenttypeInt: 0 = delivery, 1 = pickup, 2 = both
-  const { fulfillmentMethodInt, fulfillmentMethods } = userAccount || {};
+  const { fulfillmentMethodInt, fulfillmentMethods, fullAddress } =
+    userAccount || {};
 
   const deliveryMethod = fulfillmentMethods.find(
     (method) => method.methodInt === 0
@@ -65,6 +68,7 @@ function Fulfillment({ userSession, userAccount }) {
     (method) => method.methodInt === 1
   );
 
+  const [showSaveCancelButtons, setShowSaveCancelButtons] = useState(false);
   const [isDeliveryChecked, setIsDeliveryChecked] = useState(
     fulfillmentMethodInt === 0 || fulfillmentMethodInt === 2 ? true : false
   );
@@ -118,8 +122,8 @@ function Fulfillment({ userSession, userAccount }) {
   );
   const [deliveryFeeByPercent, setDeliveryFeeByPercent] = useState(
     deliveryMethod
-      ? deliveryMethod.deliveryFeeByPercentIntHundred
-        ? (deliveryMethod.deliveryFeeByPercentIntHundred / 100).toFixed(2)
+      ? deliveryMethod.deliveryFeeByPercent
+        ? deliveryMethod.deliveryFeeByPercent
         : ""
       : ""
   );
@@ -130,26 +134,7 @@ function Fulfillment({ userSession, userAccount }) {
         : "mi"
       : "mi"
   );
-  const [addressValues, setAddressValues] = useState({
-    address_1: pickupMethod
-      ? pickupMethod.address_1
-        ? pickupMethod.address_1
-        : ""
-      : "",
-    address_2: pickupMethod
-      ? pickupMethod.address_2
-        ? pickupMethod.address_2
-        : ""
-      : "",
-    city: pickupMethod ? (pickupMethod.city ? pickupMethod.city : "") : "",
-    state: pickupMethod ? (pickupMethod.state ? pickupMethod.state : "") : "",
-    zip: pickupMethod ? (pickupMethod.zip ? pickupMethod.zip : "") : "",
-    fullAddress: pickupMethod
-      ? pickupMethod.fullAddress
-        ? pickupMethod.fullAddress
-        : ""
-      : "",
-  });
+
   const [pickupNote, setPickupNote] = useState(
     pickupMethod ? (pickupMethod.pickupNote ? pickupMethod.pickupNote : "") : ""
   );
@@ -162,6 +147,9 @@ function Fulfillment({ userSession, userAccount }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [removedFulfillmentIds, setRemovedFulfillmentIds] = useState([]);
+  const [openSetAvailabilityModal, setOpenSetAvailabilityModal] =
+    useState(false);
+  const [availabilityModalMessage, setAvailabilityModalMessage] = useState("");
 
   const {
     localDeliveryDistanceStr,
@@ -169,7 +157,87 @@ function Fulfillment({ userSession, userAccount }) {
     localDeliveryDistanceKm,
   } = localDeliveryValues;
   const { snackbarMessage, snackbarOpen } = openSnackbar;
-  const { address_1, address_2, city, state, zip, fullAddress } = addressValues;
+
+  const { push } = useRouter();
+
+  useEffect(() => {
+    // setShowSaveCancelButtons is true if each state is different from initial state
+    const deliveryCheckStateChange =
+      ((fulfillmentMethodInt === 0 || fulfillmentMethodInt === 2) &&
+        isDeliveryChecked !== true) ||
+      (fulfillmentMethodInt === 1 && isDeliveryChecked !== false);
+    const pickupCheckStateChange =
+      ((fulfillmentMethodInt === 1 || fulfillmentMethodInt === 2) &&
+        isPickupChecked !== true) ||
+      (fulfillmentMethodInt === 0 && isPickupChecked !== false);
+    const deliveryTypeStateChange = deliveryMethod
+      ? deliveryMethod.deliveryTypeStr !== deliveryType
+      : false;
+    const deliveryFeeTypeStateChange = deliveryMethod
+      ? deliveryMethod.deliveryFeeType !== deliveryFeeType
+      : false;
+    const localDeliveryDistanceStateChange = deliveryMethod
+      ? deliveryMethod.localDeliveryDistanceStr !== localDeliveryDistanceStr
+      : false || deliveryMethod
+      ? deliveryMethod.localDeliveryDistanceMi !== localDeliveryDistanceMi
+      : false || deliveryMethod
+      ? deliveryMethod.localDeliveryDistanceKm !== localDeliveryDistanceKm
+      : false;
+    const deliveryFeeFlatStateChange = deliveryMethod
+      ? deliveryMethod.deliveryFeePriceIntPenny !==
+        (deliveryFeeFlat !== ""
+          ? parseInt((deliveryFeeFlat * 100).toFixed(2))
+          : null)
+      : false;
+    const deliveryFeeByDistanceStateChange = deliveryMethod
+      ? deliveryMethod.deliveryFeeByDistanceIntPenny !==
+        (deliveryFeeByDistance !== ""
+          ? parseInt((deliveryFeeByDistance * 100).toFixed(2))
+          : null)
+      : false;
+    const deliveryFeeByPercentStateChange = deliveryMethod
+      ? deliveryMethod.deliveryFeeByPercent !==
+        (deliveryFeeByPercent !== "" ? deliveryFeeByPercent : null)
+      : false;
+    const deliveryFeeDistanceMetricStateChange = deliveryMethod
+      ? deliveryMethod.deliveryFeeDistanceMetric !== delieveryByDistanceMetric
+      : false;
+    const pickupNoteStateChange = pickupMethod
+      ? pickupMethod.pickupNote !== pickupNote
+      : false;
+
+    if (
+      deliveryCheckStateChange ||
+      pickupCheckStateChange ||
+      deliveryTypeStateChange ||
+      deliveryFeeTypeStateChange ||
+      localDeliveryDistanceStateChange ||
+      deliveryFeeFlatStateChange ||
+      deliveryFeeByDistanceStateChange ||
+      deliveryFeeByPercentStateChange ||
+      deliveryFeeDistanceMetricStateChange ||
+      pickupNoteStateChange
+    ) {
+      setShowSaveCancelButtons(true);
+      return;
+    } else {
+      setShowSaveCancelButtons(false);
+      return;
+    }
+  }, [
+    isDeliveryChecked,
+    isPickupChecked,
+    deliveryType,
+    deliveryFeeType,
+    localDeliveryDistanceStr,
+    localDeliveryDistanceMi,
+    localDeliveryDistanceKm,
+    deliveryFeeFlat,
+    deliveryFeeByDistance,
+    deliveryFeeByPercent,
+    delieveryByDistanceMetric,
+    pickupNote,
+  ]);
 
   const handleOpenSnackbar = (message) => {
     setOpenSnackbar({
@@ -260,6 +328,25 @@ function Fulfillment({ userSession, userAccount }) {
 
   const handleDeliveryTypeChange = (e) => {
     const { value } = e.target;
+    if (value === "outsource") {
+      setLocalDeliveryValues({
+        localDeliveryDistanceStr: deliveryMethod
+          ? deliveryMethod.localDeliveryDistanceStr
+            ? deliveryMethod.localDeliveryDistanceStr
+            : "5mi/8km"
+          : "5mi/8km",
+        localDeliveryDistanceMi: deliveryMethod
+          ? deliveryMethod.localDeliveryDistanceMi
+            ? deliveryMethod.localDeliveryDistanceMi
+            : 5
+          : 5,
+        localDeliveryDistanceKm: deliveryMethod
+          ? deliveryMethod.localDeliveryDistanceKm
+            ? deliveryMethod.localDeliveryDistanceKm
+            : 8
+          : 8,
+      });
+    }
     setDeliveryType(value);
   };
 
@@ -307,10 +394,25 @@ function Fulfillment({ userSession, userAccount }) {
     const { value } = e.target;
     setDeliveryFeeType(value);
 
+    if (value === "free") {
+      // set by percent and fee by distance to empty
+      setDeliveryFeeFlat("");
+      setDeliveryFeeByDistance("");
+      setDeliveryFeeByPercent("");
+      return;
+    }
+
     if (value === "flat") {
       // set by percent and fee by distance to empty
       setDeliveryFeeByPercent("");
       setDeliveryFeeByDistance("");
+      setDeliveryFeeFlat(
+        deliveryMethod
+          ? deliveryMethod.deliveryFeePriceIntPenny
+            ? deliveryMethod.deliveryFeePriceIntPenny / 100
+            : ""
+          : ""
+      );
       return;
     }
 
@@ -318,6 +420,13 @@ function Fulfillment({ userSession, userAccount }) {
       // set by percent and fee by distance to empty
       setDeliveryFeeFlat("");
       setDeliveryFeeByDistance("");
+      setDeliveryFeeByPercent(
+        deliveryMethod
+          ? deliveryMethod.deliveryFeeByPercent
+            ? deliveryMethod.deliveryFeeByPercent
+            : ""
+          : ""
+      );
       return;
     }
 
@@ -325,6 +434,13 @@ function Fulfillment({ userSession, userAccount }) {
       // set by percent and fee by distance to empty
       setDeliveryFeeFlat("");
       setDeliveryFeeByPercent("");
+      setDeliveryFeeByDistance(
+        deliveryMethod
+          ? deliveryMethod.deliveryFeeByDistanceIntPenny
+            ? deliveryMethod.deliveryFeeByDistanceIntPenny / 100
+            : ""
+          : ""
+      );
       return;
     }
   };
@@ -344,64 +460,6 @@ function Fulfillment({ userSession, userAccount }) {
   const handleChangeDeliveryFeeDistanceMetric = (e) => {
     const { value } = e.target;
     setDelieveryByDistanceMetric(value);
-  };
-
-  const handleOpenAddressModalDesktop = () => {
-    setOpenAddressModalDesktop(true);
-  };
-
-  const handleCloseAddressModalDesktop = () => {
-    setOpenAddressModalDesktop(false);
-    setAddressValues({
-      address_1: "",
-      address_2: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-  };
-
-  const handleOpenAddressModalMobile = () => {
-    setOpenAddressModalMobile(true);
-  };
-
-  const handleCloseAddressModalMobile = () => {
-    setOpenAddressModalMobile(false);
-    setAddressValues({
-      address_1: "",
-      address_2: "",
-      city: "",
-      state: "",
-      zip: "",
-    });
-  };
-
-  const handleAddressChange = (e) => {
-    const { name, value } = e.target;
-
-    setAddressValues((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveAddress = () => {
-    // check if addressValues are empty, if they are, open snackbar.
-    if (address_1 == "" || city == "" || state == "" || zip == "") {
-      handleOpenSnackbar("Missing address.");
-      return;
-    }
-
-    let fullAddress;
-
-    if (address_2 !== "") {
-      fullAddress =
-        address_1 + " " + address_2 + " " + city + " " + state + " " + zip;
-    } else {
-      fullAddress = address_1 + " " + city + " " + state + " " + zip;
-    }
-
-    setAddressValues((prev) => ({ ...prev, fullAddress }));
-
-    setOpenAddressModalDesktop(false);
-    setOpenAddressModalMobile(false);
   };
 
   const handlePickupNoteChange = (e) => {
@@ -452,8 +510,8 @@ function Fulfillment({ userSession, userAccount }) {
         : ""
     );
     setDeliveryFeeByPercent(
-      deliveryMethod.deliveryFeeByPercentIntHundred
-        ? (deliveryMethod.deliveryFeeByPercentIntHundred / 100).toFixed(2)
+      deliveryMethod.deliveryFeeByPercent
+        ? deliveryMethod.deliveryFeeByPercent
         : ""
     );
     setDelieveryByDistanceMetric(
@@ -461,15 +519,14 @@ function Fulfillment({ userSession, userAccount }) {
         ? deliveryMethod.deliveryFeeDistanceMetric
         : "mi"
     );
-    setAddressValues({
-      address_1: pickupMethod.address_1 ? pickupMethod.address_1 : "",
-      address_2: pickupMethod.address_2 ? pickupMethod.address_2 : "",
-      city: pickupMethod.city ? pickupMethod.city : "",
-      state: pickupMethod.state ? pickupMethod.state : "",
-      zip: pickupMethod.zip ? pickupMethod.zip : "",
-      fullAddress: pickupMethod.fullAddress ? pickupMethod.fullAddress : "",
-    });
-    setPickupNote(pickupMethod.pickupNote ? pickupMethod.pickupNote : "");
+
+    setPickupNote(
+      pickupMethod
+        ? pickupMethod.pickupNote
+          ? pickupMethod.pickupNote
+          : ""
+        : ""
+    );
   };
 
   const closeCancelModal = () => {
@@ -491,12 +548,6 @@ function Fulfillment({ userSession, userAccount }) {
     if (isPickupChecked && !isDeliveryChecked) {
       fulfillmentPickupData = structureFulFillmentPickup();
       fulfillmentMethodInt = 1;
-
-      if (!fullAddress || fullAddress == "") {
-        handleOpenSnackbar("Missing address for pickup.");
-        setIsLoading(false);
-        return;
-      }
     }
 
     if (isDeliveryChecked && isPickupChecked) {
@@ -516,8 +567,44 @@ function Fulfillment({ userSession, userAccount }) {
       const { success, value } = await upsertFulfillmentClient(fulfillmentData);
 
       if (success) {
+        if (isPickupChecked) {
+          const { availability } = userAccount;
+          const { hasCustomAvailability } = availability;
+
+          if (!hasCustomAvailability || !availability) {
+            setOpenSetAvailabilityModal(true);
+            const message = "You must set your shop hours to enable pickup.";
+
+            setAvailabilityModalMessage(message);
+          }
+
+          if (availability) {
+            const {
+              datesAvailability,
+              datesRangedAvailability,
+              daysOfWeekAvailability,
+            } = availability;
+
+            const datesAvailLen = datesAvailability.length;
+            const datesRangedAvailLen = datesRangedAvailability.length;
+            const daysOfWeekAvailLen = daysOfWeekAvailability.length;
+
+            if (
+              datesAvailLen == 0 &&
+              datesRangedAvailLen == 0 &&
+              daysOfWeekAvailLen == 0
+            ) {
+              setOpenSetAvailabilityModal(true);
+              const message = "You must set your shop hours to enable pickup.";
+
+              setAvailabilityModalMessage(message);
+            }
+          }
+        }
+
         updateChecklist();
-        handleOpenSnackbar("Fulfillment settings saved.");
+        handleOpenSnackbar("Settings saved.");
+        setShowSaveCancelButtons(false);
         setIsLoading(false);
         return;
       }
@@ -554,6 +641,19 @@ function Fulfillment({ userSession, userAccount }) {
   };
 
   const structureFulFillmentDelivery = () => {
+    let deliveryFeePercentDisplay = null;
+
+    if (deliveryFeeByPercent !== "") {
+      const [numBeforeDecimal, numAfterDecimal] =
+        deliveryFeeByPercent.split(".");
+
+      if (numAfterDecimal === "00") {
+        deliveryFeePercentDisplay = numBeforeDecimal + "%";
+      } else {
+        deliveryFeePercentDisplay = deliveryFeeByPercent + "%";
+      }
+    }
+
     const fulfillmentDeliveryData = {
       method: "delivery",
       methodInt: 0,
@@ -566,24 +666,21 @@ function Fulfillment({ userSession, userAccount }) {
       deliveryFeePriceStr:
         deliveryFeeFlat !== "" ? `$` + deliveryFeeFlat.toString() : null,
       deliveryFeePriceIntPenny:
-        deliveryFeeFlat !== "" ? parseInt(deliveryFeeFlat) * 100 : null,
+        deliveryFeeFlat !== ""
+          ? parseFloat((deliveryFeeFlat * 100).toFixed(2))
+          : null,
       deliveryFeeByDistanceStr:
         deliveryFeeByDistance !== ""
           ? `$` + deliveryFeeByDistance.toString()
           : null,
       deliveryFeeByDistanceIntPenny:
         deliveryFeeByDistance !== ""
-          ? parseInt(deliveryFeeByDistance) * 100
+          ? parseFloat((deliveryFeeByDistance * 100).toFixed(2))
           : null,
       deliveryFeeDistanceMetric: delieveryByDistanceMetric,
-      deliveryFeeByPercentStr:
-        deliveryFeeByPercent !== ""
-          ? deliveryFeeByPercent.toString() + "%"
-          : null,
-      deliveryFeeByPercentIntHundred:
-        deliveryFeeByPercent !== ""
-          ? parseInt(deliveryFeeByPercent) * 100
-          : null,
+      deliveryFeeByPercentStr: deliveryFeePercentDisplay,
+      deliveryFeeByPercent:
+        deliveryFeeByPercent !== "" ? parseFloat(deliveryFeeByPercent) : null,
     };
 
     return fulfillmentDeliveryData;
@@ -593,16 +690,19 @@ function Fulfillment({ userSession, userAccount }) {
     const fulfillmentPickupData = {
       method: "pickup",
       methodInt: 1,
-      address_1,
-      address_2,
-      city,
-      state,
-      zip,
-      fullAddress,
       pickupNote,
     };
 
     return fulfillmentPickupData;
+  };
+
+  const handleChangePickupAddress = () => {
+    if (showSaveCancelButtons) {
+      handleOpenSnackbar("Please save changes first, or changes will be lost.");
+      return;
+    }
+
+    push("/account/my-shop/profile");
   };
 
   // Displays
@@ -628,6 +728,7 @@ function Fulfillment({ userSession, userAccount }) {
         message={snackbarMessage}
         action={action}
       />
+
       <div className="lg:w-2/5 ">
         <div className="p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] m-4  rounded bg-white md:h-fit lg:mx-0 lg:mt-0">
           <h3>Fulfillment Type</h3>
@@ -656,6 +757,7 @@ function Fulfillment({ userSession, userAccount }) {
         </div>
         <div className="hidden lg:block">
           <Image
+            priority
             src={delivery_truck_icon}
             alt="delivery truck icon"
             className=" opacity-50 mx-auto mt-16"
@@ -723,7 +825,7 @@ function Fulfillment({ userSession, userAccount }) {
               />
             </div>
           )}
-          <div className="py-4 ">
+          <div className="py-4 border-b">
             <FormControl className="w-full">
               <FormLabel id="demo-radio-buttons-group-label" className="mb-2 ">
                 <p className=" text-black ">Fee:</p>
@@ -757,6 +859,7 @@ function Fulfillment({ userSession, userAccount }) {
                     placeholder="$"
                     disabled={deliveryFeeType == "flat" ? false : true}
                     decimalsLimit={2}
+                    decimalScale={2}
                     prefix="$"
                     value={deliveryFeeFlat}
                     onValueChange={handleDeliveryFeeChange}
@@ -782,6 +885,7 @@ function Fulfillment({ userSession, userAccount }) {
                     required
                     disabled={deliveryFeeType == "percentage" ? false : true}
                     decimalsLimit={2}
+                    decimalScale={2}
                     suffix="%"
                     value={deliveryFeeByPercent}
                     onValueChange={handleDeliveryFeeChange}
@@ -809,6 +913,8 @@ function Fulfillment({ userSession, userAccount }) {
                       value={deliveryFeeByDistance}
                       disabled={deliveryFeeType == "distance" ? false : true}
                       prefix="$"
+                      decimalScale={2}
+                      decimalsLimit={2}
                       onValueChange={handleDeliveryFeeChange}
                       className={`p-1 w-20 border rounded ${
                         deliveryFeeType == "distance" && "ring-1"
@@ -866,81 +972,13 @@ function Fulfillment({ userSession, userAccount }) {
             </div>
             <div>
               <button
-                className="hidden lg:block text-[color:var(--primary)] underline text-sm"
+                className=" lg:block text-[color:var(--primary)] underline text-sm"
                 disabled={isPickupChecked ? false : true}
                 type="button"
-                onClick={handleOpenAddressModalDesktop}
+                onClick={handleChangePickupAddress}
               >
-                change
+                change in profile
               </button>
-              <button
-                className="lg:hidden text-[color:var(--primary)] underline text-sm"
-                disabled={isPickupChecked ? false : true}
-                type="button"
-                onClick={handleOpenAddressModalMobile}
-              >
-                {fullAddress === "" ? "Add address" : "Update"}
-              </button>
-              <div className="lg:hidden">
-                <Modal
-                  open={openAddressModalMobile}
-                  // onClose={handleClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                >
-                  <Box sx={styleMobile}>
-                    <div className="w-full">
-                      <div>
-                        <AddressForm
-                          handleChange={handleAddressChange}
-                          signupValues={addressValues}
-                        />
-                      </div>
-                      <div className="flex justify-end mt-6 gap-4">
-                        <ButtonFourth
-                          name="close"
-                          handleClick={handleCloseAddressModalMobile}
-                        />
-
-                        <ButtonThird
-                          name="save"
-                          handleClick={handleSaveAddress}
-                        />
-                      </div>
-                    </div>
-                  </Box>
-                </Modal>
-              </div>
-              <div className="hidden lg:block">
-                <Modal
-                  open={openAddressModalDesktop}
-                  // onClose={handleClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                >
-                  <Box sx={styleDesktop}>
-                    <div className="w-full ">
-                      <div>
-                        <AddressForm
-                          handleChange={handleAddressChange}
-                          signupValues={addressValues}
-                        />
-                      </div>
-                      <div className="flex justify-end mt-6 gap-4">
-                        <ButtonFourth
-                          name="close"
-                          handleClick={handleCloseAddressModalDesktop}
-                        />
-
-                        <ButtonThird
-                          name="save"
-                          handleClick={handleSaveAddress}
-                        />
-                      </div>
-                    </div>
-                  </Box>
-                </Modal>
-              </div>
             </div>
           </div>
           <TextField
@@ -957,7 +995,7 @@ function Fulfillment({ userSession, userAccount }) {
             value={pickupNote}
           />
         </div>
-        {(isPickupChecked || isDeliveryChecked) && (
+        {(isPickupChecked || isDeliveryChecked) && showSaveCancelButtons && (
           <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
             <div className="lg:w-2/5 lg:ml-auto">
               <SaveCancelButtons
@@ -988,6 +1026,22 @@ function Fulfillment({ userSession, userAccount }) {
           </div>
         )}
       </form>
+      <Modal
+        open={openSetAvailabilityModal}
+        // onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={styleMobile}>
+          <div className="w-full">
+            <h2>Set availability</h2>
+            <p className="mt-4 mb-6 text-sm">{availabilityModalMessage}</p>
+            <Link href="/account/my-shop/availability">
+              <ButtonThird name="Set store hours" type="button" />
+            </Link>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 }
@@ -1007,6 +1061,13 @@ export async function getServerSideProps(context) {
         },
         include: {
           fulfillmentMethods: true,
+          availability: {
+            include: {
+              datesAvailability: true,
+              datesRangedAvailability: true,
+              daysOfWeekAvailability: true,
+            },
+          },
         },
       });
 

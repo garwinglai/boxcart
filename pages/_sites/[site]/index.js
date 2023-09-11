@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ShopMenu from "@/components/storefront/menus/shop/ShopMenu";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { styled } from "@mui/material/styles";
 import ShopHeader from "@/components/storefront/ShopHeader";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
 import ShopBio from "@/components/storefront/ShopBio";
@@ -18,9 +16,15 @@ import {
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import { getProductsClientPublic } from "@/helper/client/api/inventory/product-schema";
 import Snackbar from "@mui/material/Snackbar";
+import { useCartStore } from "@/lib/store";
+import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
+import { useRouter } from "next/router";
 
-function Sites({ siteData, test }) {
-  const [exampleCartItems, setExampleCartItems] = useState([1, 2]);
+function Sites({ siteData }) {
+  const cart = useCartStore((state) => state.cart);
+  const cartDetails = useCartStore((state) => state.cartDetails);
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
+
   const {
     businessName,
     businessBio,
@@ -28,13 +32,27 @@ function Sites({ siteData, test }) {
     socials,
     products,
     fulfillmentMethodInt,
-    hasCustomAvailability,
     categories,
     availability,
     bannerImage,
     logoImage,
+    tax,
+    enableTips,
+    tips,
     id: accountId,
   } = siteData || {};
+
+  const { push, pathname, query, asPath } = useRouter();
+
+  useEffect(() => {
+    const businessNameFromLocalStorage = getLocalStorage("businessName");
+    if (
+      !businessNameFromLocalStorage ||
+      businessNameFromLocalStorage !== businessName
+    ) {
+      setLocalStorage("businessName", businessName);
+    }
+  }, [siteData, pathname]);
 
   const businessData = {
     businessName,
@@ -42,6 +60,70 @@ function Sites({ siteData, test }) {
     city,
     socials,
   };
+
+  useEffect(() => {
+    if (!availability) return;
+    const { hasCustomAvailability, isTimeBlockEnabled } = availability;
+    const { taxRate, taxRateDisplay } = tax;
+    const {
+      type,
+      tipOneStr,
+      tipOneIntPenny,
+      tipOnePercent,
+      tipTwoStr,
+      tipTwoIntPenny,
+      tipTwoPercent,
+      tipThreeStr,
+      tipThreeIntPenny,
+      tipThreePercent,
+    } = tips;
+
+    const numberOfTipOptions = 3;
+    const tipValues = [];
+
+    for (let i = 0; i < numberOfTipOptions; i++) {
+      let tip = 0;
+      let tipDisplay = "$0.00";
+      if (i === 0) {
+        if (type === "dollar") {
+          tip = tipOneIntPenny;
+        } else {
+          tip = tipOnePercent;
+        }
+        tipDisplay = tipOneStr;
+      } else if (i == 1) {
+        if (type === "dollar") {
+          tip = tipTwoIntPenny;
+        } else {
+          tip = tipTwoPercent;
+        }
+        tipDisplay = tipTwoStr;
+      } else {
+        if (type === "dollar") {
+          tip = tipThreeIntPenny;
+        } else {
+          tip = tipThreePercent;
+        }
+        tipDisplay = tipThreeStr;
+      }
+
+      tipValues.push({
+        tip,
+        tipDisplay,
+      });
+    }
+
+    setCartDetails({
+      taxRate,
+      taxRateDisplay,
+      requireOrderTime: isTimeBlockEnabled,
+      requireOrderDate: hasCustomAvailability,
+      tipsEnabled: enableTips,
+      tipTypeDisplay: type,
+      tipType: type === "dollar" ? 0 : 1,
+      tipValues,
+    });
+  }, []);
 
   const [currCategory, setCurrCategory] = useState("All Products");
   const [currCategories, setCurrCategories] = useState(
@@ -160,7 +242,7 @@ function Sites({ siteData, test }) {
           <div className="md:w-3/5 lg:w-2/5">
             <ShopBio isOwner={false} userAccount={siteData} />
           </div>
-          <div className=" md:mt-16 md:w-2/5">
+          <div className=" md:mt-16 md:w-1/2">
             <ShopFulfillment
               isOwner={false}
               userAccount={siteData}
@@ -194,7 +276,7 @@ function Sites({ siteData, test }) {
               <BoxLoader />
             </div>
           ) : (
-            <div className="w-full lg:w-4/5 xl:w-10/12 h-screen">
+            <div className="w-full lg:w-4/5 xl:w-10/12 h-full pb-16">
               <ShopMenu
                 isOwner={false}
                 categories={categories}
@@ -206,8 +288,8 @@ function Sites({ siteData, test }) {
           )}
         </div>
       </div>
-      <div className="hidden lg:block  lg:w-[20rem] ">
-        <CartComponent cartItems={exampleCartItems} isDesktop={true} />
+      <div className="hidden lg:block lg:w-[20rem] xl:w-[25rem] relative ">
+        <CartComponent isDesktop={true} tax={tax} />
       </div>
     </div>
   );
@@ -246,6 +328,7 @@ export async function getServerSideProps(context) {
         },
       },
       tips: true,
+      tax: true,
       fulfillmentMethods: true,
       acceptedPayments: true,
       deposit: true,
@@ -277,20 +360,3 @@ export async function getServerSideProps(context) {
     },
   };
 }
-
-const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
-  "& .MuiToggleButtonGroup-grouped": {
-    border: 0,
-    borderBottom: "1px solid var(--gray-light)",
-
-    "&.Mui-selected": {
-      borderBottom: "1px solid var(--secondary)",
-    },
-    "&:not(:first-of-type)": {
-      borderRadius: theme.shape.borderRadius,
-    },
-    "&:first-of-type": {
-      borderRadius: theme.shape.borderRadius,
-    },
-  },
-}));

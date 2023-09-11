@@ -241,3 +241,28 @@ export async function updateTimeBlockTimeClient(timeBlockData, accountId) {
     return { success: false, error };
   }
 }
+
+export async function updateOrderInAdvanceTimeClient(
+  orderInAdvanceTimeData,
+  accountId
+) {
+  const apiUrl = `/api/private/availability/orderInAdvanceTime?accountId=${accountId}`;
+  // console.log("data", data);
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      body: JSON.stringify(orderInAdvanceTimeData),
+    });
+
+    const data = await response.json();
+
+    return { success: true, value: data };
+  } catch (error) {
+    console.log(
+      "helper/client/api/availability updateTimeBlockTime error:",
+      error
+    );
+
+    return { success: false, error };
+  }
+}

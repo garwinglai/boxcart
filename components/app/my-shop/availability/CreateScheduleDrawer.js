@@ -330,20 +330,18 @@ function CreateScheduleDrawer({
     const [endTime, endPeriod] = endTimeArg.split(" ");
     const [endHour, endMinute] = endTime.split(":");
 
-    const startHourIn24FormatMinutes =
-      startPeriod === "AM"
-        ? parseInt(startHour, 10) * 60 + parseInt(startMinute, 10)
-        : (parseInt(startHour, 10) + 12) * 60 + parseInt(startMinute, 10);
-    const endHourIn24FormatMinutes =
-      endPeriod === "AM"
-        ? parseInt(endHour, 10) * 60 + parseInt(endMinute, 10)
-        : (parseInt(endHour, 10) + 12) * 60 + parseInt(endMinute, 10);
+    // Convert start time to minutes since midnight
+    let startMinutes =
+      ((parseInt(startHour, 10) % 12) + (startPeriod === "PM" ? 12 : 0)) * 60 +
+      parseInt(startMinute, 10);
 
-    if (startHourIn24FormatMinutes > endHourIn24FormatMinutes) {
-      return true;
-    }
+    // Convert end time to minutes since midnight
+    let endMinutes =
+      ((parseInt(endHour, 10) % 12) + (endPeriod === "PM" ? 12 : 0)) * 60 +
+      parseInt(endMinute, 10);
 
-    return false;
+    // Compare start time and end time
+    return startMinutes >= endMinutes;
   };
 
   const createSpecificDate = async () => {
@@ -655,7 +653,7 @@ function CreateScheduleDrawer({
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-2 border-b pb-4">
+            <div className="flex flex-col gap-2 pb-4">
               <h4 className="text-[color:var(--third-dark-med)] ">Hours:</h4>
               <div className="flex justify-between items-center mx-4">
                 <p className="font-light text-sm">Start time:</p>
@@ -866,7 +864,7 @@ function CreateScheduleDrawer({
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-2  border-b pb-4">
+            <div className="flex flex-col gap-2  pb-4">
               <h4 className="text-[color:var(--third-dark-med)] ">
                 Open hours:
               </h4>
@@ -977,8 +975,8 @@ function CreateScheduleDrawer({
           </RadioGroup>
         </FormControl>
       </div>
-      <div className="p-4">{displayscheduleType(scheduleType)}</div>
-      <div className="absolute left-0 bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
+      <div className="p-4 pb-32">{displayscheduleType(scheduleType)}</div>
+      <div className="fixed  bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
         <SaveCancelButtons
           handleCancel={handleCloseDrawer}
           saveButtonType="button"

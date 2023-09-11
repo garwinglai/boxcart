@@ -29,8 +29,12 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-import { storage } from "@/firebase/fireConfig";
+import { storage, createGeoHash } from "@/firebase/fireConfig";
+import Geocode from "react-geocode";
 import { useAccountStore } from "@/lib/store";
+
+Geocode.setApiKey(process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY);
+Geocode.setLanguage("en");
 
 const styleMobile = {
   position: "absolute",
@@ -117,6 +121,8 @@ function Profile({ userAccount }) {
       businessName,
       email,
       businessBio,
+      fullAddress,
+      socials,
       address_1,
       address_2,
       city,
@@ -124,37 +130,69 @@ function Profile({ userAccount }) {
       zip,
     } = userAccount;
 
+    const businessNameChanged = businessName !== businessInfo.businessName;
+    const emailChanged = email !== businessInfo.email;
+    const businessBioChanged = businessBio !== businessInfo.businessBio;
+
+    const addy1Changed = address_1 !== addressValues.address_1;
+    const addy2Changed = address_2 !== addressValues.address_2;
+    const cityChanged = city !== addressValues.city;
+    const stateChanged = state !== addressValues.state;
+    const zipChanged = zip !== addressValues.zip;
+
+    const logoImageChanged = logoFileName !== "";
+    const bannerImageChanged = bannerFileName !== "";
+    const newSocials = socialLink !== "";
+    const newPlatform = platform !== "";
+    const socialsChanged = socials.length !== socialLinks.length;
+
+    const socialsAreDifferent = socials.some((social) => {
+      const isSocialLinkInSocials = socialLinks.find(
+        (link) => link.socialLink === social.socialLink
+      );
+
+      if (!isSocialLinkInSocials) {
+        return true;
+      }
+      return false;
+    });
+
     // check if any of the values are different from the original, if so, show the save/cancel buttons
     if (
-      businessName !== businessInfo.businessName ||
-      email !== businessInfo.email ||
-      businessBio !== businessInfo.businessBio ||
-      address_1 !== addressValues.address_1 ||
-      address_2 !== addressValues.address_2 ||
-      city !== addressValues.city ||
-      state !== addressValues.state ||
-      zip !== addressValues.zip ||
-      logoFileName !== "" ||
-      bannerFileName !== "" ||
-      platform !== "" ||
-      socialLink !== ""
+      businessNameChanged ||
+      emailChanged ||
+      businessBioChanged ||
+      logoImageChanged ||
+      bannerImageChanged ||
+      newSocials ||
+      socialsChanged ||
+      socialsAreDifferent ||
+      addy1Changed ||
+      addy2Changed ||
+      cityChanged ||
+      stateChanged ||
+      newPlatform ||
+      zipChanged
     ) {
       setShowCancelSaveButtons(true);
+    } else {
+      setShowCancelSaveButtons(false);
     }
   }, [
-    businessInfo.businessName,
-    businessInfo.email,
-    businessInfo.businessBio,
-    addressValues.address_1,
-    addressValues.address_2,
-    addressValues.city,
-    addressValues.state,
-    addressValues.zip,
+    businessName,
+    email,
+    businessBio,
+    address_1,
+    address_2,
+    city,
+    state,
+    zip,
     platform,
     socialLink,
     logoFileName,
     bannerFileName,
     userAccount,
+    socialLinks,
   ]);
 
   const handleEditBannerClick = (e) => {
@@ -344,6 +382,13 @@ function Profile({ userAccount }) {
     let logoImageStorage = logoImage;
     let bannerError = false;
     let logoError = false;
+    let geohash = "";
+    let lat = "";
+    let lng = "";
+    let fullAddress = address_2
+      ? address_1 + " " + address_2 + " " + city + " " + state + " " + zip
+      : address_1 + " " + city + " " + state + " " + zip;
+
     // TODO: stop each action if failed
     if (bannerFile) {
       // Delete if bannerImageFileName was fetched from storage
@@ -393,6 +438,29 @@ function Profile({ userAccount }) {
       }
     }
 
+    if (address_1 !== "" && city !== "" && state !== "" && zip !== "") {
+      try {
+        const { lat: latitude, lng: longitude } = await getLatLngFromAddress(
+          fullAddress
+        );
+        lat = latitude;
+        lng = longitude;
+      } catch (error) {
+        console.log("getAddylatlng", error);
+      }
+    }
+
+    // create geoHash with lat lng
+    if (lat !== "" && lng !== "") {
+      try {
+        const geoHash = await createGeoHash(lat, lng);
+        geohash = geoHash;
+      } catch (error) {
+        console.log("geohash error", error);
+        // todo: handle geohash error
+      }
+    }
+
     const updatedSettings = {
       businessName,
       email,
@@ -402,6 +470,9 @@ function Profile({ userAccount }) {
       city,
       state,
       zip,
+      lat,
+      lng,
+      geohash,
       logoImage: logoImageStorage,
       bannerImage: bannerImageStorage,
       logoImageFileName: logoFileName ? logoFileName : logoImageFileName,
@@ -464,6 +535,20 @@ function Profile({ userAccount }) {
     setAccountStore(updatedAccount, logoImageStorage, bannerImageStorage);
     setIsLoading(false);
     setShowCancelSaveButtons(false);
+  };
+
+  const getLatLngFromAddress = (address) => {
+    return Geocode.fromAddress(address).then(
+      (response) => {
+        const { lat, lng } = response.results[0].geometry.location;
+
+        return { lat, lng };
+      },
+      (error) => {
+        console.error(error);
+        // return { error };
+      }
+    );
   };
 
   const setAccountStore = async (
@@ -539,7 +624,7 @@ function Profile({ userAccount }) {
   };
 
   return (
-    <div className=" pb-32 lg:flex  lg:justify-center  ">
+    <div className="pb-32 lg:flex  lg:justify-center">
       <Snackbar
         open={showAlert}
         autoHideDuration={3000}
@@ -690,6 +775,7 @@ function Profile({ userAccount }) {
         </div>
         <div className="p-4 mx-4 flex flex-col gap-2 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
           <h3>Address</h3>
+
           <div className="flex flex-col gap-3">
             <div>
               <label htmlFor="address_1" className="font-light text-sm">

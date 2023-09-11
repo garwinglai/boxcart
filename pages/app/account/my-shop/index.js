@@ -27,18 +27,10 @@ function MyShop({ userAccount }) {
     socials,
     products,
     fulfillmentMethodInt,
-    hasCustomAvailability,
     categories,
     availability,
     id: accountId,
   } = userAccount ? userAccount : {};
-
-  const businessData = {
-    businessName,
-    businessBio,
-    city,
-    socials,
-  };
 
   const [currCategory, setCurrCategory] = useState("All Products");
   const [currCategories, setCurrCategories] = useState(
@@ -252,6 +244,7 @@ export async function getServerSideProps(context) {
               daysOfWeekAvailability: true,
             },
           },
+          fulfillmentMethods: true,
         },
       });
 

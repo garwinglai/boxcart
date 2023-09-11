@@ -43,7 +43,6 @@ function ProductModal({
     priceIntPenny,
     priceStr,
     images,
-    defaultImgStr,
     imgArrJson,
     description,
     quantity,
