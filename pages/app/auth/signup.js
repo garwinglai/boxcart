@@ -940,6 +940,8 @@ function Signup({ nextAccountId }) {
     }
 
     const newUserData = await structureUserData(logoImg);
+    console.log("newUserData", newUserData);
+
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 
@@ -1085,9 +1087,9 @@ function Signup({ nextAccountId }) {
     let fullAddress = address_2
       ? address_1 + " " + address_2 + " " + city + " " + state + " " + zip
       : address_1 + " " + city + " " + state + " " + zip;
-    let geohash = "";
-    let lat = "";
-    let lng = "";
+    let geohash = null;
+    let lat = null;
+    let lng = null;
 
     if (address_1 !== "" && city !== "" && state !== "" && zip !== "") {
       try {
