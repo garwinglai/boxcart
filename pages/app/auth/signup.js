@@ -940,8 +940,6 @@ function Signup({ nextAccountId }) {
     }
 
     const newUserData = await structureUserData(logoImg);
-    console.log("newUserData", newUserData);
-
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 

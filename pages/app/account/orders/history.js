@@ -50,23 +50,22 @@ function AllOrders() {
 
       <div className={`${styles.search_group} ${styles.flex}`}>
         <SearchBar />
-        <div className={`${styles.sort_box} ${styles.flex}`}>
-          {/* <div className="bg-[color:var(--primary-dark-med)] rounded-full"> */}
-          <ButtonFilter name="Sort by" icon={<SortIcon fontSize="small" />} />
-          {/* </div> */}
-          {/* <div className="bg-[color:var(--primary-dark-med)] rounded-full"> */}
+        <div className="w-fit ml-auto">
           <ButtonFilter
             name="Select Date"
             icon={<TodayOutlinedIcon fontSize="small" />}
           />
-          {/* </div> */}
         </div>
         <div className={` ${styles.filter_box} ${styles.flex}`}>
-          <ButtonFilter name="View all" />
-          <ButtonFilter name="Paid" />
-          <ButtonFilter name="Declined" />
-          <ButtonFilter name="Refunded" />
-          <ButtonFilter name="Canceled" />
+          <div className="min-w-fit">
+            <ButtonFilter name="View all" />
+          </div>
+          <div className="w-fit">
+            <ButtonFilter name="Completed" />
+          </div>
+          <div className="w-fit">
+            <ButtonFilter name="Canceled" />
+          </div>
         </div>
       </div>
       <div className={`${styles.order_grid_box}`}>

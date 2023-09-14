@@ -75,7 +75,7 @@ function PlacesAutoComplete({
     <div ref={ref} className="relative flex-grow">
       <label
         htmlFor="deliveryAddress"
-        className="absolute flex items-center gap-2 top-[12px] left-4 text-[color:var(--black-design-extralight)] font-light text-sm"
+        className="absolute flex items-center gap-2 top-[12px] left-4 text-gray-800 font-light text-sm"
       >
         <LocationOnOutlinedIcon fontSize="small" />
       </label>
@@ -87,7 +87,7 @@ function PlacesAutoComplete({
         onChange={handleInput}
         disabled={!ready}
         placeholder={placeholder}
-        className="border border-[color:var(--black-design-extralight)] rounded w-full py-3 placeholder:text-[color:var(--brown-text)] placeholder:text-sm  font-light text-sm indent-10"
+        className="border border-[color:var(--gray-light-med)] rounded w-full py-3 placeholder:text-gray-800 placeholder:text-sm  font-light text-sm indent-10"
       />
       {/* We can use the "status" to decide whether we should display the dropdown or not */}
       {status === "OK" && <ul>{renderSuggestions()}</ul>}

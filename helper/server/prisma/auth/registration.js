@@ -133,7 +133,7 @@ export async function createNewUser(body) {
                           productName: "Sample product",
                         },
                         {
-                          question: "Market required for mandatory questions.",
+                          question: "Is question required?",
                           productName: "Sample product",
                         },
                       ],

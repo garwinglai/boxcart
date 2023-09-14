@@ -1166,6 +1166,7 @@ function ProductDrawer({
     }
 
     if (isEditProduct) {
+      console.log("here");
       const removedPhotos = product.images.filter((item) => {
         const productPhotosArr = productPhotos.map((item) => item.image);
         if (!productPhotosArr.includes(item.image)) return item;
@@ -1259,6 +1260,7 @@ function ProductDrawer({
       }
 
       productObject.removedImages = removedPhotos;
+      console.log("productObject:", productObject);
 
       const resProductUpdate = await updateProductClient(productObject);
       const { success, value } = resProductUpdate;

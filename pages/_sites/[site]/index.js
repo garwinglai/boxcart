@@ -52,6 +52,8 @@ function Sites({ siteData }) {
     ) {
       setLocalStorage("businessName", businessName);
     }
+
+    setLocalStorage("accountId", accountId);
   }, [siteData, pathname]);
 
   const businessData = {
@@ -64,7 +66,7 @@ function Sites({ siteData }) {
   useEffect(() => {
     if (!availability) return;
     const { hasCustomAvailability, isTimeBlockEnabled } = availability;
-    const { taxRate, taxRateDisplay } = tax ? tax : {};
+    const { taxRate, taxRateDisplay, isTaxRateEnabled } = tax ? tax : {};
     const {
       type,
       tipOneStr,
@@ -113,15 +115,34 @@ function Sites({ siteData }) {
       });
     }
 
+    const { fulfillmentType, fulfillmentDisplay } = cartDetails;
+    let typeOfFulfillment;
+    let displayFulfillmentType;
+
+    if (fulfillmentType) {
+      typeOfFulfillment = fulfillmentType;
+      displayFulfillmentType = fulfillmentDisplay;
+    } else {
+      console.log("here");
+      typeOfFulfillment = fulfillmentMethodInt;
+      displayFulfillmentType =
+        fulfillmentMethodInt === 0 ? "delivery" : "pickup";
+    }
+
+    console.log("typeOfFulfillment", typeOfFulfillment);
+    console.log("displayFulfillmentType", displayFulfillmentType);
+
     setCartDetails({
-      taxRate,
-      taxRateDisplay,
+      taxRate: isTaxRateEnabled ? taxRate : 0,
+      taxRateDisplay: isTaxRateEnabled ? taxRateDisplay : "$0.00",
       requireOrderTime: isTimeBlockEnabled,
       requireOrderDate: hasCustomAvailability,
       tipsEnabled: enableTips,
       tipTypeDisplay: type,
       tipType: type === "dollar" ? 0 : 1,
       tipValues,
+      fulfillmentType: typeOfFulfillment,
+      fulfillmentDisplay: displayFulfillmentType,
     });
   }, []);
 

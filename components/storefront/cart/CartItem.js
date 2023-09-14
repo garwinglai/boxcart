@@ -9,8 +9,15 @@ import { IconButton } from "@mui/material";
 import { useCartStore } from "@/lib/store";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
-function CartItem({ isDesktop, isBusiness, cartItem }) {
+function CartItem({
+  isDesktop,
+  isBusiness,
+  cartItem,
+  toggleDrawer,
+  orderSubmitted,
+}) {
   const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
   const addQuantityToCartItem = useCartStore(
     (state) => state.addQuantityToCartItem
@@ -25,6 +32,8 @@ function CartItem({ isDesktop, isBusiness, cartItem }) {
     (state) => state.subtractCartItemPrice
   );
 
+  const { push } = useRouter();
+
   const {
     priceDisplay,
     customNote,
@@ -34,10 +43,23 @@ function CartItem({ isDesktop, isBusiness, cartItem }) {
     productName,
     quantity,
     defaultImage,
+    productImage,
     productId,
     pricePenny,
     addToCartTempItemId,
   } = cartItem;
+
+  // const priceDisplay = "$2.50";
+  // const customNote = "This is a custom note";
+  // const orderExampleImages = [];
+  // const orderOptionGroups = [];
+  // const orderQuestionsAnswers = [];
+  // const productName = "Candle";
+  // const quantity = 2;
+  // const defaultImage = candle_2;
+  // const productId = "123";
+  // const pricePenny = 250;
+  // const addToCartTempItemId = "123";
 
   const handleAddItemQuantity = (addToCartTempItemId) => (e) => {
     const priceToAddPenny = pricePenny / quantity;
@@ -61,12 +83,19 @@ function CartItem({ isDesktop, isBusiness, cartItem }) {
     subtractCartItemPrice(addToCartTempItemId, pricePenny);
   };
 
+  const handleEditCartItem = (e) => {
+    push(`/product/${productId}/edit/${addToCartTempItemId}`);
+    if (!isDesktop) {
+      toggleDrawer();
+    }
+  };
+
   return (
-    <div className={`${styles.cart_item_box} ${styles.flexCol}`}>
+    <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
       <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
         <div className="min-w-[5rem] h-[5rem] relative">
           <Image
-            src={defaultImage}
+            src={orderSubmitted ? productImage : defaultImage}
             alt="product image"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -78,12 +107,12 @@ function CartItem({ isDesktop, isBusiness, cartItem }) {
 
           {orderOptionGroups.length > 0 &&
             orderOptionGroups.map((optionGroup, idx) => {
-              const { optionGroupName, options, optionDisplay } = optionGroup;
+              const { optionGroupName, options, optionsDisplay } = optionGroup;
               if (!optionGroupName) return;
               return (
                 <div key={idx} className="flex gap-2">
                   <p className="font-medium">{optionGroupName}:</p>
-                  <p className="font-light">{optionDisplay}</p>
+                  <p className="font-light">{optionsDisplay}</p>
                 </div>
               );
             })}
@@ -136,30 +165,31 @@ function CartItem({ isDesktop, isBusiness, cartItem }) {
         </div>
       </div>
       <div className={`${styles.flexCol} ${styles.cart_item_uploads_box}`}>
-        <div className={`${styles.flex} ${styles.upload_title_group}`}>
+        <div className="flex justify-between">
           {isBusiness ? (
             <h5 className="font-light text-sm">Customer Uploads:</h5>
           ) : (
             <h5 className="font-light text-sm">Sample uploads:</h5>
           )}
-          {!isBusiness && (
-            <Link
-              className=" text-blue-600 text-sm font-light"
-              href={`/product/${productId}/edit/${addToCartTempItemId}`}
+          {!isBusiness && !orderSubmitted && (
+            <button
+              onClick={handleEditCartItem}
+              className="text-blue-600 text-sm font-light"
             >
               edit
-            </Link>
+            </button>
           )}
         </div>
 
         <div className={`${styles.flex} ${styles.example_images_box}`}>
           {orderExampleImages.length > 0 ? (
             orderExampleImages.map((imageData, idx) => {
-              const { imageFile, fileName, imgUrl } = imageData;
+              console.log("imageData", imageData)
+              const { imageFile, fileName, imgUrl, image } = imageData;
               return (
                 <div key={idx} className="w-[5rem] h-[5rem] relative">
                   <Image
-                    src={imgUrl}
+                    src={orderSubmitted ? image : imgUrl}
                     fill
                     alt="customer uploaded images"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

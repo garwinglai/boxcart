@@ -28,7 +28,7 @@ function TipComponent() {
 
       setCartDetails({
         tipPenny: tip,
-        tipPennyDisplay: tipDisplay,
+        tipDisplay,
         totalPenny: newTotal,
         totalDisplay: newTotalDisplay,
         selectedTipIndex: idx,
@@ -44,7 +44,7 @@ function TipComponent() {
 
     setCartDetails({
       tipPenny: 0,
-      tipPennyDisplay: "$0.00",
+      tipDisplay: "$0.00",
       totalPenny: newTotal,
       totalDisplay: newTotalDisplay,
       selectedTipIndex: null,

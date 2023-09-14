@@ -3,7 +3,7 @@ import styles from "../../../styles/components/storefront/cart/subtotal.module.c
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 
-function OrderSubtotal({ isInCart }) {
+function OrderSubtotal({ isInCart, orderSubmitted, order }) {
   const cartDetails = useCartStore((state) => state.cartDetails);
   const setCartDetails = useCartStore((state) => state.setCartDetails);
 
@@ -19,7 +19,7 @@ function OrderSubtotal({ isInCart }) {
     deliveryFeeType,
     deliveryFeePenny,
     deliveryFeeDisplay,
-    tipPennyDisplay,
+    tipDisplay,
     totalDisplay,
     totalPenny,
     tipPenny,
@@ -44,8 +44,52 @@ function OrderSubtotal({ isInCart }) {
     });
   }, []);
 
+  if (orderSubmitted) {
+    const {
+      subtotalPenny,
+      subtotalDisplay,
+      taxRate,
+      taxRateDisplay,
+      taxAndFeesPenny,
+      taxAndFeesDisplay,
+      deliveryFeeType,
+      deliveryFeePenny,
+      deliveryFeeDisplay,
+      tipDisplay,
+      totalDisplay,
+      totalPenny,
+      tipPenny,
+    } = order;
+
+    return (
+      <div className="px-6 pt-8 pb-16">
+        <h3 className="font-medium">Subtotal:</h3>
+        <div className={`${styles.subtotal_box} ${styles.flex}`}>
+          <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
+            <React.Fragment>
+              <p>Subtotal:</p>
+              <p>Tax & fees:</p>
+              <p>Delivery:</p>
+              <p>Tip:</p>
+              <p className="font-bold border-t pt-2 mt-2">Total:</p>
+            </React.Fragment>
+          </div>
+          <div className={`${styles.flexCol} ${styles.subtotal_values}`}>
+            <React.Fragment>
+              <p>{subtotalDisplay}</p>
+              <p>{taxAndFeesDisplay}</p>
+              <p>{deliveryFeeDisplay}</p>
+              <p>{tipDisplay}</p>
+              <p className="font-bold border-t pt-2 mt-2">{totalDisplay}</p>
+            </React.Fragment>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${styles.order_subtotal_box}`}>
+    <div className="px-6 pt-8 pb-16">
       {!isInCart && <h3 className="font-medium">Subtotal:</h3>}
       <div className={`${styles.subtotal_box} ${styles.flex}`}>
         <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
@@ -58,9 +102,9 @@ function OrderSubtotal({ isInCart }) {
               <p className="font-bold border-t pt-2 mt-2">Total:</p>
             </React.Fragment>
           ) : (
-            <h4>
+            <h3>
               <b>Subtotal:</b>
-            </h4>
+            </h3>
           )}
         </div>
         {hydrated && (
@@ -70,11 +114,11 @@ function OrderSubtotal({ isInCart }) {
                 <p>{subtotalDisplay}</p>
                 <p>{taxAndFeesDisplay}</p>
                 <p>{deliveryFeeDisplay}</p>
-                <p>{tipPennyDisplay}</p>
+                <p>{tipDisplay}</p>
                 <p className="font-bold border-t pt-2 mt-2">{totalDisplay}</p>
               </React.Fragment>
             ) : (
-              <h4>{subtotalDisplay}</h4>
+              <h3>{subtotalDisplay}</h3>
             )}
           </div>
         )}

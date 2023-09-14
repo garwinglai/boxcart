@@ -291,29 +291,34 @@ const updateProduct = (product) => {
       images: {
         update:
           updatedImages &&
-          updatedImages.map((imageItem) => {
-            const { id, imgFileName, isDefault, image, fireStorageId } =
-              imageItem;
-            return {
-              where: {
-                id,
-              },
-              data: {
-                isDefault,
-              },
-            };
-          }),
+          updatedImages
+            .map((imageItem) => {
+              const { id, imgFileName, isDefault, image, fireStorageId } =
+                imageItem;
+              return {
+                where: {
+                  id,
+                },
+                data: {
+                  isDefault,
+                },
+              };
+            })
+            .filter((item) => item),
         create:
           imageSchema &&
-          imageSchema.map((imageItem) => {
-            const { imgFileName, isDefault, image, fireStorageId } = imageItem;
-            return {
-              imgFileName,
-              isDefault,
-              image,
-              fireStorageId,
-            };
-          }),
+          imageSchema
+            .map((imageItem) => {
+              const { imgFileName, isDefault, image, fireStorageId } =
+                imageItem;
+              return {
+                imgFileName,
+                isDefault,
+                image,
+                fireStorageId,
+              };
+            })
+            .filter((item) => item),
         deleteMany: removedImages.map((images) => {
           const { id } = images;
           return {
@@ -348,32 +353,36 @@ const updateProduct = (product) => {
         }),
       },
       questions: {
-        update: questionSchema.map((questionObj) => {
-          const { id, isRequired, question } = questionObj;
+        update: questionSchema
+          .map((questionObj) => {
+            const { id, isRequired, question } = questionObj;
 
-          if (!id) return;
-          const questionData = {
-            where: {
-              id,
-            },
-            data: {
+            if (!id) return;
+            const questionData = {
+              where: {
+                id,
+              },
+              data: {
+                isRequired,
+              },
+            };
+
+            return questionData;
+          })
+          .filter((item) => item), //filter out undefined values
+        create: newQuestionsAdded
+          .map((item) => {
+            const { isRequired, question } = item;
+
+            const questionData = {
+              question,
+              productName,
               isRequired,
-            },
-          };
+            };
 
-          return questionData;
-        }),
-        create: newQuestionsAdded.map((item) => {
-          const { isRequired, question } = item;
-
-          const questionData = {
-            question,
-            productName,
-            isRequired,
-          };
-
-          return questionData;
-        }),
+            return questionData;
+          })
+          .filter((item) => item), //filter out undefined values
         deleteMany: removedQuestions.map(({ id, question }) => {
           return {
             id,
@@ -381,145 +390,158 @@ const updateProduct = (product) => {
         }),
       },
       optionGroups: {
-        update: optionGroupSchema.map((optionGroup) => {
-          const {
-            optionGroupName,
-            groupId,
-            selectionType,
-            selectionDisplay,
-            isRequired,
-            isRequiredDisplay,
-          } = optionGroup;
-
-          if (!groupId) return;
-
-          const optionGroupData = {
-            where: {
-              id: groupId,
-            },
-            data: {
+        update: optionGroupSchema
+          .map((optionGroup) => {
+            const {
               optionGroupName,
+              groupId,
               selectionType,
               selectionDisplay,
               isRequired,
               isRequiredDisplay,
+            } = optionGroup;
+
+            if (!groupId) return;
+
+            const optionGroupData = {
+              where: {
+                id: groupId,
+              },
+              data: {
+                optionGroupName,
+                selectionType,
+                selectionDisplay,
+                isRequired,
+                isRequiredDisplay,
+                options: {
+                  update: optionSchema
+                    .map((option) => {
+                      const {
+                        optionGroupName: groupName,
+                        optionName,
+                        priceIntPenny,
+                        priceStr,
+                        quantityInt,
+                        quantityStr,
+                        groupId: optionGroupId,
+                        optionId,
+                      } = option;
+
+                      if (!optionId) return;
+                      if (optionGroupId !== groupId) return;
+
+                      const optionData = {
+                        where: {
+                          id: optionId,
+                        },
+                        data: {
+                          optionGroupName: groupName,
+                          optionName,
+                          priceIntPenny,
+                          priceStr,
+                          quantityInt,
+                          quantityStr,
+                        },
+                      };
+
+                      return optionData;
+                    })
+                    .filter((item) => item), //filter out undefined values
+                  create: optionSchema
+                    .map((option) => {
+                      const {
+                        optionGroupName: groupName,
+                        optionName,
+                        priceIntPenny,
+                        priceStr,
+                        quantityInt,
+                        quantityStr,
+                        groupId: optionGroupId,
+                        optionId,
+                      } = option;
+
+                      if (optionGroupId !== groupId) return;
+                      if (optionId) return;
+
+                      const optionData = {
+                        optionGroupName: groupName,
+                        optionName,
+                        priceIntPenny,
+                        priceStr,
+                        quantityInt,
+                        quantityStr,
+                      };
+                      console.log("optionData", optionData);
+
+                      return optionData;
+                    })
+                    .filter((item) => item), //filter out undefined values
+                  deleteMany: removedOptions.map((id) => {
+                    return {
+                      id,
+                    };
+                  }),
+                },
+              },
+            };
+
+            return optionGroupData;
+          })
+          .filter((item) => item), //filter out undefined values
+        create: optionGroupSchema
+          .map((optionGroup) => {
+            const { optionGroupName, groupId } = optionGroup;
+
+            if (groupId) return;
+
+            const data = {
+              optionGroupName,
+              productName,
               options: {
-                update: optionSchema.map((option) => {
-                  const {
-                    optionGroupName: groupName,
-                    optionName,
-                    priceIntPenny,
-                    priceStr,
-                    quantityInt,
-                    quantityStr,
-                    groupId: optionGroupId,
-                    optionId,
-                  } = option;
-
-                  if (!optionId) return;
-                  if (optionGroupId !== groupId) return;
-
-                  const optionData = {
-                    where: {
-                      id: optionId,
-                    },
-                    data: {
+                create: optionSchema
+                  .map((option) => {
+                    const {
                       optionGroupName: groupName,
                       optionName,
                       priceIntPenny,
                       priceStr,
                       quantityInt,
                       quantityStr,
-                    },
-                  };
+                      optionId,
+                      groupId: optionGroupId,
+                    } = option;
 
-                  return optionData;
-                }),
-                create: optionSchema.map((option) => {
-                  const {
-                    optionGroupName: groupName,
-                    optionName,
-                    priceIntPenny,
-                    priceStr,
-                    quantityInt,
-                    quantityStr,
-                    groupId: optionGroupId,
-                    optionId,
-                  } = option;
+                    const optionGroupIdReformNull =
+                      optionGroupId === null || optionGroupId === undefined
+                        ? null
+                        : optionGroupId;
+                    const groupIdReformNull =
+                      groupId === null || groupId === undefined
+                        ? null
+                        : groupId;
 
-                  if (optionGroupId !== groupId) return;
-                  if (optionId) return;
+                    if (optionGroupIdReformNull !== groupIdReformNull) return;
+                    if (optionGroupName !== groupName) return;
+                    if (optionId) return;
 
-                  const optionData = {
-                    optionGroupName: groupName,
-                    optionName,
-                    priceIntPenny,
-                    priceStr,
-                    quantityInt,
-                    quantityStr,
-                  };
+                    const optionData = {
+                      optionGroupName: groupName,
+                      optionName,
+                      priceIntPenny,
+                      priceStr,
+                      quantityInt,
+                      quantityStr,
+                    };
 
-                  return optionData;
-                }),
-                deleteMany: removedOptions.map((id) => {
-                  return {
-                    id,
-                  };
-                }),
+                    return optionData;
+                  })
+                  .filter((item) => item), //filter out undefined values
               },
-            },
-          };
+            };
 
-          return optionGroupData;
-        }),
-        create: optionGroupSchema.map((optionGroup) => {
-          const { optionGroupName, groupId } = optionGroup;
-
-          if (groupId) return;
-
-          const data = {
-            optionGroupName,
-            productName,
-            options: {
-              create: optionSchema.map((option) => {
-                const {
-                  optionGroupName: groupName,
-                  optionName,
-                  priceIntPenny,
-                  priceStr,
-                  quantityInt,
-                  quantityStr,
-                  optionId,
-                  groupId: optionGroupId,
-                } = option;
-
-                const optionGroupIdReformNull =
-                  optionGroupId === null || optionGroupId === undefined
-                    ? null
-                    : optionGroupId;
-                const groupIdReformNull =
-                  groupId === null || groupId === undefined ? null : groupId;
-
-                if (optionGroupIdReformNull !== groupIdReformNull) return;
-                if (optionGroupName !== groupName) return;
-                if (optionId) return;
-
-                const optionData = {
-                  optionGroupName: groupName,
-                  optionName,
-                  priceIntPenny,
-                  priceStr,
-                  quantityInt,
-                  quantityStr,
-                };
-
-                return optionData;
-              }),
-            },
-          };
-
-          return data;
-        }),
+            return data;
+          })
+          .filter((item) => item), //filter out undefined values
         deleteMany: removedOptionGroups.map((id) => {
           return {
             id,

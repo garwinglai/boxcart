@@ -23,7 +23,8 @@ import {
   deleteProductClient,
 } from "@/helper/client/api/inventory/product-schema";
 import { nanoid } from "@/utils/generateId";
-import { deleteObject, ref } from "firebase/storage";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
+
 import { storage } from "@/firebase/fireConfig";
 
 const style = {
@@ -507,8 +508,8 @@ function ProductCard({
       }`}
     >
       <div className="flex gap-3 justify-between items-center border-b border-[color:var(--gray-light-med)]">
-        <div className="self-start w-[30%] relative sm:w-[20%] lg:w-[30%]">
-          <div className="w-full  relative aspect-square">
+        <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+          <div className="w-full h-full  relative aspect-square">
             <Image
               src={defaultImage}
               alt="default product image"

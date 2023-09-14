@@ -8,7 +8,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import order_icon from "@/public/images/icons/order_icon.png";
 import Image from "next/image";
 
-function OrderGridRowHistory({ status }) {
+function OrderGridRowHistory({ orderStatus }) {
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -38,7 +38,7 @@ function OrderGridRowHistory({ status }) {
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">2</p>
+        <p className="text-xs">2536542</p>
       </td>
       <td
         className={`${styles.table_data}`}
@@ -59,29 +59,16 @@ function OrderGridRowHistory({ status }) {
         <p className="text-xs">Jessica Joe</p>
       </td>
       <td
-        className={`${styles.table_data} ${styles.contact}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p className="text-xs">jessica@gmail.com</p>
-        <p className="text-xs">123 456 7890</p>
-      </td>
-      <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p
-          className={`text-xs ${
-            status === "declined"
-              ? styles.declined
-              : status === "refunded"
-              ? styles.refunded
-              : status === "paid"
-              ? styles.paid
-              : styles.canceled
-          }`}
-        >
-          {status}
-        </p>
+        <p className="text-xs">4 Items</p>
+      </td>
+      <td
+        className={`${styles.table_data} ${styles.black_text}`}
+        onClick={toggleDrawer("right", true)}
+      >
+        <p className="text-xs">$123.23</p>
       </td>
 
       <td
@@ -91,16 +78,16 @@ function OrderGridRowHistory({ status }) {
         <p className="text-xs">Delivery</p>
       </td>
       <td
-        className={`${styles.table_data} ${styles.black_text}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p className="text-xs">$123.23</p>
-      </td>
-      <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">4 Items</p>
+        <p
+          className={`text-xs ${
+            orderStatus === "completed" ? styles.completed_text : styles.canceled_text
+          }`}
+        >
+          {orderStatus}
+        </p>
       </td>
 
       <td className={`${styles.table_data} ${styles.view_more_btn}`}>

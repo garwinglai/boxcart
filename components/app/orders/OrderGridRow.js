@@ -13,6 +13,10 @@ import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import ButtonThird from "@/components/global/buttons/ButtonThird";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+
+const orderStatus = "pending";
 
 function OrderGridRow({ status }) {
   const [state, setState] = React.useState({
@@ -38,38 +42,14 @@ function OrderGridRow({ status }) {
   };
 
   const handleAction = () => {};
+
   return (
     <tr className={`${styles.table_row}`}>
       <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">2</p>
-      </td>
-      <td
-        className={`${styles.table_data} ${styles.black_text}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p className="text-xs">Jessica Joe</p>
-      </td>
-      <td
-        className={`${styles.table_data} ${styles.contact}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p className="text-xs">jessica@gmail.com</p>
-        <p className="text-xs">123 456 7890</p>
-      </td>
-      <td
-        className={`${styles.table_data}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p
-          className={`text-xs ${
-            status === "pending" ? styles.pending : styles.accepted
-          }`}
-        >
-          {status}
-        </p>
+        <p className="text-xs">2130913</p>
       </td>
       <td
         className={`${styles.table_data}`}
@@ -84,10 +64,16 @@ function OrderGridRow({ status }) {
         <p className="text-xs">5.23.2023</p>
       </td>
       <td
+        className={`${styles.table_data} ${styles.black_text}`}
+        onClick={toggleDrawer("right", true)}
+      >
+        <p className="text-xs">Jessica Joe</p>
+      </td>
+      <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">Delivery</p>
+        <p className="text-xs">4 Items</p>
       </td>
       <td
         className={`${styles.table_data} ${styles.black_text}`}
@@ -99,31 +85,38 @@ function OrderGridRow({ status }) {
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">4 Items</p>
+        <p className="text-xs">Delivery</p>
       </td>
-
       <td className={`${styles.table_data} ${styles.action}`}>
-        {status === "pending" && (
-          <div className="w-1/2">
-            <ButtonSecondary name="Decline" />
-          </div>
-        )}
-        {status === "pending" && (
-          <div className="w-1/2">
-            <ButtonPrimary name="Accept" />
-          </div>
-        )}
-        {/* Split */}
-        {status === "accepted" && (
-          <div className="w-1/2">
-            <ButtonFourth name="Cancel" />
-          </div>
-        )}
-        {status === "accepted" && (
-          <div className="w-1/2">
-            <ButtonThird name="Complete" />
-          </div>
-        )}
+        <Select
+          size="small"
+          color="warning"
+          autoWidth
+          id="select-order-status"
+          // variant="standard"
+          sx={{
+            boxShadow: "none",
+            ".MuiOutlinedInput-notchedOutline": { border: 0 },
+          }}
+          value={orderStatus}
+          // onChange={handleChangeOrderStatus}
+        >
+          <MenuItem value="pending">
+            <div className={`${styles.pending_text}`}>
+              <p>pending</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="completed">
+            <div className={`${styles.completed_text}`}>
+              <p>completed</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="canceled">
+            <div className={`${styles.canceled_text}`}>
+              <p>canceled</p>
+            </div>
+          </MenuItem>
+        </Select>
       </td>
       <td className={`${styles.table_data} ${styles.view_more_btn}`}>
         <IconButton onClick={toggleDrawer("right", true)}>
@@ -163,3 +156,26 @@ function OrderGridRow({ status }) {
 }
 
 export default OrderGridRow;
+
+// * status buttons
+// {status === "pending" && (
+//   <div className="w-1/2">
+//     <ButtonSecondary name="Decline" />
+//   </div>
+// )}
+// {status === "pending" && (
+//   <div className="w-1/2">
+//     <ButtonPrimary name="Accept" />
+//   </div>
+// )}
+// {/* Split */}
+// {status === "accepted" && (
+//   <div className="w-1/2">
+//     <ButtonFourth name="Cancel" />
+//   </div>
+// )}
+// {status === "accepted" && (
+//   <div className="w-1/2">
+//     <ButtonThird name="Complete" />
+//   </div>
+// )}

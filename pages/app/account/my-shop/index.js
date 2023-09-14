@@ -253,7 +253,7 @@ export async function getServerSideProps(context) {
       console.log("serversideprops checklist error:", error);
       serializedAccount = null;
     }
-
+    console.log("serializedAccount", serializedAccount);
     return {
       props: {
         userSession,

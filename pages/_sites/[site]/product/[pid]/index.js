@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { useRouter } from "next/router";
 import ShareIcon from "@mui/icons-material/Share";
 import { IconButton } from "@mui/material";
-// import { products } from "@/helper/temp/tempData";
 import Image from "next/image";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import RadioGroupComponent from "@/components/storefront/options/RadioGroupComponent";
@@ -22,9 +21,6 @@ const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function Product({ product }) {
   const setCart = useCartStore((state) => state.setCart);
-  const removeCart = useCartStore((state) => state.removeCart);
-  const setCartDetails = useCartStore((state) => state.setCartDetails);
-  const cartDetails = useCartStore((state) => state.cartDetails);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
 
   const {
@@ -32,10 +28,6 @@ function Product({ product }) {
     productName,
     description,
     priceStr,
-    priceIntPenny,
-    reviewStr,
-    reviewDouble,
-    reviewCountStr,
     quantity,
     images,
     defaultImage,
@@ -498,13 +490,13 @@ function Product({ product }) {
         optionQuantity,
       } = item;
 
-      const optionDisplay = optionName + " (" + price + ")";
+      const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
         selectionType,
         optionGroupName,
         groupId,
-        optionDisplay,
+        optionsDisplay,
         options: [
           {
             optionName,
@@ -520,7 +512,7 @@ function Product({ product }) {
 
     const updatedDataStructureCheckbox = checkboxOptionValues.map((item) => {
       const { optionGroupName, options, groupId, selectionType } = item;
-      const optionDisplayArr = [];
+      const optionsDisplayArr = [];
 
       const updatedOptions = options.map((option) => {
         const { optionName, price, pricePenny, optionQuantity, optionId } =
@@ -530,23 +522,23 @@ function Product({ product }) {
           optionName,
           price,
           pricePenny,
-          optionQuantity,
+          optionQuantity: parseInt(optionQuantity),
           optionId,
         };
 
         const checkBoxOptionDisplay = optionName + " (" + price + ")";
-        optionDisplayArr.push(checkBoxOptionDisplay);
+        optionsDisplayArr.push(checkBoxOptionDisplay);
 
         return data;
       });
 
-      const optionDisplay = optionDisplayArr.join(", ");
+      const optionsDisplay = optionsDisplayArr.join(", ");
 
       const data = {
         selectionType,
         groupId,
         optionGroupName,
-        optionDisplay,
+        optionsDisplay,
         options: updatedOptions,
       };
 
@@ -587,7 +579,7 @@ function Product({ product }) {
       productName: productName,
       pricePenny: itemTotalPenny,
       priceDisplay: itemTotal,
-      quantity: selectedQuantity,
+      quantity: parseInt(selectedQuantity),
       customNote: customerNote,
       orderOptionGroups,
       orderQuestionsAnswers,
@@ -713,21 +705,32 @@ function Product({ product }) {
     ));
   }
 
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbar}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   return (
     <form
       onSubmit={handleAddToCart}
       className="md:flex md:relative md:w-full md:px-8 md:pb-8 md:gap-4  md:overflow-hidden"
     >
-      <button type="button" onClick={removeCart}>
-        remove
-      </button>
       <Snackbar
         open={isSnackbarOpen}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
         sx={{ width: "fit-content" }}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        action={action}
       />
       <div className="md:w-[65%] md:overflow-y-scroll">
         <div className="flex justify-between items-center my-1 mx-2 md:ml-0 md:my-4">

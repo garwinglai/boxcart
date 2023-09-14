@@ -7,7 +7,6 @@ export default async function handler(req, res) {
   if (method === "POST") {
     const bodyParsed = JSON.parse(body);
     const { userId, accountId, email } = bodyParsed;
-    console.log("bodyParsed:", bodyParsed);
 
     const mailOptions = {
       to: email,
@@ -24,7 +23,6 @@ export default async function handler(req, res) {
 
     try {
       await sendgrid.send(mailOptions);
-      console.log("Email sent file: api/sendgrid/verify-email", mailOptions);
     } catch (error) {
       console.log("Email send failed file: api/sendgrid/verify-email:", error);
       return res

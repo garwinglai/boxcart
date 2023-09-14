@@ -114,7 +114,7 @@ model Tax {
   taxRate          Float?
   taxRateDisplay   String?
   isTaxRateEnabled Boolean @default(false)
-  Account          Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account          Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId        Int     @unique
 
   @@index([accountId])
@@ -126,33 +126,40 @@ model Order {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   orderItems          OrderItem[]
-  subTotalPenny       Int
-  subTotalDisplay     String
-  totalPricePenny     Int
-  totalPriceDisplay   String
-  taxFeePenny         Int?
-  taxFeeDisplay       String?
-  cardFeePenny        Int?
-  cardFeeDisplay      String?
-  forDate             String //epoch in milliseconds
-  fulfillmentType     Int // 0: delivery, 1: pickup
-  fulfillmentDisplay  String //"delivery", "pickup"
-  deliveryAddressFull String?
-  deliveryAddy1       String?
-  deliveryAddy2       String?
-  deliveryCity        String?
-  deliveryState       String?
-  deliveryZip         String?
-  deliveryFeePenny    Int?
-  deliveryFeeDisplay  String?
   customerName        String
   customerFName       String
   customerLName       String
   customerEmail       String
   customerPhone       String?
-
-  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId Int
+  deliveryAddress     String?
+  requireOrderTime    Boolean     @default(false)
+  requireOrderDate    Boolean     @default(false)
+  orderForDate        String? //epoch in milliseconds
+  orderForDateDisplay String?
+  orderForTime        String? //epoch in milliseconds
+  orderForTimeDisplay String?
+  fulfillmentType     Int // 0: delivery, 1: pickup
+  fulfillmentDisplay  String //"delivery", "pickup"
+  subtotalPenny       Int
+  subtotalDisplay     String
+  taxRate             Float?
+  taxRateDisplay      String?
+  orderStatus         String      @default("pending") // "pending", "cmpleted", "canceled"
+  // stripeFeePenny      Int?
+  // stripeFeeDisplay    String?
+  cardFeePenny        Int?
+  cardFeeDisplay      String?
+  taxAndFeesPenny     Int?
+  taxAndFeesDisplay   String?
+  deliveryFeePenny    Int?
+  deliveryFeeDisplay  String?
+  tipPenny            Int?
+  tipDisplay          String?
+  totalPenny          Int
+  totalDisplay        String
+  totalItems          Int
+  account             Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId           Int
 
   @@index([accountId])
 }
@@ -166,6 +173,8 @@ model OrderItem {
   customNote            String?               @db.Text
   pricePenny            Int
   priceDisplay          String
+  productId             Int
+  productImage          String?               @db.Text
   orderOptionGroups     OrderOptionGroup[]
   orderExampleImages    OrderExampleImage[]
   orderQuestionsAnswers OrderQuestionAnswer[]
@@ -180,7 +189,7 @@ model OrderQuestionAnswer {
   id          Int        @id @default(autoincrement())
   question    String
   answer      String
-  OrderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   orderItemId Int?
 
   @@index([orderItemId])
@@ -191,7 +200,7 @@ model OrderExampleImage {
   image         String     @db.Text
   fireStorageId String     @unique
   fileName      String
-  OrderItem     OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   orderItemId   Int?
 
   @@index([orderItemId])
@@ -200,8 +209,9 @@ model OrderExampleImage {
 model OrderOptionGroup {
   id              Int           @id @default(autoincrement())
   optionGroupName String
+  optionsDisplay  String
   orderOptions    OrderOption[]
-  OrderItem       OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItem       OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   orderItemId     Int?
 
   @@index([orderItemId])
@@ -212,7 +222,8 @@ model OrderOption {
   optionName         String
   optionPrice        Int
   optionPriceDisplay String
-  OrderOptionGroup   OrderOptionGroup? @relation(fields: [orderOptionGroupId], references: [id], onDelete: Cascade)
+  optionQuantity     Int?
+  orderOptionGroup   OrderOptionGroup? @relation(fields: [orderOptionGroupId], references: [id], onDelete: Cascade)
   orderOptionGroupId Int?
 
   @@index([orderOptionGroupId])
@@ -223,7 +234,7 @@ model Contact {
   fName     String
   lName     String
   email     String  @unique
-  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId Int
 
   @@index([accountId])
@@ -232,7 +243,7 @@ model Contact {
 model Subscriber {
   id        Int     @id @default(autoincrement())
   email     String  @unique
-  Account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId Int
 
   @@index([accountId])

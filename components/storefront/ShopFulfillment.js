@@ -88,9 +88,6 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     orderInAdvanceInSeconds,
     requireOrderInAdvance,
     orderInAdvanceDisplay,
-  } = availability ? availability : {};
-
-  const {
     datesAvailability,
     datesRangedAvailability,
     daysOfWeekAvailability,
@@ -649,8 +646,10 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     return weekdays;
   };
 
-  const handleCloseAvailabilityModalOwner = () =>
+  const handleCloseAvailabilityModalOwner = () => {
     setOpenAvailabilityModalOwner(false);
+    handleCancelDeliveryChange();
+  };
 
   const handleMonthChange = (date) => {
     if (requestAbortControllerMonth.current) {
@@ -941,7 +940,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
             aria-controls="panel1bh-content"
             id="panel1bh-header"
             sx={{
-              border: "1px solid var(--black-design-extralight)",
+              border: "1px solid var(--gray-light-med)",
               boxShadow: "none",
               width: "100%",
               borderRadius: "4px",
@@ -1102,24 +1101,22 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
             </AccordionDetails>
           </Accordion>
         ) : fulfillmentMethodInt === 1 ? (
-          <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded">
+          <div className="flex justify-between items-center bg-gray-100 p-4 rounded">
             <div className="flex gap-1 items-center">
               <TakeoutDiningOutlinedIcon
                 fontSize="small"
-                sx={{ color: "var(--brown-text)" }}
+                sx={{ color: "text-gray-800" }}
               />
-              <p className="text-sm text-[color:var(--brown-text)]">
-                pickup only
-              </p>
+              <p className="text-sm text-gray-800">pickup only</p>
             </div>
           </div>
         ) : (
           <div>
-            <div className="flex justify-between items-center border-b bg-[color:var(--brown-bg)] p-4 rounded-t">
+            <div className="flex justify-between items-center border-b bg-gray-100 p-4 rounded-t">
               <div className="flex gap-1 items-center">
                 <DeliveryDiningOutlinedIcon
                   fontSize="small"
-                  sx={{ color: "var(--brown-text)" }}
+                  sx={{ color: "text-gray-800" }}
                 />
                 {fulfillmentMethods.map((method) => {
                   const {
@@ -1135,10 +1132,8 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                     if (methodInt === 0 && deliveryTypeInt === 1) {
                       return (
                         <div key={id} className="flex items-center">
-                          <p className="text-sm text-[color:var(--brown-text)]  ">
-                            delivery :
-                          </p>
-                          <p className="text-xs font-light text-[color:var(--brown-text)] ml-1 ">
+                          <p className="text-sm text-gray-800  ">delivery :</p>
+                          <p className="text-xs font-light text-gray-800 ml-1 ">
                             within {localDeliveryDistanceStr}
                           </p>
                         </div>
@@ -1146,9 +1141,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                     } else {
                       return (
                         <div key={id} className="flex items-center">
-                          <p className="text-sm text-[color:var(--brown-text)]  ">
-                            delivery
-                          </p>
+                          <p className="text-sm text-gray-800  ">delivery</p>
                         </div>
                       );
                     }
@@ -1156,30 +1149,44 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                 })}
               </div>
             </div>
-            <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded-b">
+            <div className=" bg-gray-100 p-4 rounded-b">
               {isLoaded ? (
-                <PlacesAutoComplete
-                  setIsDeliveryTooFar={setIsDeliveryTooFar}
-                  placeholder="deliver to: address"
-                  onAddressSelect={(address) => {
-                    getGeocode({ address: address }).then((results) => {
-                      const { lat, lng } = getLatLng(results[0]);
+                <React.Fragment>
+                  <div className="flex ">
+                    <PlacesAutoComplete
+                      setIsDeliveryTooFar={setIsDeliveryTooFar}
+                      placeholder="deliver to: address"
+                      onAddressSelect={(address) => {
+                        getGeocode({ address: address }).then((results) => {
+                          const { lat, lng } = getLatLng(results[0]);
 
-                      const distance = getDistance(lat, lng, bizLat, bizLng);
+                          const distance = getDistance(
+                            lat,
+                            lng,
+                            bizLat,
+                            bizLng
+                          );
 
-                      if (distance) {
-                        const { roundedNumInMi, roundedNumInKm } = distance;
-                        setCartDetails({ deliveryAddress: address });
-                        updateDeliveryFee(roundedNumInMi, roundedNumInKm);
-                      } else {
-                        setCartDetails({ deliveryAddress: "" });
-                      }
+                          if (distance) {
+                            const { roundedNumInMi, roundedNumInKm } = distance;
+                            setCartDetails({ deliveryAddress: address });
+                            updateDeliveryFee(roundedNumInMi, roundedNumInKm);
+                          } else {
+                            setCartDetails({ deliveryAddress: "" });
+                          }
 
-                      setLat(lat);
-                      setLng(lng);
-                    });
-                  }}
-                />
+                          setLat(lat);
+                          setLng(lng);
+                        });
+                      }}
+                    />
+                  </div>
+                  {isDeliveryTooFar && (
+                    <p className="font-light text-sm mt-2 ml-2 text-[color:var(--primary)]">
+                      * Location too far.
+                    </p>
+                  )}
+                </React.Fragment>
               ) : (
                 <p className="font-light text-xs">Loading...</p>
               )}
@@ -1187,18 +1194,16 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
           </div>
         )
       ) : (
-        <div className="flex justify-between items-center bg-[color:var(--brown-bg)] p-4 rounded">
+        <div className="flex justify-between items-center bg-gray-100  p-4 rounded">
           {fulfillmentMethodInt == 0 && (
             <div className="flex items-center gap-2">
               <p className="text-sm text-[color:var(--brown-text)]"></p>
               <div className="flex gap-1 items-center">
                 <DeliveryDiningOutlinedIcon
                   fontSize="small"
-                  sx={{ color: "var(--brown-text)" }}
+                  sx={{ color: "text-gray-800" }}
                 />
-                <p className="text-sm text-[color:var(--brown-text)]">
-                  delivery
-                </p>
+                <p className="text-sm text-gray-800">delivery</p>
               </div>
             </div>
           )}
@@ -1208,11 +1213,9 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               <div className="flex gap-1 items-center">
                 <TakeoutDiningOutlinedIcon
                   fontSize="small"
-                  sx={{ color: "var(--brown-text)" }}
+                  sx={{ color: "text-gray-800" }}
                 />
-                <p className="text-sm text-[color:var(--brown-text)]">
-                  pickup only
-                </p>
+                <p className="text-sm text-gray-800">pickup only</p>
               </div>
             </div>
           )}
@@ -1222,19 +1225,17 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               <div className="flex gap-1 items-center">
                 <DeliveryDiningOutlinedIcon
                   fontSize="small"
-                  sx={{ color: "var(--brown-text)" }}
+                  sx={{ color: "text-gray-800" }}
                 />
-                <p className="text-sm text-[color:var(--brown-text)]">
-                  delivery
-                </p>
+                <p className="text-sm text-gray-800">delivery</p>
               </div>
-              <p className="text-sm text-[color:var(--brown-text)]">+</p>
+              <p className="text-sm text-gray-800">+</p>
               <div className="flex gap-1 items-center">
                 <TakeoutDiningOutlinedIcon
                   fontSize="small"
-                  sx={{ color: "var(--brown-text)" }}
+                  sx={{ color: "text-gray-800" }}
                 />
-                <p className="text-sm text-[color:var(--brown-text)]">pickup</p>
+                <p className="text-sm text-gray-800">pickup</p>
               </div>
             </div>
           )}
@@ -1247,7 +1248,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         </div>
       )}
 
-      {availability.hasCustomAvailability && isOwner ? (
+      {hasCustomAvailability && isOwner ? (
         <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded md:mb-4 ">
           <span className="flex items-center gap-2">
             <p className="font-extralight text-sm ">Store hours:</p>
@@ -1267,7 +1268,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
           </button>
         </div>
       ) : (
-        availability.hasCustomAvailability &&
+        hasCustomAvailability &&
         availability &&
         (datesAvailability.length !== 0 ||
           datesRangedAvailability.length !== 0 ||

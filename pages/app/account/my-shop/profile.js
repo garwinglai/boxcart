@@ -623,6 +623,20 @@ function Profile({ userAccount }) {
     return { url };
   };
 
+  // * Display
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={closeAlert}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   return (
     <div className="pb-32 lg:flex  lg:justify-center">
       <Snackbar
@@ -630,6 +644,7 @@ function Profile({ userAccount }) {
         autoHideDuration={3000}
         onClose={closeAlert}
         message={alertMsg}
+        action={action}
       />
 
       <form

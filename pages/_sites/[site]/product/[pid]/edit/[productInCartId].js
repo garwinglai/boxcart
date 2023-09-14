@@ -15,7 +15,6 @@ import prisma from "@/lib/prisma";
 import Snackbar from "@mui/material/Snackbar";
 import { useCartStore } from "@/lib/store";
 import { nanoid } from "nanoid";
-import ButtonSecondaryStorefront from "@/components/global/buttons/ButtonSecondaryStorefront";
 import Link from "next/link";
 
 // generate item quantity constant to 100 values in an array from 1
@@ -563,13 +562,13 @@ function EditAddToCartProduct({ product }) {
         optionQuantity,
       } = item;
 
-      const optionDisplay = optionName + " (" + price + ")";
+      const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
         groupId,
         selectionType,
         optionGroupName,
-        optionDisplay,
+        optionsDisplay,
         options: [
           {
             optionName,
@@ -585,7 +584,7 @@ function EditAddToCartProduct({ product }) {
 
     const updatedDataStructureCheckbox = checkboxOptionValues.map((item) => {
       const { optionGroupName, options, groupId, selectionType } = item;
-      const optionDisplayArr = [];
+      const optionsDisplayArr = [];
 
       const updatedOptions = options.map((option) => {
         const { optionName, price, pricePenny, optionQuantity, optionId } =
@@ -595,23 +594,23 @@ function EditAddToCartProduct({ product }) {
           optionName,
           price,
           pricePenny,
-          optionQuantity,
+          optionQuantity: parseInt(optionQuantity),
           optionId,
         };
 
         const checkBoxOptionDisplay = optionName + " (" + price + ")";
-        optionDisplayArr.push(checkBoxOptionDisplay);
+        optionsDisplayArr.push(checkBoxOptionDisplay);
 
         return data;
       });
 
-      const optionDisplay = optionDisplayArr.join(", ");
+      const optionsDisplay = optionsDisplayArr.join(", ");
 
       const data = {
         selectionType,
         groupId,
         optionGroupName,
-        optionDisplay,
+        optionsDisplay,
         options: updatedOptions,
       };
 
@@ -651,7 +650,7 @@ function EditAddToCartProduct({ product }) {
       productName: productName,
       pricePenny,
       priceDisplay: itemTotal,
-      quantity: selectedQuantity,
+      quantity: parseInt(selectedQuantity),
       customNote: customerNote,
       orderOptionGroups,
       orderQuestionsAnswers,
@@ -1057,6 +1056,7 @@ export async function getServerSideProps(context) {
       questions: true,
     },
   });
+  console.log("product", product);
 
   const serializedProduct = JSON.parse(JSON.stringify(product));
 

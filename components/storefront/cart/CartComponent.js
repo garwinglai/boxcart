@@ -63,7 +63,6 @@ function CartComponent({ toggleDrawer, isDesktop }) {
 
   const handleCheckout = (e) => {
     if (isLoading) return;
-
     if (fulfillmentType === 0 && !deliveryAddress) {
       handleOpenSnackBar("Missing delivery address");
       return;
@@ -138,9 +137,16 @@ function CartComponent({ toggleDrawer, isDesktop }) {
             <h3 className="font-medium pt-4 px-4">Items:</h3>
             {cart.map((item, idx) => {
               const { addToCartTempItemId } = item;
-              return <CartItem key={addToCartTempItemId} cartItem={item} />;
+              return (
+                <CartItem
+                  key={addToCartTempItemId}
+                  cartItem={item}
+                  isDesktop={isDesktop}
+                  toggleDrawer={toggleDrawer}
+                />
+              );
             })}
-            <OrderReview />
+            <OrderReview closeDrawer={toggleDrawer} isMobile={true} />
             <OrderSubtotal isInCart={true} />
           </React.Fragment>
         )}

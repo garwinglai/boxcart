@@ -13,162 +13,130 @@ import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGrid from "@/components/app/orders/OrderGrid";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { isAuth } from "@/helper/client/auth/isAuth";
-
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 
 function LiveOrders() {
-	const [state, setState] = React.useState({
-		top: false,
-		left: false,
-		bottom: false,
-		right: false,
-	});
+  const [state, setState] = React.useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
 
-	const toggleDrawer = (anchor, open) => (event) => {
-		if (
-			event &&
-			event.type === "keydown" &&
-			(event.key === "Tab" || event.key === "Shift")
-		) {
-			return;
-		}
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (
+      event &&
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
 
-		setState({ ...state, [anchor]: open });
-	};
+    setState({ ...state, [anchor]: open });
+  };
 
-	const mobileView = () => {
-		return (
-			<div className={`${styles.live_orders_box_mobile}`}>
-				<SwipeableDrawer
-					anchor={"bottom"}
-					open={state["bottom"]}
-					onClose={toggleDrawer("bottom", false)}
-					onOpen={toggleDrawer("bottom", true)}
-				>
-					<div className={`${styles.calendar_box}`}>
-						<div className={`${styles.flex} ${styles.calendar_header_group}`}>
-							<h2>Calendar</h2>
-							<p>🌚 = Orders</p>
-						</div>
-						<Calendar />
-					</div>
-				</SwipeableDrawer>
+  const mobileView = () => {
+    return (
+      <div className={`${styles.live_orders_box_mobile}`}>
+        <SwipeableDrawer
+          anchor={"bottom"}
+          open={state["bottom"]}
+          onClose={toggleDrawer("bottom", false)}
+          onOpen={toggleDrawer("bottom", true)}
+        >
+          <div className={`${styles.calendar_box}`}>
+            <div className={`${styles.flex} ${styles.calendar_header_group}`}>
+              <h2>Calendar</h2>
+              <p>🌚 = Orders</p>
+            </div>
+            <Calendar />
+          </div>
+        </SwipeableDrawer>
+        <div className="w-fit ml-auto px-4">
+          <ButtonPrimary name="+ Create Order" />
+        </div>
 
-				<div className={`${styles.search_group}`}>
-					<SearchBar />
-					<div className={`${styles.filter_box} ${styles.flex}`}>
-						<div className="bg-[color:var(--primary-dark-med)] rounded">
-							<ButtonFilter
-								name="Sort by"
-								icon={<SortIcon fontSize="small" />}
-							/>
-						</div>
-						<div className="bg-[color:var(--primary-dark-med)] rounded">
-							<ButtonFilter
-								name="Select Date"
-								icon={<TodayOutlinedIcon fontSize="small" />}
-							/>
-						</div>
-					</div>
-				</div>
-				<div className={`${styles.incoming_orders_box}`}>
-					<div className={`${styles.pending_box}`}>
-						<h3>Pending . . .</h3>
-						<OrderCard status="pending" isDesktop={false} isBusiness={true} />
-						<OrderCard status="pending" isDesktop={false} isBusiness={true} />
-					</div>
-					<div className={`${styles.accepted_box}`}>
-						<h3>Accepted . . .</h3>
-						<OrderCard status="accepted" isDesktop={false} isBusiness={true} />
-						<OrderCard status="accepted" isDesktop={false} isBusiness={true} />
-					</div>
-				</div>
-			</div>
-		);
-	};
+        <div className={`${styles.incoming_orders_box}`}>
+          <div className={`${styles.pending_box}`}>
+            <OrderCard status="pending" isDesktop={false} isBusiness={true} />
+            <OrderCard status="pending" isDesktop={false} isBusiness={true} />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-	const desktopView = () => {
-		return (
-			<div className={`${styles.live_orders_box_desktop}`}>
-				<SwipeableDrawer
-					anchor={"right"}
-					open={state["right"]}
-					onClose={toggleDrawer("right", false)}
-					onOpen={toggleDrawer("right", true)}
-				>
-					<div className={`${styles.calendar_box}`}>
-						<div className={`${styles.flex} ${styles.calendar_header_group}`}>
-							<h2>Calendar</h2>
-							<p>🌚 = Orders</p>
-						</div>
-						<Calendar />
-					</div>
-				</SwipeableDrawer>
-				<div className={`${styles.search_group} ${styles.flex} `}>
-					<SearchBar />
-					<div className={`${styles.filter_box} ${styles.flex} `}>
-						<div className="bg-[color:var(--primary-dark-med)] rounded">
-							<ButtonFilter
-								name="Sort by"
-								icon={<SortIcon fontSize="small" />}
-							/>
-						</div>
-						<div className="bg-[color:var(--primary-dark-med)] rounded">
-							<ButtonFilter
-								name="Select Date"
-								icon={<TodayOutlinedIcon fontSize="small" />}
-							/>
-						</div>
-					</div>
-				</div>
-				<div className={`${styles.order_grid_box}`}>
-					{/* <div style={{ textAlign: "right", marginRight: "2rem" }}>
+  const desktopView = () => {
+    return (
+      <div className={`${styles.live_orders_box_desktop}`}>
+        <SwipeableDrawer
+          anchor={"right"}
+          open={state["right"]}
+          onClose={toggleDrawer("right", false)}
+          onOpen={toggleDrawer("right", true)}
+        >
+          <div className={`${styles.calendar_box}`}>
+            <div className={`${styles.flex} ${styles.calendar_header_group}`}>
+              <h2>Calendar</h2>
+              <p>🌚 = Orders</p>
+            </div>
+            <Calendar />
+          </div>
+        </SwipeableDrawer>
+
+        <div className="w-fit ml-auto">
+          <ButtonPrimary name="+ Create Order" />
+        </div>
+
+        <div className={`${styles.order_grid_box}`}>
+          {/* <div style={{ textAlign: "right", marginRight: "2rem" }}>
 						<SwapHorizIcon color="disabled" />
 					</div> */}
-					<OrderGrid />
-				</div>
-			</div>
-		);
-	};
+          <OrderGrid />
+        </div>
+      </div>
+    );
+  };
 
-	return (
-		<React.Fragment>
-			{mobileView()}
-			{desktopView()}
-		</React.Fragment>
-	);
+  return (
+    <React.Fragment>
+      {mobileView()}
+      {desktopView()}
+    </React.Fragment>
+  );
 }
 
 export default LiveOrders;
 
 export async function getServerSideProps(context) {
-	return isAuth(context, (userSession) => {
-		return {
-			props: {
-				userSession,
-			},
-		};
-	});
+  return isAuth(context, (userSession) => {
+    return {
+      props: {
+        userSession,
+      },
+    };
+  });
 }
 
 LiveOrders.getLayout = function getLayout(
-	page,
-	pageTitle,
-	pageIcon,
-	pageRoute,
-	mobilePageRoute
+  page,
+  pageTitle,
+  pageIcon,
+  pageRoute,
+  mobilePageRoute
 ) {
-	return (
-		<AppLayout
-			pageTitle={pageTitle}
-			pageIcon={pageIcon}
-			pageRoute={pageRoute}
-			mobilePageRoute={mobilePageRoute}
-		>
-			<LocalizationProvider dateAdapter={AdapterDayjs}>
-				{page}
-			</LocalizationProvider>
-		</AppLayout>
-	);
+  return (
+    <AppLayout
+      pageTitle={pageTitle}
+      pageIcon={pageIcon}
+      pageRoute={pageRoute}
+      mobilePageRoute={mobilePageRoute}
+    >
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {page}
+      </LocalizationProvider>
+    </AppLayout>
+  );
 };
 
 LiveOrders.pageTitle = "Live Orders";

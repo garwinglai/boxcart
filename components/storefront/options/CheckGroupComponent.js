@@ -69,6 +69,8 @@ function CheckGroupComponent({
               optionId,
             } = findCurrentOption;
 
+            const quantity = optionQuantity ? optionQuantity : null;
+
             selectedOptionValue =
               selectedOptionName +
               "-" +
@@ -76,7 +78,7 @@ function CheckGroupComponent({
               "-" +
               groupId +
               "-" +
-              optionQuantity +
+              quantity +
               "-" +
               optionGroupName +
               "-" +

@@ -1186,9 +1186,9 @@ function Availability({ userAccount }) {
       <div className="lg:flex">
         <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
           <div className="flex flex-col">
-            <h4>Set ordering hours</h4>
+            <h4>Set availability</h4>
             <p className="font-extralight text-xs">
-              If disabled, customers can order at anytime.
+              If disabled, customers can order for anytime.
             </p>
           </div>
           <IOSSwitch checked={hasCustomHours} onClick={handleSetHoursSwitch} />

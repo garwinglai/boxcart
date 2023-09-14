@@ -1,11 +1,10 @@
 import React from "react";
 import { TextField } from "@mui/material";
 
-// TODO: maybe don't store cc info, require customer to renter cc info on checkout, just store it to state for now
-
-function PaymentComponent() {
+function PaymentComponent({ paymentValues, handleCustomerPaymentChange }) {
+  const { nameOnCard, cardNumber, expDate, cvv, zip } = paymentValues;
   return (
-    <div className="px-4 py-6 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
+    <React.Fragment>
       <h3 className="font-medium">Payment:</h3>
       <div className="lg:px-12">
         <TextField
@@ -15,25 +14,24 @@ function PaymentComponent() {
           required
           type="text"
           fullWidth
-          autoComplete="cc-name"
-          // value={customerEmail}
+          value={nameOnCard}
           name="nameOnCard"
           color="warning"
           sx={{ marginTop: "1rem" }}
-          // onChange={handleCustomerInfoChange}
+          onChange={handleCustomerPaymentChange}
         />
         <TextField
           id="outlined-basic"
           label="Card number"
           variant="standard"
           required
-          type="text"
+          type="number"
           fullWidth
-          // value={customerEmail}
+          value={cardNumber}
           name="cardNumber"
           color="warning"
           sx={{ marginTop: "1rem" }}
-          // onChange={handleCustomerInfoChange}
+          onChange={handleCustomerPaymentChange}
         />
         <div className="flex w-full gap-2 mt-2">
           <TextField
@@ -42,11 +40,12 @@ function PaymentComponent() {
             variant="standard"
             fullWidth
             required
+            type="text"
             color="warning"
             placeholder="MM/YYYY"
-            // value={customerFName}
-            name="exp"
-            // onChange={handleCustomerInfoChange}
+            value={expDate}
+            name="expDate"
+            onChange={handleCustomerPaymentChange}
           />
           <TextField
             fullWidth
@@ -54,25 +53,27 @@ function PaymentComponent() {
             label="CVV"
             variant="standard"
             required
+            type="number"
             color="warning"
-            // value={customerLName}
+            value={cvv}
             name="cvv"
-            // onChange={handleCustomerInfoChange}
+            onChange={handleCustomerPaymentChange}
           />
           <TextField
             fullWidth
             id="outlined-basic"
             label="Zip"
             variant="standard"
+            type="number"
             required
             color="warning"
-            // value={customerLName}
+            value={zip}
             name="zip"
-            // onChange={handleCustomerInfoChange}
+            onChange={handleCustomerPaymentChange}
           />
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 }
 
