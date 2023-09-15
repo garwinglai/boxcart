@@ -259,6 +259,7 @@ function Sites({ siteData }) {
           handleOpenSnackbar={handleOpenSnackbar}
           userAccount={siteData}
         />
+
         <div className="md:flex md:justify-between">
           <div className="md:w-3/5 lg:w-2/5">
             <ShopBio isOwner={false} userAccount={siteData} />
@@ -298,6 +299,7 @@ function Sites({ siteData }) {
             </div>
           ) : (
             <div className="w-full lg:w-4/5 xl:w-10/12 h-full pb-16">
+              <button onClick={() => window.print()}>download now</button>
               <ShopMenu
                 isOwner={false}
                 categories={categories}
