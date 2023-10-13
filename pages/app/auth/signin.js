@@ -14,8 +14,8 @@ import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
 
 const adminLoginTemp = {
-  email: "garwingl@usc.edu",
-  password: "asdfghjkl",
+  // email: "garwingl@usc.edu",
+  // password: "asdfghjkl",
 };
 
 const Signin = () => {
