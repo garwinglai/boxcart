@@ -1536,7 +1536,7 @@ function Signup({ nextAccountId }) {
                 </div>
               </div>
               <p className="text-sm font-light mt-4">
-                We recommend to use your business name. (Only hyphens ' - ' are
+                We recommend to use your business name. (Only hyphens are
                 allowed as special characters.)
               </p>
             </div>
