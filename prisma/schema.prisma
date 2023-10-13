@@ -45,68 +45,91 @@ model User {
 }
 
 model Account {
-  id                     Int                  @id @default(autoincrement())
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-  isFreePeriodActive     Boolean              @default(true)
-  freePeriodEndDateStr   String?
-  freePeriodEndDateEpoch String?
-  isFirstLogin           Boolean              @default(true)
-  email                  String               @unique
-  isEmailVerified        Boolean              @default(false)
-  userName               String
-  firstName              String
-  lastName               String
+  id                              Int                  @id @default(autoincrement())
+  createdAt                       DateTime             @default(now())
+  updatedAt                       DateTime             @updatedAt
+  isFreePeriodActive              Boolean              @default(true)
+  freePeriodEndDateStr            String?
+  freePeriodEndDateEpoch          String?
+  isFirstLogin                    Boolean              @default(true)
+  isActive                        Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
+  isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isBetaPromoActive               Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
+  isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
+  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
+  email                           String               @unique
+  isEmailVerified                 Boolean              @default(false)
+  userName                        String
+  firstName                       String
+  lastName                        String
   // accessCode             String?        @unique
-  businessName           String
-  subdomain              String               @unique
-  businessTypes          BusinessType[]
+  businessName                    String
+  subdomain                       String               @unique
+  fullDomain                      String               @unique
+  businessTypes                   BusinessType[]
   // logoImgStr             String?
-  logoImageFileName      String?
-  logoImage              String?              @db.Text
-  bannerImageFileName    String?
-  bannerImage            String?              @db.Text
-  businessBio            String?              @db.VarChar(255)
-  socials                Social[]
-  subscriberCount        Int                  @default(0)
-  subscribers            Subscriber[]
-  contacts               Contact[]
-  fulfillmentMethodInt   Int // 0: delivery, 1: pickup, 2: both
-  fulfillmentMethods     Fulfillment[]
-  address_1              String
-  address_2              String?
-  city                   String
-  state                  String
-  zip                    String
-  fullAddress            String
-  lat                    Float?
-  lng                    Float?
-  geohash                String?
-  enableTips             Boolean              @default(false)
-  tips                   Tips?
-  tax                    Tax?
-  user                   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                 Int
-  // new updates to check
-  isActive               Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
-  isBetaUser             Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  isBetaPromoActive      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  isChecklistComplete    Boolean              @default(false) // Default false until checklist is complete.
-  hasPremiumPlan         Boolean              @default(false) // Default false until user pays for premium plan.
-  hasPaymentMethod       Boolean              @default(false)
-  requireDeposit         Boolean              @default(false)
-  acceptedPayments       AcceptedPayment[]
-  deposit                Deposit?
-  savedPaymentMethods    SavedPaymentMethod[]
-  premiumPlan            PremiumPlan[]
-  checklist              Checklist?
-  products               Product[]
-  categories             Category[]
-  availability           Availability?
-  orders                 Order[]
-  taxId                  Int?
+  logoImageFileName               String?
+  logoImage                       String?              @db.Text
+  bannerImageFileName             String?
+  bannerImage                     String?              @db.Text
+  businessBio                     String?              @db.VarChar(255)
+  socials                         Social[]
+  subscriberCount                 Int                  @default(0)
+  subscribers                     Subscriber[]
+  contacts                        Contact[]
+  fulfillmentMethodInt            Int // 0: delivery, 1: pickup, 2: both
+  fulfillmentMethods              Fulfillment[]
+  address_1                       String
+  address_2                       String?
+  city                            String
+  state                           String
+  zip                             String
+  fullAddress                     String
+  lat                             Float?
+  lng                             Float?
+  geohash                         String?
+  enableTips                      Boolean              @default(false)
+  tips                            Tips?
+  tax                             Tax?
+  user                            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                          Int
+  // hasPaymentMethod       Boolean              @default(false)
+  requireDeposit                  Boolean              @default(false)
+  customers                       Customer[]
+  acceptedPayments                AcceptedPayment[]
+  deposit                         Deposit?
+  savedPaymentMethods             SavedPaymentMethod[]
+  premiumPlan                     PremiumPlan[]
+  checklist                       Checklist?
+  products                        Product[]
+  categories                      Category[]
+  availability                    Availability?
+  orders                          Order[]
+  taxId                           Int?
 
   @@index([userId])
+}
+
+model Customer {
+  id              Int     @id @default(autoincrement())
+  name            String
+  fName           String
+  lName           String
+  phoneNum        String?
+  email           String  @unique
+  stripeId        String?
+  deliveryAddress String?
+  // address_1       String?
+  // address_2       String?
+  // city            String?
+  // state           String?
+  // zip             String?
+  orders          Order[]
+  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId       Int
+
+  @@index([accountId])
 }
 
 model Tax {
@@ -121,47 +144,54 @@ model Tax {
 }
 
 model Order {
-  id                  Int         @id @default(autoincrement())
-  orderId             String      @unique
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  orderItems          OrderItem[]
-  customerName        String
-  customerFName       String
-  customerLName       String
-  customerEmail       String
-  customerPhone       String?
-  deliveryAddress     String?
-  requireOrderTime    Boolean     @default(false)
-  requireOrderDate    Boolean     @default(false)
-  orderForDate        String? //epoch in milliseconds
-  orderForDateDisplay String?
-  orderForTime        String? //epoch in milliseconds
-  orderForTimeDisplay String?
-  fulfillmentType     Int // 0: delivery, 1: pickup
-  fulfillmentDisplay  String //"delivery", "pickup"
-  subtotalPenny       Int
-  subtotalDisplay     String
-  taxRate             Float?
-  taxRateDisplay      String?
-  orderStatus         String      @default("pending") // "pending", "cmpleted", "canceled"
-  // stripeFeePenny      Int?
+  id                          Int         @id @default(autoincrement())
+  orderId                     String      @unique
+  stripeOrderId               String?
+  stripeErrorType             String? //validation_error, unknown_error, card_error
+  stripeErrorMessage          String?
+  createdAt                   DateTime    @default(now())
+  updatedAt                   DateTime    @updatedAt
+  orderItems                  OrderItem[]
+  deliveryAddress             String?
+  requireOrderTime            Boolean     @default(false)
+  requireOrderDate            Boolean     @default(false)
+  orderForDate                String? //epoch in milliseconds
+  orderForDateDisplay         String?
+  orderForTime                String? //epoch in milliseconds
+  orderForTimeDisplay         String?
+  fulfillmentType             Int // 0: delivery, 1: pickup
+  fulfillmentDisplay          String //"delivery", "pickup"
+  subtotalPenny               Int
+  subtotalDisplay             String
+  taxRate                     Float?
+  taxRateDisplay              String?
+  orderStatus                 String      @default("pending") // "pending", "cmpleted", "canceled"
+  paymentStatus               String // if cc: "processing", "paid", "failed", "refunded", "canceled", "unpaid", "error" 
+  paymentMethod               String? // "card", "venmo", "cash" .. etc.
+  paymentAccount              String? // account for venmo, paypal, zelle, etc.
+  paymentInstructions         String?
+  // stripeFeePenny      Int? 
   // stripeFeeDisplay    String?
-  cardFeePenny        Int?
-  cardFeeDisplay      String?
-  taxAndFeesPenny     Int?
-  taxAndFeesDisplay   String?
-  deliveryFeePenny    Int?
-  deliveryFeeDisplay  String?
-  tipPenny            Int?
-  tipDisplay          String?
-  totalPenny          Int
-  totalDisplay        String
-  totalItems          Int
-  account             Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId           Int
+  cardFeePenny                Int?
+  cardFeeDisplay              String?
+  taxAndFeesPenny             Int?
+  taxAndFeesDisplay           String?
+  deliveryFeePenny            Int?
+  deliveryFeeDisplay          String?
+  tipPenny                    Int?
+  tipDisplay                  String?
+  totalPenny                  Int
+  totalDisplay                String
+  totalAfterStripeFeesPenny   Int?
+  totalAfterStripeFeesDisplay String?
+  totalItemsOrdered           Int
+  account                     Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId                   Int
+  customer                    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId                  Int
 
   @@index([accountId])
+  @@index([customerId])
 }
 
 model OrderItem {
@@ -249,9 +279,12 @@ model Subscriber {
   @@index([accountId])
 }
 
-// TODO figure out schema for stripe
 model AcceptedPayment {
   id                  Int      @id @default(autoincrement())
+  isEnabled           Boolean  @default(false)
+  details_submitted   Boolean?
+  charged_enabled     Boolean?
+  stripeAccountId     String?  @unique
   paymentMethod       String
   paymentAccount      String?
   paymentInstructions String?
@@ -464,6 +497,10 @@ model Checklist {
   isPaymentsSet            Boolean @default(false)
   hasViewedSupportChannels Boolean @default(false)
   hasViewedShareStore      Boolean @default(false)
+  hasLogo                  Boolean @default(false)
+  hasBanner                Boolean @default(false)
+  requireAvailability      Boolean @default(false)
+  isAvailabilitySet        Boolean @default(false)
   subdomain                String? @unique
   account                  Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId                Int     @unique
@@ -503,11 +540,8 @@ model SavedPaymentMethod {
   cardExpirationStr   String?
   cardExpirationEpoch String?
   cardNumber          Int?
-  userName            String?
-  businessName        String?
-  email               String?
-  account             Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId           Int?
+  account             Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId           Int
 
   @@index([accountId])
 }

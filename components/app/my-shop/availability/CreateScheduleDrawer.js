@@ -13,6 +13,11 @@ import {
   createDatesRangedAvailabilityClient,
   createDaysOfWeekAvailabilityClient,
 } from "@/helper/client/api/availability/availability-crud";
+import { useChecklistStore } from "@/lib/store";
+import {
+  updateAvailabilityChecklistClient,
+  updateIsChecklistComplete,
+} from "@/helper/client/api/checklist";
 
 function CreateScheduleDrawer({
   toggleDrawer,
@@ -21,6 +26,9 @@ function CreateScheduleDrawer({
   availability,
   getAvailabilities,
 }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
   const [timeOptions, setTimeOptions] = useState([]);
   const [scheduleType, setScheduleType] = useState("date");
   const [specificDateValues, setSpecificDateValues] = useState({
@@ -153,6 +161,9 @@ function CreateScheduleDrawer({
 
   const handleSave = async (e) => {
     setIsLoading(true);
+
+    let availId;
+
     if (scheduleType === "date") {
       // check if all fields are filled if not, return
       if (
@@ -186,18 +197,14 @@ function CreateScheduleDrawer({
 
       const { success, value, error } = await createSpecificDate();
 
-      if (success) {
-        const { availabilityId } = value;
-        handleOpenSnackbar("Schedule created successfully.");
-        getAvailabilities(availabilityId);
+      if (!success) {
+        handleOpenSnackbar("Something went wrong. Please try again.");
         setIsLoading(false);
-        toggleDrawer(e);
         return;
       }
 
-      handleOpenSnackbar("Something went wrong. Please try again.");
-      setIsLoading(false);
-      return;
+      const { availabilityId } = value;
+      availId = availabilityId;
     }
 
     if (scheduleType === "range") {
@@ -252,18 +259,14 @@ function CreateScheduleDrawer({
 
       const { success, value, error } = await createRangeDate();
 
-      if (success) {
-        const { availabilityId } = value;
-        handleOpenSnackbar("Schedule created successfully.");
-        getAvailabilities(availabilityId);
+      if (!success) {
+        handleOpenSnackbar("Something went wrong. Please try again.");
         setIsLoading(false);
-        toggleDrawer(e);
         return;
       }
 
-      handleOpenSnackbar("Something went wrong. Please try again.");
-      setIsLoading(false);
-      return;
+      const { availabilityId } = value;
+      availId = availabilityId;
     }
 
     if (scheduleType === "week") {
@@ -295,18 +298,64 @@ function CreateScheduleDrawer({
 
       const { success, value, error } = await createWeekDate();
 
-      if (success) {
-        const { availabilityId } = value;
-        handleOpenSnackbar("Schedule created successfully.");
-        getAvailabilities(availabilityId);
+      if (!success) {
+        handleOpenSnackbar("Something went wrong. Please try again.");
         setIsLoading(false);
-        toggleDrawer(e);
         return;
       }
 
-      handleOpenSnackbar("Something went wrong. Please try again.");
-      setIsLoading(false);
-      return;
+      const { availabilityId } = value;
+      availId = availabilityId;
+    }
+
+    updateChecklist();
+    handleOpenSnackbar("Schedule created successfully.");
+    getAvailabilities(availId);
+    setIsLoading(false);
+    toggleDrawer(e);
+  };
+
+  const updateChecklist = async () => {
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
+
+    if (!requireAvailability) return;
+    if (isChecklistComplete || isAvailabilitySet) return;
+
+    const isAvailSet = true;
+
+    setChecklistStore({ isAvailabilitySet: isAvailSet });
+
+    const { success, value, error } = await updateAvailabilityChecklistClient(
+      accountId,
+      isAvailSet
+    );
+
+    if (!success) {
+      console.log("error updating checklist for product:", error);
+      //TODO: handle error for not being able to update checklist.
+    }
+
+    if (
+      isEmailVerified &&
+      isProductsUploaded &&
+      isDeliverySet &&
+      isPaymentsSet
+    ) {
+      const checklistCompleted = true;
+      updateIsChecklistComplete(accountId, checklistCompleted);
+      setChecklistStore({ isChecklistComplete: checklistCompleted });
     }
   };
 

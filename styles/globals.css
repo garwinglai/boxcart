@@ -36,6 +36,7 @@
   --gray-light: #dfdfdf80;
   --badge: #ff9500;
   --error: rgb(254, 78, 78);
+  --error-light: rgb(253, 239, 239);
   --success: rgb(75, 255, 126);
   --desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
     rgba(0, 0, 0, 0.24) 0px 1px 2px;
@@ -43,6 +44,8 @@
   --brown-bg-soft: #fbf1e4;
   --brown-bg-switch: #633e11;
   --brown-text: #7d3e1e;
+  --purple: #e302f3;
+  --purple-light: #fde8ff;
   --primary: #7e3815;
   --primary-light: #eeaa88;
   --primary-light-soft: #ffe8dd;

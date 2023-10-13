@@ -19,9 +19,7 @@ import Alert from "@mui/material/Alert";
 import { businessTypesArr } from "@/helper/temp/tempData";
 import SignupFormAddress from "@/components/auth/signup/SignupFormAddress";
 import SignupFormDistance from "@/components/auth/signup/SignupFormDistance";
-import SignupFormEnableTips from "@/components/auth/signup/SignupFormEnableTips";
 import CredentialsForm from "@/components/auth/CredentialsForm";
-import SignupFormSetTip from "@/components/auth/signup/SignupFormSetTip";
 import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { newUserSignup } from "@/helper/client/api/auth/registration";
@@ -29,7 +27,6 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
-import { setLocalStorage } from "@/utils/clientStorage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useAccountStore } from "@/lib/store";
 import prisma from "@/lib/prisma";
@@ -62,7 +59,7 @@ function Signup({ nextAccountId }) {
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
-  const [maxSteps, setMaxSteps] = useState(12);
+  const [maxSteps, setMaxSteps] = useState(10);
   const [isLastStep, setIsLastStep] = useState(false);
   const [canSkip, setCanSkip] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -101,7 +98,7 @@ function Signup({ nextAccountId }) {
     state: "",
     zip: "",
     fullAddress: "",
-    enableTips: true,
+    enableTips: false,
     typeOfTip: "percentage",
     tipValues: {
       tip1: {
@@ -249,26 +246,26 @@ function Signup({ nextAccountId }) {
     if (fulfillmentMethodInt == 0) {
       if (deliveryTypeInt == 0) {
         if (enableTips) {
-          setMaxSteps(13);
+          setMaxSteps(11);
           if (step == 12) {
             setIsLastStep(true);
           }
         } else {
-          setMaxSteps(12);
-          if (step == 11) {
+          setMaxSteps(10);
+          if (step == 10) {
             setIsLastStep(true);
           }
         }
       }
       if (deliveryTypeInt == 1) {
         if (enableTips) {
-          setMaxSteps(14);
+          setMaxSteps(12);
           if (step == 13) {
             setIsLastStep(true);
           }
         } else {
-          setMaxSteps(13);
-          if (step == 12) {
+          setMaxSteps(11);
+          if (step == 11) {
             setIsLastStep(true);
           }
         }
@@ -277,13 +274,13 @@ function Signup({ nextAccountId }) {
 
     if (fulfillmentMethodInt == 1) {
       if (enableTips) {
-        setMaxSteps(13);
+        setMaxSteps(11);
         if (step == 12) {
           setIsLastStep(true);
         }
       } else {
-        setMaxSteps(12);
-        if (step == 11) {
+        setMaxSteps(10);
+        if (step == 10) {
           setIsLastStep(true);
         }
       }
@@ -292,13 +289,13 @@ function Signup({ nextAccountId }) {
     if (fulfillmentMethodInt == 2) {
       if (deliveryTypeInt == 0) {
         if (enableTips) {
-          setMaxSteps(14);
+          setMaxSteps(12);
           if (step == 13) {
             setIsLastStep(true);
           }
         } else {
-          setMaxSteps(13);
-          if (step == 12) {
+          setMaxSteps(11);
+          if (step == 11) {
             setIsLastStep(true);
           }
         }
@@ -306,13 +303,13 @@ function Signup({ nextAccountId }) {
 
       if (deliveryTypeInt == 1) {
         if (enableTips) {
-          setMaxSteps(15);
+          setMaxSteps(13);
           if (step == 14) {
             setIsLastStep(true);
           }
         } else {
-          setMaxSteps(14);
-          if (step == 13) {
+          setMaxSteps(12);
+          if (step == 12) {
             setIsLastStep(true);
           }
         }
@@ -428,7 +425,6 @@ function Signup({ nextAccountId }) {
         const isValid = checkSubdomainValidEntry(subdomain);
         if (!isValid) return;
 
-        const fullSubdomain = subdomain + ".boxcart.shop";
         setIsLoading(true);
 
         // * Currently only allowing all users with access code to join. Don't need to check if avail in waitlist b/c subdomain will be pulled from waitlist user.
@@ -436,9 +432,7 @@ function Signup({ nextAccountId }) {
         //   fullSubdomain
         // );
 
-        const { success, value } = await checkSubdomainTakenAccount(
-          fullSubdomain
-        );
+        const { success, value } = await checkSubdomainTakenAccount(subdomain);
 
         if (!success) {
           setOpenError(true);
@@ -943,8 +937,6 @@ function Signup({ nextAccountId }) {
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 
-    console.log("success user", user);
-
     const { accounts } = user;
 
     if (success) {
@@ -971,11 +963,8 @@ function Signup({ nextAccountId }) {
               isPaymentsSet: false,
               isProductsUploaded: false,
             };
-            const checklistString = JSON.stringify(checklist);
 
             sendVerificationEmail(userId, accountId, email);
-            setLocalStorage("isChecklistComplete", "false");
-            setLocalStorage("checklist", checklistString);
             setAccountStore(account, logoImg);
 
             const signedInRoute =
@@ -1028,6 +1017,7 @@ function Signup({ nextAccountId }) {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
     } = account;
 
     const storedAccount = {
@@ -1039,6 +1029,7 @@ function Signup({ nextAccountId }) {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
     };
 
     setAccount(storedAccount);
@@ -1047,7 +1038,7 @@ function Signup({ nextAccountId }) {
   const storeLogoImageFirebase = async (logoFile, subdomain) => {
     const logoRef = ref(
       storage,
-      `account/${subdomain}.boxcart.shop/profile/logo/${logoFile.name}`
+      `account/${subdomain}/profile/logo/${logoFile.name}`
     );
 
     try {
@@ -1113,10 +1104,11 @@ function Signup({ nextAccountId }) {
     }
 
     const date = new Date();
-    date.setMonth(date.getMonth() + 2);
+    date.setMonth(date.getMonth() + 1);
     const endToday = date.setHours(23, 59, 59, 999);
     const freePeriodEndDateStr = new Date(endToday);
     const freePeriodEndDateEpoch = Date.parse(freePeriodEndDateStr);
+    const fullDomain = subdomain + ".boxcart.shop";
 
     const userData = {
       firstName,
@@ -1140,7 +1132,8 @@ function Signup({ nextAccountId }) {
       lastName,
       accessCode,
       businessName,
-      subdomain: subdomain + ".boxcart.shop",
+      subdomain,
+      fullDomain,
       logoImageFileName,
       logoImage: logoImg,
       businessBio,
@@ -1156,36 +1149,6 @@ function Signup({ nextAccountId }) {
     };
 
     const businessTypeData = [...businessTypes, ...otherBusinessType];
-    const tipsData = {
-      type: typeOfTip,
-      tipOneStr: tip1.tipStr,
-      tipOneIntPenny:
-        typeOfTip === "dollar"
-          ? parseInt((parseFloat(tip1.tipInt) * 100).toFixed(2))
-          : null,
-      tipOnePercent:
-        typeOfTip === "percentage"
-          ? parseFloat(parseFloat(tip1.tipInt).toFixed(2))
-          : null,
-      tipTwoStr: tip2.tipStr,
-      tipTwoIntPenny:
-        typeOfTip === "dollar"
-          ? parseInt((parseFloat(tip2.tipInt) * 100).toFixed(2))
-          : null,
-      tipTwoPercent:
-        typeOfTip === "percentage"
-          ? parseFloat(parseFloat(tip2.tipInt).toFixed(2))
-          : null,
-      tipThreeStr: tip3.tipStr,
-      tipThreeIntPenny:
-        typeOfTip === "dollar"
-          ? parseInt((parseFloat(tip3.tipInt) * 100).toFixed(2))
-          : null,
-      tipThreePercent:
-        typeOfTip === "percentage"
-          ? parseFloat(parseFloat(tip3.tipInt).toFixed(2))
-          : null,
-    };
 
     const fulfillmentData = fulfillmentMethods.map((method) => {
       if (method === "delivery") {
@@ -1258,7 +1221,6 @@ function Signup({ nextAccountId }) {
       businessTypeData,
       socialsData,
       fulfillmentData,
-      tipsData,
     };
 
     return newUserData;
@@ -1443,7 +1405,7 @@ function Signup({ nextAccountId }) {
       localDeliveryDistanceKm: kilometers,
     }));
   }
-
+  console.log(step, deliveryTypeInt, fulfillmentMethodInt, enableTips);
   return (
     <div className={`${styles.signup} bg-[color:var(--brown-bg)] min-h-screen`}>
       <Snackbar open={openError} onClose={handleCloseSnackbar}>
@@ -1451,7 +1413,7 @@ function Signup({ nextAccountId }) {
       </Snackbar>
       <div className=" lg:px-52">
         <h2 className={`${styles.boxcart_logo}`}>BoxCart</h2>
-        <LinearProgressWithLabel value={((step - 1) / maxSteps) * 100} />
+        <LinearProgressWithLabel value={(step / maxSteps) * 100} />
       </div>
       <div className="md:mt-4 md:px-32">
         <form onSubmit={handleSignup} className={`${styles.form_box}`}>
@@ -1574,8 +1536,8 @@ function Signup({ nextAccountId }) {
                 </div>
               </div>
               <p className="text-sm font-light mt-4">
-                We recommend to use your business name so customers can
-                recognize your business.
+                We recommend to use your business name. (Only hyphens ' - ' are
+                allowed as special characters.)
               </p>
             </div>
           )}
@@ -1895,7 +1857,7 @@ function Signup({ nextAccountId }) {
             </div>
           )}
 
-          {((step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+          {/* {((step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
             (step == 10 && fulfillmentMethodInt == 1) ||
             (step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
             (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
@@ -1935,42 +1897,15 @@ function Signup({ nextAccountId }) {
                 onChangeTipValues={onChangeTipValues}
               />
             </div>
-          )}
+          )} */}
 
-          {((step == 11 &&
-            fulfillmentMethodInt == 0 &&
-            deliveryTypeInt == 0 &&
-            !enableTips) ||
-            (step == 11 && fulfillmentMethodInt == 1 && !enableTips) ||
-            (step == 12 &&
-              fulfillmentMethodInt == 0 &&
-              deliveryTypeInt == 0 &&
-              enableTips) ||
-            (step == 12 && fulfillmentMethodInt == 1) ||
-            (step == 12 &&
-              fulfillmentMethodInt == 0 &&
-              deliveryTypeInt == 1 &&
-              !enableTips) ||
+          {((step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+            (step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
+            (step == 10 && fulfillmentMethodInt == 1) ||
+            (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
             (step == 12 &&
               fulfillmentMethodInt == 2 &&
-              deliveryTypeInt == 0 &&
-              !enableTips) ||
-            (step == 13 &&
-              fulfillmentMethodInt == 0 &&
-              deliveryTypeInt == 1 &&
-              enableTips) ||
-            (step == 13 &&
-              fulfillmentMethodInt == 2 &&
-              deliveryTypeInt == 0 &&
-              enableTips) ||
-            (step == 13 &&
-              fulfillmentMethodInt == 2 &&
-              deliveryTypeInt == 1 &&
-              !enableTips) ||
-            (step == 14 &&
-              fulfillmentMethodInt == 2 &&
-              deliveryTypeInt == 1 &&
-              enableTips)) && (
+              deliveryTypeInt == 1)) && (
             <div className={`${styles.form_section_group}`}>
               <CredentialsForm
                 signupValues={signupValues}

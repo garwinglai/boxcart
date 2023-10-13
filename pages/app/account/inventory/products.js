@@ -50,7 +50,6 @@ function Products({ userAccount }) {
 
     if (success) {
       const { products } = value;
-      console.log("products:", products);
       setCurrProducts(products);
       return;
     }
@@ -164,7 +163,7 @@ function Products({ userAccount }) {
           onClose={handleCloseSnackbar}
           message={snackbarMessage}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-          // action={action}
+          action={action}
         />
         <Snackbar
           open={snackbarOpenGlobal}

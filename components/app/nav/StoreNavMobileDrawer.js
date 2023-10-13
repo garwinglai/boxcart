@@ -21,83 +21,95 @@ import PaymentIcon from "@mui/icons-material/Payment";
 const drawerBleeding = 56;
 
 const Root = styled("div")(({ theme }) => ({
-	height: "100%",
-	backgroundColor:
-		theme.palette.mode === "light"
-			? grey[100]
-			: theme.palette.background.default,
+  height: "100%",
+  backgroundColor:
+    theme.palette.mode === "light"
+      ? grey[100]
+      : theme.palette.background.default,
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
-	backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
+  backgroundColor: theme.palette.mode === "light" ? "#fff" : grey[800],
 }));
 
 const Puller = styled(Box)(({ theme }) => ({
-	width: 30,
-	height: 6,
-	backgroundColor: theme.palette.mode === "light" ? grey[300] : grey[900],
-	borderRadius: 3,
-	position: "absolute",
-	top: 8,
-	left: "calc(50% - 15px)",
+  width: 30,
+  height: 6,
+  backgroundColor: theme.palette.mode === "light" ? grey[300] : grey[900],
+  borderRadius: 3,
+  position: "absolute",
+  top: 8,
+  left: "calc(50% - 15px)",
 }));
 
-function StoreNavMobileDrawer({ state, toggleDrawer }) {
-	return (
-		<Drawer
-			anchor={"bottom"}
-			open={state["bottom"]}
-			onClose={toggleDrawer("bottom", false)}
-		>
-			<DrawerHeader
-				title={"Store Menu"}
-				icon={<StorefrontOutlinedIcon />}
-				toggleDrawer={toggleDrawer}
-			/>
-			<div className="flex flex-col p-4 gap-2">
-				<Link
-					href="/account/my-shop"
-					onClick={toggleDrawer("bottom", false)}
-					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
-				>
-					<span className="flex items-center gap-4 justify-start">
-						<LocalMallIcon fontSize="small" />
-						My shop
-					</span>
-				</Link>
-				<Link
-					href="/account/my-shop/availability"
-					onClick={toggleDrawer("bottom", false)}
-					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
-				>
-					<span className="flex items-center gap-4 justify-start">
-						<EventIcon fontSize="small" />
-						Availability
-					</span>
-				</Link>
-				<Link
-					href="/account/my-shop/fulfillment"
-					onClick={toggleDrawer("bottom", false)}
-					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
-				>
-					<span className="flex items-center gap-4 justify-start">
-						<DeliveryDiningIcon fontSize="small" />
-						Fulfillment
-					</span>
-				</Link>
-				<Link
-					href="/account/my-shop/payments"
-					onClick={toggleDrawer("bottom", false)}
-					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
-				>
-					<span className="flex items-center gap-4 justify-start">
-						<PaymentIcon fontSize="small" />
-						Payments
-					</span>
-				</Link>
-			</div>
-		</Drawer>
-	);
+function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
+  return (
+    <Drawer
+      anchor={"bottom"}
+      open={state["bottom"]}
+      onClose={toggleDrawer("bottom", false)}
+    >
+      <DrawerHeader
+        title={"Store Menu"}
+        icon={<StorefrontOutlinedIcon />}
+        toggleDrawer={toggleDrawer}
+      />
+      <div className="flex flex-col p-4 gap-2">
+        <Link
+          href="/account/my-shop"
+          onClick={toggleDrawer("bottom", false)}
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+            mobilePageRoute === "my-shop" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-start">
+            <LocalMallIcon fontSize="small" />
+            My shop
+          </span>
+        </Link>
+        <Link
+          href="/account/my-shop/availability"
+          onClick={toggleDrawer("bottom", false)}
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+            mobilePageRoute === "availability" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-start">
+            <EventIcon fontSize="small" />
+            Availability
+          </span>
+        </Link>
+        <Link
+          href="/account/my-shop/fulfillment"
+          onClick={toggleDrawer("bottom", false)}
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+            mobilePageRoute === "fulfillment" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-start">
+            <DeliveryDiningIcon fontSize="small" />
+            Fulfillment
+          </span>
+        </Link>
+        <Link
+          href="/account/my-shop/payments"
+          onClick={toggleDrawer("bottom", false)}
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+            mobilePageRoute === "payments" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-start">
+            <PaymentIcon fontSize="small" />
+            Payments
+          </span>
+        </Link>
+      </div>
+    </Drawer>
+  );
 }
 
 export default StoreNavMobileDrawer;

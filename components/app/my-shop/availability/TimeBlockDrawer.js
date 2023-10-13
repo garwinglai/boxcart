@@ -93,7 +93,9 @@ function TimeBlockDrawer({
         <h4 className="">Set order intervals.</h4>
         <p className="font-light text-sm">
           This will allow your customers to place orders within the set time
-          interval. <br /> (e.g. customers can only order every 15 minutes.)
+          interval. <br /> (e.g. customers can place orders or pickup every{" "}
+          <b>{timeBlockValue}</b>
+          .)
         </p>
         <div className="border-b">
           <FormControl

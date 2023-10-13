@@ -157,6 +157,7 @@ function ShopNavBottom({ mobilePageRoute }) {
         <OrdersNavMobileDrawer
           state={ordersDrawer}
           toggleDrawer={toggleDrawerOrders}
+          mobilePageRoute={mobilePageRoute}
         />
       </div>
       <div className="flex flex-col items-center">
@@ -205,6 +206,7 @@ function ShopNavBottom({ mobilePageRoute }) {
         <StoreNavMobileDrawer
           state={storeDrawer}
           toggleDrawer={toggleDrawerStore}
+          mobilePageRoute={mobilePageRoute}
         />
       </div>
     </nav>

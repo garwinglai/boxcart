@@ -95,7 +95,13 @@ function CartItem({
       <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
         <div className="min-w-[5rem] h-[5rem] relative">
           <Image
-            src={orderSubmitted ? productImage : defaultImage}
+            src={
+              isBusiness
+                ? productImage
+                : orderSubmitted
+                ? productImage
+                : defaultImage
+            }
             alt="product image"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -111,8 +117,8 @@ function CartItem({
               if (!optionGroupName) return;
               return (
                 <div key={idx} className="flex gap-2">
-                  <p className="font-medium">{optionGroupName}:</p>
-                  <p className="font-light">{optionsDisplay}</p>
+                  <p className="font-medium text-sm">{optionGroupName}:</p>
+                  <p className="font-light text-sm">{optionsDisplay}</p>
                 </div>
               );
             })}
@@ -122,19 +128,26 @@ function CartItem({
 
               return (
                 <div key={idx} className="gap-2">
-                  <p className="font-medium">{question}</p>
-                  <p className="font-light">{answer}</p>
+                  <p className="font-medium text-sm">{question}</p>
+                  <p className="font-light text-sm">{answer}</p>
                 </div>
               );
             })}
           {customNote && (
             <div className="flex gap-2">
-              <p className="font-medium">Note:</p>
-              <p className="font-light">{customNote}</p>
+              <p className="font-medium text-sm">Note:</p>
+              <p className="font-light text-sm">{customNote}</p>
             </div>
           )}
-          {!isBusiness && (
-            <div className="flex justify-between items-center">
+
+          <div className="flex justify-between items-center">
+            {isBusiness || orderSubmitted ? (
+              <div className="flex gap-2 items-center  ">
+                <div className="">
+                  <p className="text-sm font-bold">Qty: {quantity}</p>
+                </div>
+              </div>
+            ) : (
               <div className="flex gap-2 items-center  ">
                 {quantity > 1 ? (
                   <IconButton
@@ -159,9 +172,9 @@ function CartItem({
                   <AddIcon fontSize="small" />
                 </IconButton>
               </div>
-              <h5 className="font-medium">{priceDisplay}</h5>
-            </div>
-          )}
+            )}
+            <h5 className="font-medium">{priceDisplay}</h5>
+          </div>
         </div>
       </div>
       <div className={`${styles.flexCol} ${styles.cart_item_uploads_box}`}>
@@ -184,12 +197,11 @@ function CartItem({
         <div className={`${styles.flex} ${styles.example_images_box}`}>
           {orderExampleImages.length > 0 ? (
             orderExampleImages.map((imageData, idx) => {
-              console.log("imageData", imageData)
               const { imageFile, fileName, imgUrl, image } = imageData;
               return (
                 <div key={idx} className="w-[5rem] h-[5rem] relative">
                   <Image
-                    src={orderSubmitted ? image : imgUrl}
+                    src={isBusiness || orderSubmitted ? image : imgUrl}
                     fill
                     alt="customer uploaded images"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

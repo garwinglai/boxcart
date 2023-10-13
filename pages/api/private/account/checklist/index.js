@@ -1,9 +1,11 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
 import { checkIsChecklistCompleteServer } from "@/helper/server/prisma/account/account-schema";
 import {
+  updateAvailabilityChecklistServer,
   updateFulfillmentChecklistServer,
   updatePaymentChecklistServer,
   updateProductVerifiedChecklistServer,
+  updateViewStoreChecklistServer,
 } from "@/helper/server/prisma/checklist";
 
 export default async function handler(req, res) {
@@ -29,12 +31,12 @@ export default async function handler(req, res) {
   }
 
   if (method === "POST") {
-    const { accountId, updateKey } = query;
-    const accoundIdInt = parseInt(accountId);
+    const { accountId, updateKey, updateValue } = query;
+    const accountIdInt = parseInt(accountId);
 
     if (updateKey === "productVerified") {
       const resAccount = await updateProductVerifiedChecklistServer(
-        accoundIdInt
+        accountIdInt
       );
       const { success, value } = resAccount;
 
@@ -46,7 +48,7 @@ export default async function handler(req, res) {
     }
 
     if (updateKey === "fulfillmentVerified") {
-      const resAccount = await updateFulfillmentChecklistServer(accoundIdInt);
+      const resAccount = await updateFulfillmentChecklistServer(accountIdInt);
       const { success, value } = resAccount;
 
       if (success) {
@@ -57,7 +59,32 @@ export default async function handler(req, res) {
     }
 
     if (updateKey === "paymentVerified") {
-      const resAccount = await updatePaymentChecklistServer(accoundIdInt);
+      const resAccount = await updatePaymentChecklistServer(accountIdInt);
+      const { success, value } = resAccount;
+
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
+    }
+
+    if (updateKey === "availabilityVerified") {
+      const resAccount = await updateAvailabilityChecklistServer(
+        accountIdInt,
+        updateValue
+      );
+      const { success, value } = resAccount;
+
+      if (success) {
+        res.status(200).json(value);
+      } else {
+        res.status(500).json(value);
+      }
+    }
+
+    if (updateKey === "viewStoreVerified") {
+      const resAccount = await updateViewStoreChecklistServer(accountIdInt);
       const { success, value } = resAccount;
 
       if (success) {

@@ -1047,6 +1047,7 @@ export async function getServerSideProps(context) {
       id,
     },
     include: {
+      account: true,
       images: true,
       optionGroups: {
         include: {
@@ -1056,7 +1057,26 @@ export async function getServerSideProps(context) {
       questions: true,
     },
   });
-  console.log("product", product);
+
+  if (!product) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  const { account } = product;
+
+  if (!account.isChecklistComplete) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   const serializedProduct = JSON.parse(JSON.stringify(product));
 

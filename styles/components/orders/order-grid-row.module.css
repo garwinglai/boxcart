@@ -65,36 +65,51 @@
   border-end-end-radius: 5px;
 }
 
-.pending_text {
+.status_text {
   font-weight: 300;
   width: fit-content;
   font-size: 12px;
-  padding: 2px 4px;
+  padding: 0 8px;
   border-radius: 4px;
-  color: var(--white);
-  color: rgb(255, 119, 0);
-  background-color: rgb(255, 239, 216);
-  border: 1px solid rgb(255, 119, 0);
 }
 
-.completed_text {
-  font-weight: 300;
-  width: fit-content;
-  font-size: 12px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  color: var(--white);
+.accepted_text {
   color: rgb(1, 151, 41);
   background-color: rgb(237, 255, 242);
   border: 1px solid rgb(1, 151, 41);
 }
 
 .canceled_text {
-  font-weight: 300;
-  width: fit-content;
-  font-size: 12px;
-  padding: 2px 4px;
-  border-radius: 4px;
+  color: var(--black-design-extralight);
+  background-color: var(--gray-light);
+  border: 1px solid var(--black-design-extralight);
+}
+
+.processing_text {
+  color: var(--purple);
+  background-color: var(--purple-light);
+  border: 1px solid var(--purple);
+}
+
+.error_text {
+  color: var(--error);
+  background-color: var(--error-light);
+  border: 1px solid var(--error);
+}
+
+.pending_text {
+  color: rgb(255, 119, 0);
+  background-color: rgb(255, 239, 216);
+  border: 1px solid rgb(255, 119, 0);
+}
+
+.completed_text {
+  color: rgb(1, 151, 41);
+  background-color: rgb(237, 255, 242);
+  border: 1px solid rgb(1, 151, 41);
+}
+
+.canceled_text {
   color: var(--black-design-extralight);
   background-color: var(--gray-light);
   border: 1px solid var(--black-design-extralight);

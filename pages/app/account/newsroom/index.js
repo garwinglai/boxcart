@@ -13,7 +13,10 @@ function NewsRoom() {
         <Image src={article_icon} alt="article icon" className="w-12 h-12" />
         <h4>Updates, news, & helpful tips!</h4>
       </div>
-      <p className="text-center font-light text-sm mt-16">Coming soon ...</p>
+      <p className="text-center font-base text-sm mt-16">
+        Here&apos;s where you will find business tips, feature updates, and more!
+      </p>
+      <p className="text-center font-bold text-sm mt-4">Coming soon ...</p>
       {/* <div className="pt-4">
 				<h4>Updates:</h4>
 				<ul className="py-4 pr-4 pl-8">

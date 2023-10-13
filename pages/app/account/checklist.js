@@ -16,6 +16,8 @@ import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { setLocalStorage } from "@/utils/clientStorage";
+import { useChecklistStore } from "@/lib/store";
+import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 
 const style = {
   position: "absolute",
@@ -29,9 +31,22 @@ const style = {
 };
 
 function Checklist({ userSession, userAccount, pageTitle }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
   // * Props
   const { user } = userSession;
-  const { isFirstLogin, email, id, checklist } = userAccount;
+  const {
+    isFirstLogin,
+    email,
+    id,
+    checklist,
+    isChecklistComplete,
+    isNonMandatoryChecklistComplete,
+    fulfillmentMethods,
+    availability,
+  } = userAccount;
+
   const {
     isEmailVerified,
     isProductsUploaded,
@@ -39,6 +54,10 @@ function Checklist({ userSession, userAccount, pageTitle }) {
     isPaymentsSet,
     hasViewedSupportChannels,
     hasViewedShareStore,
+    requireAvailability,
+    isAvailabilitySet,
+    hasLogo,
+    hasBanner,
   } = checklist;
 
   // * States
@@ -58,8 +77,9 @@ function Checklist({ userSession, userAccount, pageTitle }) {
 
   // UseEffects
   useEffect(() => {
-    const checklistString = JSON.stringify(checklist);
-    setLocalStorage("checklist", checklistString);
+    setChecklistStore(checklist);
+    setChecklistStore(isChecklistComplete);
+    setChecklistStore(isNonMandatoryChecklistComplete);
   }, [checklist]);
 
   // * action functions
@@ -127,12 +147,12 @@ function Checklist({ userSession, userAccount, pageTitle }) {
           </div>
         </Box>
       </Modal>
-      <p className=" mt-4 mb-8 text-center md:text-base md:mt-8">
+      <p className=" mt-4 mb-8 text-center md:text-base">
         Complete the following tasks to launch your store!
       </p>
       <div className="px-4 md:bg-white md:p-8 md:mx-8 md:rounded md:shadow lg:mx-52">
-        {/* <h3 className="mb-4">Mandatory</h3> */}
-        <div className="flex flex-col gap-4">
+        <h3 className="mb-4">Mandatory</h3>
+        <div className="flex flex-col gap-2">
           <div className={`${styles.checklist}`}>
             <div className={`${styles.task_group} ${styles.flex}`}>
               <div
@@ -149,7 +169,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {isEmailVerified ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <ButtonPrimary
                     handleClick={handleSendVerifyEmail}
@@ -175,7 +195,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {isProductsUploaded ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link href="/account/inventory/products" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -201,7 +221,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               <div>
                 {/* //create a link to set delivery details */}
                 {isDeliverySet ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link
                     href="/account/my-shop/fulfillment"
@@ -213,6 +233,37 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
             </div>
           </div>
+          {requireAvailability && (
+            <div className={`${styles.checklist}`}>
+              <div className={`${styles.task_group} ${styles.flex}`}>
+                <div
+                  className={`${styles.task} ${styles.flex} ${
+                    isAvailabilitySet && "line-through"
+                  }`}
+                >
+                  {isAvailabilitySet ? (
+                    <CheckCircleOutlineIcon fontSize="small" color="success" />
+                  ) : (
+                    <ClearIcon fontSize="small" color="disabled" />
+                  )}
+                  <p className="text-sm">Set your availabilites.</p>
+                </div>
+                <div>
+                  {/* //create a link to set delivery details */}
+                  {isAvailabilitySet ? (
+                    <p className="text-sm font-light">Done</p>
+                  ) : (
+                    <Link
+                      href="/account/my-shop/availability"
+                      className="mt-4 h-8"
+                    >
+                      <ButtonPrimary name="Go" />
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className={`${styles.checklist}`}>
             <div className={`${styles.task_group} ${styles.flex}`}>
               <div
@@ -230,7 +281,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               <div>
                 {/* //create a link to set payment details */}
                 {isPaymentsSet ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link href="/account/my-shop/payments" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -255,7 +306,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
               <div>
                 {hasViewedSupportChannels ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link href="/account/support" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
@@ -264,7 +315,37 @@ function Checklist({ userSession, userAccount, pageTitle }) {
               </div>
             </div>
           </div> */}
+        </div>
+      </div>
 
+      <div className="px-4 mt-8 md:bg-white md:p-8 md:mx-8 md:rounded md:shadow lg:mx-52">
+        <h3 className="mb-4">Suggested</h3>
+        <div className="flex flex-col gap-2">
+          <div className={`${styles.checklist}`}>
+            <div className={`${styles.task_group} ${styles.flex}`}>
+              <div
+                className={`${styles.task} ${styles.flex} ${
+                  hasLogo && hasBanner && "line-through"
+                }`}
+              >
+                {hasLogo && hasBanner ? (
+                  <CheckCircleOutlineIcon fontSize="small" color="success" />
+                ) : (
+                  <ClearIcon fontSize="small" color="disabled" />
+                )}
+                <p className="text-sm">Update profile settings.</p>
+              </div>
+              <div>
+                {hasLogo && hasBanner ? (
+                  <p className="text-sm font-light">Done</p>
+                ) : (
+                  <Link href="/account/my-shop/profile" className="mt-4 h-8">
+                    <ButtonSecondary name="Go" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
           <div className={`${styles.checklist}`}>
             <div className={`${styles.task_group} ${styles.flex}`}>
               <div
@@ -277,14 +358,14 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 ) : (
                   <ClearIcon fontSize="small" color="disabled" />
                 )}
-                <p className="text-sm">View & share store.</p>
+                <p className="text-sm">View live shop & share store.</p>
               </div>
               <div>
                 {hasViewedShareStore ? (
-                  <p className="text-sm font-light">Finished</p>
+                  <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link href="/account/my-shop/share" className="mt-4 h-8">
-                    <ButtonPrimary name="Go" />
+                    <ButtonSecondary name="Go" />
                   </Link>
                 )}
               </div>
@@ -292,57 +373,6 @@ function Checklist({ userSession, userAccount, pageTitle }) {
           </div>
         </div>
       </div>
-      {/* <div
-				className={`${styles.suggested_checklist_box} ${styles.checklist_box}`}
-			>
-				<h3>Suggested</h3>
-				<div className={`${styles.tasks_box} ${styles.flexCol}`}>
-					<div className={`${styles.checklist}`}>
-						<div className={`${styles.task_group} ${styles.flex}`}>
-							<div className={`${styles.task} ${styles.flex}`}>
-								<ClearIcon fontSize="small" color="disabled" />
-								<p>See how to set customize shop hours.</p>
-							</div>
-							<div>
-								<ButtonSecondary name="View" />
-							</div>
-						</div>
-					</div>
-					<div className={`${styles.checklist}`}>
-						<div className={`${styles.task_group} ${styles.flex}`}>
-							<div className={`${styles.task} ${styles.flex}`}>
-								<ClearIcon fontSize="small" color="disabled" />
-								<p>Tips and tricks.</p>
-							</div>
-							<div>
-								<ButtonSecondary name="View" />
-							</div>
-						</div>
-					</div>
-					<div className={`${styles.checklist}`}>
-						<div className={`${styles.task_group} ${styles.flex}`}>
-							<div className={`${styles.task} ${styles.flex}`}>
-								<ClearIcon fontSize="small" color="disabled" />
-								<p>How to get support.</p>
-							</div>
-							<div>
-								<ButtonSecondary name="View" />
-							</div>
-						</div>
-					</div>
-					<div className={`${styles.checklist}`}>
-						<div className={`${styles.task_group} ${styles.flex}`}>
-							<div className={`${styles.task} ${styles.flex}`}>
-								<ClearIcon fontSize="small" color="disabled" />
-								<p>How your subscription works.</p>
-							</div>
-							<div>
-								<ButtonSecondary name="View" />
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> */}
     </div>
   );
 }
@@ -362,6 +392,8 @@ export async function getServerSideProps(context) {
         },
         include: {
           checklist: true,
+          fulfillmentMethods: true,
+          availability: true,
         },
       });
 

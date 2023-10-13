@@ -10,9 +10,8 @@ import login_icon from "@/public/images/icons/login_icon.png";
 import Image from "next/image";
 import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIsChecklistCompleteClient } from "@/helper/client/api/account/account-schema";
-import { setLocalStorage } from "@/utils/clientStorage";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
-import { useAccountStore } from "@/lib/store";
+import { useAccountStore, useChecklistStore } from "@/lib/store";
 
 const adminLoginTemp = {
   email: "garwingl@usc.edu",
@@ -21,6 +20,7 @@ const adminLoginTemp = {
 
 const Signin = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState(
@@ -52,8 +52,6 @@ const Signin = () => {
   async function handleLogin(e) {
     e.preventDefault();
     setIsLoading(true);
-
-    console.log("hi");
 
     const emailInUse = await checkEmailAvailableAccount(email);
     const { value, error } = emailInUse;
@@ -92,11 +90,6 @@ const Signin = () => {
         }
 
         if (account) {
-          const { isChecklistComplete, checklist } = account;
-          const checklistStringify = JSON.stringify(checklist);
-          setLocalStorage("isChecklistComplete", isChecklistComplete);
-          setLocalStorage("checklist", checklistStringify);
-          checklistComplete = isChecklistComplete;
           setAccountStore(account);
         }
 
@@ -146,6 +139,7 @@ const Signin = () => {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
       bannerImage,
       logoImage,
     } = account;
@@ -160,6 +154,7 @@ const Signin = () => {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
     };
 
     setAccount(storedAccount);

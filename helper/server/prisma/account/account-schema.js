@@ -50,6 +50,13 @@ export async function updateAccountSettingsServer(body) {
       },
       data: {
         ...updatedSettings,
+        checklist: {
+          update: {
+            hasLogo: updatedSettings.logoImage ? true : false,
+            hasBanner: updatedSettings.bannerImage ? true : false,
+            subdomain: updatedSettings.subdomain,
+          },
+        },
         socials: {
           upsert: socialLinks.map((social) => {
             const { platform, socialLink, id } = social;
@@ -74,6 +81,9 @@ export async function updateAccountSettingsServer(body) {
             };
           }),
         },
+      },
+      include: {
+        socials: true,
       },
     });
 

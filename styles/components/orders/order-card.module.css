@@ -4,8 +4,8 @@
 
 .card_box {
   background-color: var(--white);
-  padding: 1rem 0;
-  margin: 1rem;
+  /* padding: 1rem 0; */
+  margin: 0.5rem;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
   transition: height 250s ease;
@@ -16,56 +16,46 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding: 0 0 0.5rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid var(--gray-light);
 }
 
 .status_text {
-  margin-left: 1rem;
-  font-size: 14px;
-  width: fit-content;
-  text-align: right;
-  font-weight: 300;
-  width: 100%;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: var(--white);
-  margin-bottom: 8px;
-}
-
-.pending_text {
   font-weight: 300;
   width: fit-content;
   font-size: 12px;
   padding: 0 8px;
   border-radius: 4px;
-  color: var(--white);
+}
+
+.pending_text {
   color: rgb(255, 119, 0);
   background-color: rgb(255, 239, 216);
   border: 1px solid rgb(255, 119, 0);
 }
 
 .accepted_text {
-  font-weight: 300;
-  width: fit-content;
-  font-size: 12px;
-  padding: 0 8px;
-  border-radius: 4px;
-  color: var(--white);
   color: rgb(1, 151, 41);
   background-color: rgb(237, 255, 242);
   border: 1px solid rgb(1, 151, 41);
 }
 
 .canceled_text {
-  font-weight: 300;
-  width: fit-content;
-  font-size: 12px;
-  padding: 0 8px;
-  border-radius: 4px;
   color: var(--black-design-extralight);
   background-color: var(--gray-light);
   border: 1px solid var(--black-design-extralight);
+}
+
+.processing_text {
+  color: var(--purple);
+  background-color: var(--purple-light);
+  border: 1px solid var(--purple);
+}
+
+.error_text {
+  color: var(--error);
+  background-color: var(--error-light);
+  border: 1px solid var(--error);
 }
 
 .group_one,
@@ -78,6 +68,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  word-break: normal;
 }
 
 .info_icon_group p {

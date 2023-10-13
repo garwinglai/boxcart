@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import email_icon from "@/public/images/icons/email_icon.svg";
 import Image from "next/image";
 import styles from "@/styles/app/auth/verify-email.module.css";
@@ -9,8 +9,18 @@ import { signIn } from "next-auth/react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { CircularProgress } from "@mui/material";
+import { useChecklistStore } from "@/lib/store";
+import { updateIsChecklistComplete } from "@/helper/client/api/checklist";
+import {
+  updateEmailIsVerifiedUser,
+  updateEmailIsVerifiedAccount,
+  updateEmailIsVerifiedChecklist,
+} from "@/helper/client/api/user";
 
 function VerifyEmail({ serializedSession }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
   const [session, setSession] = useState(!serializedSession ? false : true);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -19,6 +29,33 @@ function VerifyEmail({ serializedSession }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { reload, push } = useRouter();
+
+  useEffect(() => {
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+    } = checklistStore;
+
+    setChecklistStore({ isEmailVerified: true });
+
+    if (
+      isProductsUploaded &&
+      isDeliverySet &&
+      isPaymentsSet &&
+      ((requireAvailability && isAvailabilitySet) || !requireAvailability)
+    ) {
+      const isChecklistComplete = true;
+      updateIsChecklistComplete(accountId, isChecklistComplete);
+      setChecklistStore({ isChecklistComplete });
+    }
+  }, []);
 
   const handleChangeEmail = (e) => {
     const { value, name } = e.target;
@@ -141,12 +178,6 @@ function VerifyEmail({ serializedSession }) {
 }
 
 export default VerifyEmail;
-
-import {
-  updateEmailIsVerifiedUser,
-  updateEmailIsVerifiedAccount,
-  updateEmailIsVerifiedChecklist,
-} from "@/helper/client/api/user";
 
 export async function getServerSideProps(context) {
   const { userId, accountId } = context.query;

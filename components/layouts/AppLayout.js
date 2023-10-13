@@ -6,6 +6,8 @@ import { getLocalStorage } from "@/utils/clientStorage";
 import Alert from "@mui/material/Alert";
 import ButtonThird from "../global/buttons/ButtonThird";
 import { useRouter } from "next/router";
+import { useChecklistStore } from "@/lib/store";
+import { useHasHydrated } from "@/utils/useHasHydrated";
 
 function AppLayout({
   children,
@@ -14,17 +16,16 @@ function AppLayout({
   pageRoute,
   mobilePageRoute,
 }) {
-  const [checklistAlertOpen, setChecklistAlertOpen] = useState(false);
+  const hydrate = useHasHydrated();
+  const checklistStore = useChecklistStore((state) => state.checklist);
+
+  const { isChecklistComplete, isNonMandatoryChecklistComplete } =
+    checklistStore;
+
+  const isChecklistAlertOpen =
+    !isChecklistComplete || !isNonMandatoryChecklistComplete;
 
   const { push } = useRouter();
-
-  useEffect(() => {
-    const isChecklistComplete = getLocalStorage("isChecklistComplete");
-    const isChecklistCompleteJson = JSON.parse(isChecklistComplete);
-    if (!isChecklistCompleteJson) {
-      setChecklistAlertOpen(true);
-    }
-  }, []);
 
   const handleGoChecklist = () => {
     push("/account/checklist");
@@ -39,7 +40,7 @@ function AppLayout({
           pageIcon={pageIcon}
           mobilePageRoute={mobilePageRoute}
         />
-        {checklistAlertOpen && (
+        {hydrate && isChecklistAlertOpen && (
           <Alert
             severity="error"
             color="warning"
@@ -59,7 +60,11 @@ function AppLayout({
             }}
           >
             <p className="font-light">
-              Complete checklist to launch your store.
+              Complete{" "}
+              <b>
+                <u>checklist</u>
+              </b>{" "}
+              to launch your store.
             </p>
           </Alert>
         )}

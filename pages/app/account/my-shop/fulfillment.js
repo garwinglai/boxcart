@@ -25,10 +25,14 @@ import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import AddressForm from "@/components/app/fulfillment/AddressForm";
 import { upsertFulfillmentClient } from "@/helper/client/api/fulfillment/fulfillment-crud";
 import { getLocalStorage } from "@/utils/clientStorage";
-import { updateFulfillmentChecklistClient } from "@/helper/client/api/checklist";
+import {
+  updateFulfillmentChecklistClient,
+  updateIsChecklistComplete,
+} from "@/helper/client/api/checklist";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useAccountStore, useChecklistStore } from "@/lib/store";
 
 const styleMobile = {
   position: "absolute",
@@ -43,23 +47,19 @@ const styleMobile = {
   p: 4,
 };
 
-const styleDesktop = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 600,
-  bgcolor: "background.paper",
-  // border: "2px solid #000",
-  borderRadius: 1,
-  boxShadow: 24,
-  p: 4,
-};
-
 function Fulfillment({ userSession, userAccount }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
   // fulfillmenttypeInt: 0 = delivery, 1 = pickup, 2 = both
-  const { fulfillmentMethodInt, fulfillmentMethods, fullAddress } =
-    userAccount || {};
+  const [initialUserAccount, setInitialUserAccount] = useState(userAccount);
+  const {
+    fulfillmentMethodInt,
+    fulfillmentMethods,
+    fullAddress,
+    availability,
+    isChecklistComplete,
+  } = initialUserAccount || {};
 
   const deliveryMethod = fulfillmentMethods.find(
     (method) => method.methodInt === 0
@@ -162,6 +162,39 @@ function Fulfillment({ userSession, userAccount }) {
 
   useEffect(() => {
     // setShowSaveCancelButtons is true if each state is different from initial state
+    checkIfValuesAreUpdated(initialUserAccount);
+  }, [
+    isDeliveryChecked,
+    isPickupChecked,
+    deliveryType,
+    deliveryFeeType,
+    localDeliveryDistanceStr,
+    localDeliveryDistanceMi,
+    localDeliveryDistanceKm,
+    deliveryFeeFlat,
+    deliveryFeeByDistance,
+    deliveryFeeByPercent,
+    delieveryByDistanceMetric,
+    pickupNote,
+    initialUserAccount,
+  ]);
+
+  const checkIfValuesAreUpdated = (initialUserAccount) => {
+    const {
+      fulfillmentMethodInt,
+      fulfillmentMethods,
+      fullAddress,
+      availability,
+      isChecklistComplete,
+    } = initialUserAccount || {};
+
+    const deliveryMethod = fulfillmentMethods.find(
+      (method) => method.methodInt === 0
+    );
+    const pickupMethod = fulfillmentMethods.find(
+      (method) => method.methodInt === 1
+    );
+
     const deliveryCheckStateChange =
       ((fulfillmentMethodInt === 0 || fulfillmentMethodInt === 2) &&
         isDeliveryChecked !== true) ||
@@ -224,20 +257,7 @@ function Fulfillment({ userSession, userAccount }) {
       setShowSaveCancelButtons(false);
       return;
     }
-  }, [
-    isDeliveryChecked,
-    isPickupChecked,
-    deliveryType,
-    deliveryFeeType,
-    localDeliveryDistanceStr,
-    localDeliveryDistanceMi,
-    localDeliveryDistanceKm,
-    deliveryFeeFlat,
-    deliveryFeeByDistance,
-    deliveryFeeByPercent,
-    delieveryByDistanceMetric,
-    pickupNote,
-  ]);
+  };
 
   const handleOpenSnackbar = (message) => {
     setOpenSnackbar({
@@ -471,7 +491,22 @@ function Fulfillment({ userSession, userAccount }) {
     setIsCancelModalOpen(true);
   };
 
-  const handleCancelAllUpdates = () => {
+  const handleCancelAllUpdates = (initialUserAccount) => (e) => {
+    const {
+      fulfillmentMethodInt,
+      fulfillmentMethods,
+      fullAddress,
+      availability,
+      isChecklistComplete,
+    } = initialUserAccount || {};
+
+    const deliveryMethod = fulfillmentMethods.find(
+      (method) => method.methodInt === 0
+    );
+    const pickupMethod = fulfillmentMethods.find(
+      (method) => method.methodInt === 1
+    );
+
     setIsCancelModalOpen(false);
     // reset all state values to original values
     setIsDeliveryChecked(
@@ -481,42 +516,62 @@ function Fulfillment({ userSession, userAccount }) {
       fulfillmentMethodInt === 1 || fulfillmentMethodInt === 2 ? true : false
     );
     setDeliveryType(
-      deliveryMethod.deliveryTypeStr
+      deliveryMethod
         ? deliveryMethod.deliveryTypeStr
+          ? deliveryMethod.deliveryTypeStr
+          : "outsource"
         : "outsource"
     );
     setDeliveryFeeType(
-      deliveryMethod.deliveryFeeType ? deliveryMethod.deliveryFeeType : "free"
+      deliveryMethod
+        ? deliveryMethod.deliveryFeeType
+          ? deliveryMethod.deliveryFeeType
+          : "free"
+        : "free"
     );
     setLocalDeliveryValues({
-      localDeliveryDistanceStr: deliveryMethod.localDeliveryDistanceStr
+      localDeliveryDistanceStr: deliveryMethod
         ? deliveryMethod.localDeliveryDistanceStr
+          ? deliveryMethod.localDeliveryDistanceStr
+          : "5mi/8km"
         : "5mi/8km",
-      localDeliveryDistanceMi: deliveryMethod.localDeliveryDistanceMi
+      localDeliveryDistanceMi: deliveryMethod
         ? deliveryMethod.localDeliveryDistanceMi
+          ? deliveryMethod.localDeliveryDistanceMi
+          : 5
         : 5,
-      localDeliveryDistanceKm: deliveryMethod.localDeliveryDistanceKm
+      localDeliveryDistanceKm: deliveryMethod
         ? deliveryMethod.localDeliveryDistanceKm
+          ? deliveryMethod.localDeliveryDistanceKm
+          : 8
         : 8,
     });
     setDeliveryFeeFlat(
-      deliveryMethod.deliveryFeePriceIntPenny
-        ? deliveryMethod.deliveryFeePriceIntPenny / 100
+      deliveryMethod
+        ? deliveryMethod.deliveryFeePriceIntPenny
+          ? deliveryMethod.deliveryFeePriceIntPenny / 100
+          : ""
         : ""
     );
     setDeliveryFeeByDistance(
-      deliveryMethod.deliveryFeeByDistanceIntPenny
-        ? deliveryMethod.deliveryFeeByDistanceIntPenny / 100
+      deliveryMethod
+        ? deliveryMethod.deliveryFeeByDistanceIntPenny
+          ? deliveryMethod.deliveryFeeByDistanceIntPenny / 100
+          : ""
         : ""
     );
     setDeliveryFeeByPercent(
-      deliveryMethod.deliveryFeeByPercent
+      deliveryMethod
         ? deliveryMethod.deliveryFeeByPercent
+          ? deliveryMethod.deliveryFeeByPercent
+          : ""
         : ""
     );
     setDelieveryByDistanceMetric(
-      deliveryMethod.deliveryFeeDistanceMetric
+      deliveryMethod
         ? deliveryMethod.deliveryFeeDistanceMetric
+          ? deliveryMethod.deliveryFeeDistanceMetric
+          : "mi"
         : "mi"
     );
 
@@ -539,43 +594,56 @@ function Fulfillment({ userSession, userAccount }) {
     let fulfillmentDeliveryData;
     let fulfillmentPickupData;
     let fulfillmentMethodInt;
+    const data = [];
 
     if (isDeliveryChecked && !isPickupChecked) {
       fulfillmentDeliveryData = structureFulFillmentDelivery();
+      data.push(fulfillmentDeliveryData);
       fulfillmentMethodInt = 0;
     }
 
     if (isPickupChecked && !isDeliveryChecked) {
       fulfillmentPickupData = structureFulFillmentPickup();
+      data.push(fulfillmentPickupData);
       fulfillmentMethodInt = 1;
     }
 
     if (isDeliveryChecked && isPickupChecked) {
       fulfillmentDeliveryData = structureFulFillmentDelivery();
       fulfillmentPickupData = structureFulFillmentPickup();
+      data.push(fulfillmentDeliveryData);
+      data.push(fulfillmentPickupData);
       fulfillmentMethodInt = 2;
     }
 
     const fulfillmentData = {
-      data: [fulfillmentDeliveryData, fulfillmentPickupData],
+      data,
       removedFulfillmentIds,
       accountId: userAccount.id,
       fulfillmentMethodInt,
     };
 
+    const accoundId = userAccount.id;
+    const checklistComplete = false;
+
     try {
       const { success, value } = await upsertFulfillmentClient(fulfillmentData);
-
       if (success) {
         if (isPickupChecked) {
-          const { availability } = userAccount;
           const { hasCustomAvailability } = availability;
 
           if (!hasCustomAvailability || !availability) {
             setOpenSetAvailabilityModal(true);
             const message = "You must set your shop hours to enable pickup.";
-
             setAvailabilityModalMessage(message);
+
+            if (isChecklistComplete) {
+              updateIsChecklistComplete(accoundId, checklistComplete);
+              setChecklistStore({
+                isChecklistComplete: checklistComplete,
+                requireAvailability: true,
+              });
+            }
           }
 
           if (availability) {
@@ -596,12 +664,24 @@ function Fulfillment({ userSession, userAccount }) {
             ) {
               setOpenSetAvailabilityModal(true);
               const message = "You must set your shop hours to enable pickup.";
-
               setAvailabilityModalMessage(message);
+
+              if (isChecklistComplete) {
+                updateIsChecklistComplete(accoundId, checklistComplete);
+                setChecklistStore({
+                  isChecklistComplete: checklistComplete,
+                  requireAvailability: true,
+                });
+              }
             }
           }
+        } else {
+          setChecklistStore({
+            requireAvailability: false,
+          });
         }
 
+        setInitialUserAccount(value);
         updateChecklist();
         handleOpenSnackbar("Settings saved.");
         setShowSaveCancelButtons(false);
@@ -619,16 +699,23 @@ function Fulfillment({ userSession, userAccount }) {
   };
 
   const updateChecklist = async () => {
-    const accountId = userAccount.id;
-    const checklistLocalStorage = getLocalStorage("checklist");
-    const checklistJson = JSON.parse(checklistLocalStorage);
-    const { isDeliverySet } = checklistJson;
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
 
-    if (isDeliverySet) return;
+    if (isChecklistComplete || isDeliverySet) return;
 
-    checklistJson.isDeliverySet = true;
-    const checklistString = JSON.stringify(checklistJson);
-    localStorage.setItem("checklist", checklistString);
+    setChecklistStore({ isDeliverySet: true });
 
     const { success, value, error } = await updateFulfillmentChecklistClient(
       accountId
@@ -636,7 +723,18 @@ function Fulfillment({ userSession, userAccount }) {
 
     if (!success) {
       console.log("error updating checklist for product:", error);
-      handleOpenSnackbar("Error updating checklist.");
+      //TODO: handle error for not being able to update checklist.
+    }
+
+    if (
+      isEmailVerified &&
+      isProductsUploaded &&
+      isPaymentsSet &&
+      ((requireAvailability && isAvailabilitySet) || !requireAvailability)
+    ) {
+      const checklistCompleted = true;
+      updateIsChecklistComplete(accountId, checklistCompleted);
+      setChecklistStore({ isChecklistComplete: checklistCompleted });
     }
   };
 
@@ -1014,11 +1112,16 @@ function Fulfillment({ userSession, userAccount }) {
                 {/* <h4>Cancel</h4> */}
                 <p>Cancel all updates?</p>
                 <div className="flex justify-end mt-6 gap-4">
-                  <ButtonFourth name="No" handleClick={closeCancelModal} />
+                  <ButtonFourth
+                    type="button"
+                    name="No"
+                    handleClick={closeCancelModal}
+                  />
 
                   <ButtonThird
                     name="Yes, cancel"
-                    handleClick={handleCancelAllUpdates}
+                    type="button"
+                    handleClick={handleCancelAllUpdates(initialUserAccount)}
                   />
                 </div>
               </Box>

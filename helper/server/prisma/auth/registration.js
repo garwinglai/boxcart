@@ -9,7 +9,6 @@ export async function createNewUser(body) {
     businessTypeData,
     fulfillmentData,
     socialsData,
-    tipsData,
   } = JSON.parse(body);
 
   const { firstName, lastName, name, email, password } = userData;
@@ -23,6 +22,7 @@ export async function createNewUser(body) {
     freePeriodEndDateStr,
     freePeriodEndDateEpoch,
     subdomain,
+    fullDomain,
     logoImageFileName,
     logoImage,
     businessBio,
@@ -36,7 +36,6 @@ export async function createNewUser(body) {
     state,
     zip,
     fullAddress,
-    enableTips,
     typeOfTip,
   } = accountData;
 
@@ -62,6 +61,7 @@ export async function createNewUser(body) {
               // accessCode,
               businessName,
               subdomain,
+              fullDomain,
               logoImageFileName,
               logoImage,
               businessBio,
@@ -75,9 +75,12 @@ export async function createNewUser(body) {
               state,
               zip,
               fullAddress,
-              enableTips,
               checklist: {
                 create: {
+                  requireAvailability: fulfillmentData.some(
+                    (data) => data.method === "pickup"
+                  ),
+                  hasLogo: logoImage ? true : false,
                   subdomain,
                 },
               },
@@ -100,9 +103,7 @@ export async function createNewUser(body) {
                   return dataToSave;
                 }),
               },
-              tips: {
-                create: tipsData,
-              },
+
               tax: {
                 create: {},
               },
@@ -191,7 +192,6 @@ export async function createNewUser(body) {
             businessTypes: true,
             socials: true,
             fulfillmentMethods: true,
-            tips: true,
             checklist: true,
           },
         },

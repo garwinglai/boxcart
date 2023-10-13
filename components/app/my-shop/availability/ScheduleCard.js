@@ -12,6 +12,8 @@ import {
 } from "@/helper/client/api/availability/availability-crud";
 import EditScheduleDrawer from "./EditScheduleDrawer";
 import Drawer from "@mui/material/Drawer";
+import { useChecklistStore } from "@/lib/store";
+import { updateAvailabilityChecklistClient } from "@/helper/client/api/checklist";
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -57,6 +59,7 @@ const StyledMenu = styled((props) => (
 
 function ScheduleCard({
   accountId,
+  availabilityValues,
   availability,
   scheduleData,
   availabilityId,
@@ -77,6 +80,12 @@ function ScheduleCard({
   updateDayOfWeekScheduleData,
   getAvailabilities,
 }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
+  const { datesAvailability, datesRangedAvailability, daysOfWeekAvailability } =
+    availabilityValues || {};
+
   const [drawerState, setDrawerState] = useState({
     right: false,
   });
@@ -102,48 +111,107 @@ function ScheduleCard({
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const handleDelete = async () => {
-    // use date id & scheduleType
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
+
+    const datesLength = datesAvailability?.length;
+    const rangedLength = datesRangedAvailability?.length;
+    const daysOfWeekLength = daysOfWeekAvailability?.length;
+
     if (scheduleType === "date") {
+      if (
+        requireAvailability &&
+        datesLength === 1 &&
+        rangedLength === 0 &&
+        daysOfWeekLength === 0
+      ) {
+        handleOpenSnackbar(
+          "Must have at least one schedule. Pickup order is enabled."
+        );
+        return;
+      }
+
+      // use date id & scheduleType
       const res = await deleteDatesAvailabilityClient(dateId);
       const { success, value } = res;
 
-      if (success) {
-        handleOpenSnackbar("Schedule deleted.");
-      }
-
       if (!success) {
         handleOpenSnackbar("Error deleting schedule. Please refresh.");
+      }
+
+      if (datesLength === 1 && rangedLength === 0 && daysOfWeekLength === 0) {
+        const isAvailSet = false;
+        setChecklistStore({ isAvailabilitySet: isAvailSet });
+        await updateAvailabilityChecklistClient(accountId, isAvailSet);
       }
     }
 
     if (scheduleType === "range") {
+      if (
+        requireAvailability &&
+        datesLength === 0 &&
+        rangedLength === 1 &&
+        daysOfWeekLength === 0
+      ) {
+        handleOpenSnackbar(
+          "Must have at least one schedule. Pickup order is enabled."
+        );
+        return;
+      }
+
       const res = await deleteDatesRangedAvailabilityClient(dateId);
       const { success, value } = res;
 
-      if (success) {
-        handleOpenSnackbar("Schedule deleted.");
-      }
-
       if (!success) {
         handleOpenSnackbar("Error deleting schedule. Please refresh.");
+      }
+
+      if (datesLength === 0 && rangedLength === 1 && daysOfWeekLength === 0) {
+        const isAvailSet = false;
+        setChecklistStore({ isAvailabilitySet: isAvailSet });
+        await updateAvailabilityChecklistClient(accountId, isAvailSet);
       }
     }
 
     if (scheduleType === "week") {
+      if (
+        requireAvailability &&
+        datesLength === 0 &&
+        rangedLength === 0 &&
+        daysOfWeekLength === 1
+      ) {
+        handleOpenSnackbar(
+          "Must have at least one schedule. Pickup order is enabled."
+        );
+        return;
+      }
       const res = await deleteDaysOfWeekAvailabilityClient(dateId);
       const { success, value } = res;
-
-      if (success) {
-        handleOpenSnackbar("Schedule deleted.");
-      }
 
       if (!success) {
         handleOpenSnackbar("Error deleting schedule. Please refresh.");
       }
+
+      if (datesLength === 0 && rangedLength === 0 && daysOfWeekLength === 1) {
+        const isAvailSet = false;
+        setChecklistStore({ isAvailabilitySet: isAvailSet });
+        await updateAvailabilityChecklistClient(accountId, isAvailSet);
+      }
     }
 
+    handleOpenSnackbar("Schedule deleted.");
     getAvailabilities(availabilityId);
     handleClose();
   };

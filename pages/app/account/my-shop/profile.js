@@ -31,7 +31,9 @@ import {
 } from "firebase/storage";
 import { storage, createGeoHash } from "@/firebase/fireConfig";
 import Geocode from "react-geocode";
-import { useAccountStore } from "@/lib/store";
+import { useAccountStore, useChecklistStore } from "@/lib/store";
+import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
+import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 
 Geocode.setApiKey(process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY);
 Geocode.setLanguage("en");
@@ -52,7 +54,6 @@ const styleMobile = {
 function Profile({ userAccount }) {
   const {
     id: accountId,
-    subdomain,
     logoImage: logoImg,
     bannerImage: bannerImg,
     logoImageFileName,
@@ -61,13 +62,18 @@ function Profile({ userAccount }) {
 
   const account = useAccountStore((state) => state.account);
   const setAccount = useAccountStore((state) => state.setAccount);
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
+  const [initialUserAccount, setInitialUserAccount] = useState(userAccount);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [businessInfo, setBusinessInfo] = useState({
     businessName: userAccount.businessName ? userAccount.businessName : "",
     email: userAccount.email ? userAccount.email : "",
     businessBio: userAccount.businessBio ? userAccount.businessBio : "",
   });
+  const [fullSubdomain, setFullSubdomain] = useState(userAccount.fullDomain);
+  const [subdomain, setSubdomain] = useState(userAccount.subdomain);
   const [addressValues, setAddressValues] = useState({
     address_1: userAccount.address_1 ? userAccount.address_1 : "",
     address_2: userAccount.address_2 ? userAccount.address_2 : "",
@@ -117,6 +123,26 @@ function Profile({ userAccount }) {
 
   // Check if any changes - show save cancel buttons.
   useEffect(() => {
+    checkIfChangesWereMade(initialUserAccount);
+  }, [
+    businessName,
+    email,
+    businessBio,
+    address_1,
+    address_2,
+    city,
+    state,
+    zip,
+    platform,
+    socialLink,
+    logoFileName,
+    bannerFileName,
+    socialLinks,
+    subdomain,
+    initialUserAccount,
+  ]);
+
+  const checkIfChangesWereMade = (userAccount) => {
     const {
       businessName,
       email,
@@ -133,6 +159,7 @@ function Profile({ userAccount }) {
     const businessNameChanged = businessName !== businessInfo.businessName;
     const emailChanged = email !== businessInfo.email;
     const businessBioChanged = businessBio !== businessInfo.businessBio;
+    const subDomainChanged = subdomain !== userAccount.subdomain;
 
     const addy1Changed = address_1 !== addressValues.address_1;
     const addy2Changed = address_2 !== addressValues.address_2;
@@ -162,6 +189,7 @@ function Profile({ userAccount }) {
       businessNameChanged ||
       emailChanged ||
       businessBioChanged ||
+      subDomainChanged ||
       logoImageChanged ||
       bannerImageChanged ||
       newSocials ||
@@ -178,22 +206,7 @@ function Profile({ userAccount }) {
     } else {
       setShowCancelSaveButtons(false);
     }
-  }, [
-    businessName,
-    email,
-    businessBio,
-    address_1,
-    address_2,
-    city,
-    state,
-    zip,
-    platform,
-    socialLink,
-    logoFileName,
-    bannerFileName,
-    userAccount,
-    socialLinks,
-  ]);
+  };
 
   const handleEditBannerClick = (e) => {
     uploadBannerRef.current.click();
@@ -334,7 +347,13 @@ function Profile({ userAccount }) {
     setSocialLinks(newSocialLinks);
   };
 
-  const handleCancelAllUpdates = () => {
+  const handleChangeSubdomain = (e) => {
+    const { value } = e.target;
+
+    setSubdomain(value);
+  };
+
+  const handleCancelAllUpdates = (initialUserAccount) => (e) => {
     setIsCancelModalOpen(false);
     setShowCancelSaveButtons(false);
 
@@ -348,29 +367,68 @@ function Profile({ userAccount }) {
       logoFile: null,
       logoFileName: "",
     });
+    setSubdomain(initialUserAccount.subdomain);
 
     // reset all values
     setBusinessInfo({
-      businessName: userAccount.businessName ? userAccount.businessName : "",
-      email: userAccount.email ? userAccount.email : "",
-      businessBio: userAccount.businessBio ? userAccount.businessBio : "",
+      businessName: initialUserAccount.businessName
+        ? initialUserAccount.businessName
+        : "",
+      email: initialUserAccount.email ? initialUserAccount.email : "",
+      businessBio: initialUserAccount.businessBio
+        ? initialUserAccount.businessBio
+        : "",
     });
 
     setAddressValues({
-      address_1: userAccount.address_1 ? userAccount.address_1 : "",
-      address_2: userAccount.address_2 ? userAccount.address_2 : "",
-      city: userAccount.city ? userAccount.city : "",
-      state: userAccount.state ? userAccount.state : "",
-      zip: userAccount.zip ? userAccount.zip : "",
+      address_1: initialUserAccount.address_1
+        ? initialUserAccount.address_1
+        : "",
+      address_2: initialUserAccount.address_2
+        ? initialUserAccount.address_2
+        : "",
+      city: initialUserAccount.city ? initialUserAccount.city : "",
+      state: initialUserAccount.state ? initialUserAccount.state : "",
+      zip: initialUserAccount.zip ? initialUserAccount.zip : "",
     });
 
-    setSocialLinks(userAccount.socials ? userAccount.socials : []);
+    setSocialLinks(
+      initialUserAccount.socials ? initialUserAccount.socials : []
+    );
     setSocialLinkInput({
       platform: "",
       socialLink: "",
     });
 
     setIsLoading(false);
+  };
+
+  const checkSubdomainValidEntry = (subdomain) => {
+    const subdomainRegex = /^[A-Za-z0-9]+([-][A-Za-z0-9]+)*$/;
+    const subdomainMatchRegex = subdomainRegex.test(subdomain);
+    if (!subdomainMatchRegex) {
+      setAlert({
+        showAlert: true,
+        alertMsg:
+          "Please enter a proper subdomain. (No spaces or symbols). Hyphens allowed.",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const checkEmailRegex = (email) => {
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const emailMatchRegex = emailRegex.test(email);
+    if (!emailMatchRegex) {
+      setAlert({
+        showAlert: true,
+        alertMsg: "Please enter a valid email address.",
+      });
+      return false;
+    }
+    return true;
   };
 
   const handleSave = async (e) => {
@@ -388,6 +446,59 @@ function Profile({ userAccount }) {
     let fullAddress = address_2
       ? address_1 + " " + address_2 + " " + city + " " + state + " " + zip
       : address_1 + " " + city + " " + state + " " + zip;
+
+    const subDomainChanged = subdomain !== initialUserAccount.subdomain;
+    const emailChanged = email !== initialUserAccount.email;
+
+    if (emailChanged) {
+      const isEmailValid = checkEmailRegex(email);
+      if (!isEmailValid) return;
+
+      const emailAvailable = await checkEmailAvailableAccount(email);
+
+      if (!emailAvailable.success) {
+        setAlert({
+          showAlert: true,
+          alertMsg: "Unknown error.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (emailAvailable.value) {
+        setAlert({
+          showAlert: true,
+          alertMsg: "Email already exists.",
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    if (subDomainChanged) {
+      const isValid = checkSubdomainValidEntry(subdomain);
+      if (!isValid) return;
+
+      const { success, value } = await checkSubdomainTakenAccount(subdomain);
+
+      if (!success) {
+        setAlert({
+          showAlert: true,
+          alertMsg: "Unknown error.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (value) {
+        setAlert({
+          showAlert: true,
+          alertMsg: "Subdomain already taken.",
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
 
     // TODO: stop each action if failed
     if (bannerFile) {
@@ -411,6 +522,7 @@ function Profile({ userAccount }) {
         bannerError = true;
       } else {
         bannerImageStorage = url;
+        setChecklistStore({ hasBanner: true });
       }
     }
 
@@ -434,7 +546,22 @@ function Profile({ userAccount }) {
       if (error) {
         logoError = true;
       } else {
+        setChecklistStore({ hasLogo: true });
         logoImageStorage = url;
+      }
+    }
+
+    let nonMandatoryChecklistComplete = false;
+
+    if (logoImageStorage && bannerImageStorage) {
+      const { hasViewedShareStore, isNonMandatoryChecklistComplete } =
+        checklistStore;
+
+      if (isNonMandatoryChecklistComplete) nonMandatoryChecklistComplete = true;
+
+      if (!isNonMandatoryChecklistComplete && hasViewedShareStore) {
+        setChecklistStore({ isNonMandatoryChecklistComplete: true });
+        nonMandatoryChecklistComplete = true;
       }
     }
 
@@ -461,6 +588,8 @@ function Profile({ userAccount }) {
       }
     }
 
+    const fullDomain = subdomain + ".boxcart.shop";
+
     const updatedSettings = {
       businessName,
       email,
@@ -479,6 +608,9 @@ function Profile({ userAccount }) {
       bannerImageFileName: bannerFileName
         ? bannerFileName
         : bannerImageFileName,
+      isNonMandatoryChecklistComplete: nonMandatoryChecklistComplete,
+      subdomain,
+      fullDomain,
     };
 
     const data = {
@@ -500,6 +632,7 @@ function Profile({ userAccount }) {
         return;
       }
       updatedAccount = value;
+      setInitialUserAccount(updatedAccount);
     } catch (error) {
       console.log("error", error);
       setAlert({
@@ -564,6 +697,7 @@ function Profile({ userAccount }) {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
     } = updatedAccount;
 
     const storedAccount = {
@@ -576,6 +710,7 @@ function Profile({ userAccount }) {
       firstName,
       lastName,
       subdomain,
+      fullDomain,
     };
 
     setAccount(storedAccount);
@@ -765,6 +900,26 @@ function Profile({ userAccount }) {
                 onChange={handleChange}
                 color="warning"
               />
+            </div>
+            <div>
+              <label htmlFor="email" className="font-light text-sm">
+                URL: *
+              </label>
+              <div className="flex items-center">
+                <TextField
+                  fullWidth
+                  required
+                  id="subdomain"
+                  variant="outlined"
+                  size="small"
+                  name="subdomain"
+                  value={subdomain}
+                  type={"text"}
+                  onChange={handleChangeSubdomain}
+                  color="warning"
+                />
+                <p>.boxcart.shop</p>
+              </div>
             </div>
             <div>
               <label htmlFor="businessBio" className="font-light text-sm">
@@ -986,7 +1141,7 @@ function Profile({ userAccount }) {
                   <ButtonFourth name="No" handleClick={closeCancelModal} />
                   <ButtonThird
                     name="Yes, cancel"
-                    handleClick={handleCancelAllUpdates}
+                    handleClick={handleCancelAllUpdates(initialUserAccount)}
                   />
                 </div>
               </Box>

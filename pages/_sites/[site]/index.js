@@ -19,6 +19,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { useCartStore } from "@/lib/store";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import { useRouter } from "next/router";
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 
 function Sites({ siteData }) {
   const cart = useCartStore((state) => state.cart);
@@ -26,6 +27,7 @@ function Sites({ siteData }) {
   const setCartDetails = useCartStore((state) => state.setCartDetails);
 
   const {
+    acceptedPayments,
     businessName,
     businessBio,
     city,
@@ -37,8 +39,7 @@ function Sites({ siteData }) {
     bannerImage,
     logoImage,
     tax,
-    enableTips,
-    tips,
+    isChecklistComplete,
     id: accountId,
   } = siteData || {};
 
@@ -52,68 +53,28 @@ function Sites({ siteData }) {
     ) {
       setLocalStorage("businessName", businessName);
     }
-
     setLocalStorage("accountId", accountId);
-  }, [siteData, pathname]);
+    setLocalStorage("acceptedPayments", JSON.stringify(acceptedPayments));
 
-  const businessData = {
-    businessName,
-    businessBio,
-    city,
-    socials,
-  };
+    const stripeAccount = acceptedPayments.find(
+      (item) => item.paymentMethod === "stripe"
+    );
+
+    if (!stripeAccount) return;
+
+    const { stripeAccountId } = stripeAccount;
+
+    if (stripeAccountId) {
+      setLocalStorage("stripeAccountId", stripeAccountId);
+    }
+  }, [siteData, pathname]);
 
   useEffect(() => {
     if (!availability) return;
     const { hasCustomAvailability, isTimeBlockEnabled } = availability;
     const { taxRate, taxRateDisplay, isTaxRateEnabled } = tax ? tax : {};
-    const {
-      type,
-      tipOneStr,
-      tipOneIntPenny,
-      tipOnePercent,
-      tipTwoStr,
-      tipTwoIntPenny,
-      tipTwoPercent,
-      tipThreeStr,
-      tipThreeIntPenny,
-      tipThreePercent,
-    } = tips;
 
     const numberOfTipOptions = 3;
-    const tipValues = [];
-
-    for (let i = 0; i < numberOfTipOptions; i++) {
-      let tip = 0;
-      let tipDisplay = "$0.00";
-      if (i === 0) {
-        if (type === "dollar") {
-          tip = tipOneIntPenny;
-        } else {
-          tip = tipOnePercent;
-        }
-        tipDisplay = tipOneStr;
-      } else if (i == 1) {
-        if (type === "dollar") {
-          tip = tipTwoIntPenny;
-        } else {
-          tip = tipTwoPercent;
-        }
-        tipDisplay = tipTwoStr;
-      } else {
-        if (type === "dollar") {
-          tip = tipThreeIntPenny;
-        } else {
-          tip = tipThreePercent;
-        }
-        tipDisplay = tipThreeStr;
-      }
-
-      tipValues.push({
-        tip,
-        tipDisplay,
-      });
-    }
 
     const { fulfillmentType, fulfillmentDisplay } = cartDetails;
     let typeOfFulfillment;
@@ -123,24 +84,16 @@ function Sites({ siteData }) {
       typeOfFulfillment = fulfillmentType;
       displayFulfillmentType = fulfillmentDisplay;
     } else {
-      console.log("here");
       typeOfFulfillment = fulfillmentMethodInt;
       displayFulfillmentType =
         fulfillmentMethodInt === 0 ? "delivery" : "pickup";
     }
-
-    console.log("typeOfFulfillment", typeOfFulfillment);
-    console.log("displayFulfillmentType", displayFulfillmentType);
 
     setCartDetails({
       taxRate: isTaxRateEnabled ? taxRate : 0,
       taxRateDisplay: isTaxRateEnabled ? taxRateDisplay : "$0.00",
       requireOrderTime: isTimeBlockEnabled,
       requireOrderDate: hasCustomAvailability,
-      tipsEnabled: enableTips,
-      tipTypeDisplay: type,
-      tipType: type === "dollar" ? 0 : 1,
-      tipValues,
       fulfillmentType: typeOfFulfillment,
       fulfillmentDisplay: displayFulfillmentType,
     });
@@ -244,6 +197,14 @@ function Sites({ siteData }) {
     }
   };
 
+  if (!isChecklistComplete)
+    return (
+      <div className="flex flex-col justify-center items-center w-full mt-32">
+        <h2>{businessName}</h2>
+        <p>is coming soon ...</p>
+      </div>
+    );
+
   return (
     <div className="pb-8 lg:flex lg:h-[calc(100vh-54px)] lg:pb-0 lg:overflow-hidden ">
       <Snackbar
@@ -299,7 +260,6 @@ function Sites({ siteData }) {
             </div>
           ) : (
             <div className="w-full lg:w-4/5 xl:w-10/12 h-full pb-16">
-              <button onClick={() => window.print()}>download now</button>
               <ShopMenu
                 isOwner={false}
                 categories={categories}
@@ -325,12 +285,10 @@ Sites.getLayout = function getLayout(page) {
 
 export async function getServerSideProps(context) {
   const { site } = context.query;
-  const domain = "boxcart.shop";
-  const fullSite = `${site}.${domain}`;
 
   const siteData = await prisma.account.findUnique({
     where: {
-      subdomain: fullSite,
+      subdomain: site,
     },
     include: {
       products: {
@@ -350,7 +308,6 @@ export async function getServerSideProps(context) {
           products: true,
         },
       },
-      tips: true,
       tax: true,
       fulfillmentMethods: true,
       acceptedPayments: true,

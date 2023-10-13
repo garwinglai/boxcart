@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "@/styles/components/orders/order-grid-row-history.module.css";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import { IconButton } from "@mui/material";
@@ -7,14 +7,113 @@ import OrderCard from "./OrderCard";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import order_icon from "@/public/images/icons/order_icon.png";
 import Image from "next/image";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
-function OrderGridRowHistory({ orderStatus }) {
+function OrderGridRowHistory({
+  status,
+  order,
+  payStatus,
+  getAllHistoryOrders,
+  handleOpenSnackbar,
+}) {
+  const {
+    fulfillmentDisplay,
+    deliveryAddress,
+    totalItemsOrdered,
+    totalDisplay,
+    fulfillmentType,
+    requireOrderDate,
+    requireOrderTime,
+    orderForDateDisplay,
+    orderForTimeDisplay,
+    orderId,
+    createdAt,
+    id,
+    customer,
+    stripeOrderId,
+  } = order;
+
+  const { name, email, phoneNum } = customer;
+
+  const [orderStatus, setOrderStatus] = useState(status);
+  const [paymentStatus, setPaymentStatus] = useState(payStatus);
+
+  const orderedOn = new Date(createdAt).toLocaleDateString("en-US");
+
   const [state, setState] = React.useState({
     top: false,
     left: false,
     bottom: false,
     right: false,
   });
+
+  const handleChangeOrderStatus = (event) => {
+    const { value } = event.target;
+    setOrderStatus(value);
+
+    updateOrderStatus(value);
+  };
+
+  const handleChangePayStatus = (event) => {
+    const { value } = event.target;
+    setPaymentStatus(value);
+
+    updatePayStatus(value);
+  };
+
+  const updateOrderStatus = async (value) => {
+    const orderStatus = value;
+    const orderData = {
+      id,
+      orderStatus,
+    };
+
+    const udpateStatusAPI = await fetch(
+      "/api/private/orders/updateOrderStatus",
+      {
+        method: "POST",
+        body: JSON.stringify(orderData),
+      }
+    );
+
+    const res = await udpateStatusAPI.json();
+    const responseStatus = udpateStatusAPI.status;
+
+    if (responseStatus === 200) {
+      await getAllHistoryOrders();
+      if (orderStatus === "pending") {
+        handleOpenSnackbar("Moved to pending.");
+      }
+    } else {
+      // TODO: Error updating order status - revert to previous for UI
+    }
+  };
+
+  const updatePayStatus = async (value) => {
+    const paymentStatus = value;
+    const orderData = {
+      id,
+      paymentStatus,
+    };
+
+    const udpateStatusAPI = await fetch(
+      "/api/private/orders/updatePaymentStatus",
+      {
+        method: "POST",
+        body: JSON.stringify(orderData),
+      }
+    );
+
+    const res = await udpateStatusAPI.json();
+    const responseStatus = udpateStatusAPI.status;
+
+    if (responseStatus === 200) {
+      // TODO: show snackbar of success?
+    } else {
+      // TODO: Error updating order status - revert to previous for UI
+    }
+  };
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -38,13 +137,13 @@ function OrderGridRowHistory({ orderStatus }) {
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">2536542</p>
+        <p className="text-xs">{id}</p>
       </td>
       <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">4.23.2023</p>
+        <p className="text-xs">{orderedOn}</p>
       </td>
       <td
         className={`${styles.table_data}`}
@@ -56,19 +155,19 @@ function OrderGridRowHistory({ orderStatus }) {
         className={`${styles.table_data} ${styles.black_text}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">Jessica Joe</p>
+        <p className="text-xs">{name}</p>
       </td>
       <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">4 Items</p>
+        <p className="text-xs">{totalItemsOrdered} Items</p>
       </td>
       <td
         className={`${styles.table_data} ${styles.black_text}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">$123.23</p>
+        <p className="text-xs">{totalDisplay}</p>
       </td>
 
       <td
@@ -77,17 +176,87 @@ function OrderGridRowHistory({ orderStatus }) {
       >
         <p className="text-xs">Delivery</p>
       </td>
-      <td
-        className={`${styles.table_data}`}
-        onClick={toggleDrawer("right", true)}
-      >
-        <p
-          className={`text-xs ${
-            orderStatus === "completed" ? styles.completed_text : styles.canceled_text
-          }`}
+      <td className={`${styles.table_data} ${styles.action}`}>
+        <Select
+          size="small"
+          color="warning"
+          autoWidth
+          id="select-order-status"
+          // variant="outline"
+          sx={{
+            boxShadow: "none",
+            ".MuiOutlinedInput-notchedOutline": { border: 0 },
+          }}
+          value={paymentStatus}
+          onChange={handleChangePayStatus}
         >
-          {orderStatus}
-        </p>
+          <MenuItem value="paid">
+            <div className={`${styles.status_text} ${styles.accepted_text}`}>
+              <p>paid</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="unpaid">
+            <div className={`${styles.status_text} ${styles.pending_text}`}>
+              <p>unpaid</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="processing">
+            <div className={`${styles.status_text} ${styles.processing_text}`}>
+              <p>processing</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="failed">
+            <div className={`${styles.status_text} ${styles.error_text}`}>
+              <p>failed</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="error">
+            <div className={`${styles.status_text} ${styles.error_text}`}>
+              <p>error</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="refunded">
+            <div className={`${styles.status_text} ${styles.canceled_text}`}>
+              <p>refunded</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="canceled">
+            <div className={`${styles.status_text} ${styles.canceled_text}`}>
+              <p>canceled</p>
+            </div>
+          </MenuItem>
+        </Select>
+      </td>
+      <td className={`${styles.table_data}`}>
+        <Select
+          size="small"
+          color="warning"
+          autoWidth
+          id="select-order-status"
+          // variant="standard"
+          sx={{
+            boxShadow: "none",
+            ".MuiOutlinedInput-notchedOutline": { border: 0 },
+          }}
+          value={orderStatus}
+          onChange={handleChangeOrderStatus}
+        >
+          <MenuItem value="pending">
+            <div className={` ${styles.status_text} ${styles.pending_text}`}>
+              <p>pending</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="completed">
+            <div className={` ${styles.status_text} ${styles.completed_text}`}>
+              <p>completed</p>
+            </div>
+          </MenuItem>
+          <MenuItem value="canceled">
+            <div className={` ${styles.status_text} ${styles.canceled_text}`}>
+              <p>canceled</p>
+            </div>
+          </MenuItem>
+        </Select>
       </td>
 
       <td className={`${styles.table_data} ${styles.view_more_btn}`}>
@@ -120,10 +289,15 @@ function OrderGridRowHistory({ orderStatus }) {
               </button>
             </div>
             <OrderCard
-              status="accepted"
+              status={orderStatus}
+              payStatus={payStatus}
               isDesktop={true}
+              isHistory={true}
               isBusiness={true}
               isOrderHistory={true}
+              order={order}
+              getAllHistoryOrders={getAllHistoryOrders}
+              handleOpenSnackbar={handleOpenSnackbar}
             />
           </div>
         </Drawer>

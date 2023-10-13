@@ -1,37 +1,26 @@
 .flex {
-	display: flex;
+  display: flex;
 }
 
 .flexCol {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .review_box {
-	padding: 1rem;
-	background-color: var(--white);
-	
+  padding: 1rem;
+  background-color: var(--white);
 }
 
 .review_box h3 {
-	margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .reivew_content_box {
-	gap: 0.5rem;
+  gap: 0.5rem;
 }
 
 .review_context {
-	justify-content: space-between;
-	align-items: flex-start;
-}
-
-.review_context > p {
-	font-size: 12px;
-}
-
-.review_context_value {
-	text-align: right;
-	width: 55%;
-	color: var(--gray);
+  justify-content: space-between;
+  align-items: flex-start;
 }

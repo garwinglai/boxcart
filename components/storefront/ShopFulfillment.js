@@ -1073,6 +1073,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                     onAddressSelect={(address) => {
                       getGeocode({ address: address }).then((results) => {
                         const { lat, lng } = getLatLng(results[0]);
+                        console.log("results", results);
 
                         const distance = getDistance(lat, lng, bizLat, bizLng);
 

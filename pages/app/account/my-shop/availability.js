@@ -32,17 +32,13 @@ import {
   updateScheduleEnabledRangeClient,
   updateScheduleEnabledWeekClient,
 } from "@/helper/client/api/availability/schedule-toggle.crud";
-import {
-  getAvailabilitiesClient,
-  updateOrderInAdvanceTimeClient,
-} from "@/helper/client/api/availability/availability-crud";
+import { getAvailabilitiesClient } from "@/helper/client/api/availability/availability-crud";
 import prisma from "@/lib/prisma";
 import TimeBlockDrawer from "@/components/app/my-shop/availability/TimeBlockDrawer";
 import dayjs from "dayjs";
 import Badge from "@mui/material/Badge";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import HelpIcon from "@mui/icons-material/Help";
-import HelpCenterIcon from "@mui/icons-material/HelpCenter";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import Link from "next/link";
@@ -99,6 +95,7 @@ function Availability({ userAccount }) {
   const {
     availability,
     isTimeBlockEnabled,
+    fulfillmentMethods,
     id: accountId,
   } = userAccount ? userAccount : {};
 
@@ -858,6 +855,14 @@ function Availability({ userAccount }) {
 
   const handleSetHoursSwitch = async () => {
     let isCustomHoursEnabled = true;
+    const isPickupAvailable = fulfillmentMethods.find(
+      (fulfillment) => fulfillment.method === "pickup"
+    );
+
+    if (isPickupAvailable && hasCustomHours) {
+      handleOpenSnackbar("Cannot disable: order pickup is enabled.");
+      return;
+    }
 
     if (hasCustomHours) isCustomHoursEnabled = false;
 
@@ -1042,6 +1047,7 @@ function Availability({ userAccount }) {
 
                   return (
                     <ScheduleCard
+                      availabilityValues={availabilityValues}
                       accountId={accountId}
                       availability={availability}
                       scheduleData={date}
@@ -1087,6 +1093,7 @@ function Availability({ userAccount }) {
 
                   return (
                     <ScheduleCard
+                      availabilityValues={availabilityValues}
                       accountId={accountId}
                       availability={availability}
                       scheduleData={date}
@@ -1131,6 +1138,7 @@ function Availability({ userAccount }) {
 
                   return (
                     <ScheduleCard
+                      availabilityValues={availabilityValues}
                       accountId={accountId}
                       availability={availability}
                       scheduleData={date}
@@ -1351,6 +1359,7 @@ export async function getServerSideProps(context) {
           email,
         },
         include: {
+          fulfillmentMethods: true,
           availability: {
             include: {
               datesAvailability: true,

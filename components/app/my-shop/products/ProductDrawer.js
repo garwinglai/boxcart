@@ -22,7 +22,10 @@ import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
-import { updateProductVerifiedChecklist } from "@/helper/client/api/checklist";
+import {
+  updateIsChecklistComplete,
+  updateProductVerifiedChecklist,
+} from "@/helper/client/api/checklist";
 import {
   deleteObject,
   getDownloadURL,
@@ -31,7 +34,7 @@ import {
 } from "firebase/storage";
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
-import { useAccountStore } from "@/lib/store";
+import { useAccountStore, useChecklistStore } from "@/lib/store";
 
 const style = {
   position: "absolute",
@@ -59,6 +62,8 @@ function ProductDrawer({
 }) {
   const account = useAccountStore((state) => state.account);
   const { subdomain } = account;
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
   const [isSaveProductLoading, setIsSaveProductLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -1166,7 +1171,6 @@ function ProductDrawer({
     }
 
     if (isEditProduct) {
-      console.log("here");
       const removedPhotos = product.images.filter((item) => {
         const productPhotosArr = productPhotos.map((item) => item.image);
         if (!productPhotosArr.includes(item.image)) return item;
@@ -1340,23 +1344,40 @@ function ProductDrawer({
   };
 
   const updateChecklist = async () => {
-    const checklistLS = getLocalStorage("checklist");
-    const checklistJson = JSON.parse(checklistLS);
-    const { isProductsUploaded, accountId } = checklistJson;
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
 
-    if (isProductsUploaded) return;
+    if (isChecklistComplete || isProductsUploaded) return;
 
-    checklistJson.isProductsUploaded = true;
-    const checklistJsonString = JSON.stringify(checklistJson);
-    setLocalStorage("checklist", checklistJsonString);
+    setChecklistStore({ isProductsUploaded: true });
 
-    const { success, value, error } = await updateProductVerifiedChecklist(
-      accountId
-    );
+    const { success, value, error } = updateProductVerifiedChecklist(accountId);
 
     if (!success) {
       console.log("error updating checklist for product:", error);
-      handleOpenSnackbar("Error updating checklist.");
+      //TODO: handle error for not being able to update checklist.
+    }
+
+    if (
+      isEmailVerified &&
+      isDeliverySet &&
+      isPaymentsSet &&
+      ((requireAvailability && isAvailabilitySet) || !requireAvailability)
+    ) {
+      const checklistCompleted = true;
+      updateIsChecklistComplete(accountId, checklistCompleted);
+      setChecklistStore({ isChecklistComplete: checklistCompleted });
     }
   };
 

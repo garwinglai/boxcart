@@ -1,17 +1,62 @@
 import prisma from "@/lib/prisma";
 
+export async function updateStripeSetupComplete(data) {
+  const { paymentId, stripe_details, stripe_charges } = data;
+
+  try {
+    const stripePayment = await prisma.acceptedPayment.update({
+      where: {
+        id: paymentId,
+      },
+      data: {
+        details_submitted: stripe_details,
+        charged_enabled: stripe_charges,
+      },
+    });
+
+    return { success: true, value: stripePayment };
+  } catch (error) {
+    console.log("update stripe setup error", error);
+    return { success: false, value: null, error };
+  }
+}
+export async function saveStripeIdServer(data) {
+  const { accountId, stripeId } = data;
+
+  try {
+    const stripePayment = await prisma.acceptedPayment.create({
+      data: {
+        isEnabled: false,
+        paymentMethod: "stripe",
+        stripeAccountId: stripeId,
+        details_submitted: false,
+        charged_enabled: false,
+        account: {
+          connect: {
+            id: accountId,
+          },
+        },
+      },
+    });
+
+    return { success: true, value: stripePayment };
+  } catch (error) {
+    console.log("saveStripeIdServer error", error);
+    return { success: false, value: null, error };
+  }
+}
+
 export async function updatePaymentServer(data) {
   const {
-    accountData,
-    tipsData,
-    depositData,
+    // accountData,
+    // depositData,
     paymentData,
     accountId,
     removedPayments,
     taxData,
   } = data;
 
-  const { enableTips, requireDeposit } = accountData;
+  // const { requireDeposit } = accountData;
 
   try {
     const updatedPayment = await prisma.account.update({
@@ -19,8 +64,7 @@ export async function updatePaymentServer(data) {
         id: accountId,
       },
       data: {
-        enableTips,
-        requireDeposit,
+        // requireDeposit,
         tax: {
           upsert: {
             where: {
@@ -30,26 +74,16 @@ export async function updatePaymentServer(data) {
             create: taxData,
           },
         },
-        tips: {
-          upsert: {
-            where: {
-              accountId,
-            },
-            update: tipsData,
-            create: tipsData,
-          },
-          delete: !enableTips && tipsData,
-        },
-        deposit: {
-          upsert: {
-            where: {
-              accountId,
-            },
-            update: depositData,
-            create: depositData,
-          },
-          delete: !requireDeposit && depositData,
-        },
+        // deposit: {
+        //   upsert: {
+        //     where: {
+        //       accountId,
+        //     },
+        //     update: depositData,
+        //     create: depositData,
+        //   },
+        //   delete: !requireDeposit && depositData,
+        // },
         acceptedPayments: {
           upsert: paymentData.map((payment) => {
             if (!payment) return;
@@ -76,9 +110,9 @@ export async function updatePaymentServer(data) {
         },
       },
       include: {
-        tips: true,
         deposit: true,
         acceptedPayments: true,
+        tax: true,
       },
     });
 

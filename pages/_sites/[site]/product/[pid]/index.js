@@ -22,6 +22,8 @@ const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 function Product({ product }) {
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
+  const cart = useCartStore((state) => state.cart);
+  console.log("Cart", cart);
 
   const {
     id,
@@ -956,6 +958,7 @@ export async function getServerSideProps(context) {
       id,
     },
     include: {
+      account: true,
       images: true,
       optionGroups: {
         include: {
@@ -965,6 +968,26 @@ export async function getServerSideProps(context) {
       questions: true,
     },
   });
+
+  if (!product) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  const { account } = product;
+
+  if (!account.isChecklistComplete) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   const serializedProduct = JSON.parse(JSON.stringify(product));
 

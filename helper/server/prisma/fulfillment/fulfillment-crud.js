@@ -13,14 +13,14 @@ export async function upsertFulfillmentServer(fulfillmentData) {
         fulfillmentMethodInt,
         fulfillmentMethods: {
           upsert: data.map((fulfillment) => {
-            console.log("fulfillment", fulfillment);
-            if (!fulfillment) return;
+            // if (!fulfillment) return;
+            const { method } = fulfillment;
 
             return {
               where: {
                 fulfillment_identifier: {
                   accountId,
-                  method: fulfillment.method,
+                  method: method,
                 },
               },
               update: fulfillment,
@@ -34,13 +34,23 @@ export async function upsertFulfillmentServer(fulfillmentData) {
             };
           }),
         },
+        checklist: {
+          update: {
+            requireAvailability: data.some((item) => item.method === "pickup"),
+          },
+        },
       },
       include: {
         fulfillmentMethods: true,
+        availability: {
+          include: {
+            datesAvailability: true,
+            datesRangedAvailability: true,
+            daysOfWeekAvailability: true,
+          },
+        },
       },
     });
-
-    console.log("success", updatedFulfillment);
 
     return { success: true, value: updatedFulfillment };
   } catch (error) {

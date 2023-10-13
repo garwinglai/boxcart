@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import { useRouter } from "next/router";
@@ -18,8 +18,12 @@ import Snackbar from "@mui/material/Snackbar";
 import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import prisma from "@/lib/prisma";
+import { useChecklistStore } from "@/lib/store";
 
 function MyShop({ userAccount }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
   const {
     businessName,
     businessBio,
@@ -28,7 +32,10 @@ function MyShop({ userAccount }) {
     products,
     fulfillmentMethodInt,
     categories,
+    checklist,
     availability,
+    isChecklistComplete,
+    isNonMandatoryChecklistComplete,
     id: accountId,
   } = userAccount ? userAccount : {};
 
@@ -46,6 +53,17 @@ function MyShop({ userAccount }) {
   const { snackbarMessage, snackbarOpen } = openSnackbar;
 
   const { push } = useRouter();
+
+  // UseEffects
+  useEffect(() => {
+    console.log(
+      "isNonMandatoryChecklistComplete:",
+      isNonMandatoryChecklistComplete
+    );
+    setChecklistStore(checklist);
+    setChecklistStore({ isChecklistComplete });
+    setChecklistStore({ isNonMandatoryChecklistComplete });
+  }, [checklist, isChecklistComplete, isNonMandatoryChecklistComplete]);
 
   const handleOpenSnackbar = (message) => {
     setOpenSnackbar({
@@ -219,6 +237,7 @@ export async function getServerSideProps(context) {
           email,
         },
         include: {
+          checklist: true,
           socials: true,
           categories: {
             include: {
@@ -253,7 +272,7 @@ export async function getServerSideProps(context) {
       console.log("serversideprops checklist error:", error);
       serializedAccount = null;
     }
-    console.log("serializedAccount", serializedAccount);
+
     return {
       props: {
         userSession,

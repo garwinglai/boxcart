@@ -8,7 +8,6 @@ export default async function handler(req, res) {
 
     const createdOrder = await createOrder(order);
     const { success, value, error } = createdOrder;
-    console.log("createdOrder", createdOrder);
 
     if (success) {
       res.status(200).json({ value });

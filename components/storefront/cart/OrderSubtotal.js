@@ -3,7 +3,7 @@ import styles from "../../../styles/components/storefront/cart/subtotal.module.c
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 
-function OrderSubtotal({ isInCart, orderSubmitted, order }) {
+function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
   const cartDetails = useCartStore((state) => state.cartDetails);
   const setCartDetails = useCartStore((state) => state.setCartDetails);
 
@@ -19,10 +19,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
     deliveryFeeType,
     deliveryFeePenny,
     deliveryFeeDisplay,
-    tipDisplay,
     totalDisplay,
-    totalPenny,
-    tipPenny,
   } = cartDetails;
 
   useEffect(() => {
@@ -32,8 +29,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
 
     const taxAndFeesDisplay = `$${(taxAndFeesPenny / 100).toFixed(2)}`;
 
-    const totalPenny =
-      subtotalPenny + taxAndFeesPenny + deliveryFeePenny + tipPenny;
+    const totalPenny = subtotalPenny + taxAndFeesPenny + deliveryFeePenny;
     const totalDisplay = `$${(totalPenny / 100).toFixed(2)}`;
 
     setCartDetails({
@@ -44,7 +40,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
     });
   }, []);
 
-  if (orderSubmitted) {
+  if (orderSubmitted || isBusiness) {
     const {
       subtotalPenny,
       subtotalDisplay,
@@ -55,14 +51,11 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
       deliveryFeeType,
       deliveryFeePenny,
       deliveryFeeDisplay,
-      tipDisplay,
       totalDisplay,
-      totalPenny,
-      tipPenny,
     } = order;
 
     return (
-      <div className="px-6 pt-8 pb-16">
+      <div className="p-6">
         <h3 className="font-medium">Subtotal:</h3>
         <div className={`${styles.subtotal_box} ${styles.flex}`}>
           <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
@@ -70,7 +63,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
               <p>Subtotal:</p>
               <p>Tax & fees:</p>
               <p>Delivery:</p>
-              <p>Tip:</p>
+              {/* <p>Tip:</p> */}
               <p className="font-bold border-t pt-2 mt-2">Total:</p>
             </React.Fragment>
           </div>
@@ -79,7 +72,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
               <p>{subtotalDisplay}</p>
               <p>{taxAndFeesDisplay}</p>
               <p>{deliveryFeeDisplay}</p>
-              <p>{tipDisplay}</p>
+              {/* <p>{tipDisplay}</p> */}
               <p className="font-bold border-t pt-2 mt-2">{totalDisplay}</p>
             </React.Fragment>
           </div>
@@ -98,7 +91,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
               <p>Subtotal:</p>
               <p>Tax & fees:</p>
               <p>Delivery:</p>
-              <p>Tip:</p>
+              {/* <p>Tip:</p> */}
               <p className="font-bold border-t pt-2 mt-2">Total:</p>
             </React.Fragment>
           ) : (
@@ -114,7 +107,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order }) {
                 <p>{subtotalDisplay}</p>
                 <p>{taxAndFeesDisplay}</p>
                 <p>{deliveryFeeDisplay}</p>
-                <p>{tipDisplay}</p>
+                {/* <p>{tipDisplay}</p> */}
                 <p className="font-bold border-t pt-2 mt-2">{totalDisplay}</p>
               </React.Fragment>
             ) : (

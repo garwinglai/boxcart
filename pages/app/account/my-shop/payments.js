@@ -6,11 +6,6 @@ import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import Link from "next/link";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import PercentOutlinedIcon from "@mui/icons-material/PercentOutlined";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
 import CurrencyInput from "react-currency-input-field";
@@ -23,10 +18,15 @@ import Modal from "@mui/material/Modal";
 import { updatePaymentClient } from "@/helper/client/api/payments/payment-crud";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
-import { updatePaymentChecklistClient } from "@/helper/client/api/checklist";
-import { getLocalStorage } from "@/utils/clientStorage";
+import {
+  updateIsChecklistComplete,
+  updatePaymentChecklistClient,
+} from "@/helper/client/api/checklist";
 import prisma from "@/lib/prisma";
 import { useRouter } from "next/router";
+import { CircularProgress } from "@mui/material";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import { useChecklistStore } from "@/lib/store";
 
 const styleMobile = {
   position: "absolute",
@@ -42,23 +42,45 @@ const styleMobile = {
 };
 
 function Payments({ userAccount }) {
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
+  const placeholderCardMessage =
+    "Please include your order ID in payment notes. Payment must be completed in 15 minutes.";
+  const placeholderCashMessage =
+    "Please provide cash upon receiving order in person.";
+  const [account, setAccount] = useState(userAccount);
+
   const {
-    enableTips,
-    tips,
     deposit,
     requireDeposit,
     tax,
     acceptedPayments,
     id: accountId,
-  } = userAccount || {};
+  } = account || {};
 
-  const placeholderCardMessage =
-    "Please include your order ID in payment notes. Payment must be completed in 15 minutes.";
-
-  const placeholderCashMessage =
-    "Please provide cash upon receiving order in person.";
+  const [stripeInitialState, setStripeInitialState] = useState(false);
+  const [cashInitialState, setCashInitialState] = useState(false);
+  const [venmoInitialState, setVenmoInitialState] = useState(false);
+  const [zelleInitialState, setZelleInitialState] = useState(false);
+  const [paypalInitialState, setPaypalInitialState] = useState(false);
+  const [initialCashInstructions, setInitialCashInstructions] = useState("");
+  const [initialZelleValues, setInitialZelleValues] = useState({
+    initialZellPayInstructions: "",
+    initialZelleAccount: "",
+  });
+  const [initialVenmoValues, setInitialVenmoValues] = useState({
+    initialVenmoPayInstructions: "",
+    initialVenmoAccount: "",
+  });
+  const [initialPaypalValues, setInitialPaypalValues] = useState({
+    initialPaypalInstructions: "",
+    initialPaypalAccount: "",
+  });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showSaveCancelButtons, setShowSaveCancelButtons] = useState(false);
+  const [isLoadingStripeConnect, setIsLoadingStripeConnect] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [hasDeposit, setHasDeposit] = useState(requireDeposit);
   const [depositFeeType, setDepositFeeType] = useState(
@@ -80,63 +102,18 @@ function Payments({ userAccount }) {
   const [depositPercentageFee, setDepositPercentageFee] = useState(
     deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPercent : "") : ""
   );
-  const [hasTips, setHasTips] = useState(enableTips ? enableTips : false);
-  const [tipType, setTipType] = useState(
-    enableTips ? (tips.type ? tips.type : "dollar") : "dollar"
-  );
   const [enableTaxes, setEnableTaxes] = useState(
     tax ? tax.isTaxRateEnabled : false
   );
   const [taxAmt, setTaxAmt] = useState(
     tax ? (tax.taxRate ? tax.taxRate : "") : ""
   );
-  const [tipValuesDollar, setTipValuesDollar] = useState({
-    tipOneDollar: enableTips
-      ? tips.type === "dollar"
-        ? tips.tipOneIntPenny / 100
-          ? tips.tipOneIntPenny / 100
-          : ""
-        : ""
-      : "",
-    tipTwoDollar: enableTips
-      ? tips.type === "dollar"
-        ? tips.tipTwoIntPenny / 100
-          ? tips.tipTwoIntPenny / 100
-          : ""
-        : ""
-      : "",
-    tipThreeDollar: enableTips
-      ? tips.type === "dollar"
-        ? tips.tipThreeIntPenny / 100
-          ? tips.tipThreeIntPenny / 100
-          : ""
-        : ""
-      : "",
+  const [useStripe, setUseStripe] = useState(false);
+  const [stripeValues, setStripeValues] = useState({
+    stripeAccountId: "",
+    details_submitted: false,
+    charges_enabled: false,
   });
-  const [tipValuesPercentage, setTipValuesPercentage] = useState({
-    tipOnePercentage: enableTips
-      ? tips.type === "percentage"
-        ? tips.tipOnePercent
-          ? tips.tipOnePercent
-          : ""
-        : ""
-      : "",
-    tipTwoPercentage: enableTips
-      ? tips.type === "percentage"
-        ? tips.tipTwoPercent
-          ? tips.tipTwoPercent
-          : ""
-        : ""
-      : "",
-    tipThreePercentage: enableTips
-      ? tips.type === "percentage"
-        ? tips.tipThreePercent
-          ? tips.tipThreePercent
-          : ""
-        : ""
-      : "",
-  });
-  const [useCard, setUseCard] = useState(false);
   const [useCash, setUseCash] = useState(false);
   const [cashPayInstructions, setCashPayInstructions] = useState(
     placeholderCashMessage
@@ -167,29 +144,154 @@ function Payments({ userAccount }) {
   });
 
   const { snackbarOpen, snackbarMessage } = openSnackbar;
-  const { tipOneDollar, tipTwoDollar, tipThreeDollar } = tipValuesDollar;
-  const { tipOnePercentage, tipTwoPercentage, tipThreePercentage } =
-    tipValuesPercentage;
+  const { stripeAccountId, details_submitted, charges_enabled } = stripeValues;
   const { zellePayInstructions, zelleAccount } = zelleValues;
   const { paypalInstructions, paypalAccount } = paypalValues;
   const { venmoPayInstructions, venmoAccount } = venmoValues;
 
   const { push } = useRouter();
 
+  // * retrieves stripe account to check if details_submitted, charged_enabled.
+  // * If all true, then stripe setup is complete, update schema & hide stripe setup button.
+  // * If any is false false, then stripe setup is not complete, show stripe setup button.
+  // * If stripeAccountId is null, then there is no stripe acc, show stripe setup button.
   useEffect(() => {
+    if (details_submitted && charges_enabled) return;
+    if (!stripeAccountId) return;
+
+    const fetchStripeAccount = async () => {
+      const retrieveStripeAccountAPI =
+        "/api/private/stripe/retrieveStripeAccount";
+      const retrieveStripeAccountRes = await fetch(retrieveStripeAccountAPI, {
+        method: "POST",
+        body: JSON.stringify({ stripeAccountId }),
+      });
+      const retrieveStripeAccountJSON = await retrieveStripeAccountRes.json();
+      const { account } = retrieveStripeAccountJSON;
+      const {
+        details_submitted: stripe_details,
+        charges_enabled: stripe_charges,
+      } = account;
+      console.log("retrieved stripe account", account);
+
+      // * first param is from db, second param is from stripe API
+      // * db defaulted to false,
+      // * when stripe param returns true, update db.
+      if (
+        (!details_submitted && stripe_details) ||
+        (!charges_enabled && stripe_charges)
+      ) {
+        console.log("stripe info changed");
+        const paymentId = acceptedPayments.find(
+          (payment) => payment.paymentMethod === "stripe"
+        ).id;
+
+        const updateStripeSetupCompleteAPI =
+          "/api/private/payments/updateStripeSetupComplete";
+        const updateStripeSetupCompleteRes = fetch(
+          updateStripeSetupCompleteAPI,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              paymentId,
+              stripe_details,
+              stripe_charges,
+            }),
+          }
+        );
+
+        setStripeValues((prev) => ({
+          ...prev,
+          details_submitted: stripe_details ? stripe_details : false,
+          charges_enabled: stripe_charges ? stripe_charges : false,
+        }));
+      }
+    };
+
+    fetchStripeAccount();
+  }, [stripeAccountId, details_submitted, charges_enabled]);
+
+  // * Update payment UI based on acceptedPayments
+  useEffect(() => {
+    setInitialStates(acceptedPayments, tax, placeholderCardMessage);
+  }, [acceptedPayments, tax]);
+
+  // TODO: enable certain payment types in customer checkout
+  // TODO: Deploy and see what works
+
+  const setInitialStates = (acceptedPayments, tax, placeholderCardMessage) => {
+    setUseStripe(false);
+    setUseCash(false);
+    setUseVenmo(false);
+    setUseZelle(false);
+    setUsePayPal(false);
+    setEnableTaxes(tax.isTaxRateEnabled);
+    setTaxAmt(tax.taxRate);
+
+    setStripeInitialState(false);
+    setCashInitialState(false);
+    setVenmoInitialState(false);
+    setZelleInitialState(false);
+    setPaypalInitialState(false);
+
+    setCashPayInstructions(placeholderCashMessage);
+    setZelleValues({
+      zellePayInstructions: placeholderCardMessage,
+      zelleAccount: "",
+    });
+    setVenmoValues({
+      venmoPayInstructions: placeholderCardMessage,
+      venmoAccount: "",
+    });
+    setPaypalValues({
+      paypalInstructions: placeholderCardMessage,
+      paypalAccount: "",
+    });
+
     for (let i = 0; i < acceptedPayments.length; i++) {
       const payment = acceptedPayments[i];
-      const { paymentMethod, paymentAccount, paymentInstructions } = payment;
+      const {
+        paymentMethod,
+        paymentAccount,
+        paymentInstructions,
+        isEnabled,
+        stripeAccountId,
+        details_submitted,
+        charged_enabled,
+      } = payment;
+
+      if (paymentMethod === "stripe") {
+        setStripeInitialState(isEnabled);
+        setUseStripe(isEnabled);
+        setStripeValues((prev) => ({
+          ...prev,
+          stripeAccountId,
+          details_submitted: details_submitted ? details_submitted : false,
+          charges_enabled: charged_enabled ? charged_enabled : false,
+        }));
+      }
 
       if (paymentMethod === "cash") {
-        setUseCash(true);
+        console.log("payment", payment);
+        setCashInitialState(isEnabled);
+        setUseCash(isEnabled);
+        setInitialCashInstructions(
+          paymentInstructions ? paymentInstructions : placeholderCashMessage
+        );
         setCashPayInstructions(
           paymentInstructions ? paymentInstructions : placeholderCashMessage
         );
       }
 
       if (paymentMethod === "venmo") {
-        setUseVenmo(true);
+        setVenmoInitialState(isEnabled);
+        setUseVenmo(isEnabled);
+        setInitialVenmoValues({
+          initialVenmoPayInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          initialVenmoAccount: paymentAccount,
+        });
         setVenmoValues((prev) => ({
           ...prev,
           venmoPayInstructions: paymentInstructions
@@ -199,19 +301,15 @@ function Payments({ userAccount }) {
         }));
       }
 
-      if (paymentMethod === "paypal") {
-        setUsePayPal(true);
-        setPaypalValues((prev) => ({
-          ...prev,
-          paypalInstructions: paymentInstructions
+      if (paymentMethod === "zelle") {
+        setZelleInitialState(isEnabled);
+        setUseZelle(isEnabled);
+        setInitialZelleValues({
+          initialZellPayInstructions: paymentInstructions
             ? paymentInstructions
             : placeholderCardMessage,
-          paypalAccount: paymentAccount,
-        }));
-      }
-
-      if (paymentMethod === "zelle") {
-        setUseZelle(true);
+          initialZelleAccount: paymentAccount,
+        });
         setZelleValues((prev) => ({
           ...prev,
           zellePayInstructions: paymentInstructions
@@ -220,8 +318,133 @@ function Payments({ userAccount }) {
           zelleAccount: paymentAccount,
         }));
       }
+
+      if (paymentMethod === "paypal") {
+        setPaypalInitialState(isEnabled);
+        setUsePayPal(isEnabled);
+        setInitialPaypalValues({
+          initialPaypalInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          initialPaypalAccount: paymentAccount,
+        });
+        setPaypalValues((prev) => ({
+          ...prev,
+          paypalInstructions: paymentInstructions
+            ? paymentInstructions
+            : placeholderCardMessage,
+          paypalAccount: paymentAccount,
+        }));
+      }
     }
-  }, [acceptedPayments]);
+  };
+
+  useEffect(() => {
+    // check if state values are different than prop values. If it is, then show save/cancel buttons
+
+    if (
+      enableTaxes !== tax.isTaxRateEnabled ||
+      useStripe !== stripeInitialState ||
+      useCash !== cashInitialState ||
+      useVenmo !== venmoInitialState ||
+      useZelle !== zelleInitialState ||
+      usePayPal !== paypalInitialState
+    ) {
+      // console.log("enableTaxes", enableTaxes);
+      // console.log("tax.isTaxRateEnabled", tax.isTaxRateEnabled);
+      // console.log("useStripe", useStripe);
+      // console.log("stripeInitialState", stripeInitialState);
+      // console.log("useCash", useCash);
+      // console.log("cashInitialState", cashInitialState);
+      // console.log("useVenmo", useVenmo);
+      // console.log("venmoInitialState", venmoInitialState);
+      // console.log("useZelle", useZelle);
+      // console.log("zelleInitialState", zelleInitialState);
+      // console.log("usePayPal", usePayPal);
+      // console.log("paypalInitialState", paypalInitialState);
+      setShowSaveCancelButtons(true);
+      return;
+    } else {
+      setShowSaveCancelButtons(false);
+    }
+
+    if (tax.isTaxRateEnabled) {
+      if (taxAmt !== tax.taxRate) {
+        console.log("Tax");
+        setShowSaveCancelButtons(true);
+        return;
+      } else {
+        setShowSaveCancelButtons(false);
+      }
+    }
+
+    if (useCash) {
+      if (cashPayInstructions !== initialCashInstructions) {
+        console.log("cash");
+        setShowSaveCancelButtons(true);
+        return;
+      } else {
+        setShowSaveCancelButtons(false);
+      }
+    }
+
+    if (useVenmo) {
+      if (
+        venmoPayInstructions !==
+          initialVenmoValues.initialVenmoPayInstructions ||
+        venmoAccount !== initialVenmoValues.initialVenmoAccount
+      ) {
+        console.log("venmo");
+        setShowSaveCancelButtons(true);
+        return;
+      } else {
+        setShowSaveCancelButtons(false);
+      }
+    }
+
+    if (useZelle) {
+      if (
+        zellePayInstructions !==
+          initialZelleValues.initialZellPayInstructions ||
+        zelleAccount !== initialZelleValues.initialZelleAccount
+      ) {
+        console.log("zelle show");
+        setShowSaveCancelButtons(true);
+        return;
+      } else {
+        setShowSaveCancelButtons(false);
+      }
+    }
+
+    if (usePayPal) {
+      if (
+        paypalInstructions !== initialPaypalValues.initialPaypalInstructions ||
+        paypalAccount !== initialPaypalValues.initialPaypalAccount
+      ) {
+        console.log("paypal");
+        setShowSaveCancelButtons(true);
+        return;
+      } else {
+        setShowSaveCancelButtons(false);
+      }
+    }
+  }, [
+    enableTaxes,
+    useStripe,
+    useCash,
+    useVenmo,
+    useZelle,
+    usePayPal,
+    taxAmt,
+    cashPayInstructions,
+    venmoPayInstructions,
+    venmoAccount,
+    zellePayInstructions,
+    zelleAccount,
+    paypalInstructions,
+    paypalAccount,
+    account,
+  ]);
 
   const handleOpenSnackbar = (message) => {
     setOpenSnackbar({
@@ -247,7 +470,8 @@ function Payments({ userAccount }) {
   };
 
   const handleViewTaxRatesClick = () => {
-    const taxRateUrl = "https://www.cdtfa.ca.gov/taxes-and-fees/rates.aspx";
+    const taxRateUrl =
+      "https://taxfoundation.org/data/all/state/2023-sales-tax-rates-midyear/";
     window.open(taxRateUrl, "_blank", "noreferrer");
   };
 
@@ -267,36 +491,30 @@ function Payments({ userAccount }) {
       setHasDeposit((prev) => !prev);
     }
 
-    if (value === "tips") {
-      if (hasTips) {
-        setTipType("");
-        setTipValuesDollar({
-          tipOneDollar: "",
-          tipTwoDollar: "",
-          tipThreeDollar: "",
-        });
-        setTipValuesPercentage({
-          tipOnePercentage: "",
-          tipTwoPercentage: "",
-          tipThreePercentage: "",
-        });
+    if (value === "stripe") {
+      let stripeData = null;
+
+      for (let i = 0; i < acceptedPayments.length; i++) {
+        const currPayment = acceptedPayments[i];
+        const { paymentMethod, details_submitted, charged_enabled } =
+          currPayment;
+        if (paymentMethod === "stripe") {
+          if (details_submitted && charged_enabled) {
+            stripeData = currPayment;
+          }
+        }
       }
 
-      if (!hasTips) {
-        setTipType("dollar");
+      if (!stripeData) {
+        handleOpenSnackbar("Complete Stripe account before enabling this.");
+        return;
       }
 
-      setHasTips((prev) => !prev);
-    }
-
-    if (value === "card") {
-      // TODO: when add stripe, check if I have to add to removedPayments
-      setUseCard((prev) => !prev);
+      setUseStripe((prev) => !prev);
     }
 
     if (value === "cash") {
       if (useCash) {
-        setCashPayInstructions(placeholderCashMessage);
         // Check is paymentMethod == "cash" in acceptedPayments array, if it is, add to removedPayments
 
         // return cashPayment or undefined
@@ -307,17 +525,18 @@ function Payments({ userAccount }) {
         if (cashPayment) {
           setRemovedPayments((prev) => [...prev, cashPayment]);
         }
+      } else {
+        // filter out cashPayment from removedPayments
+        const filteredRemovedPayments = removedPayments.filter(
+          (payment) => payment.paymentMethod !== "cash"
+        );
+        setRemovedPayments(filteredRemovedPayments);
       }
       setUseCash((prev) => !prev);
     }
 
     if (value === "zelle") {
       if (useZelle) {
-        setZelleValues({
-          zellePayInstructions: placeholderCardMessage,
-          zelleAccount: "",
-        });
-
         // Check is paymentMethod == "zelle" in acceptedPayments array, if it is, add to removedPayments
 
         // return zellePayment or undefined
@@ -328,6 +547,12 @@ function Payments({ userAccount }) {
         if (zellePayment) {
           setRemovedPayments((prev) => [...prev, zellePayment]);
         }
+      } else {
+        // filter out zellePayment from removedPayments
+        const filteredRemovedPayments = removedPayments.filter(
+          (payment) => payment.paymentMethod !== "zelle"
+        );
+        setRemovedPayments(filteredRemovedPayments);
       }
 
       setUseZelle((prev) => !prev);
@@ -339,11 +564,6 @@ function Payments({ userAccount }) {
 
     if (value === "venmo") {
       if (useVenmo) {
-        setVenmoValues({
-          venmoPayInstructions: placeholderCardMessage,
-          venmoAccount: "",
-        });
-
         // Check is paymentMethod == "venmo" in acceptedPayments array, if it is, add to removedPayments
 
         // return venmoPayment or undefined
@@ -354,17 +574,18 @@ function Payments({ userAccount }) {
         if (venmoPayment) {
           setRemovedPayments((prev) => [...prev, venmoPayment]);
         }
+      } else {
+        // filter out venmoPayment from removedPayments
+        const filteredRemovedPayments = removedPayments.filter(
+          (payment) => payment.paymentMethod !== "venmo"
+        );
+        setRemovedPayments(filteredRemovedPayments);
       }
       setUseVenmo((prev) => !prev);
     }
 
     if (value === "paypal") {
       if (usePayPal) {
-        setPaypalValues({
-          paypalInstructions: placeholderCardMessage,
-          paypalAccount: "",
-        });
-
         // Check is paymentMethod == "paypal" in acceptedPayments array, if it is, add to removedPayments
 
         // return paypalPayment or undefined
@@ -375,9 +596,59 @@ function Payments({ userAccount }) {
         if (paypalPayment) {
           setRemovedPayments((prev) => [...prev, paypalPayment]);
         }
+      } else {
+        // filter out paypalPayment from removedPayments
+        const filteredRemovedPayments = removedPayments.filter(
+          (payment) => payment.paymentMethod !== "paypal"
+        );
+        setRemovedPayments(filteredRemovedPayments);
       }
       setUsePayPal((prev) => !prev);
     }
+  };
+
+  const handleSetupStripeClick = async (e) => {
+    setIsLoadingStripeConnect(true);
+
+    let stripeId = stripeAccountId;
+
+    // * If no stripeId saved to db, create stripe account
+    if (!stripeId) {
+      const stripeAPI = "/api/private/stripe/createStripeAccount";
+      const stripeRes = await fetch(stripeAPI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userAccount }),
+      });
+      const stripeJSON = await stripeRes.json();
+
+      const { stripeAccountId: stripeAccIdRenamed } = stripeJSON;
+      stripeId = stripeAccIdRenamed;
+    }
+
+    // * If stripe Id has already been created, use stripeId from DB and open stripeAccountLink
+    const stripeAccountLinkAPI = "/api/private/stripe/stripeAccountLink";
+    const stripeAccountLinkRes = await fetch(stripeAccountLinkAPI, {
+      method: "POST",
+      body: JSON.stringify({ stripeId }),
+    });
+    const stripeAccountLinkJSON = await stripeAccountLinkRes.json();
+    const { url } = stripeAccountLinkJSON;
+
+    // * Save stripe acc id to db
+    if (!stripeAccountId && url) {
+      const addStripeIdAPI = "/api/private/payments/addStripeId";
+      await fetch(addStripeIdAPI, {
+        method: "POST",
+        body: JSON.stringify({ stripeId, accountId }),
+      });
+      // const addStripeIdJSON = await addStripeIdRes.json();
+      // const { id } = addStripeIdJSO
+    }
+
+    push(url);
   };
 
   const handleDepositFeeTypeChange = (e) => {
@@ -402,35 +673,6 @@ function Payments({ userAccount }) {
     if (name === "percentage") {
       setDepositPercentageFee(value);
     }
-  };
-
-  const handleTipType = (e) => {
-    const { value } = e.target;
-    if (value === "dollar") {
-      setTipValuesPercentage({
-        tipOnePercentage: "",
-        tipTwoPercentage: "",
-        tipThreePercentage: "",
-      });
-    }
-
-    if (value === "percentage") {
-      setTipValuesDollar({
-        tipOneDollar: "",
-        tipTwoDollar: "",
-        tipThreeDollar: "",
-      });
-    }
-
-    setTipType(value);
-  };
-
-  const handleChangeTipValuesDollar = (value, name) => {
-    setTipValuesDollar((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleChangeTipValuesPercentage = (value, name) => {
-    setTipValuesPercentage((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleZelleChange = (e) => {
@@ -463,138 +705,27 @@ function Payments({ userAccount }) {
   };
 
   const handleCancelAllUpdates = () => {
+    // TODO: here reset all to oroginal values
     setIsLoading(false);
     setIsCancelModalOpen(false);
     // reset all state values to original values from props
 
-    setHasDeposit(requireDeposit);
-    setDepositFeeType(
-      deposit
-        ? deposit.feeTypeStr !== ""
-          ? deposit.feeTypeStr
-          : "dollar"
-        : "dollar"
-    );
-    setDepositDollarFee(
-      deposit ? (deposit.feeTypeSymbol === "$" ? deposit.feeIntPenny : "") : ""
-    );
-    setDepositPercentageFee(
-      deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPenny : "") : ""
-    );
-    setHasTips(enableTips ? enableTips : false);
-    setTipType(enableTips ? (tips.type ? tips.type : "dollar") : "dollar");
-    setTipValuesDollar({
-      tipOneDollar: enableTips
-        ? tips.type === "dollar"
-          ? tips.tipOneIntPenny
-            ? tips.tipOneIntPenny
-            : ""
-          : ""
-        : "",
-      tipTwoDollar: enableTips
-        ? tips.type === "dollar"
-          ? tips.tipTwoIntPenny
-            ? tips.tipTwoIntPenny
-            : ""
-          : ""
-        : "",
-      tipThreeDollar: enableTips
-        ? tips.type === "dollar"
-          ? tips.tipThreeIntPenny
-            ? tips.tipThreeIntPenny
-            : ""
-          : ""
-        : "",
-    });
-    setTipValuesPercentage({
-      tipOnePercentage: enableTips
-        ? tips.type === "percentage"
-          ? tips.tipOneIntPenny
-            ? tips.tipOneIntPenny
-            : ""
-          : ""
-        : "",
-      tipTwoPercentage: enableTips
-        ? tips.type === "percentage"
-          ? tips.tipTwoIntPenny
-            ? tips.tipTwoIntPenny
-            : ""
-          : ""
-        : "",
-      tipThreePercentage: enableTips
-        ? tips.type === "percentage"
-          ? tips.tipThreeIntPenny
-            ? tips.tipThreeIntPenny
-            : ""
-          : ""
-        : "",
-    });
-    setUseCard(
-      deposit ? (deposit.paymentMethod === "card" ? true : false) : false
-    );
-    setUseCash(
-      deposit ? (deposit.paymentMethod === "cash" ? true : false) : false
-    );
-    setCashPayInstructions(
-      deposit
-        ? deposit.paymentMethod === "cash"
-          ? deposit.paymentInstructions
-            ? deposit.paymentInstructions
-            : placeholderCashMessage
-          : placeholderCashMessage
-        : placeholderCashMessage
-    );
-    setUseZelle(
-      deposit ? (deposit.paymentMethod === "zelle" ? true : false) : false
-    );
-    setZelleValues({
-      zellePayInstructions: deposit
-        ? deposit.paymentMethod === "zelle"
-          ? deposit.paymentInstructions
-            ? deposit.paymentInstructions
-            : placeholderCardMessage
-          : placeholderCardMessage
-        : placeholderCardMessage,
-      zelleAccount: deposit
-        ? deposit.paymentMethod === "zelle"
-          ? deposit.paymentAccount
-          : ""
-        : "",
-    });
-    setUseVenmo(
-      deposit ? (deposit.paymentMethod === "venmo" ? true : false) : false
-    );
-    setVenmoValues({
-      venmoPayInstructions: deposit
-        ? deposit.paymentMethod === "venmo"
-          ? deposit.paymentInstructions
-            ? deposit.paymentInstructions
-            : placeholderCardMessage
-          : placeholderCardMessage
-        : placeholderCardMessage,
-      venmoAccount: deposit
-        ? deposit.paymentMethod === "venmo"
-          ? deposit.paymentAccount
-          : ""
-        : "",
-    });
-    setUsePayPal(
-      deposit ? (deposit.paymentMethod === "paypal" ? true : false) : false
-    );
-    setPaypalValues({
-      paypalInstructions: deposit
-        ? deposit.paymentMethod === "paypal"
-          ? deposit.paymentInstructions
-            ? deposit.paymentInstructions
-            : placeholderCardMessage
-          : placeholderCardMessage
-        : placeholderCardMessage,
-      paypalAccount: deposit
-        ? deposit.paymentMethod === "paypal"
-          ? deposit.paymentAccount
-          : ""
-        : "",
-    });
+    // setHasDeposit(requireDeposit);
+    // setDepositFeeType(
+    //   deposit
+    //     ? deposit.feeTypeStr !== ""
+    //       ? deposit.feeTypeStr
+    //       : "dollar"
+    //     : "dollar"
+    // );
+    // setDepositDollarFee(
+    //   deposit ? (deposit.feeTypeSymbol === "$" ? deposit.feeIntPenny : "") : ""
+    // );
+    // setDepositPercentageFee(
+    //   deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPenny : "") : ""
+    // );
+
+    setInitialStates(acceptedPayments, tax, placeholderCardMessage);
   };
 
   const structureTaxData = () => {
@@ -634,42 +765,54 @@ function Payments({ userAccount }) {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    // TODO: Stripe
-
     setIsLoading(true);
 
-    const accountData = structureAccountData();
-    const tipsData = structureTipsData();
-    const depositData = structureDepositData();
+    if (!useStripe && !useCash && !useZelle && !useVenmo && !usePayPal) {
+      handleOpenSnackbar("Please enable at least one payment method.");
+      setIsLoading(false);
+      return;
+    }
+
+    // const accountData = structureAccountData();
+    // const depositData = structureDepositData();
     const paymentData = structurePaymentData();
     const taxData = structureTaxData();
 
     const data = {
-      accountData,
-      tipsData,
-      depositData,
+      // accountData,
+      // depositData,
       paymentData,
       accountId,
       removedPayments,
       taxData,
     };
 
-    console.log("data", data);
     try {
       const { success, value } = await updatePaymentClient(data);
+      console.log("value", value);
 
       if (success) {
-        const { acceptedPayments } = value;
-        const acceptedPaymentsLen = acceptedPayments.length;
+        // const { acceptedPayments } = value;
+        // let enabledPaymentsCount = 0;
 
-        if (acceptedPaymentsLen === 0) {
-          handleOpenSnackbar("Please enter at least one payment method.");
-          setIsLoading(false);
-          return;
-        }
+        // for (let i = 0; i < acceptedPayments.length; i++) {
+        //   const currPayment = acceptedPayments[i];
+        //   const { isEnabled } = currPayment;
+        //   if (isEnabled) enabledPaymentsCount++;
+        // }
 
+        // if (enabledPaymentsCount < 1) {
+        //   handleOpenSnackbar("Please enable at least one payment method.");
+        //   setIsLoading(false);
+        //   return;
+        // }
+
+        const { acceptedPayments, tax } = value;
+        setAccount(value);
+        setInitialStates(acceptedPayments, tax, placeholderCardMessage);
         updateChecklist();
         handleOpenSnackbar("Successfully saved.");
+        setShowSaveCancelButtons(false);
         setIsLoading(false);
         return;
       }
@@ -684,15 +827,23 @@ function Payments({ userAccount }) {
   };
 
   const updateChecklist = async () => {
-    const checklistLocalStorage = getLocalStorage("checklist");
-    const checklistJson = JSON.parse(checklistLocalStorage);
-    const { isPaymentSet } = checklistJson;
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
 
-    if (isPaymentSet) return;
+    if (isChecklistComplete || isPaymentsSet) return;
 
-    checklistJson.isPaymentSet = true;
-    const checklistString = JSON.stringify(checklistJson);
-    localStorage.setItem("checklist", checklistString);
+    setChecklistStore({ isPaymentsSet: true });
 
     const { success, value, error } = await updatePaymentChecklistClient(
       accountId
@@ -700,116 +851,32 @@ function Payments({ userAccount }) {
 
     if (!success) {
       console.log("error updating checklist for product:", error);
-      handleOpenSnackbar("Error updating checklist.");
+      //TODO: handle error for not being able to update checklist.
+    }
+
+    if (
+      isEmailVerified &&
+      isProductsUploaded &&
+      isDeliverySet &&
+      ((requireAvailability && isAvailabilitySet) || !requireAvailability)
+    ) {
+      const checklistCompleted = true;
+      updateIsChecklistComplete(accountId, checklistCompleted);
+      setChecklistStore({ isChecklistComplete: checklistCompleted });
     }
   };
 
   const structureAccountData = () => {
     const accountData = {
-      enableTips: hasTips,
       requireDeposit: hasDeposit,
     };
     return accountData;
-  };
-
-  const structureTipsData = () => {
-    let tipOne;
-    let tipTwo;
-    let tipThree;
-
-    if (tipType === "dollar") {
-      if (!tipOneDollar.toString().includes(".")) {
-        tipOne = "$" + tipOneDollar + ".00";
-      } else {
-        tipOne = "$" + parseFloat(tipOneDollar).toFixed(2).toString();
-      }
-
-      if (!tipTwoDollar.toString().includes(".")) {
-        tipTwo = "$" + tipTwoDollar + ".00";
-      } else {
-        tipTwo = "$" + parseFloat(tipTwoDollar).toFixed(2).toString();
-      }
-
-      if (!tipThreeDollar.toString().includes(".")) {
-        tipThree = "$" + tipThreeDollar + ".00";
-      } else {
-        tipThree = "$" + parseFloat(tipThreeDollar).toFixed(2).toString();
-      }
-    } else {
-      // percentage
-      if (tipOnePercentage.toString().includes(".")) {
-        const [tipOneNumBeforeDecimal, tipOneNumAfterDecimal] = tipOnePercentage
-          .toString()
-          .split(".");
-        if (tipOneNumAfterDecimal === "00") {
-          tipOne = tipOneNumBeforeDecimal + "%";
-        } else {
-          tipOne = parseFloat(tipOnePercentage).toFixed(2).toString() + "%";
-        }
-      } else {
-        tipOne = tipOnePercentage + "%";
-      }
-
-      if (tipTwoPercentage.toString().includes(".")) {
-        const [tipTwoNumBeforeDecimal, tipTwoNumAfterDecimal] = tipTwoPercentage
-          .toString()
-          .split(".");
-
-        if (tipTwoNumAfterDecimal === "00") {
-          tipTwo = tipTwoNumBeforeDecimal + "%";
-        } else {
-          tipTwo = parseFloat(tipTwoPercentage).toFixed(2).toString() + "%";
-        }
-      } else {
-        tipTwo = tipTwoPercentage + "%";
-      }
-
-      if (tipThreePercentage.toString().includes(".")) {
-        const [tipThreeNumBeforeDecimal, tipThreeNumAfterDecimal] =
-          tipThreePercentage.toString().split(".");
-
-        if (tipThreeNumAfterDecimal === "00") {
-          tipThree = tipThreeNumBeforeDecimal + "%";
-        } else {
-          tipThree = parseFloat(tipThreePercentage).toFixed(2).toString() + "%";
-        }
-      } else {
-        tipThree = tipThreePercentage + "%";
-      }
-    }
-
-    const tipOnePenny = parseInt((parseFloat(tipOneDollar) * 100).toFixed(2));
-    const tipOneHundredth = parseFloat(tipOnePercentage);
-
-    const tipTwoPenny = parseInt((parseFloat(tipTwoDollar) * 100).toFixed(2));
-    const tipTwoHundredth = parseFloat(tipTwoPercentage);
-
-    const tipThreePenny = parseInt(
-      (parseFloat(tipThreeDollar) * 100).toFixed(2)
-    );
-    const tipThreeHundredth = parseFloat(tipThreePercentage);
-
-    const tipsData = {
-      tipOneStr: tipOne,
-      tipOneIntPenny: tipOnePenny ? tipOnePenny : null,
-      tipOnePercent: tipOneHundredth ? tipOneHundredth : null,
-      tipTwoStr: tipTwo,
-      tipTwoIntPenny: tipTwoPenny ? tipTwoPenny : null,
-      tipTwoPercent: tipTwoHundredth ? tipTwoHundredth : null,
-      tipThreeStr: tipThree,
-      tipThreeIntPenny: tipThreePenny ? tipThreePenny : null,
-      tipThreePercent: tipThreeHundredth ? tipThreeHundredth : null,
-      type: tipType,
-    };
-
-    return tipsData;
   };
 
   const structureDepositData = () => {
     if (!hasDeposit) return {};
 
     let depositFeeStr;
-    console.log(depositPercentageFee);
 
     if (depositFeeType === "percentage") {
       if (depositPercentageFee.toString().includes(".")) {
@@ -855,17 +922,37 @@ function Payments({ userAccount }) {
   };
 
   const structurePaymentData = () => {
-    if (!useCard && !useCash && !useZelle && !useVenmo && !usePayPal) return [];
+    const paymentsData = [];
 
-    const acceptedPayments = [];
+    let stripeExists = null;
+
+    for (let i = 0; i < acceptedPayments.length; i++) {
+      const currPayment = acceptedPayments[i];
+      console.log("currPayment", currPayment);
+      if (currPayment.paymentMethod === "stripe") {
+        stripeExists = currPayment;
+        break;
+      }
+    }
+
+    console.log("stripeExists", stripeExists);
+
+    if (stripeExists) {
+      const stripeData = {
+        paymentMethod: "stripe",
+        isEnabled: useStripe,
+      };
+      paymentsData.push(stripeData);
+    }
 
     if (useCash) {
       const cashData = {
         paymentMethod: "cash",
         paymentInstructions: cashPayInstructions,
         paymentAccount: null,
+        isEnabled: true,
       };
-      acceptedPayments.push(cashData);
+      paymentsData.push(cashData);
     }
 
     if (useVenmo) {
@@ -873,8 +960,9 @@ function Payments({ userAccount }) {
         paymentMethod: "venmo",
         paymentInstructions: venmoPayInstructions,
         paymentAccount: venmoAccount,
+        isEnabled: true,
       };
-      acceptedPayments.push(venmoData);
+      paymentsData.push(venmoData);
     }
 
     if (usePayPal) {
@@ -889,8 +977,9 @@ function Payments({ userAccount }) {
         paymentMethod: "paypal",
         paymentInstructions: paypalInstructions,
         paymentAccount: paypalAccountAddPrefix,
+        isEnabled: true,
       };
-      acceptedPayments.push(paypalData);
+      paymentsData.push(paypalData);
     }
 
     if (useZelle) {
@@ -898,11 +987,12 @@ function Payments({ userAccount }) {
         paymentMethod: "zelle",
         paymentInstructions: zellePayInstructions,
         paymentAccount: zelleAccount,
+        isEnabled: true,
       };
-      acceptedPayments.push(zelleData);
+      paymentsData.push(zelleData);
     }
 
-    return acceptedPayments;
+    return paymentsData;
   };
 
   // Displays
@@ -932,7 +1022,8 @@ function Payments({ userAccount }) {
         action={action}
       />
       <div className="lg:flex lg:flex-col lg:gap-4">
-        <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] h-fit rounded bg-white lg:mx-0 lg:mb-0 ">
+        {/* // * Deposit UI */}
+        {/* <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] h-fit rounded bg-white lg:mx-0 lg:mb-0 ">
           <div>
             <div className="flex justify-between pr-4">
               <h3>Deposits</h3>
@@ -1024,196 +1115,14 @@ function Payments({ userAccount }) {
               </FormControl>
             </div>
           </div>
-        </div>
-        <div className="p-4 mx-4 mb-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] h-fit rounded bg-white lg:mb-0 lg:mx-0">
-          <div className="flex justify-between pr-4">
-            <h3>Tips</h3>
-            <IOSSwitch
-              checked={hasTips}
-              onChange={handleChangeInPayment}
-              value="tips"
-            />
-          </div>
-          <p className="text-gray-800 font-light text-xs mt-2">
-            Accept tips from customers.
-          </p>
-          <div
-            className={`transition-opactiy ${
-              hasTips
-                ? "visible opacity-100 px-4 mt-4"
-                : "invisible h-0 opacity-0"
-            } `}
-          >
-            <FormControl className="w-full ">
-              <RadioGroup
-                // aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="free"
-                name="radio-buttons-group"
-                className="flex flex-col gap-2 "
-                value={tipType}
-                onChange={handleTipType}
-              >
-                <div>
-                  <div className="flex justify-between w-full">
-                    <FormControlLabel
-                      value="dollar"
-                      control={<Radio />}
-                      label={
-                        <div className="flex items-center">
-                          <AttachMoneyOutlinedIcon
-                            fontSize="small"
-                            sx={{ color: "black" }}
-                          />
-                          <p className="text-black font-light text-xs">
-                            Flat fee
-                          </p>
-                        </div>
-                      }
-                    />
-                  </div>
-                  <div
-                    className={`${
-                      tipType === "dollar"
-                        ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
-                        : " h-0 opacity-0"
-                    }`}
-                  >
-                    <CurrencyInput
-                      name="tipOneDollar"
-                      placeholder="$"
-                      required
-                      disabled={
-                        hasTips ? (tipType == "dollar" ? false : true) : true
-                      }
-                      value={tipOneDollar}
-                      onValueChange={handleChangeTipValuesDollar}
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      prefix="$"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                    <CurrencyInput
-                      name="tipTwoDollar"
-                      placeholder="$"
-                      required
-                      value={tipTwoDollar}
-                      onValueChange={handleChangeTipValuesDollar}
-                      disabled={
-                        hasTips ? (tipType == "dollar" ? false : true) : true
-                      }
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      prefix="$"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                    <CurrencyInput
-                      name="tipThreeDollar"
-                      placeholder="$"
-                      required
-                      value={tipThreeDollar}
-                      onValueChange={handleChangeTipValuesDollar}
-                      disabled={
-                        hasTips ? (tipType == "dollar" ? false : true) : true
-                      }
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      prefix="$"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between w-full">
-                    <FormControlLabel
-                      value="percentage"
-                      control={<Radio />}
-                      label={
-                        <div className="flex items-center">
-                          <PercentOutlinedIcon
-                            fontSize="small"
-                            sx={{ color: "black" }}
-                          />
-                          <p className="text-black font-light text-xs">
-                            Percentage fee
-                          </p>
-                        </div>
-                      }
-                    />
-                  </div>
-                  <div
-                    className={`${
-                      tipType === "percentage"
-                        ? " transition-opacity duration-300 h-auto opacity-100 flex gap-4"
-                        : " h-0 opacity-0"
-                    }`}
-                  >
-                    <CurrencyInput
-                      name="tipOnePercentage"
-                      required
-                      placeholder="%"
-                      value={tipOnePercentage}
-                      onValueChange={handleChangeTipValuesPercentage}
-                      disabled={
-                        hasTips
-                          ? tipType == "percentage"
-                            ? false
-                            : true
-                          : true
-                      }
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      suffix="%"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                    <CurrencyInput
-                      name="tipTwoPercentage"
-                      required
-                      placeholder="%"
-                      value={tipTwoPercentage}
-                      onValueChange={handleChangeTipValuesPercentage}
-                      disabled={
-                        hasTips
-                          ? tipType == "percentage"
-                            ? false
-                            : true
-                          : true
-                      }
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      suffix="%"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                    <CurrencyInput
-                      name="tipThreePercentage"
-                      required
-                      placeholder="%"
-                      value={tipThreePercentage}
-                      onValueChange={handleChangeTipValuesPercentage}
-                      disabled={
-                        hasTips
-                          ? tipType == "percentage"
-                            ? false
-                            : true
-                          : true
-                      }
-                      decimalsLimit={2}
-                      decimalScale={2}
-                      suffix="%"
-                      className={`w-1/3 transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md py-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] indent-4 font-light text-xs`}
-                    />
-                  </div>
-                </div>
-              </RadioGroup>
-            </FormControl>
-          </div>
-        </div>
+        </div> */}
         <div className="p-4 mx-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded h-fit bg-white lg:mx-0">
           <div className="flex justify-between pr-4">
             <h3>Taxes</h3>
             <IOSSwitch
               checked={enableTaxes}
               onChange={handleEnabletaxes}
-              value="tips"
+              value="taxes"
             />
           </div>
           <p className="text-gray-800 font-light text-xs mt-2">
@@ -1273,18 +1182,47 @@ function Payments({ userAccount }) {
               </div>
               <IOSSwitch
                 onChange={handleChangeInPayment}
-                value="card"
-                checked={useCard}
+                value="stripe"
+                checked={useStripe}
               />
             </div>
-            <div
-              className={`transition-opactiy duration-300 ${
-                useCard ? "visible opacity-100" : "invisible h-0 opacity-0"
-              } `}
-            >
+            <div className="flex justify-between items-center">
               <div className="w-fit mt-4 mb-4">
-                <ButtonPrimary name="Setup Credit/Debit Card" />
+                {isLoadingStripeConnect ? (
+                  <div className="flex items-center gap-2">
+                    <CircularProgress
+                      color="warning"
+                      sx={{ width: "1rem", height: "1rem" }}
+                      // fontSize="small"
+                    />
+                    {!stripeAccountId ? (
+                      <p className="text-sm font-light">Setting up...</p>
+                    ) : (
+                      <p className="text-sm font-light">Gathering...</p>
+                    )}
+                  </div>
+                ) : (
+                  <ButtonPrimary
+                    type="button"
+                    handleClick={handleSetupStripeClick}
+                    name={
+                      !stripeAccountId
+                        ? "Create a Stripe Account"
+                        : !details_submitted && !charges_enabled
+                        ? "Finish setup"
+                        : "Edit account"
+                    }
+                  />
+                )}
               </div>
+              {stripeAccountId && details_submitted && charges_enabled && (
+                <div className="flex items-center gap-1">
+                  <VerifiedIcon fontSize="small" color="success" />
+                  <p className="text-sm font-extralight text-gray-600">
+                    verified
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           <div className="border-b border-[color:var(--gray-light)] py-4">
@@ -1513,39 +1451,41 @@ function Payments({ userAccount }) {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
-        <div className="lg:w-2/5 lg:ml-auto">
-          <SaveCancelButtons
-            handleCancel={handleCancel}
-            cancelButtonType="button"
-            isLoading={isLoading}
-            saveButtonType="submit"
-          />
-        </div>
-        <Modal
-          open={isCancelModalOpen}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={styleMobile}>
-            {/* <h4>Cancel</h4> */}
-            <p>Cancel all updates?</p>
-            <div className="flex justify-end mt-6 gap-4">
-              <ButtonFourth
-                type="button"
-                name="No"
-                handleClick={closeCancelModal}
-              />
+      {showSaveCancelButtons && (
+        <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
+          <div className="lg:w-2/5 lg:ml-auto">
+            <SaveCancelButtons
+              handleCancel={handleCancel}
+              cancelButtonType="button"
+              isLoading={isLoading}
+              saveButtonType="submit"
+            />
+          </div>
+          <Modal
+            open={isCancelModalOpen}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={styleMobile}>
+              {/* <h4>Cancel</h4> */}
+              <p>Cancel all updates?</p>
+              <div className="flex justify-end mt-6 gap-4">
+                <ButtonFourth
+                  type="button"
+                  name="No"
+                  handleClick={closeCancelModal}
+                />
 
-              <ButtonThird
-                name="Yes, cancel"
-                type="button"
-                handleClick={handleCancelAllUpdates}
-              />
-            </div>
-          </Box>
-        </Modal>
-      </div>
+                <ButtonThird
+                  name="Yes, cancel"
+                  type="button"
+                  handleClick={handleCancelAllUpdates}
+                />
+              </div>
+            </Box>
+          </Modal>
+        </div>
+      )}
     </form>
   );
 }
@@ -1565,7 +1505,6 @@ export async function getServerSideProps(context) {
         },
         include: {
           tax: true,
-          tips: true,
           deposit: true,
           acceptedPayments: true,
         },

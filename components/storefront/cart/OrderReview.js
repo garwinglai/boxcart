@@ -4,7 +4,13 @@ import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import { useRouter } from "next/router";
 
-function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
+function OrderReview({
+  closeDrawer,
+  isMobile,
+  orderSubmitted,
+  order,
+  isBusiness,
+}) {
   const cartDetails = useCartStore((state) => state.cartDetails);
   const hydrated = useHasHydrated();
 
@@ -25,7 +31,7 @@ function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
     closeDrawer();
   };
 
-  if (orderSubmitted) {
+  if (orderSubmitted || isBusiness) {
     const {
       orderForDateDisplay,
       orderForTimeDisplay,
@@ -44,7 +50,7 @@ function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
             <p>
               <b>For date:</b>
             </p>
-            <p className="text-xs font-light">
+            <p className="text-sm font-light">
               {requireOrderDate && orderForDateDisplay}
               {requireOrderTime && ` @ ` + orderForTimeDisplay}
             </p>
@@ -53,18 +59,14 @@ function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
             <p>
               <b>Fulfillment:</b>
             </p>
-            <p className={`${styles.review_context_value}`}>
-              {fulfillmentDisplay}
-            </p>
+            <p className="text-sm font-light">{fulfillmentDisplay}</p>
           </div>
           {fulfillmentType === 0 && (
             <div className={`${styles.flex} ${styles.review_context}`}>
               <p>
                 <b>Delivery address:</b>
               </p>
-              <p className={`${styles.review_context_value}`}>
-                {deliveryAddress}
-              </p>
+              <p className="text-sm font-light">{deliveryAddress}</p>
             </div>
           )}
         </div>
@@ -78,9 +80,7 @@ function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
       <div className="flex flex-col gap-2 px-2">
         {hydrated && (requireOrderDate || requireOrderTime) && (
           <div className={`${styles.flex} ${styles.review_context}`}>
-            <p>
-              <b>For date:</b>
-            </p>
+            <p className="text-sm">For date:</p>
             <div className="flex items-center gap-2">
               <p className="text-xs font-light">
                 {requireOrderDate && orderForDateDisplay}
@@ -99,22 +99,14 @@ function OrderReview({ closeDrawer, isMobile, orderSubmitted, order }) {
           </div>
         )}
         <div className={`${styles.flex} ${styles.review_context}`}>
-          <p>
-            <b>Fulfillment:</b>
-          </p>
-          <p className={`${styles.review_context_value}`}>
-            {hydrated && fulfillmentDisplay}
-          </p>
+          <p className="text-sm">Fulfillment:</p>
+          <p className="text-sm font-light">{hydrated && fulfillmentDisplay}</p>
         </div>
         {fulfillmentType === 0 && (
           <div className={`${styles.flex} ${styles.review_context}`}>
-            <p>
-              <b>Delivery address:</b>
-            </p>
+            <p className="text-sm">Delivery address:</p>
             {hydrated && deliveryAddress ? (
-              <p className={`${styles.review_context_value}`}>
-                {deliveryAddress}
-              </p>
+              <p className="text-sm font-light">{deliveryAddress}</p>
             ) : (
               isMobile && (
                 <button
