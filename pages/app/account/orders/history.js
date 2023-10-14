@@ -12,6 +12,7 @@ import { isAuth } from "@/helper/client/auth/isAuth";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import prisma from "@/lib/prisma";
 
 function AllOrders({ orders }) {
   const [snackbarValues, setSnackbarValues] = useState({
@@ -24,7 +25,6 @@ function AllOrders({ orders }) {
     bottom: false,
     right: false,
   });
-  console.log("orders", orders);
 
   const [allHistoryOrders, setAllHistoryOrders] = useState(orders);
   const [errorLoadingOrders, setErrorLoadingOrders] = useState(
@@ -163,8 +163,6 @@ export async function getServerSideProps(context) {
   return isAuth(context, async (userSession) => {
     const { user, expires } = userSession;
     const { name, email, id } = user;
-
-    console.log("id", id);
 
     let serializedData;
 
