@@ -175,8 +175,10 @@ export default OrderSubmitted;
 
 export async function getServerSideProps(context) {
   const { orderId } = context.query;
+  console.log("orderId", orderId);
 
   const id = parseInt(orderId);
+  console.log("id", id);
 
   try {
     const order = await prisma.order.findUnique({
