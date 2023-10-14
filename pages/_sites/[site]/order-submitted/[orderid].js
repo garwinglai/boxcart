@@ -174,7 +174,7 @@ function OrderSubmitted({ order }) {
 export default OrderSubmitted;
 
 export async function getServerSideProps(context) {
-  const { query } = context.query;
+  const { query } = context;
   const { orderId, orderid } = query;
   console.log("context", context);
   console.log("query", query);
