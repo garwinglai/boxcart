@@ -31,6 +31,7 @@ function OrderSubmitted({ order }) {
     paymentAccount,
     paymentInstructions,
   } = order;
+  console.log("order", order);
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
   // useEffect(() => {

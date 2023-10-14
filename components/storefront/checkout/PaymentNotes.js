@@ -3,6 +3,8 @@ import React from "react";
 function PaymentNotes({ selectedPaymentDetails, isOrderSubmittedPage }) {
   const { paymentInstructions, paymentMethod, paymentAccount } =
     selectedPaymentDetails;
+
+  console.log("paymentNotes", selectedPaymentDetails);
   return (
     <div>
       {!isOrderSubmittedPage && <h3 className="font-medium">Payment:</h3>}

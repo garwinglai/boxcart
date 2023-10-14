@@ -42,6 +42,8 @@ function OrderReview({
       requireOrderDate,
     } = order;
 
+    console.log("OrderReview", order);
+
     return (
       <div className="py-6 mx-4 border-b">
         <h3 className="font-medium mb-2">Order Details:</h3>

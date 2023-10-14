@@ -49,6 +49,8 @@ function CartItem({
     addToCartTempItemId,
   } = cartItem;
 
+  console.log("cartItem", cartItem);
+
   // const priceDisplay = "$2.50";
   // const customNote = "This is a custom note";
   // const orderExampleImages = [];
@@ -89,7 +91,6 @@ function CartItem({
       toggleDrawer();
     }
   };
-
   return (
     <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
       <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
@@ -195,9 +196,10 @@ function CartItem({
         </div>
 
         <div className={`${styles.flex} ${styles.example_images_box}`}>
-          {orderExampleImages.length > 0 ? (
+          {orderExampleImages.length < 0 ? (
             orderExampleImages.map((imageData, idx) => {
               const { imageFile, fileName, imgUrl, image } = imageData;
+
               return (
                 <div key={idx} className="w-[5rem] h-[5rem] relative">
                   <Image
@@ -211,7 +213,7 @@ function CartItem({
               );
             })
           ) : (
-            <p className="font-extralight text-xs">(No images uploaded)</p>
+            <p className="font-extralight text-xs">* No images uploaded</p>
           )}
         </div>
       </div>

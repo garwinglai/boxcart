@@ -54,6 +54,8 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
       totalDisplay,
     } = order;
 
+    console.log("OrderSubtotal", order);
+
     return (
       <div className="p-6">
         <h3 className="font-medium">Subtotal:</h3>
