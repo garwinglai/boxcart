@@ -1264,7 +1264,6 @@ function ProductDrawer({
       }
 
       productObject.removedImages = removedPhotos;
-      console.log("productObject:", productObject);
 
       const resProductUpdate = await updateProductClient(productObject);
       const { success, value } = resProductUpdate;

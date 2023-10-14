@@ -56,10 +56,6 @@ function MyShop({ userAccount }) {
 
   // UseEffects
   useEffect(() => {
-    console.log(
-      "isNonMandatoryChecklistComplete:",
-      isNonMandatoryChecklistComplete
-    );
     setChecklistStore(checklist);
     setChecklistStore({ isChecklistComplete });
     setChecklistStore({ isNonMandatoryChecklistComplete });

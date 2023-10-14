@@ -24,6 +24,7 @@ function AllOrders({ orders }) {
     bottom: false,
     right: false,
   });
+  console.log("orders", orders);
 
   const [allHistoryOrders, setAllHistoryOrders] = useState(orders);
   const [errorLoadingOrders, setErrorLoadingOrders] = useState(
@@ -163,11 +164,14 @@ export async function getServerSideProps(context) {
     const { user, expires } = userSession;
     const { name, email, id } = user;
 
+    console.log("id", id);
+
     let serializedData;
 
     try {
       const orders = await prisma.order.findMany({
         where: {
+          accountId: id,
           orderStatus: { not: "pending" },
         },
         orderBy: {
@@ -186,6 +190,7 @@ export async function getServerSideProps(context) {
       });
 
       serializedData = JSON.parse(JSON.stringify(orders));
+      console.log(" server orders", serializedData);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
       serializedData = null;

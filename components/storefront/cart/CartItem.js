@@ -49,8 +49,6 @@ function CartItem({
     addToCartTempItemId,
   } = cartItem;
 
-  console.log("cartItem", cartItem);
-
   // const priceDisplay = "$2.50";
   // const customNote = "This is a custom note";
   // const orderExampleImages = [];

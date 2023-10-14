@@ -31,7 +31,7 @@ function OrderSubmitted({ order }) {
     paymentAccount,
     paymentInstructions,
   } = order;
-  console.log("order", order);
+
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
   // useEffect(() => {
@@ -150,7 +150,7 @@ function OrderSubmitted({ order }) {
           Continue Shopping
         </Link>
       </div>
-      <div>
+      <div className="lg:w-1/2 lg:mx-auto">
         <div className="flex justify-between items-center px-4 pt-4">
           <h3 className="">Order Receipt</h3>
           <button
@@ -174,15 +174,10 @@ function OrderSubmitted({ order }) {
 export default OrderSubmitted;
 
 export async function getServerSideProps(context) {
-  const { query, params } = context;
+  const { query } = context;
   const { orderid } = query;
 
-  console.log("query", query);
-  console.log("params", params);
-  console.log("orderid", orderid);
-
   const id = parseInt(orderid);
-  console.log("id", id);
 
   try {
     const order = await prisma.order.findUnique({

@@ -60,9 +60,6 @@ export async function updateOrderInAdvanceToggleAccountServer(
 ) {
   const accountIdInt = parseInt(accountId);
 
-  console.log("orderInAdvanceEnabled", orderInAdvanceEnabled);
-  console.log("accountIdInt", accountIdInt);
-
   try {
     const account = await prisma.availability.update({
       where: {

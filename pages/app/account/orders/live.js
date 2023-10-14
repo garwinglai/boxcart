@@ -229,6 +229,7 @@ export async function getServerSideProps(context) {
     try {
       const orders = await prisma.order.findMany({
         where: {
+          accountId: id,
           orderStatus: "pending",
         },
         orderBy: {

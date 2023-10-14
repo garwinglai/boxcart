@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
     if (productCrud === "update") {
       const product = JSON.parse(body);
-      console.log("update product"), product;
+
       const resProductUpdate = await updateProductServer(product);
       const { success, value } = resProductUpdate;
 

@@ -83,7 +83,6 @@ export async function updateAvailabilityChecklistClient(accountId, isAvailSet) {
 }
 
 export async function updateViewStoreChecklistClient(accountId) {
-  console.log("accountId", accountId);
   // Account Id is unique in checklist schema.
   const apiRoute = `/api/private/account/checklist?accountId=${accountId}&updateKey=viewStoreVerified`;
 

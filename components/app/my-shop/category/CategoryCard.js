@@ -92,7 +92,6 @@ function CategoryCard({
   };
 
   const handleEditCategoryClick = (category) => (e) => {
-    console.log("hello")
     toggleDrawer("right", true)(e);
     setEditCategory(category);
   };

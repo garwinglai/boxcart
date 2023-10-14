@@ -2,7 +2,7 @@ const { Storage } = require("@google-cloud/storage");
 
 export default async function handler(req, res) {
   const { method, body } = req;
-  console.log("copy");
+
   const { subdomain, fireStorageId, oldStorageId, fileName } = body;
   if (method === "POST") {
     const storage = new Storage();

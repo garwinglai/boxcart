@@ -84,7 +84,6 @@ function CheckoutFormStripe({
 
             break;
           case "processing":
-            console.log("use effect processing");
             // handleOpenSnackbar("Your payment is processing.");
             break;
           case "requires_payment_method":
@@ -233,7 +232,6 @@ function CheckoutFormStripe({
 
           break;
         case "processing":
-          console.log("use effect processing");
           break;
         case "requires_payment_method":
           orderData.paymentStatus = "failed";

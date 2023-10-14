@@ -172,7 +172,6 @@ function Payments({ userAccount }) {
         details_submitted: stripe_details,
         charges_enabled: stripe_charges,
       } = account;
-      console.log("retrieved stripe account", account);
 
       // * first param is from db, second param is from stripe API
       // * db defaulted to false,
@@ -181,7 +180,6 @@ function Payments({ userAccount }) {
         (!details_submitted && stripe_details) ||
         (!charges_enabled && stripe_charges)
       ) {
-        console.log("stripe info changed");
         const paymentId = acceptedPayments.find(
           (payment) => payment.paymentMethod === "stripe"
         ).id;
@@ -272,7 +270,6 @@ function Payments({ userAccount }) {
       }
 
       if (paymentMethod === "cash") {
-        console.log("payment", payment);
         setCashInitialState(isEnabled);
         setUseCash(isEnabled);
         setInitialCashInstructions(
@@ -370,7 +367,6 @@ function Payments({ userAccount }) {
 
     if (tax.isTaxRateEnabled) {
       if (taxAmt !== tax.taxRate) {
-        console.log("Tax");
         setShowSaveCancelButtons(true);
         return;
       } else {
@@ -380,7 +376,6 @@ function Payments({ userAccount }) {
 
     if (useCash) {
       if (cashPayInstructions !== initialCashInstructions) {
-        console.log("cash");
         setShowSaveCancelButtons(true);
         return;
       } else {
@@ -394,7 +389,6 @@ function Payments({ userAccount }) {
           initialVenmoValues.initialVenmoPayInstructions ||
         venmoAccount !== initialVenmoValues.initialVenmoAccount
       ) {
-        console.log("venmo");
         setShowSaveCancelButtons(true);
         return;
       } else {
@@ -408,7 +402,6 @@ function Payments({ userAccount }) {
           initialZelleValues.initialZellPayInstructions ||
         zelleAccount !== initialZelleValues.initialZelleAccount
       ) {
-        console.log("zelle show");
         setShowSaveCancelButtons(true);
         return;
       } else {
@@ -421,7 +414,6 @@ function Payments({ userAccount }) {
         paypalInstructions !== initialPaypalValues.initialPaypalInstructions ||
         paypalAccount !== initialPaypalValues.initialPaypalAccount
       ) {
-        console.log("paypal");
         setShowSaveCancelButtons(true);
         return;
       } else {
@@ -789,7 +781,6 @@ function Payments({ userAccount }) {
 
     try {
       const { success, value } = await updatePaymentClient(data);
-      console.log("value", value);
 
       if (success) {
         // const { acceptedPayments } = value;
@@ -928,14 +919,12 @@ function Payments({ userAccount }) {
 
     for (let i = 0; i < acceptedPayments.length; i++) {
       const currPayment = acceptedPayments[i];
-      console.log("currPayment", currPayment);
+
       if (currPayment.paymentMethod === "stripe") {
         stripeExists = currPayment;
         break;
       }
     }
-
-    console.log("stripeExists", stripeExists);
 
     if (stripeExists) {
       const stripeData = {

@@ -42,7 +42,6 @@ export async function updateAccountSettingsClient(data) {
 
   const accountJSON = await resAccount.json();
   const { status } = resAccount;
-  console.log("accountJSON", accountJSON);
 
   if (status === 200) {
     return { success: true, value: accountJSON.value };

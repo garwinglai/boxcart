@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     if (categoryId) {
       const categoryIdInt = parseInt(categoryId);
       const resProductGet = await getProductsByCategoryIdServer(categoryIdInt);
-      console.log("resProductGet", resProductGet);
+
       const { success, value } = resProductGet;
 
       if (success) {

@@ -24,16 +24,12 @@ function OrderReview({
     requireOrderDate,
   } = cartDetails;
 
-  console.log("OrderReview CartDetail", cartDetails);
-
   const { push } = useRouter();
 
   const handleAddDateTime = () => {
     push("/");
     closeDrawer();
   };
-
-  console.log("OrderReview", order);
 
   if (orderSubmitted || isBusiness) {
     const {
