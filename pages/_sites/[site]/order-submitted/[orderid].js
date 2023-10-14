@@ -205,8 +205,6 @@ export async function getServerSideProps(context) {
       },
     });
 
-    console.log("serverside:", order);
-
     if (!order) {
       return {
         redirect: {
@@ -217,7 +215,6 @@ export async function getServerSideProps(context) {
     }
 
     const { account } = order;
-    console.log("account", account);
 
     if (!account.isChecklistComplete) {
       return {
