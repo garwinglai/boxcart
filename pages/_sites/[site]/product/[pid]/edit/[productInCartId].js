@@ -88,6 +88,7 @@ function EditAddToCartProduct({ product }) {
 
   const { back, query } = useRouter();
   const { productInCartId } = query;
+  console.log("productInCartId", productInCartId);
   const selectRef = useRef(null);
 
   useEffect(() => {
