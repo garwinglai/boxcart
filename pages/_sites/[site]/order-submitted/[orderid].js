@@ -175,6 +175,7 @@ export default OrderSubmitted;
 
 export async function getServerSideProps(context) {
   const { orderId } = context.query;
+  console.log("context", context);
   console.log("orderId", orderId);
 
   const id = parseInt(orderId);
