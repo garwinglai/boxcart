@@ -23,7 +23,6 @@ function Product({ product }) {
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
   const cart = useCartStore((state) => state.cart);
-  console.log("Cart", cart);
 
   const {
     id,

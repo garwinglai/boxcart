@@ -136,7 +136,10 @@ function OrderSubmitted({ order }) {
         </div>
         {paymentMethod !== "card" && (
           <div className="p-4 border-y">
-            <PaymentNotes selectedPaymentDetails={order} isOrderSubmittedPage={true} />
+            <PaymentNotes
+              selectedPaymentDetails={order}
+              isOrderSubmittedPage={true}
+            />
           </div>
         )}
         <Link
@@ -171,6 +174,7 @@ export default OrderSubmitted;
 
 export async function getServerSideProps(context) {
   const { orderId } = context.query;
+
   const id = parseInt(orderId);
 
   try {
@@ -203,16 +207,16 @@ export async function getServerSideProps(context) {
       };
     }
 
-    const { account } = order;
+    // const { account } = order;
 
-    if (!account.isChecklistComplete) {
-      return {
-        redirect: {
-          destination: "/",
-          permanent: false,
-        },
-      };
-    }
+    // if (!account.isChecklistComplete) {
+    //   return {
+    //     redirect: {
+    //       destination: "/",
+    //       permanent: false,
+    //     },
+    //   };
+    // }
 
     const serializedOrder = JSON.parse(JSON.stringify(order));
 

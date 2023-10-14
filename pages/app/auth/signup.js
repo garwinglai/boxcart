@@ -1405,7 +1405,7 @@ function Signup({ nextAccountId }) {
       localDeliveryDistanceKm: kilometers,
     }));
   }
-  console.log(step, deliveryTypeInt, fulfillmentMethodInt, enableTips);
+
   return (
     <div className={`${styles.signup} bg-[color:var(--brown-bg)] min-h-screen`}>
       <Snackbar open={openError} onClose={handleCloseSnackbar}>

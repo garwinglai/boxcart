@@ -86,8 +86,12 @@ function Sites({ siteData }) {
     } else {
       typeOfFulfillment = fulfillmentMethodInt;
       displayFulfillmentType =
-        fulfillmentMethodInt === 0 ? "delivery" : "pickup";
+        fulfillmentMethodInt == 0 ? "delivery" : "pickup";
     }
+
+    console.log("fulfillmentType", fulfillmentMethodInt);
+    console.log("displayFulfillmentType", displayFulfillmentType);
+    console.log("typeOfFulfillment", typeOfFulfillment);
 
     setCartDetails({
       taxRate: isTaxRateEnabled ? taxRate : 0,
