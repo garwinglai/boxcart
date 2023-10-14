@@ -24,12 +24,16 @@ function OrderReview({
     requireOrderDate,
   } = cartDetails;
 
+  console.log("OrderReview CartDetail", cartDetails);
+
   const { push } = useRouter();
 
   const handleAddDateTime = () => {
     push("/");
     closeDrawer();
   };
+
+  console.log("OrderReview", order);
 
   if (orderSubmitted || isBusiness) {
     const {
@@ -41,8 +45,6 @@ function OrderReview({
       requireOrderTime,
       requireOrderDate,
     } = order;
-
-    console.log("OrderReview", order);
 
     return (
       <div className="py-6 mx-4 border-b">

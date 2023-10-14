@@ -40,6 +40,9 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
     });
   }, []);
 
+  console.log("OrderSubtotal", order);
+  console.log("orderSubmitted", orderSubmitted, "isBusiness", isBusiness);
+
   if (orderSubmitted || isBusiness) {
     const {
       subtotalPenny,
@@ -53,8 +56,6 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
       deliveryFeeDisplay,
       totalDisplay,
     } = order;
-
-    console.log("OrderSubtotal", order);
 
     return (
       <div className="p-6">
