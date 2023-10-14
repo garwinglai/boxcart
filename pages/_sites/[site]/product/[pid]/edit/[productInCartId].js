@@ -88,7 +88,7 @@ function EditAddToCartProduct({ product }) {
 
   const { back, query } = useRouter();
   const { productInCartId } = query;
-  console.log("productInCartId", productInCartId);
+
   const selectRef = useRef(null);
 
   useEffect(() => {
@@ -130,9 +130,6 @@ function EditAddToCartProduct({ product }) {
 
       return data;
     });
-
-    console.log("radioOptionGroups", radioOptionGroups);
-    console.log("checkboxOptionGroups", checkboxOptionGroups);
 
     setBeforeEditPricePenny(pricePenny);
     setRadioOptionValues(radioOptionGroupRestructure);
