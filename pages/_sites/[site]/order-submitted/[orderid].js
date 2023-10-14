@@ -33,9 +33,9 @@ function OrderSubmitted({ order }) {
   } = order;
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
-  useEffect(() => {
-    unsetCartStoreData();
-  }, []);
+  // useEffect(() => {
+  //   unsetCartStoreData();
+  // }, [order]);
 
   const unsetCartStoreData = () => {
     resetCartStore({
@@ -198,6 +198,8 @@ export async function getServerSideProps(context) {
       },
     });
 
+    console.log("serverside:", order);
+
     if (!order) {
       return {
         redirect: {
@@ -207,16 +209,17 @@ export async function getServerSideProps(context) {
       };
     }
 
-    // const { account } = order;
+    const { account } = order;
+    console.log("account", account);
 
-    // if (!account.isChecklistComplete) {
-    //   return {
-    //     redirect: {
-    //       destination: "/",
-    //       permanent: false,
-    //     },
-    //   };
-    // }
+    if (!account.isChecklistComplete) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
 
     const serializedOrder = JSON.parse(JSON.stringify(order));
 
