@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 
 export async function createOrder(orderData) {
   try {
-    const order = await prisma.order.create({
+    const order = await prisma.customerOrder.create({
       data: orderData,
     });
 
@@ -17,7 +17,7 @@ export async function updateOrderStatusServer(orderData) {
   const { id, orderStatus } = orderData;
 
   try {
-    const order = await prisma.order.update({
+    const order = await prisma.customerOrder.update({
       where: {
         id,
       },
@@ -37,7 +37,7 @@ export async function updatePaymentErrorServer(orderData) {
   const { id, type, message, paymentStatus } = orderData;
 
   try {
-    const order = await prisma.order.update({
+    const order = await prisma.customerOrder.update({
       where: {
         id,
       },
@@ -59,7 +59,7 @@ export async function updatePaymentStatusServer(orderData) {
   const { id, paymentStatus } = orderData;
 
   try {
-    const order = await prisma.order.update({
+    const order = await prisma.customerOrder.update({
       where: {
         id,
       },
@@ -79,7 +79,7 @@ export async function updateOrderPaymentStatusAndStripeIdServer(orderData) {
   const { id, paymentStatus, stripeOrderId } = orderData;
 
   try {
-    const order = await prisma.order.update({
+    const order = await prisma.customerOrder.update({
       where: {
         id,
       },
@@ -98,7 +98,7 @@ export async function updateOrderPaymentStatusAndStripeIdServer(orderData) {
 
 export async function getPendingOrders() {
   try {
-    const orders = await prisma.order.findMany({
+    const orders = await prisma.customerOrder.findMany({
       where: {
         orderStatus: "pending",
       },
@@ -126,7 +126,7 @@ export async function getPendingOrders() {
 
 export async function getHistoryOrders() {
   try {
-    const orders = await prisma.order.findMany({
+    const orders = await prisma.customerOrder.findMany({
       where: {
         orderStatus: { not: "pending" },
       },

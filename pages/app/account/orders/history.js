@@ -167,7 +167,7 @@ export async function getServerSideProps(context) {
     let serializedData;
 
     try {
-      const orders = await prisma.order.findMany({
+      const orders = await prisma.customerOrder.findMany({
         where: {
           accountId: id,
           orderStatus: { not: "pending" },

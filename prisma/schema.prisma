@@ -107,19 +107,19 @@ model Account {
   products                        Product[]
   categories                      Category[]
   availability                    Availability?
-  orders                          Order[]
+  orders                          CustomerOrder[]
   taxId                           Int?
 
   @@index([userId])
 }
 
 model Customer {
-  id              Int     @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   name            String
   fName           String
   lName           String
   phoneNum        String?
-  email           String  @unique
+  email           String          @unique
   stripeId        String?
   deliveryAddress String?
   // address_1       String?
@@ -127,8 +127,8 @@ model Customer {
   // city            String?
   // state           String?
   // zip             String?
-  orders          Order[]
-  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  orders          CustomerOrder[]
+  account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId       Int
 
   @@index([accountId])
@@ -145,7 +145,7 @@ model Tax {
   @@index([accountId])
 }
 
-model Order {
+model CustomerOrder {
   id                          Int         @id @default(autoincrement())
   orderId                     String      @unique
   stripeOrderId               String?
@@ -211,9 +211,8 @@ model OrderItem {
   orderOptionGroups     OrderOptionGroup[]
   orderExampleImages    OrderExampleImage[]
   orderQuestionsAnswers OrderQuestionAnswer[]
-
-  Order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId Int
+  Order                 CustomerOrder         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               Int
 
   @@index([orderId])
 }

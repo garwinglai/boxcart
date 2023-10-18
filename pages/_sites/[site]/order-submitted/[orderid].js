@@ -183,7 +183,7 @@ export async function getServerSideProps(context) {
   const id = parseInt(orderid);
 
   try {
-    const order = await prisma.order.findUnique({
+    const order = await prisma.customerOrder.findUnique({
       where: {
         id,
       },
