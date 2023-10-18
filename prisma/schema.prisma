@@ -38,6 +38,7 @@ model User {
   password        String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  referredFrom    String?
   accounts        Account[]
   role            Role      @default(OWNER)
   Waitlist        Waitlist?
@@ -48,6 +49,7 @@ model Account {
   id                              Int                  @id @default(autoincrement())
   createdAt                       DateTime             @default(now())
   updatedAt                       DateTime             @updatedAt
+  referredFrom                    String?
   isFreePeriodActive              Boolean              @default(true)
   freePeriodEndDateStr            String?
   freePeriodEndDateEpoch          String?
