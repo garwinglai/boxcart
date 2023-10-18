@@ -20,7 +20,9 @@ function NextBackButtons({
   return (
     <div className={`${styles.nextbackbuttons}`}>
       <div className={` ${step == 1 && styles.hide_back_button}`}>
-        <ButtonSecondary name="Back" handleClick={backStep} type="button" />
+        {!isLoading && (
+          <ButtonSecondary name="Back" handleClick={backStep} type="button" />
+        )}
       </div>
 
       <button

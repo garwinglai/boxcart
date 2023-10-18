@@ -194,7 +194,9 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           />
         </div>
       ) : (
-        <div className="h-40 bg-gray-100"></div>
+        <div className="h-40 bg-gray-100 flex justify-center items-center">
+          banner.img
+        </div>
       )}
       <div className="relative">
         {logoImage ? (

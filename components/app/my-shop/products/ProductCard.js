@@ -529,16 +529,16 @@ function ProductCard({
             <b className="">Price: </b>
             {priceStr}
           </p>
-          <p className="text-xs font-light md:text-sm">
-            <b className="">Qty: </b>
-            {hasUnlimitedQuantity
-              ? "Unlimited"
-              : setQuantityByProduct
-              ? quantity == 0
+          {setQuantityByProduct && (
+            <p className="text-xs font-light md:text-sm">
+              <b className="">Qty: </b>
+              {hasUnlimitedQuantity
+                ? "Unlimited"
+                : quantity == 0
                 ? "Out of stock"
-                : quantity
-              : "Set for product options"}
-          </p>
+                : quantity}
+            </p>
+          )}
           <p className="text-xs font-light md:text-sm">
             <b className="">Category: </b>
             {relatedCategories && relatedCategories.length > 0

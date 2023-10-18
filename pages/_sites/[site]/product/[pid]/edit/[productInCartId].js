@@ -412,6 +412,7 @@ function EditAddToCartProduct({ product }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const requiredOptions = optionGroups.filter((item) => item.isRequired);
     const requiredQuestions = questions.filter((item) => item.isRequired);
@@ -446,6 +447,7 @@ function EditAddToCartProduct({ product }) {
 
         if (optionGroupRadiosExistsLength !== optionGroupRadiosLength) {
           handleOpenSnackbar("Missing required options");
+          setIsLoading(false);
           return;
         }
       }
@@ -464,6 +466,7 @@ function EditAddToCartProduct({ product }) {
 
         if (optionGroupCheckboxExistsLength !== optionGroupCheckboxLength) {
           handleOpenSnackbar("Missing required options");
+          setIsLoading(false);
           return;
         }
       }
@@ -471,24 +474,22 @@ function EditAddToCartProduct({ product }) {
 
     if (!setQuantityByProduct) {
       let smallestRadioOptionQuantity;
-      let tempPosition = 0;
+
       for (let i = 0; i < radioOptionValues.length; i++) {
         const { optionQuantity, optionName } = radioOptionValues[i];
+        const optionQuantityInt = parseInt(optionQuantity);
 
         if (optionName === "none") continue;
 
-        if (tempPosition === 0) {
-          smallestRadioOptionQuantity = optionQuantity;
-          tempPosition++;
+        if (i === 0) {
+          smallestRadioOptionQuantity = optionQuantityInt;
           continue;
         }
 
-        if (optionQuantity < smallestRadioOptionQuantity) {
-          smallestRadioOptionQuantity = optionQuantity;
+        if (optionQuantityInt < smallestRadioOptionQuantity) {
+          smallestRadioOptionQuantity = optionQuantityInt;
         }
       }
-
-      tempPosition--;
 
       let smallestCheckboxQuantity;
 
@@ -497,15 +498,16 @@ function EditAddToCartProduct({ product }) {
 
         for (let j = 0; j < options.length; j++) {
           const { optionQuantity } = options[j];
+          const optionQuantityInt = parseInt(optionQuantity);
+          // console.log("optionQuantity", optionQuantity);
 
-          if (tempPosition === 0) {
-            smallestCheckboxQuantity = optionQuantity;
-            tempPosition++;
+          if (i === 0 && j === 0) {
+            smallestCheckboxQuantity = optionQuantityInt;
             continue;
-          }
-
-          if (optionQuantity < smallestCheckboxQuantity) {
-            smallestCheckboxQuantity = optionQuantity;
+          } else {
+            if (optionQuantityInt < smallestCheckboxQuantity) {
+              smallestCheckboxQuantity = optionQuantityInt;
+            }
           }
         }
       }
@@ -516,6 +518,7 @@ function EditAddToCartProduct({ product }) {
       ) {
         handleOpenSnackbar("Not enough in stock.");
         smallestRadioOptionQuantity = null;
+        setIsLoading(false);
         return;
       }
 
@@ -525,28 +528,23 @@ function EditAddToCartProduct({ product }) {
       ) {
         handleOpenSnackbar("Not enough in stock.");
         smallestCheckboxQuantity = null;
+        setIsLoading(false);
         return;
       }
     }
 
-    const addToCartTempItemId = nanoid();
-
     const addToCartProductData = structureOrderData();
-    addToCartProductData.addToCartTempItemId = addToCartTempItemId;
-    addToCartProductData.defaultImage = product.defaultImage;
-    addToCartProductData.productId = id;
 
     removeItemFromCart(productInCartId);
     subtractSubtotal(beforeEditPricePenny);
     addSubtotal(itemTotalPenny);
     setCart(addToCartProductData);
-    setAddedToCart(true);
-    setTimeout(() => {
-      setAddedToCart(false);
-    }, 2000);
+    setIsLoading(false);
   };
 
   const structureOrderData = () => {
+    const addToCartTempItemId = nanoid();
+
     const pricePenny = parseInt(parseFloat(itemTotal.slice(1)) * 100);
 
     const updatedDataStructureRadio = radioOptionValues.map((item) => {
@@ -563,6 +561,10 @@ function EditAddToCartProduct({ product }) {
       const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
+        productId: id,
+        addToCartTempItemId,
+        setQuantityByProduct,
+        defaultImage,
         groupId,
         selectionType,
         optionGroupName,
@@ -1012,7 +1014,7 @@ function EditAddToCartProduct({ product }) {
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
           <div className="h-10">
             <ButtonPrimaryStorefront
-              name={`${addedToCart ? "Updated" : "Update Item"}`}
+              name="Update Item"
               type="submit"
               disabled={isLoading}
             />

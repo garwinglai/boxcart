@@ -40,6 +40,7 @@ function Sites({ siteData }) {
     logoImage,
     tax,
     isChecklistComplete,
+    fullAddress,
     id: accountId,
   } = siteData || {};
 
@@ -84,7 +85,7 @@ function Sites({ siteData }) {
       typeOfFulfillment = fulfillmentType;
       displayFulfillmentType = fulfillmentDisplay;
     } else {
-      typeOfFulfillment = fulfillmentMethodInt;
+      typeOfFulfillment = fulfillmentMethodInt == 0 ? 0 : 1;
       displayFulfillmentType =
         fulfillmentMethodInt == 0 ? "delivery" : "pickup";
     }
@@ -96,6 +97,7 @@ function Sites({ siteData }) {
       requireOrderDate: hasCustomAvailability,
       fulfillmentType: typeOfFulfillment,
       fulfillmentDisplay: displayFulfillmentType,
+      pickupAddress: fullAddress,
     });
   }, []);
 

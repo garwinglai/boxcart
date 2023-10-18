@@ -68,7 +68,7 @@ function ReserveShop() {
     const domain = ".boxcart.shop";
     const selectedSubdomain = subdomain + domain;
 
-    const user = await checkSubdomainAvail(selectedSubdomain);
+    const user = await checkSubdomainAvail(subdomain);
     const { value, error } = user;
 
     if (error) {
@@ -95,7 +95,8 @@ function ReserveShop() {
     const toLowerCaseSubdomain = selectedSubdomain.toLocaleLowerCase();
     // const totalCount = waitlistCount + defaultCount;
 
-    sessionStorage.setItem("subdomain", toLowerCaseSubdomain);
+    sessionStorage.setItem("subdomain", subdomain);
+    sessionStorage.setItem("fullDomain", toLowerCaseSubdomain);
     // sessionStorage.setItem("waitlistCount", totalCount);
     router.push("/waitlist/create-account");
   }

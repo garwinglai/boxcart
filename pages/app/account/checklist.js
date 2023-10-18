@@ -333,7 +333,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 ) : (
                   <ClearIcon fontSize="small" color="disabled" />
                 )}
-                <p className="text-sm">Update profile settings.</p>
+                <p className="text-sm">Update profile banner &amp; logo.</p>
               </div>
               <div>
                 {hasLogo && hasBanner ? (

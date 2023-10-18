@@ -30,7 +30,7 @@ function CreateScheduleDrawer({
   const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
   const [timeOptions, setTimeOptions] = useState([]);
-  const [scheduleType, setScheduleType] = useState("date");
+  const [scheduleType, setScheduleType] = useState("week");
   const [specificDateValues, setSpecificDateValues] = useState({
     specificDate: "",
     specificDateStartTime: "8:00 AM",
@@ -986,9 +986,9 @@ function CreateScheduleDrawer({
             sx={{ width: "100%" }}
           >
             <FormControlLabel
-              value="date"
+              value="week"
               control={<Radio color="warning" />}
-              label="By date"
+              label="Set Weekly schedule - repeats"
               labelPlacement="start"
               sx={{
                 display: "flex",
@@ -1010,9 +1010,9 @@ function CreateScheduleDrawer({
               }}
             />
             <FormControlLabel
-              value="week"
+              value="date"
               control={<Radio color="warning" />}
-              label="Set Weekly schedule - repeats"
+              label="By date"
               labelPlacement="start"
               sx={{
                 display: "flex",

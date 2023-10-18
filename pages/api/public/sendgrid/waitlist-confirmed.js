@@ -9,7 +9,7 @@ export default async function sendWaitlistConfirmedEmail(req, res) {
     email,
     reservationNo,
     subdomain,
-    earlyBirdCode,
+    accessCode,
     fName,
     // referralCode,
   } = JSON.parse(body);
@@ -25,7 +25,7 @@ export default async function sendWaitlistConfirmedEmail(req, res) {
       name: fName,
       reservationNo,
       subdomain,
-      earlyBirdCode,
+      accessCode,
       // referralCode,
     },
   };

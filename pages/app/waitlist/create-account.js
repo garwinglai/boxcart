@@ -11,7 +11,10 @@ import {
   sendWaitlistConfirmedEmail,
   sendEmailReferUsed,
 } from "@/helper/client/api/sendgrid/email";
-import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
+import {
+  checkEmailAvailableAccount,
+  checkEmailAvailableWaitlist,
+} from "@/helper/client/api/account/email";
 import {
   checkReferralCode,
   logReferUsed,
@@ -25,7 +28,6 @@ function CreateAccount() {
   const [storedSubdomainSession, setStoredSubdomainSession] =
     useState("{your-shop-name}");
   const [isEmailInUse, setIsEmailInUse] = useState(false);
-  const [waitlistCount, setWaitlistCount] = useState(0);
   const [formValues, setFormValues] = useState({
     fName: "",
     lName: "",
@@ -49,8 +51,6 @@ function CreateAccount() {
     // * Check session for subdomain storage
     if (typeof window !== "undefined") {
       const storedSessionDomain = sessionStorage.getItem("subdomain");
-      const sessionStoredWaitlistCount =
-        sessionStorage.getItem("waitlistCount");
       const isShopConfirmed = sessionStorage.getItem("isShopConfirmed");
 
       if (!storedSessionDomain) {
@@ -61,7 +61,6 @@ function CreateAccount() {
           Router.push("/waitlist/reserve-shop");
         }
         setStoredSubdomainSession(storedSessionDomain);
-        setWaitlistCount(sessionStoredWaitlistCount);
         setIsPageLoading(false);
       }
     }
@@ -85,10 +84,12 @@ function CreateAccount() {
     const lNameUpperFirst = firstCharCapitlize(lName);
     const name = fNameUpperFirst + " " + lNameUpperFirst;
     const subdomain = storedSubdomainSession;
+    const fullDomain = subdomain + ".boxcart.shop";
 
-    const emailInUse = await checkEmailAvailableAccount(email);
-    const { value, error } = emailInUse;
-    if (error) {
+    const emailInUseWaitlist = await checkEmailAvailableWaitlist(email);
+    const emailInUseAccount = await checkEmailAvailableAccount(email);
+
+    if (emailInUseWaitlist.error || emailInUseAccount.error) {
       setErrorResponse({
         hasError: true,
         errorMessage: "Unknown error: contact us. hello@boxcart.shop",
@@ -101,14 +102,14 @@ function CreateAccount() {
       });
     }
     // Return "Email in use." error if email is used.
-    if (value) {
+    if (emailInUseWaitlist.value || emailInUseAccount.value) {
       setIsButtonLoading(false);
       return setIsEmailInUse(true);
     }
 
     // If email not in use, create user in waitlist db.
     // Create earlyBird code to access benefits upon register.
-    const earlyBirdCode = await createEarlyBirdCode(lName);
+    const accessCode = await createEarlyBirdCode(lName);
     // const referralCode = createPersonalCode(fName, lName, waitlistCount);
 
     const finalValues = {
@@ -117,10 +118,8 @@ function CreateAccount() {
       lName: lNameUpperFirst,
       email: email.toLocaleLowerCase(),
       subdomain,
-      earlyBirdCode,
-      // reservationNo: parseInt(waitlistCount),
-      // referralCode,
-      // codeUsed,
+      fullDomain,
+      accessCode,
     };
 
     const createWaitlistResponse = await createNewWaitlistUser(
@@ -137,14 +136,9 @@ function CreateAccount() {
     } else {
       sendWaitlistConfirmedEmail(finalValues);
 
-      // if (codeUsed != 1) {
-      // 	const referrer = await logReferUsed(codeUsed);
-      // 	// finalValues = referred user
-      // 	sendEmailReferUsed(referrer, finalValues);
-      // }
       // Create session key of confirmed to prevent user from accessing page when nav -> back();
       sessionStorage.setItem("isShopConfirmed", true);
-      router.push("/waitlist/reserve-confirm");
+      router.push("/waitlist/reserve-confirmed");
     }
   }
 

@@ -95,11 +95,17 @@ function Profile({ userAccount }) {
   });
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchedBannerFileName, setFetchedBannerFileName] = useState(
+    bannerImageFileName ? bannerImageFileName : null
+  );
   const [bannerImage, setBannerImage] = useState(bannerImg ? bannerImg : null);
   const [bannerImageValues, setBannerImageValues] = useState({
     bannerFile: null,
     bannerFileName: "",
   });
+  const [fetchedLogoFileName, setFetchedLogoFileName] = useState(
+    logoImageFileName ? logoImageFileName : null
+  );
   const [logoImage, setLogoImage] = useState(logoImg ? logoImg : null);
   const [logoImageValues, setLogoImageValues] = useState({
     logoFile: null,
@@ -154,6 +160,8 @@ function Profile({ userAccount }) {
       city,
       state,
       zip,
+      bannerImageFileName,
+      logoImageFileName,
     } = userAccount;
 
     const businessNameChanged = businessName !== businessInfo.businessName;
@@ -183,6 +191,8 @@ function Profile({ userAccount }) {
       }
       return false;
     });
+
+    // log all the changes:
 
     // check if any of the values are different from the original, if so, show the save/cancel buttons
     if (
@@ -503,9 +513,9 @@ function Profile({ userAccount }) {
     // TODO: stop each action if failed
     if (bannerFile) {
       // Delete if bannerImageFileName was fetched from storage
-      if (bannerImageFileName) {
+      if (fetchedBannerFileName) {
         const { success } = await deleteImageFromFirebaseStorage(
-          bannerImageFileName,
+          fetchedBannerFileName,
           subdomain,
           "banner"
         );
@@ -522,15 +532,16 @@ function Profile({ userAccount }) {
         bannerError = true;
       } else {
         bannerImageStorage = url;
+        setFetchedBannerFileName(bannerFileName);
         setChecklistStore({ hasBanner: true });
       }
     }
 
     if (logoFile) {
       // Delete if logoImageFileName was fetched from storage
-      if (logoImageFileName) {
+      if (fetchedLogoFileName) {
         const { success } = await deleteImageFromFirebaseStorage(
-          logoImageFileName,
+          fetchedLogoFileName,
           subdomain,
           "logo"
         );
@@ -546,8 +557,9 @@ function Profile({ userAccount }) {
       if (error) {
         logoError = true;
       } else {
-        setChecklistStore({ hasLogo: true });
         logoImageStorage = url;
+        setFetchedLogoFileName(logoFileName);
+        setChecklistStore({ hasLogo: true });
       }
     }
 
@@ -667,7 +679,17 @@ function Profile({ userAccount }) {
     });
     setAccountStore(updatedAccount, logoImageStorage, bannerImageStorage);
     setIsLoading(false);
-    setShowCancelSaveButtons(false);
+    setBannerImageValues({
+      bannerFile: null,
+      bannerFileName: "",
+    });
+    setLogoImageValues({
+      logoFile: null,
+      logoFileName: "",
+    });
+
+    // setShowCancelSaveButtons(false);
+    checkIfChangesWereMade(updatedAccount);
   };
 
   const getLatLngFromAddress = (address) => {

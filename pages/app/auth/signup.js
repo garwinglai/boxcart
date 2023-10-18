@@ -32,6 +32,10 @@ import { useAccountStore } from "@/lib/store";
 import prisma from "@/lib/prisma";
 import { storage, createGeoHash } from "@/firebase/fireConfig";
 import Geocode from "react-geocode";
+import {
+  checkAccessCode,
+  checkAccessCodeUsed,
+} from "@/helper/client/api/account/early-bird-code";
 
 // steps:
 // 0: accessCode
@@ -58,7 +62,7 @@ function Signup({ nextAccountId }) {
   const [waitlistId, setWaitlistId] = useState("");
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [maxSteps, setMaxSteps] = useState(10);
   const [isLastStep, setIsLastStep] = useState(false);
   const [canSkip, setCanSkip] = useState(true);
@@ -348,75 +352,70 @@ function Signup({ nextAccountId }) {
     }
 
     //* If access code entered, check if it exists.
-    // if (step == 0) {
-    //   if (accessCode !== "") {
-    //     setIsLoading(true);
+    if (step == 0) {
+      if (accessCode !== "") {
+        setIsLoading(true);
 
-    //     const waitlist = await checkAccessCode(accessCode);
+        const waitlist = await checkAccessCode(accessCode);
 
-    //     // value == user
-    //     if (waitlist.success) {
-    //       if (!waitlist.value) {
-    //         setOpenError(true);
-    //         setErrorMessage(
-    //           "Access code not found. If you have a code, reach out for more information. hello@boxcart.shop"
-    //         );
-    //         setIsLoading(false);
-    //         return;
-    //       }
+        // value == user
+        if (waitlist.success) {
+          if (!waitlist.value) {
+            setOpenError(true);
+            setErrorMessage(
+              "Access code not found. If you have a code, reach out to: hello@boxcart.shop"
+            );
+            setIsLoading(false);
+            return;
+          }
 
-    //       if (waitlist.value) {
-    //         const { value } = waitlist;
-    //         setWaitlistId(value.id);
-    //         const account = await checkAccessCodeUsed(accessCode);
+          if (waitlist.value) {
+            const { value } = waitlist;
+            setWaitlistId(value.id);
+            const account = await checkAccessCodeUsed(accessCode);
 
-    //         if (account.success) {
-    //           if (account.value) {
-    //             setOpenError(true);
-    //             setErrorMessage(
-    //               "Access code has already been used. Reach out for more information."
-    //             );
-    //             setIsLoading(false);
-    //             return;
-    //           }
-    //           if (!account.value) {
-    //             const { fName, lName, email, subdomain } = waitlist.value;
-    //             const shortenedSubdomain = subdomain.replace(
-    //               ".boxcart.shop",
-    //               ""
-    //             );
-    //             setSignupValues((prev) => ({
-    //               ...prev,
-    //               firstName: fName,
-    //               lastName: lName,
-    //               email,
-    //               subdomain: shortenedSubdomain,
-    //             }));
-    //             setWaitListEmail(email);
-    //           }
-    //         }
+            if (account.success) {
+              if (account.value) {
+                setOpenError(true);
+                setErrorMessage("Access code has already been used.");
+                setIsLoading(false);
+                return;
+              }
+              if (!account.value) {
+                const { fName, lName, email, subdomain } = waitlist.value;
 
-    //         if (!account.success) {
-    //           setOpenError(true);
-    //           setErrorMessage(
-    //             "Unknown error. Please contact hello@boxcart.shop with your access code."
-    //           );
-    //           setIsLoading(false);
-    //           return;
-    //         }
-    //       }
-    //     }
+                setSignupValues((prev) => ({
+                  ...prev,
+                  firstName: fName,
+                  lastName: lName,
+                  email,
+                  subdomain,
+                }));
+                setWaitListEmail(email);
+              }
+            }
 
-    //     if (!waitlist.success) {
-    //       setOpenError(true);
-    //       setErrorMessage(
-    //         "Unknown error. Please contact hello@boxcart.shop with your access code."
-    //       );
-    //       setIsLoading(false);
-    //       return;
-    //     }
-    //   }
-    // }
+            if (!account.success) {
+              setOpenError(true);
+              setErrorMessage(
+                "Unknown error. Please contact hello@boxcart.shop with your access code."
+              );
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+
+        if (!waitlist.success) {
+          setOpenError(true);
+          setErrorMessage(
+            "Unknown error. Please contact hello@boxcart.shop with your access code."
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
+    }
 
     //* Test regex for subdomain.
     if (step == 2) {
@@ -1252,28 +1251,38 @@ function Signup({ nextAccountId }) {
   function checkSocialMediaUrlValidEntry() {
     // Create the regex for each without the https.
     const instagramRegexNoHttp = /^www\.instagram\.com\/.+/;
+    const instagramRegexWithHttp = /^(https?:\/\/)?(www\.)?instagram\.com\/.+/;
+
     const facebookRegexNoHttp = /^www\.facebook\.com\/.+/;
+    const facebookRegexWithHttp = /^(https?:\/\/)?(www\.)?facebook\.com\/.+/;
+
     const tiktokRegexNoHttp = /^www\.tiktok\.com\/.+/;
+    const tiktokRegexWithHttp = /^(https?:\/\/)?(www\.)?tiktok\.com\/.+/;
+
     const youtubeRegexNoHttp = /^www\.youtube\.com\/.+/;
+    const youtubeRegexWithHttp = /^(https?:\/\/)?(www\.)?youtube\.com\/.+/;
 
     let allSocialUrlsMatchedRegex = [];
     if (instagramUrl !== "") {
-      const matched = checkSocialMediaRegex(instagramRegexNoHttp, instagramUrl);
+      const matched = checkSocialMediaRegex(
+        instagramRegexWithHttp,
+        instagramUrl
+      );
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (facebookUrl !== "") {
-      const matched = checkSocialMediaRegex(facebookRegexNoHttp, facebookUrl);
+      const matched = checkSocialMediaRegex(facebookRegexWithHttp, facebookUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (tiktokUrl !== "") {
-      const matched = checkSocialMediaRegex(tiktokRegexNoHttp, tiktokUrl);
+      const matched = checkSocialMediaRegex(tiktokRegexWithHttp, tiktokUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
     if (youtubeUrl !== "") {
-      const matched = checkSocialMediaRegex(youtubeRegexNoHttp, youtubeUrl);
+      const matched = checkSocialMediaRegex(youtubeRegexWithHttp, youtubeUrl);
       allSocialUrlsMatchedRegex.push(matched);
     }
 
@@ -1289,7 +1298,7 @@ function Signup({ nextAccountId }) {
     const socialMediaMatchRegex = socialMediaRegex.test(url);
     if (!socialMediaMatchRegex) {
       setErrorMessage(
-        `Please enter a valid url or leave empty: www.{host}.com/{your-handle}`
+        `Please enter a valid url or leave empty: https://www.{host}.com/{your-handle}`
       );
       setOpenError(true);
       return false;
@@ -1438,8 +1447,8 @@ function Signup({ nextAccountId }) {
                 onChange={handleChange}
               />
               <p className="text-sm font-light text-black mt-4">
-                BoxCart is currently in beta and is invite only. Invitees have
-                been given an access code via email.
+                BoxCart is currently invite only. Invitees have been given an
+                access code via email.
               </p>
               <span className="flex gap-1 items-end">
                 <p className="text-sm font-light text-black mt-4">

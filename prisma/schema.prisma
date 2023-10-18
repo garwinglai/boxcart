@@ -12,20 +12,20 @@ datasource db {
 }
 
 model Waitlist {
-  id             Int      @id @default(autoincrement())
-  name           String?
-  fName          String?
-  lName          String?
-  email          String   @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  subdomain      String   @unique
-  earlyBird      Boolean  @default(true)
-  earlyBirdCode  String?  @unique
-  reservationNo  Int?     @unique
-  numberReferred Int      @default(0)
-  isUserCreated  Boolean  @default(false)
-  // user           User?
+  id         Int      @id @default(autoincrement())
+  name       String?
+  fName      String?
+  lName      String?
+  email      String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  subdomain  String   @unique
+  fullDomain String   @unique
+  accessCode String   @unique
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int?     @unique
+
+  @@index([userId])
 }
 
 model User {
@@ -40,8 +40,8 @@ model User {
   updatedAt       DateTime  @updatedAt
   accounts        Account[]
   role            Role      @default(OWNER)
-  // waitlist        Waitlist? @relation(fields: [waitlistId], references: [id])
-  // waitlistId      Int?      @unique
+  Waitlist        Waitlist?
+  waitlistId      Int?
 }
 
 model Account {
@@ -63,7 +63,7 @@ model Account {
   userName                        String
   firstName                       String
   lastName                        String
-  // accessCode             String?        @unique
+  accessCode                      String?              @unique
   businessName                    String
   subdomain                       String               @unique
   fullDomain                      String               @unique
@@ -153,6 +153,7 @@ model Order {
   updatedAt                   DateTime    @updatedAt
   orderItems                  OrderItem[]
   deliveryAddress             String?
+  pickupAddress               String?
   requireOrderTime            Boolean     @default(false)
   requireOrderDate            Boolean     @default(false)
   orderForDate                String? //epoch in milliseconds

@@ -2111,15 +2111,11 @@ function ProductDrawer({
             </span>
             {!hasUnlimitedQuantity && (
               <React.Fragment>
-                <ul className="my-2">
+                {/* <ul className="my-2">
                   <li className="text-xs list-disc font-light ml-9 md:text-sm">
-                    Set the quantity for your product, or
+                    Set the quantity for your product, or for different product options.
                   </li>
-
-                  <li className="text-xs list-disc font-light ml-9 mt-2 md:text-sm">
-                    Set the quantity for each product option below.
-                  </li>
-                </ul>
+                </ul> */}
                 <FormControl>
                   <RadioGroup
                     aria-labelledby="radio buttons for setting quantity"
@@ -2133,7 +2129,7 @@ function ProductDrawer({
                       control={<Radio size="small" color="warning" />}
                       label={
                         <p className="text-[color:var(--black-design)] text-sm">
-                          By product
+                          How much quantity for this product?
                         </p>
                       }
                     />
@@ -2155,17 +2151,10 @@ function ProductDrawer({
                       control={<Radio size="small" color="warning" />}
                       label={
                         <p className="text-[color:var(--black-design)] text-sm">
-                          By options
+                          Input quantity for each product option below.
                         </p>
                       }
                     />
-                    {!setQuantityByProduct && (
-                      <ul className="">
-                        <li className="text-xs list-disc font-light ml-5 md:text-sm">
-                          Set quantity for product options below.
-                        </li>
-                      </ul>
-                    )}
                   </RadioGroup>
                 </FormControl>
               </React.Fragment>

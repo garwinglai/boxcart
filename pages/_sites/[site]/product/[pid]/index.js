@@ -347,6 +347,7 @@ function Product({ product }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const requiredOptions = optionGroups.filter((item) => item.isRequired);
     const requiredQuestions = questions.filter((item) => item.isRequired);
@@ -381,6 +382,7 @@ function Product({ product }) {
 
         if (optionGroupRadiosExistsLength !== optionGroupRadiosLength) {
           handleOpenSnackbar("Missing required options");
+          setIsLoading(false);
           return;
         }
       }
@@ -399,6 +401,7 @@ function Product({ product }) {
 
         if (optionGroupCheckboxExistsLength !== optionGroupCheckboxLength) {
           handleOpenSnackbar("Missing required options");
+          setIsLoading(false);
           return;
         }
       }
@@ -406,24 +409,22 @@ function Product({ product }) {
 
     if (!setQuantityByProduct) {
       let smallestRadioOptionQuantity;
-      let tempPosition = 0;
+
       for (let i = 0; i < radioOptionValues.length; i++) {
         const { optionQuantity, optionName } = radioOptionValues[i];
+        const optionQuantityInt = parseInt(optionQuantity);
 
         if (optionName === "none") continue;
 
-        if (tempPosition === 0) {
-          smallestRadioOptionQuantity = optionQuantity;
-          tempPosition++;
+        if (i === 0) {
+          smallestRadioOptionQuantity = optionQuantityInt;
           continue;
         }
 
-        if (optionQuantity < smallestRadioOptionQuantity) {
-          smallestRadioOptionQuantity = optionQuantity;
+        if (optionQuantityInt < smallestRadioOptionQuantity) {
+          smallestRadioOptionQuantity = optionQuantityInt;
         }
       }
-
-      tempPosition--;
 
       let smallestCheckboxQuantity;
 
@@ -432,15 +433,16 @@ function Product({ product }) {
 
         for (let j = 0; j < options.length; j++) {
           const { optionQuantity } = options[j];
+          const optionQuantityInt = parseInt(optionQuantity);
+          // console.log("optionQuantity", optionQuantity);
 
-          if (tempPosition === 0) {
-            smallestCheckboxQuantity = optionQuantity;
-            tempPosition++;
+          if (i === 0 && j === 0) {
+            smallestCheckboxQuantity = optionQuantityInt;
             continue;
-          }
-
-          if (optionQuantity < smallestCheckboxQuantity) {
-            smallestCheckboxQuantity = optionQuantity;
+          } else {
+            if (optionQuantityInt < smallestCheckboxQuantity) {
+              smallestCheckboxQuantity = optionQuantityInt;
+            }
           }
         }
       }
@@ -451,6 +453,7 @@ function Product({ product }) {
       ) {
         handleOpenSnackbar("Not enough in stock.");
         smallestRadioOptionQuantity = null;
+        setIsLoading(false);
         return;
       }
 
@@ -459,27 +462,23 @@ function Product({ product }) {
         smallestCheckboxQuantity < selectedQuantity
       ) {
         handleOpenSnackbar("Not enough in stock.");
+        setIsLoading(false);
         smallestCheckboxQuantity = null;
         return;
       }
     }
 
-    const addToCartTempItemId = nanoid();
-
     const addToCartProductData = structureOrderData();
-    addToCartProductData.addToCartTempItemId = addToCartTempItemId;
-    addToCartProductData.defaultImage = product.defaultImage;
-    addToCartProductData.productId = id;
+    console.log("addToCartProductData", addToCartProductData);
 
     addSubtotal(itemTotalPenny);
     setCart(addToCartProductData);
-    setAddedToCart(true);
-    setTimeout(() => {
-      setAddedToCart(false);
-    }, 2000);
+    setIsLoading(false);
   };
 
   const structureOrderData = () => {
+    const addToCartTempItemId = nanoid();
+
     const updatedDataStructureRadio = radioOptionValues.map((item) => {
       const {
         groupId,
@@ -494,8 +493,12 @@ function Product({ product }) {
       const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
+        productId: id,
+        addToCartTempItemId,
+        setQuantityByProduct,
         selectionType,
         optionGroupName,
+        defaultImage,
         groupId,
         optionsDisplay,
         options: [
@@ -507,6 +510,8 @@ function Product({ product }) {
           },
         ],
       };
+
+      console.log("data", data);
 
       return data;
     });
@@ -924,7 +929,7 @@ function Product({ product }) {
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
           <div className="h-10">
             <ButtonPrimaryStorefront
-              name={`${addedToCart ? "Added" : "Add to cart"}`}
+              name="Add to Cart"
               type="submit"
               disabled={isLoading}
             />

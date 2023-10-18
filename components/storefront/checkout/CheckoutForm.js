@@ -77,7 +77,6 @@ function CheckoutForm({
     const orderDetailsData = buildOrderData();
     const customerData = buildCustomerData();
     const { orderId } = orderDetailsData;
-
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
     const { orderItems, totalItemsOrdered } = structuredOrderData;
     orderDetailsData.totalItemsOrdered = totalItemsOrdered;
@@ -144,6 +143,7 @@ function CheckoutForm({
   const buildOrderData = () => {
     const {
       deliveryAddress,
+      pickupAddress,
       orderForDateDisplay,
       orderForTimeDisplay,
       requireOrderTime,
@@ -177,6 +177,7 @@ function CheckoutForm({
     const orderDetailsData = {
       orderId: nanoid(),
       deliveryAddress,
+      pickupAddress,
       orderForDate, // epoch time of date
       orderForDateDisplay,
       orderForTime, // epoch time of exact order for time

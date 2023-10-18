@@ -19,6 +19,7 @@ function OrderReview({
     orderForTimeDisplay,
     fulfillmentDisplay,
     deliveryAddress,
+    pickupAddress,
     fulfillmentType,
     requireOrderTime,
     requireOrderDate,
@@ -37,6 +38,7 @@ function OrderReview({
       orderForTimeDisplay,
       fulfillmentDisplay,
       deliveryAddress,
+      pickupAddress,
       fulfillmentType,
       requireOrderTime,
       requireOrderDate,
@@ -67,6 +69,15 @@ function OrderReview({
                 <b>Delivery address:</b>
               </p>
               <p className="text-sm font-light">{deliveryAddress}</p>
+            </div>
+          )}
+
+          {fulfillmentType === 1 && (
+            <div className={`${styles.flex} ${styles.review_context}`}>
+              <p>
+                <b>Pickup address:</b>
+              </p>
+              <p className="text-sm font-light">{pickupAddress}</p>
             </div>
           )}
         </div>
@@ -119,14 +130,12 @@ function OrderReview({
             )}
           </div>
         )}
-        {/* <div className={`${styles.flex} ${styles.review_context}`}>
-        <p>
-          <b>Pickup address:</b>
-        </p>
-        <p className={`${styles.review_context_value}`}>
-          123 W camino real ave, arcadia CA 91004
-        </p>
-      </div> */}
+        {hydrated && fulfillmentType === 1 && (
+          <div className={`${styles.flex} ${styles.review_context}`}>
+            <p className="text-sm">Pickup address:</p>
+            <p className="text-sm font-light text-right">{pickupAddress}</p>
+          </div>
+        )}
       </div>
     </div>
   );

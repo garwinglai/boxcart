@@ -131,8 +131,8 @@ function ShareShop({ userAccount }) {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         action={action}
       />
-      <div className="flex flex-col items-end gap-4">
-        <div className="flex items-center gap-4 border rounded border-[color:var(--black-design-extralight)] py-1 px-2">
+      <div className="flex flex-col items-end gap-4 lg:w-1/3">
+        <div className="flex items-center justify-between gap-4 border rounded border-[color:var(--black-design-extralight)] py-1 px-2 w-full flex-wrap">
           <p className="">{fullDomain}</p>
           <IconButton onClick={handleCopyIdToClipboard}>
             <ContentCopyIcon fontSize="small" />
@@ -212,6 +212,7 @@ ShareShop.getLayout = function getLayout(
       pageTitle={pageTitle}
       pageIcon={pageIcon}
       mobilePageRoute={mobilePageRoute}
+      pageRoute={pageRoute}
     >
       {page}
     </AppLayout>

@@ -8,17 +8,18 @@ import confetti_icon from "../../../public/images/icons/confetti.png";
 function ReserveConfirm() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [subdomain, setSubdomain] = useState("");
-  const [waitlistCount, setWaitlistCount] = useState(0);
+  const [fullDomain, setFullDomain] = useState("");
 
   useEffect(() => {
     const sessionStoredSubdomain = sessionStorage.getItem("subdomain");
-    const sessionStoredWaitlistCount = sessionStorage.getItem("waitlistCount");
+    const storedSessionFullDomain = sessionStorage.getItem("fullDomain");
 
     if (!sessionStoredSubdomain) {
       Router.push("/waitlist/reserve-shop");
     } else {
+      // const domain = sessionStoredSubdomain + ".boxcart.shop";
       setSubdomain(sessionStoredSubdomain);
-      setWaitlistCount(sessionStoredWaitlistCount);
+      setFullDomain(storedSessionFullDomain);
       setIsPageLoading(false);
     }
   }, []);
@@ -61,7 +62,7 @@ function ReserveConfirm() {
 
         <div className={`${styles.domain_group}`}>
           <div className={`${styles.input_group}`}>
-            <h4 htmlFor="domain">{subdomain}</h4>
+            <h4 htmlFor="domain">{fullDomain}</h4>
           </div>
           {/* <h3>You secured your shop name.</h3> */}
         </div>

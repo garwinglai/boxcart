@@ -109,7 +109,7 @@ export async function findWaitlistEarlyBirdCode(code) {
   try {
     const user = await prisma.waitlist.findUnique({
       where: {
-        earlyBirdCode: code,
+        accessCode: code,
       },
     });
 

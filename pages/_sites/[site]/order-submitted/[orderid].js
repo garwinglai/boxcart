@@ -34,9 +34,9 @@ function OrderSubmitted({ order }) {
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
-  // useEffect(() => {
-  //   unsetCartStoreData();
-  // }, [order]);
+  useEffect(() => {
+    unsetCartStoreData();
+  }, [order]);
 
   const unsetCartStoreData = () => {
     resetCartStore({
@@ -50,6 +50,7 @@ function OrderSubmitted({ order }) {
       fulfillmentType: null,
       fulfillmentDisplay: null,
       deliveryAddress: "",
+      pickupAddress: "",
       subtotalPenny: 0,
       subtotalDisplay: "$0.00",
       taxRate: 0,
@@ -143,6 +144,10 @@ function OrderSubmitted({ order }) {
             />
           </div>
         )}
+        <div className="lg:w-1/2 lg:mx-auto">
+          <OrderReview orderSubmitted={true} order={order} isMobile={false} />
+          <OrderSubtotal orderSubmitted={true} order={order} />
+        </div>
         <Link
           href={`/`}
           className="bg-[color:var(--black-design-extralight)] text-white font-light px-4 py-2 active:bg-black"
@@ -164,8 +169,6 @@ function OrderSubmitted({ order }) {
           const { id } = item;
           return <CartItem key={id} cartItem={item} orderSubmitted={true} />;
         })}
-        <OrderReview orderSubmitted={true} order={order} isMobile={false} />
-        <OrderSubtotal orderSubmitted={true} order={order} />
       </div>
     </div>
   );

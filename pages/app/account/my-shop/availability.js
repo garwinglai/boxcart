@@ -971,13 +971,33 @@ function Availability({ userAccount }) {
             </div>
           </div>
           <div>
-            <h3 className="mb-2 ml-4 underline">Calendar:</h3>
+            {/* <h3 className="mb-2 ml-4 underline">Calendar:</h3> */}
             {hydrated && (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateCalendar
                   loading={isLoading}
                   onMonthChange={handleMonthChange}
                   onChange={handleDateClick}
+                  sx={{
+                    ...{
+                      "& .MuiPickersDay-root.Mui-selected": {
+                        // width: 20,
+                        // height: 20,
+                      },
+                      "& .MuiPickersDay-root": {
+                        width: 35,
+                        height: 35,
+                        fontSize: ".9rem",
+                        marginTop: "0.25rem",
+                      },
+                    },
+                    width: "90%",
+                    fontSize: "1rem",
+                    backgroundColor: "white",
+                    borderRadius: "8px",
+                    padding: "8px 8px",
+                    marginBottom: "2rem",
+                  }}
                   renderLoading={() => <DayCalendarSkeleton />}
                   slots={{
                     day: ServerDay,

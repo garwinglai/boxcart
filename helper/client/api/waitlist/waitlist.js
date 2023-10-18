@@ -1,4 +1,3 @@
-// ! Used for waitlist only. Refer to subdomain.js to check subdomain
 export async function checkSubdomainAvail(subdomain) {
   const fetchWaitlistUrl = `/api/public/waitlist/${subdomain}`;
 

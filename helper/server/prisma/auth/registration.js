@@ -17,7 +17,7 @@ export async function createNewUser(body) {
 
   const {
     // waitlistId,
-    // accessCode,
+    accessCode,
     businessName,
     freePeriodEndDateStr,
     freePeriodEndDateEpoch,
@@ -58,7 +58,7 @@ export async function createNewUser(body) {
               lastName,
               freePeriodEndDateStr,
               freePeriodEndDateEpoch: freePeriodEndDateEpochStr,
-              // accessCode,
+              accessCode,
               businessName,
               subdomain,
               fullDomain,

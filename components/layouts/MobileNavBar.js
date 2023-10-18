@@ -21,12 +21,15 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { deleteLocalStorage } from "@/utils/clientStorage";
 import { useAccountStore } from "@/lib/store";
-import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "@/firebase/fireConfig";
+import { useHasHydrated } from "@/utils/useHasHydrated";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 
 function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
+  const hydrated = useHasHydrated();
   const account = useAccountStore((state) => state.account);
   const removeAccount = useAccountStore((state) => state.removeAccount);
+
+  const { businessName } = account;
 
   const [openStoreList, setOpenStoreList] = useState(
     mobilePageRoute === "profile" ||
@@ -109,10 +112,10 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             Logo
           </div>
         )}
-        <h3>BoxCart</h3>
+        <h3>{hydrated && businessName}</h3>
 
         <Link href="/account/my-shop" className="mt-2">
-          <ButtonThird
+          <ButtonPrimary
             handleClick={toggleDrawer("right", false)}
             icon={<StorefrontIcon fontSize="small" />}
             name="My Shop"
@@ -363,11 +366,22 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           href="/account/my-shop/share"
           onClick={toggleDrawer("right", false)}
         >
-          <MenuItem>
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                mobilePageRoute === "share-shop" && "var(--third-light-soft)"
+              }`,
+
+              borderRadius: `${mobilePageRoute === "share-shop" && "4px"}`,
+            }}
+          >
             <ListItemIcon>
               <ShareOutlinedIcon />
             </ListItemIcon>
-            <ListItemText primary="Share store" />
+            <ListItemText
+              primary="Share store"
+              sx={{ color: "var(--black-design-extralight)" }}
+            />
           </MenuItem>
         </Link>
 
@@ -375,7 +389,10 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           <ListItemIcon>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Log out" />
+          <ListItemText
+            primary="Log out"
+            sx={{ color: "var(--black-design-extralight)" }}
+          />
         </MenuItem>
       </div>
     </div>

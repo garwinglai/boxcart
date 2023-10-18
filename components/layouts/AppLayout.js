@@ -40,34 +40,7 @@ function AppLayout({
           pageIcon={pageIcon}
           mobilePageRoute={mobilePageRoute}
         />
-        {hydrate && isChecklistAlertOpen && (
-          <Alert
-            severity="error"
-            color="warning"
-            action={
-              <ButtonThird
-                name="Go"
-                handleClick={handleGoChecklist}
-                type="button"
-              />
-            }
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "1rem",
-              padding: "0.5rem 1rem",
-            }}
-          >
-            <p className="font-light">
-              Complete{" "}
-              <b>
-                <u>checklist</u>
-              </b>{" "}
-              to launch your store.
-            </p>
-          </Alert>
-        )}
+
         <main className="scroll">{children}</main>
       </div>
       <ShopNavBottom mobilePageRoute={mobilePageRoute} pageTitle={pageTitle} />

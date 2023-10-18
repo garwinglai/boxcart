@@ -26,6 +26,8 @@ function Checkout() {
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const cart = useCartStore((state) => state.cart);
+  console.log("cart", cart);
+  console.log("cartDetails", cartDetails);
 
   const [snackbarValues, setSnackbarValues] = useState({
     isOpenSnackbar: false,

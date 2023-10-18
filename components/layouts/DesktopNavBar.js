@@ -31,10 +31,16 @@ import { useRouter } from "next/router";
 import { deleteLocalStorage } from "@/utils/clientStorage";
 import { Divider } from "@mui/material";
 import { useAccountStore } from "@/lib/store";
+import { useHasHydrated } from "@/utils/useHasHydrated";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
 
 function DesktopNavBar({ pageRoute }) {
+  const hydrated = useHasHydrated();
+
   const account = useAccountStore((state) => state.account);
   const removeAccount = useAccountStore((state) => state.removeAccount);
+
+  const { businessName } = account;
 
   const [openStoreList, setOpenStoreList] = useState(
     pageRoute === "availability" ||
@@ -119,10 +125,10 @@ function DesktopNavBar({ pageRoute }) {
             Logo
           </div>
         )}
-        <h4>BoxCart</h4>
+        <h4>{hydrated && businessName}</h4>
 
         <Link href="/account/my-shop">
-          <ButtonThird
+          <ButtonPrimary
             icon={<StorefrontIcon fontSize="small" />}
             name="My Shop"
           />
@@ -649,7 +655,15 @@ function DesktopNavBar({ pageRoute }) {
       </List>
       <div className={`${styles.navbar_footer_group}`}>
         <Link href="/account/my-shop/share">
-          <MenuItem>
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                pageRoute === "share-shop" && "var(--third-light-soft)"
+              }`,
+
+              borderRadius: `${pageRoute === "share-shop" && "4px"}`,
+            }}
+          >
             <ListItemIcon>
               <ShareOutlinedIcon />
             </ListItemIcon>

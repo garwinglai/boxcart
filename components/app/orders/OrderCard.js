@@ -294,12 +294,12 @@ function OrderCard({
 
           <React.Fragment>
             <div className="flex justify-between items-center px-4 py-2 border-b">
-              <button className="border border-[color:var(--gray-light-med)] px-2 py-1 rounded font-light text-sm">
+              {/* <button className="border border-[color:var(--gray-light-med)] px-2 py-1 rounded font-light text-sm">
                 <div className="flex items-center gap-2">
                   <EmailOutlinedIcon fontSize="small" color="disabled" />
                   Contact
                 </div>
-              </button>
+              </button> */}
               <div className="flex justify-end items-center  ml-auto">
                 <label
                   htmlFor="select-order-status"
