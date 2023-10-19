@@ -240,7 +240,7 @@ model OrderExampleImage {
 
 model OrderOptionGroup {
   id              Int           @id @default(autoincrement())
-  optionGroupName String
+  optionGroupName String?
   optionsDisplay  String
   orderOptions    OrderOption[]
   orderItem       OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)

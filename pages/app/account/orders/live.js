@@ -16,6 +16,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 function LiveOrders({ orders }) {
+  console.log("orders client", orders);
   const [snackbarValues, setSnackbarValues] = useState({
     snackbarOpen: false,
     snackbarMessage: "",
@@ -247,9 +248,11 @@ export async function getServerSideProps(context) {
         },
       });
 
+      console.log(" server orders", orders);
+
       serializedData = JSON.parse(JSON.stringify(orders));
     } catch (error) {
-      console.log("serversideprops checklist error:", error);
+      console.log("serversideprops` error:", error);
       serializedData = null;
     }
 

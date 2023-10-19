@@ -49,18 +49,6 @@ function CartItem({
     addToCartTempItemId,
   } = cartItem;
 
-  // const priceDisplay = "$2.50";
-  // const customNote = "This is a custom note";
-  // const orderExampleImages = [];
-  // const orderOptionGroups = [];
-  // const orderQuestionsAnswers = [];
-  // const productName = "Candle";
-  // const quantity = 2;
-  // const defaultImage = candle_2;
-  // const productId = "123";
-  // const pricePenny = 250;
-  // const addToCartTempItemId = "123";
-
   const handleAddItemQuantity = (addToCartTempItemId) => (e) => {
     const priceToAddPenny = pricePenny / quantity;
 

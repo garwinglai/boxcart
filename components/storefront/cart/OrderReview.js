@@ -111,7 +111,7 @@ function OrderReview({
         )}
         <div className={`${styles.flex} ${styles.review_context}`}>
           <p className="text-sm">Fulfillment:</p>
-          <p className="text-sm font-light">{hydrated && fulfillmentDisplay}</p>
+          <p className="text-xs font-light">{hydrated && fulfillmentDisplay}</p>
         </div>
         {fulfillmentType === 0 && (
           <div className={`${styles.flex} ${styles.review_context}`}>
@@ -133,7 +133,7 @@ function OrderReview({
         {hydrated && fulfillmentType === 1 && (
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p className="text-sm">Pickup address:</p>
-            <p className="text-sm font-light text-right">{pickupAddress}</p>
+            <p className="text-xs font-light text-right">{pickupAddress}</p>
           </div>
         )}
       </div>

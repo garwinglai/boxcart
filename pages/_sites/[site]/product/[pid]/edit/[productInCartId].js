@@ -95,6 +95,7 @@ function EditAddToCartProduct({ product }) {
     const currProductInCartToEdit = cart.find(
       (item) => item.addToCartTempItemId === productInCartId
     );
+
     const {
       customNote,
       orderExampleImages,
@@ -499,7 +500,6 @@ function EditAddToCartProduct({ product }) {
         for (let j = 0; j < options.length; j++) {
           const { optionQuantity } = options[j];
           const optionQuantityInt = parseInt(optionQuantity);
-          // console.log("optionQuantity", optionQuantity);
 
           if (i === 0 && j === 0) {
             smallestCheckboxQuantity = optionQuantityInt;
@@ -539,6 +539,7 @@ function EditAddToCartProduct({ product }) {
     subtractSubtotal(beforeEditPricePenny);
     addSubtotal(itemTotalPenny);
     setCart(addToCartProductData);
+    handleOpenSnackbar("Updated.");
     setIsLoading(false);
   };
 
@@ -561,13 +562,9 @@ function EditAddToCartProduct({ product }) {
       const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
-        productId: id,
-        addToCartTempItemId,
-        setQuantityByProduct,
-        defaultImage,
         groupId,
         selectionType,
-        optionGroupName,
+        optionGroupName: optionGroupName ? optionGroupName : null,
         optionsDisplay,
         options: [
           {
@@ -609,7 +606,7 @@ function EditAddToCartProduct({ product }) {
       const data = {
         selectionType,
         groupId,
-        optionGroupName,
+        optionGroupName: optionGroupName ? optionGroupName : null,
         optionsDisplay,
         options: updatedOptions,
       };
@@ -647,6 +644,10 @@ function EditAddToCartProduct({ product }) {
     });
 
     const addToCartProductData = {
+      productId: id,
+      addToCartTempItemId,
+      setQuantityByProduct,
+      defaultImage,
       productName: productName,
       pricePenny,
       priceDisplay: itemTotal,
@@ -810,6 +811,19 @@ function EditAddToCartProduct({ product }) {
     ));
   }
 
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbar}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   return (
     <form
       onSubmit={handleAddToCart}
@@ -822,6 +836,7 @@ function EditAddToCartProduct({ product }) {
         message={snackbarMessage}
         sx={{ width: "fit-content" }}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        action={action}
       />
       <div className="md:w-[65%] md:overflow-y-scroll">
         <div className="flex justify-between items-center my-1 mx-2 md:ml-0 md:my-4">

@@ -469,10 +469,10 @@ function Product({ product }) {
     }
 
     const addToCartProductData = structureOrderData();
-    console.log("addToCartProductData", addToCartProductData);
 
     addSubtotal(itemTotalPenny);
     setCart(addToCartProductData);
+    handleOpenSnackbar("Added.");
     setIsLoading(false);
   };
 
@@ -493,12 +493,8 @@ function Product({ product }) {
       const optionsDisplay = optionName + " (" + price + ")";
 
       const data = {
-        productId: id,
-        addToCartTempItemId,
-        setQuantityByProduct,
         selectionType,
-        optionGroupName,
-        defaultImage,
+        optionGroupName: optionGroupName ? optionGroupName : null,
         groupId,
         optionsDisplay,
         options: [
@@ -510,8 +506,6 @@ function Product({ product }) {
           },
         ],
       };
-
-      console.log("data", data);
 
       return data;
     });
@@ -543,7 +537,7 @@ function Product({ product }) {
       const data = {
         selectionType,
         groupId,
-        optionGroupName,
+        optionGroupName: optionGroupName ? optionGroupName : null,
         optionsDisplay,
         options: updatedOptions,
       };
@@ -582,6 +576,10 @@ function Product({ product }) {
     });
 
     const addToCartProductData = {
+      defaultImage,
+      productId: id,
+      addToCartTempItemId,
+      setQuantityByProduct,
       productName: productName,
       pricePenny: itemTotalPenny,
       priceDisplay: itemTotal,
@@ -735,7 +733,7 @@ function Product({ product }) {
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
         sx={{ width: "fit-content" }}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         action={action}
       />
       <div className="md:w-[65%] md:overflow-y-scroll">
