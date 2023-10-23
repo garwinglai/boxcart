@@ -12,13 +12,15 @@ export default async function handler(req, res) {
     // TODO: check if i have to parse data.
     // Create batch logic here
     const builtBatchData = buildBatchData(batchData);
-
-    const { savedCount, errorCount, savedProducts, productWithErrors } =
-      await createBatchProducts(builtBatchData);
-
-    res
-      .status(200)
-      .json({ savedCount, errorCount, savedProducts, productWithErrors });
+    try {
+      const { savedCount, errorCount, savedProducts, productWithErrors } =
+        await createBatchProducts(builtBatchData);
+      res
+        .status(200)
+        .json({ savedCount, errorCount, savedProducts, productWithErrors });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error", error });
+    }
 
     // if (success) {
     //   res.status(200).json({ batch: value });
