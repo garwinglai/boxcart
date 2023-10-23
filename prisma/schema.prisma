@@ -431,7 +431,6 @@ model Image {
   @@index([productId])
 }
 
-// TODO: cannot be unique categoryName
 model Category {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
@@ -481,8 +480,8 @@ model Option {
   updatedAt       DateTime    @updatedAt
   optionGroupName String
   optionName      String
-  priceStr        String?
-  priceIntPenny   Int?
+  priceIntPenny   Int?        @default(0)
+  priceStr        String?     @default("$0.00")
   quantityStr     String?
   quantityInt     Int?
   optionGroup     OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)

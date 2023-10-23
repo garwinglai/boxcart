@@ -605,3 +605,21 @@ export async function deleteProductServer(productId) {
     return { success: false, error };
   }
 }
+
+export async function updateProductVisibility(id, visibility) {
+  try {
+    const product = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        isEnabled: visibility,
+      },
+    });
+
+    return { success: true, value: product };
+  } catch (error) {
+    console.log("update product visibility error:", error);
+    return { success: false, error };
+  }
+}

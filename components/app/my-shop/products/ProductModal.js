@@ -29,10 +29,7 @@ const style = {
 function ProductModal({
   isCardModalOpen,
   handleClickListenerExpand,
-  isItemEnabled,
   toggleDrawer,
-  state,
-  handleSwitchChange,
   product,
   categories,
 }) {
@@ -107,12 +104,12 @@ function ProductModal({
             )}
           </div>
 
-          <p className="text-xs text-right text-[color:var(--gray)] font-light mt-4">
+          <p className="text-xs text-right text-[color:var(--gray)] font-light mt-2">
             {images && images.length} images uploaded.
           </p>
         </div>
         <div className="flex justify-between items-start relative w-full">
-          <div className="flex flex-col gap-2 py-2 px-4">
+          <div className="flex flex-col gap-2 pt-2 pb-4 px-4">
             <h4 className="font-medium lg:text-base">{productName}</h4>
             <div className="flex gap-2 items-end text-xs font-light lg:text-sm ">
               <p className="font-medium">Price:</p>
@@ -140,18 +137,6 @@ function ProductModal({
                 : "n/a"}
             </p>
           </div>
-        </div>
-        <div className="flex items-center justify-end gap-1 mt-4 border-y py-2 mx-4">
-          <p
-            className={`text-xs  ${
-              isItemEnabled
-                ? "text-[color:var(--primary-dark-med)] "
-                : "text-[color:var(--gray-text)] "
-            }`}
-          >
-            Visible in store
-          </p>
-          <IOSSwitch checked={isItemEnabled} onChange={handleSwitchChange} />
         </div>
         <div className="border-t border-[color:var(--gray-light)]">
           <div className="p-4 border-b border-[color:var(--gray-light)] ">

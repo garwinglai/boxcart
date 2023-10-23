@@ -140,8 +140,26 @@ function ProductCard({
     setIsCardModalOpen((prev) => !prev);
   };
 
-  const handleSwitchChange = () => {
+  const handleSwitchChange = (id) => async (e) => {
     setIsItemEnabled((prev) => !prev);
+    const toggleVisiblityAPI =
+      "/api/private/inventory/product/toggle-visibility";
+    const body = {
+      id,
+      visibility: !isItemEnabled,
+    };
+
+    console.log("body", body);
+
+    const res = await fetch(toggleVisiblityAPI, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const { success, message } = await res.json();
   };
 
   const toggleDrawer = (anchor, open) => (event) => {
@@ -180,6 +198,7 @@ function ProductCard({
 
   const handleDeleteProduct = (productId, images) => async (e) => {
     setIsLoading(true);
+    console.log("deleting product...", productId, images);
 
     // Delete firestore product images
     const { subdomain } = userAccount;
@@ -188,6 +207,8 @@ function ProductCard({
     for (let i = 0; i < images.length; i++) {
       const currImage = images[i];
       const { imgFileName: fileName, fireStorageId } = currImage;
+
+      if (!fireStorageId) continue;
 
       const { success } = await deleteProductImagesFromFirebase(
         fileName,
@@ -651,9 +672,12 @@ function ProductCard({
                 : "text-[color:var(--gray-text)] "
             }`}
           >
-            Visible in store
+            Enable
           </p>
-          <IOSSwitch checked={isItemEnabled} onChange={handleSwitchChange} />
+          <IOSSwitch
+            checked={isItemEnabled}
+            onChange={handleSwitchChange(id)}
+          />
         </span>
 
         <div className="hidden lg:block">
@@ -664,10 +688,7 @@ function ProductCard({
             <AspectRatioOutlinedIcon fontSize="small" />
           </IconButton>
           <ProductModal
-            isItemEnabled={isItemEnabled}
             toggleDrawer={toggleDrawer}
-            state={state}
-            handleSwitchChange={handleSwitchChange}
             isCardModalOpen={isCardModalOpen}
             handleClickListenerExpand={handleClickListenerExpand}
             product={product}
