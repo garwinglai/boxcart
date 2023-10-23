@@ -2,38 +2,6 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
 export const createBatchProducts = async (builtBatchData) => {
-  // console.log("build batch data", builtBatchData);
-  // const { product, images, optionGroups, questions, relatedCategories } =
-  //   builtBatchData;
-
-  // const productLength = product.length;
-  // const imagesLength = images.length;
-  // const optionGroupsLength = optionGroups.length;
-  // const questionsLength = questions.length;
-  // const relatedCategoriesLength = relatedCategories.length;
-
-  // if (
-  //   productLength > 0 &&
-  //   imagesLength > 0 &&
-  //   optionGroupsLength > 0 &&
-  //   questionsLength > 0 &&
-  //   relatedCategoriesLength > 0
-  // ) {
-  //   const [
-  //     createdProduct,
-  //     createdImages,
-  //     createdOptionGroups,
-  //     createdQuestions,
-  //     createdRelatedCategories,
-  //   ] = await prisma.$transaction([
-  //     createProduct(product),
-  //     createImages(images),
-  //     createOptionGroups(optionGroups),
-  //     createdQuestions(questions),
-  //     createdRelatedCategories(relatedCategories),
-  //   ]);
-  // }
-
   const savedProducts = [];
   const productWithErrors = [];
 
@@ -83,22 +51,6 @@ export const createBatchProducts = async (builtBatchData) => {
 
   return returnData;
 };
-
-const createProduct = async (product) => {
-  return prisma.product.createMany({ data: product });
-};
-
-const createImages = async (images) => {
-  return prisma.image.createMany(images);
-};
-const createOptionGroups = async (optionGroups) => {
-  return prisma.optionGroup.createMany(optionGroups);
-};
-const createdQuestions = async (questions) => {
-  return prisma.question.createMany(questions);
-};
-
-const createdRelatedCategories = async (relatedCategories) => {};
 
 export const getKintSugiRelatedAccounts = async (groupName) => {
   try {
