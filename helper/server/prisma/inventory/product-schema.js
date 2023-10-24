@@ -246,6 +246,7 @@ const updateProduct = (product) => {
     optionSchema,
     questionSchema,
   } = product;
+  console.log("product", product);
 
   const {
     accountId,
@@ -490,13 +491,25 @@ const updateProduct = (product) => {
           .filter((item) => item), //filter out undefined values
         create: optionGroupSchema
           .map((optionGroup) => {
-            const { optionGroupName, groupId, groupPosition } = optionGroup;
+            const {
+              optionGroupName,
+              groupId,
+              groupPosition,
+              selectionType,
+              selectionDisplay,
+              isRequired,
+              isRequiredDisplay,
+            } = optionGroup;
 
             if (groupId) return;
 
             const data = {
               optionGroupName,
               productName,
+              selectionType,
+              selectionDisplay,
+              isRequired,
+              isRequiredDisplay,
               options: {
                 create: optionSchema
                   .map((option) => {

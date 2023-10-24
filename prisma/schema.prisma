@@ -620,6 +620,8 @@ enum Role {
   SUPERADMIN
   // BoxCart Staff
   SUPERSTAFF
+  // BoxCart Partner
+  PARTNER
   // Business owners - users
   OWNER
   // User's staff

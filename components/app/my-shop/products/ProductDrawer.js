@@ -1242,6 +1242,7 @@ function ProductDrawer({
 
         productObject.imageSchema = newProductImages;
       }
+      
       if (defaultImageValues) {
         if (newProductImages.length === 0) {
           newProductImages.push(defaultImageValues);
@@ -1607,6 +1608,8 @@ function ProductDrawer({
 
       return data;
     });
+
+    console.log("optionGroupSchema:", optionGroupSchema);
 
     let groupOfOptionsInsertGroupTitles = [];
 
