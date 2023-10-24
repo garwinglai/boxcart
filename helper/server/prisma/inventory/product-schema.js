@@ -490,7 +490,7 @@ const updateProduct = (product) => {
           .filter((item) => item), //filter out undefined values
         create: optionGroupSchema
           .map((optionGroup) => {
-            const { optionGroupName, groupId } = optionGroup;
+            const { optionGroupName, groupId, groupPosition } = optionGroup;
 
             if (groupId) return;
 
@@ -516,9 +516,9 @@ const updateProduct = (product) => {
                         ? null
                         : optionGroupId;
                     const groupIdReformNull =
-                      groupId === null || groupId === undefined
+                      groupPosition === null || groupPosition === undefined
                         ? null
-                        : groupId;
+                        : groupPosition;
 
                     if (optionGroupIdReformNull !== groupIdReformNull) return;
                     if (optionGroupName !== groupName) return;

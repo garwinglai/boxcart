@@ -108,7 +108,7 @@ const buildBatchData = (batchData) => {
 // * In product, if hasUnlimitedQuantity is set to false, then for setQuantitybyProduct -> (true = must set quantity in products) (false = must set quantityInt in options)
 // const batchProductData = [
 //   {
-//     accountId: "",
+//     accountId,
 //     product: {
 //       //Product schema
 //       productName, //String

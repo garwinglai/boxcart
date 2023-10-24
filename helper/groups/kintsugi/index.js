@@ -33,6 +33,10 @@ export const createBatchProducts = async (builtBatchData) => {
         const { message, clientVersion } = error;
         errorData.errorMessage = message;
         errorData.clientVersion = clientVersion;
+      } else {
+        const { message, clientVersion } = error;
+        errorData.errorMessage = message;
+        errorData.clientVersion = clientVersion;
       }
 
       productWithErrors.push(errorData);

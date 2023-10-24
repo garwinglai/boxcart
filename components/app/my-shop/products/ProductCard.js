@@ -149,8 +149,6 @@ function ProductCard({
       visibility: !isItemEnabled,
     };
 
-    console.log("body", body);
-
     const res = await fetch(toggleVisiblityAPI, {
       method: "POST",
       headers: {
@@ -198,7 +196,6 @@ function ProductCard({
 
   const handleDeleteProduct = (productId, images) => async (e) => {
     setIsLoading(true);
-    console.log("deleting product...", productId, images);
 
     // Delete firestore product images
     const { subdomain } = userAccount;

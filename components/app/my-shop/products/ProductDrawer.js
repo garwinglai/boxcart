@@ -121,6 +121,7 @@ function ProductDrawer({
   const [allCategories, setAllCategories] = useState(
     categories ? categories : []
   );
+  const [selectedCategory, setselectedCategory] = useState("");
   const [initialRelatedProducts, setInitialRelatedProducts] = useState(
     product ? product.relatedCategories : []
   );
@@ -307,12 +308,27 @@ function ProductDrawer({
       return;
     }
 
+    const relatedCategoriesArr = relatedCategories.map(
+      (item) => item.categoryName
+    );
+
+    if (relatedCategoriesArr.includes(newCategoryInput)) {
+      handleOpenSnackbar("Category already exists");
+      return;
+    }
+
+    const categoryData = {
+      categoryName: newCategoryInput,
+    };
+
     setAllCategories((prev) => [...prev, newCategory]);
-    setNewCategories((prev) => [...prev, newCategoryInput]);
     setHoldTempCategoriesToAdd((prev) => [...prev, newCategory]);
     setNewCategoryInput("");
+    setProductValues((prev) => ({
+      ...prev,
+      relatedCategories: [...prev.relatedCategories, categoryData],
+    }));
     setOpenCategoryModal(false);
-    handleOpenSnackbar("Category added to list. Select it from dropdown.");
   };
 
   const handleOpenSnackbar = (message) => {
@@ -331,7 +347,7 @@ function ProductDrawer({
 
   // create openproductimagemode function
   const handleOpenProductImageModal = () => {
-    setOpenProductImageModal(true);
+    // setOpenProductImageModal(true);
   };
 
   const handleIsQtyUnlimitedChange = () => {
@@ -936,8 +952,9 @@ function ProductDrawer({
     const newCategoriesArr = newCategories.filter(
       (item) => item !== categoryName
     );
-    setNewCategories(newCategoriesArr);
 
+    setNewCategories(newCategoriesArr);
+    setselectedCategory("");
     setProductValues((prev) => ({
       ...prev,
       relatedCategories: [...prev.relatedCategories, parsedJsonValue],
@@ -1584,6 +1601,10 @@ function ProductDrawer({
         }
       }
 
+      if (isEditProduct) {
+        data.groupPosition = position;
+      }
+
       return data;
     });
 
@@ -1918,12 +1939,17 @@ function ProductDrawer({
             </span>
           </div>
           <span className="flex flex-col gap-2 mt-4">
-            <label
-              htmlFor="title"
-              className="text-black font-medium text-base "
-            >
-              Product name:
-            </label>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="title"
+                className="text-black font-medium text-base "
+              >
+                Product name:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(required)</p>
+              </span>
+            </div>
             <input
               type="text"
               onKeyDown={handleKeyDown}
@@ -1936,12 +1962,17 @@ function ProductDrawer({
             />
           </span>
           <span className="flex flex-col gap-2 mt-4">
-            <label
-              htmlFor="description"
-              className="text-black font-medium text-base "
-            >
-              Description:
-            </label>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="description"
+                className="text-black font-medium text-base "
+              >
+                Description:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(required)</p>
+              </span>
+            </div>
             <textarea
               required
               type="text"
@@ -1953,12 +1984,17 @@ function ProductDrawer({
             />
           </span>
           <span className="flex flex-col gap-2 mt-4 relative">
-            <label
-              htmlFor="price"
-              className="text-black font-medium text-base "
-            >
-              Price:
-            </label>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="price"
+                className="text-black font-medium text-base "
+              >
+                Price:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(required)</p>
+              </span>
+            </div>
             <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
               $
             </span>
@@ -1982,7 +2018,7 @@ function ProductDrawer({
               >
                 Categories:
                 <span>
-                  <p className="font-extralight text-xs">(select as many)</p>
+                  <p className="font-extralight text-xs">(optional)</p>
                 </span>
               </label>
               <div>
@@ -2041,7 +2077,7 @@ function ProductDrawer({
             <select
               name="category"
               id="category"
-              // value={category}
+              value={selectedCategory}
               onChange={handleInputCategoryChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
             >
@@ -2049,7 +2085,7 @@ function ProductDrawer({
                 <option value="">No categories added ...</option>
               ) : (
                 <React.Fragment>
-                  <option value="">Select your categories ...</option>
+                  <option value="">Saved categories ...</option>
                   {allCategories.map((category) => (
                     <option
                       key={category.categoryName}
@@ -2092,12 +2128,17 @@ function ProductDrawer({
           <span className="flex flex-col gap-2 mt-6 relative">
             <span className="flex justify-between">
               <div>
-                <label
-                  htmlFor="quantity"
-                  className="text-black font-medium text-base "
-                >
-                  Quantity:
-                </label>
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="quantity"
+                    className="text-black font-medium text-base "
+                  >
+                    Quantity:
+                  </label>
+                  <span>
+                    <p className="font-extralight text-xs">(optional)</p>
+                  </span>
+                </div>
 
                 <p className="text-xs font-extralight">
                   If toggle is off, product has unlimited quantity.
@@ -2167,7 +2208,12 @@ function ProductDrawer({
           >
             <span className="flex items-center justify-between">
               <div className="w-2/3">
-                <h4 className="text-base">Product options:</h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-base">Product options:</h4>
+                  <span>
+                    <p className="font-extralight text-xs">(optional)</p>
+                  </span>
+                </div>
                 <p className="text-xs font-extralight">
                   Have different options for this product? <br /> i.e. (size,
                   flavor, etc.)
@@ -2223,9 +2269,9 @@ function ProductDrawer({
                       />
                     </div>
                     <div className="border-y py-4 mt-4">
-                      <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
+                      {/* <h4 className="text-[color:var(--black-design-extralight)] font-medium text-base">
                         Settings
-                      </h4>
+                      </h4> */}
                       {groupOptionSettings.map((groupSettingItem) => {
                         const { selectionType, isRequired } = groupSettingItem;
                         if (groupSettingItem.position === position) {
@@ -2234,8 +2280,9 @@ function ProductDrawer({
                               <div>
                                 <FormControl>
                                   <ul className="my-2">
-                                    <li className="text-xs list-disc font-light ml-5 md:text-sm">
-                                      Require customers to select options.
+                                    <li className="text-sm list-disc font-medium ml-5">
+                                      Are customers required to select an
+                                      option?
                                     </li>
                                   </ul>
                                   <RadioGroup
@@ -2254,7 +2301,7 @@ function ProductDrawer({
                                         <Radio size="small" color="warning" />
                                       }
                                       label={
-                                        <p className="text-[color:var(--black-design)] text-sm">
+                                        <p className="text-[color:var(--black-design)] text-sm font-light">
                                           Required
                                         </p>
                                       }
@@ -2266,7 +2313,7 @@ function ProductDrawer({
                                         <Radio size="small" color="warning" />
                                       }
                                       label={
-                                        <p className="text-[color:var(--black-design)] text-sm">
+                                        <p className="text-[color:var(--black-design)] text-sm font-light">
                                           Optional
                                         </p>
                                       }
@@ -2278,7 +2325,7 @@ function ProductDrawer({
                               <div>
                                 <FormControl>
                                   <ul className="my-2">
-                                    <li className="text-xs list-disc font-light ml-5 md:text-sm">
+                                    <li className="text-sm list-disc font-medium ml-5">
                                       How many can customers select?
                                     </li>
                                   </ul>
@@ -2298,7 +2345,7 @@ function ProductDrawer({
                                         <Radio size="small" color="warning" />
                                       }
                                       label={
-                                        <p className="text-[color:var(--black-design)] text-sm">
+                                        <p className="text-[color:var(--black-design)] text-sm font-light">
                                           Select one
                                         </p>
                                       }
@@ -2310,7 +2357,7 @@ function ProductDrawer({
                                         <Radio size="small" color="warning" />
                                       }
                                       label={
-                                        <p className="text-[color:var(--black-design)] text-sm">
+                                        <p className="text-[color:var(--black-design)] text-sm font-light">
                                           Select many
                                         </p>
                                       }
@@ -2347,12 +2394,19 @@ function ProductDrawer({
                               <div className="flex-grow">
                                 <div className="flex gap-4 justify-center items-center">
                                   <span className="flex flex-col relative flex-grow">
-                                    <label
-                                      htmlFor="optionName"
-                                      className="text-[color:var(--black-design-extralight)] font-medium text-xs "
-                                    >
-                                      Name
-                                    </label>
+                                    <div className="flex items-center gap-2">
+                                      <label
+                                        htmlFor="optionName"
+                                        className="text-[color:var(--black-design-extralight)] font-medium text-xs "
+                                      >
+                                        Name
+                                      </label>
+                                      <span>
+                                        <p className="font-extralight text-xs">
+                                          (required)
+                                        </p>
+                                      </span>
+                                    </div>
                                     <input
                                       onKeyDown={handleKeyDown}
                                       required
@@ -2365,14 +2419,20 @@ function ProductDrawer({
                                       className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] placeholder:text-xs  font-light text-xs overflow-hidden`}
                                     />
                                   </span>
-
                                   <span className="flex flex-col relative flex-grow">
-                                    <label
-                                      htmlFor="priceStr"
-                                      className="text-[color:var(--black-design-extralight)] font-medium text-xs "
-                                    >
-                                      Add on price
-                                    </label>
+                                    <div className="flex items-center gap-2">
+                                      <label
+                                        htmlFor="priceStr"
+                                        className="text-[color:var(--black-design-extralight)] font-medium text-xs "
+                                      >
+                                        Add on price
+                                      </label>
+                                      <span>
+                                        <p className="font-extralight text-xs">
+                                          (optional)
+                                        </p>
+                                      </span>
+                                    </div>
                                     <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
                                       $
                                     </span>
@@ -2432,12 +2492,17 @@ function ProductDrawer({
           <div className="mt-4">
             <span className="flex flex-col gap-2 mt-4">
               <span className="flex justify-between items-center">
-                <label
-                  htmlFor="customerQuestion"
-                  className="text-black font-medium text-base "
-                >
-                  Questions to ask customers:
-                </label>
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="customerQuestion"
+                    className="text-black font-medium text-base "
+                  >
+                    Questions to ask customers:
+                  </label>
+                  <span>
+                    <p className="font-extralight text-xs">(optional)</p>
+                  </span>
+                </div>
               </span>
               <input
                 onKeyDown={handleKeyDown}

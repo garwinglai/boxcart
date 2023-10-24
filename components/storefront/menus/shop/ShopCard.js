@@ -112,6 +112,8 @@ function ShopCard({
       const currImage = images[i];
       const { imgFileName: fileName, fireStorageId } = currImage;
 
+      if (!fireStorageId) continue; 
+
       const { success } = await deleteProductImagesFromFirebase(
         fileName,
         subdomain,
