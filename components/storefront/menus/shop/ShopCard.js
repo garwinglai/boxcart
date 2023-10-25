@@ -68,26 +68,28 @@ function ShopCard({
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
-      setIsSoldOut(true);
-    }
-
-    if (!hasUnlimitedQuantity && !setQuantityByProduct) {
-      let numOptionsLeft = 0;
-      for (let i = 0; i < optionGroups.length; i++) {
-        const currGroup = optionGroups[i];
-        const { options } = currGroup;
-        for (let j = 0; j < options.length; j++) {
-          const currOption = options[j];
-          const { quantity } = currOption;
-          if (quantity > 0) {
-            numOptionsLeft += quantity;
-          }
-        }
+    if (product) {
+      if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
+        setIsSoldOut(true);
       }
 
-      if (numOptionsLeft < 1) {
-        setIsSoldOut(true);
+      if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+        let numOptionsLeft = 0;
+        for (let i = 0; i < optionGroups.length; i++) {
+          const currGroup = optionGroups[i];
+          const { options } = currGroup;
+          for (let j = 0; j < options.length; j++) {
+            const currOption = options[j];
+            const { quantity } = currOption;
+            if (quantity > 0) {
+              numOptionsLeft += quantity;
+            }
+          }
+        }
+
+        if (numOptionsLeft < 1) {
+          setIsSoldOut(true);
+        }
       }
     }
   }, []);

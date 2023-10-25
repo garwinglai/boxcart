@@ -207,8 +207,8 @@ model OrderItem {
   pricePenny            Int
   priceDisplay          String
   productImage          String?               @db.Text
-  hasUnlimitedQuantity  Boolean
-  setQuantityByProduct  Boolean
+  hasUnlimitedQuantity  Boolean               @default(true)
+  setQuantityByProduct  Boolean               @default(true)
   orderOptionGroups     OrderOptionGroup[]
   orderExampleImages    OrderExampleImage[]
   orderQuestionsAnswers OrderQuestionAnswer[]
