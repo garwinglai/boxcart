@@ -19,7 +19,6 @@ import Snackbar from "@mui/material/Snackbar";
 import { useCartStore } from "@/lib/store";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import { useRouter } from "next/router";
-import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 
 function Sites({ siteData }) {
   const cart = useCartStore((state) => state.cart);
@@ -34,6 +33,7 @@ function Sites({ siteData }) {
     socials,
     products,
     fulfillmentMethodInt,
+    fulfillmentMethods,
     categories,
     availability,
     bannerImage,
@@ -74,6 +74,15 @@ function Sites({ siteData }) {
     if (!availability) return;
     const { hasCustomAvailability, isTimeBlockEnabled } = availability;
     const { taxRate, taxRateDisplay, isTaxRateEnabled } = tax ? tax : {};
+    let pickupNote = "";
+
+    for (let i = 0; i < fulfillmentMethods.length; i++) {
+      const currMethod = fulfillmentMethods[i];
+      const { methodInt } = currMethod;
+      if (methodInt == 1) {
+        pickupNote = currMethod.pickupNote;
+      }
+    }
 
     const numberOfTipOptions = 3;
 
@@ -84,10 +93,12 @@ function Sites({ siteData }) {
     if (fulfillmentType) {
       typeOfFulfillment = fulfillmentType;
       displayFulfillmentType = fulfillmentDisplay;
+      pickupNote = cartDetails.pickupNote;
     } else {
       typeOfFulfillment = fulfillmentMethodInt == 0 ? 0 : 1;
       displayFulfillmentType =
         fulfillmentMethodInt == 0 ? "delivery" : "pickup";
+      pickupNote = fulfillmentMethodInt == 0 ? "" : pickupNote;
     }
 
     setCartDetails({
@@ -98,6 +109,7 @@ function Sites({ siteData }) {
       fulfillmentType: typeOfFulfillment,
       fulfillmentDisplay: displayFulfillmentType,
       pickupAddress: fullAddress,
+      pickupNote,
     });
   }, []);
 

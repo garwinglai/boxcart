@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../../../styles/components/storefront/menus/shop-card.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +6,6 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { IconButton } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProductDrawer from "@/components/app/my-shop/products/ProductDrawer";
-import candle_2 from "@/public/images/temp/candle_2.jpeg";
 import MenuItem from "@mui/material/MenuItem";
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import Modal from "@mui/material/Modal";
@@ -65,7 +64,33 @@ function ShopCard({
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSoldOut, setIsSoldOut] = useState(false);
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
+      setIsSoldOut(true);
+    }
+
+    if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+      let numOptionsLeft = 0;
+      for (let i = 0; i < optionGroups.length; i++) {
+        const currGroup = optionGroups[i];
+        const { options } = currGroup;
+        for (let j = 0; j < options.length; j++) {
+          const currOption = options[j];
+          const { quantity } = currOption;
+          if (quantity > 0) {
+            numOptionsLeft += quantity;
+          }
+        }
+      }
+
+      if (numOptionsLeft < 1) {
+        setIsSoldOut(true);
+      }
+    }
+  }, []);
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -112,7 +137,7 @@ function ShopCard({
       const currImage = images[i];
       const { imgFileName: fileName, fireStorageId } = currImage;
 
-      if (!fireStorageId) continue; 
+      if (!fireStorageId) continue;
 
       const { success } = await deleteProductImagesFromFirebase(
         fileName,
@@ -396,22 +421,15 @@ function ShopCard({
     });
 
     const optionSchema = optionsArr.map((option) => {
-      const {
-        optionName,
-        priceIntPenny,
-        priceStr,
-        quantityInt,
-        quantityStr,
-        optionGroupName,
-      } = option;
+      const { optionName, priceIntPenny, priceStr, quantity, optionGroupName } =
+        option;
 
       const data = {
         optionName,
         optionGroupName,
         priceStr,
         priceIntPenny,
-        quantityInt,
-        quantityStr,
+        quantity,
       };
 
       return data;
@@ -439,7 +457,7 @@ function ShopCard({
               <h4>{productName}</h4>
 
               <p className={`${styles.price}`}>{priceStr}</p>
-              {quantity == 0 && (
+              {isSoldOut && (
                 <p className={`${styles.sold_out_text}`}>Sold out</p>
               )}
             </div>
@@ -553,14 +571,16 @@ function ShopCard({
                 className="object-cover rounded-t"
               />
             </div>
-            <div className="flex flex-col">
-              <h4 className="leading-5 mt-1 text-sm">{productName}</h4>
+            <div className="flex items-start justify-between h-full pt-1">
+              <div className="flex flex-col">
+                <h4>{productName}</h4>
 
-              <div className="flex justify-between items-end">
                 <p className={`${styles.price}`}>{priceStr}</p>
-                {quantity == 0 && (
+                {isSoldOut && (
                   <p className={`${styles.sold_out_text}`}>Sold out</p>
                 )}
+              </div>
+              <div className="rounded-full bg-[color:var(--brown-bg)] self-end">
                 <div className="bg-[color:var(--white-design)] rounded-full">
                   <IconButton>
                     <StyledBadge

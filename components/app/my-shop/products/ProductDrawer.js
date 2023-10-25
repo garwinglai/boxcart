@@ -21,7 +21,6 @@ import {
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
-import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import {
   updateIsChecklistComplete,
   updateProductVerifiedChecklist,
@@ -243,7 +242,7 @@ function ProductDrawer({
           optionGroupId,
           optionName,
           priceStr,
-          quantityStr,
+          quantity,
         } = currOption;
 
         if (groupPosition === optionGroupId) {
@@ -252,7 +251,7 @@ function ProductDrawer({
             optionPosition,
             optionName,
             price: priceStr.slice(1),
-            quantityStr,
+            quantity,
             optionId: optionPosition,
             groupId: groupPosition,
           });
@@ -1242,7 +1241,7 @@ function ProductDrawer({
 
         productObject.imageSchema = newProductImages;
       }
-      
+
       if (defaultImageValues) {
         if (newProductImages.length === 0) {
           newProductImages.push(defaultImageValues);
@@ -1609,8 +1608,6 @@ function ProductDrawer({
       return data;
     });
 
-    console.log("optionGroupSchema:", optionGroupSchema);
-
     let groupOfOptionsInsertGroupTitles = [];
 
     for (let i = 0; i < groupOfOptions.length; i++) {
@@ -1635,7 +1632,7 @@ function ProductDrawer({
         optionName,
         optionPosition,
         price,
-        quantityStr,
+        quantity,
         optionGroupName,
         groupId,
         optionId,
@@ -1667,20 +1664,18 @@ function ProductDrawer({
         }
       }
 
-      let qtyStr = null;
-      let qtyInt = null;
+      let qty = 0;
 
-      if (quantityStr && quantityStr !== "") {
+      if (quantity && quantity !== 0 && quantity !== "") {
         if (!setQuantityByProduct) {
           // const regex = /^(?!0)\d*$/;
           const regex = /^(?!0$)\d*$/;
 
-          const isQuantityFormat = regex.test(quantityStr);
+          const isQuantityFormat = regex.test(quantity);
 
           if (!isQuantityFormat) quantityError = true;
 
-          qtyStr = quantityStr;
-          qtyInt = parseInt(quantityStr);
+          qty = parseInt(quantity);
         }
       }
 
@@ -1690,8 +1685,7 @@ function ProductDrawer({
           optionGroupName,
           priceStr,
           priceIntPenny,
-          quantityStr: qtyStr,
-          quantityInt: qtyInt,
+          quantity: qty === 0 ? null : qty,
         };
       }
 
@@ -1701,8 +1695,7 @@ function ProductDrawer({
           optionGroupName,
           priceStr,
           priceIntPenny,
-          quantityStr: qtyStr,
-          quantityInt: qtyInt,
+          quantity: qty === 0 ? null : qty,
           groupId: groupPosition,
           optionId,
         };
@@ -1819,22 +1812,24 @@ function ProductDrawer({
   function getOptionvalueQuantity(item) {
     const { groupPosition, optionPosition } = item;
 
-    let quantity = "";
+    let quantityValue = "";
 
     for (let i = 0; i < groupOfOptions.length; i++) {
       const currOption = groupOfOptions[i];
       const {
         groupPosition: groupId,
         optionPosition: optionId,
-        quantityStr,
+        quantity,
       } = currOption;
 
       if (groupPosition === groupId && optionPosition === optionId) {
-        quantity = quantityStr;
+        if (quantity != 0) {
+          quantityValue = quantity;
+        }
       }
     }
 
-    return quantity;
+    return quantityValue;
   }
 
   return (
@@ -2455,7 +2450,7 @@ function ProductDrawer({
                                 {!setQuantityByProduct && (
                                   <div className="flex flex-col relative flex-grow mt-4">
                                     <label
-                                      htmlFor="quantityStr"
+                                      htmlFor="quantity"
                                       className="text-[color:var(--black-design-extralight)] font-medium text-xs "
                                     >
                                       Quantity
@@ -2465,8 +2460,8 @@ function ProductDrawer({
                                       required
                                       step="1"
                                       type="number"
-                                      name="quantityStr"
-                                      id="quantityStr"
+                                      name="quantity"
+                                      id="quantity"
                                       defaultValue={getOptionvalueQuantity(
                                         item
                                       )}

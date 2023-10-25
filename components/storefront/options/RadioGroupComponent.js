@@ -55,7 +55,7 @@ function RadioGroupComponent({
           className=" justify-between"
         />
         {options.map((option) => {
-          const { id, optionName, priceStr, quantityInt } = option;
+          const { id, optionName, priceStr, quantity } = option;
 
           const controlValue =
             optionName +
@@ -64,9 +64,11 @@ function RadioGroupComponent({
             "-" +
             groupId +
             "-" +
-            quantityInt +
+            quantity +
             "-" +
-            optionGroupName;
+            optionGroupName +
+            "-" +
+            id;
 
           return (
             <FormControlLabel
@@ -78,10 +80,12 @@ function RadioGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName} - ${priceStr}`}
                   </p>
-                  {quantityInt && (
+                  {quantity > 0 ? (
                     <p className="text-xs font-extralight -mr-1">
-                      ({quantityInt} left)
+                      ({quantity} left)
                     </p>
+                  ) : (
+                    <p className="text-xs font-extralight -mr-1">Sold out</p>
                   )}
                 </div>
               }

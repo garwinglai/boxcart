@@ -1,12 +1,62 @@
 import prisma from "@/lib/prisma";
 
-export async function createOrder(orderData) {
+export async function createOrder(
+  orderData,
+  productQuantitiesToUpdate,
+  optionQuantitiesToUpdate
+) {
+  const productQuantityUpdateLength = productQuantitiesToUpdate.length;
+  const optionQuantityUpdateLength = optionQuantitiesToUpdate.length;
+
   try {
-    const order = await prisma.customerOrder.create({
-      data: orderData,
+    const resTransaction = await prisma.$transaction(async (tx) => {
+      // 1. create customer order
+      const customerOrder = await tx.customerOrder.create({
+        data: orderData,
+      });
+
+      if (productQuantityUpdateLength > 0) {
+        for (let i = 0; i < productQuantitiesToUpdate.length; i++) {
+          const curr = productQuantitiesToUpdate[i];
+          const { productId, quantity } = curr;
+
+          await prisma.product.update({
+            where: {
+              id: productId,
+            },
+            data: {
+              quantity: {
+                decrement: quantity,
+              },
+            },
+          });
+        }
+      }
+
+      if (optionQuantityUpdateLength > 0) {
+        for (let j = 0; j < optionQuantitiesToUpdate.length; j++) {
+          const curr = optionQuantitiesToUpdate[j];
+          const { optionId, quantity } = curr;
+          console.log("optionId", optionId);
+
+          await prisma.option.update({
+            where: {
+              id: optionId,
+            },
+            data: {
+              quantity: {
+                decrement: quantity,
+              },
+            },
+          });
+        }
+      }
+
+      return customerOrder;
     });
 
-    return { success: true, value: order };
+    console.log("resTransaction", resTransaction);
+    return { success: true, value: resTransaction };
   } catch (error) {
     console.log("error", error);
     return { success: false, error };

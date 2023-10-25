@@ -39,7 +39,7 @@ function CheckGroupComponent({
       </div>
       <FormGroup className="pr-1">
         {options.map((option) => {
-          const { id, optionName, priceStr, quantityInt } = option;
+          const { id, optionName, priceStr, quantity } = option;
 
           const optionValue =
             optionName +
@@ -48,7 +48,7 @@ function CheckGroupComponent({
             "-" +
             groupId +
             "-" +
-            quantityInt +
+            quantity +
             "-" +
             optionGroupName +
             "-" +
@@ -103,9 +103,9 @@ function CheckGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName} - ${priceStr}`}
                   </p>
-                  {quantityInt && (
+                  {quantity && (
                     <p className="text-xs font-extralight -mr-1">
-                      ({quantityInt} left)
+                      ({quantity} left)
                     </p>
                   )}
                 </div>

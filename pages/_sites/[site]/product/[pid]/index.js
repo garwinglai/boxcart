@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import ShareIcon from "@mui/icons-material/Share";
 import { IconButton } from "@mui/material";
@@ -66,6 +66,7 @@ function Product({ product }) {
     snackbarMessage: "",
   });
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isSoldOut, setIsSoldOut] = useState(false);
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
@@ -77,6 +78,31 @@ function Product({ product }) {
 
   const router = useRouter();
   const selectRef = useRef(null);
+
+  useEffect(() => {
+    if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
+      setIsSoldOut(true);
+    }
+
+    if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+      let numOptionsLeft = 0;
+      for (let i = 0; i < optionGroups.length; i++) {
+        const currGroup = optionGroups[i];
+        const { options } = currGroup;
+        for (let j = 0; j < options.length; j++) {
+          const currOption = options[j];
+          const { quantity } = currOption;
+          if (quantity > 0) {
+            numOptionsLeft += quantity;
+          }
+        }
+      }
+
+      if (numOptionsLeft < 1) {
+        setIsSoldOut(true);
+      }
+    }
+  }, []);
 
   function handleBack() {
     router.back();
@@ -150,12 +176,14 @@ function Product({ product }) {
       selectionName,
       optionQuantity,
       optionGroupName,
+      optionId,
     } = destructureOptionValue(value);
     const { selectionOptionPricePenny, selectionOptionPriceDisplay } =
       calculatePricePenny(selectedOptionPrice);
     let updatedPricePenny = itemTotalPenny;
 
     const data = {
+      optionId,
       selectionType,
       groupId: optionGroupId,
       optionGroupName,
@@ -164,6 +192,7 @@ function Product({ product }) {
       pricePenny: selectionOptionPricePenny,
       optionQuantity,
     };
+
     const radioOptionvaluesLength = radioOptionValues.length;
 
     if (radioOptionvaluesLength === 0) {
@@ -488,6 +517,7 @@ function Product({ product }) {
         pricePenny,
         selectionType,
         optionQuantity,
+        optionId,
       } = item;
 
       const optionsDisplay = optionName + " (" + price + ")";
@@ -499,6 +529,7 @@ function Product({ product }) {
         optionsDisplay,
         options: [
           {
+            optionId,
             optionName,
             price,
             pricePenny,
@@ -588,6 +619,8 @@ function Product({ product }) {
       orderOptionGroups,
       orderQuestionsAnswers,
       orderExampleImages,
+      hasUnlimitedQuantity,
+      setQuantityByProduct,
     };
 
     return addToCartProductData;
@@ -696,8 +729,8 @@ function Product({ product }) {
       if (optionsLength === 0) return;
 
       for (let j = 0; j < optionsLength; j++) {
-        const { quantityInt } = options[j];
-        if (quantityInt > maxQuantity) maxQuantity = quantityInt;
+        const { quantity } = options[j];
+        if (quantity > maxQuantity) maxQuantity = quantity;
       }
     }
     const quantityArr = Array.from({ length: maxQuantity }, (_, i) => i + 1);
@@ -804,6 +837,9 @@ function Product({ product }) {
         )}
       </div>
       <div className="md:w-[35%] md:pt-10 md:sticky md:top-0">
+        {isSoldOut && (
+          <h4 className="text-[color:var(--error)] px-6">Sold out</h4>
+        )}
         <div className="flex flex-col gap-2 px-6 pb-4 border-b border-[color:var(--gray-light)]">
           <div className="flex justify-between items-center">
             <h3 className="font-medium">{productName}</h3>
@@ -826,7 +862,7 @@ function Product({ product }) {
 						</div> */}
           </div>
         </div>
-        <div className="relative px-6 pb-4">
+        <div className="relative px-6 pb-4 pt-3">
           <label
             htmlFor="quantitySelect"
             className="block mb-1 font-medium text-sm text-[color:var(--black-design-extralight)] "

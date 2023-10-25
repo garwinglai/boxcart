@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export async function createProductServer(product) {
@@ -145,13 +144,8 @@ const createProduct = (product) => {
             selectionDisplay,
             options: {
               create: optionSchema.filter((option) => {
-                const {
-                  optionName,
-                  priceStr,
-                  priceIntPenny,
-                  quantityStr,
-                  quantityInt,
-                } = option;
+                const { optionName, priceStr, priceIntPenny, quantity } =
+                  option;
 
                 if (optionGroupName === option.optionGroupName) {
                   const optionData = {
@@ -159,15 +153,10 @@ const createProduct = (product) => {
                     optionName,
                     priceStr,
                     priceIntPenny,
-                    quantityStr: quantityStr
-                      ? quantityStr === ""
+                    quantity: quantity
+                      ? quantity === ""
                         ? null
-                        : quantityStr
-                      : null,
-                    quantityInt: quantityInt
-                      ? quantityInt === ""
-                        ? null
-                        : quantityInt
+                        : quantity
                       : null,
                   };
 
@@ -422,8 +411,7 @@ const updateProduct = (product) => {
                         optionName,
                         priceIntPenny,
                         priceStr,
-                        quantityInt,
-                        quantityStr,
+                        quantity,
                         groupId: optionGroupId,
                         optionId,
                       } = option;
@@ -440,8 +428,7 @@ const updateProduct = (product) => {
                           optionName,
                           priceIntPenny,
                           priceStr,
-                          quantityInt,
-                          quantityStr,
+                          quantity,
                         },
                       };
 
@@ -455,8 +442,7 @@ const updateProduct = (product) => {
                         optionName,
                         priceIntPenny,
                         priceStr,
-                        quantityInt,
-                        quantityStr,
+                        quantity,
                         groupId: optionGroupId,
                         optionId,
                       } = option;
@@ -469,10 +455,8 @@ const updateProduct = (product) => {
                         optionName,
                         priceIntPenny,
                         priceStr,
-                        quantityInt,
-                        quantityStr,
+                        quantity,
                       };
-                      console.log("optionData", optionData);
 
                       return optionData;
                     })
@@ -518,8 +502,7 @@ const updateProduct = (product) => {
                       optionName,
                       priceIntPenny,
                       priceStr,
-                      quantityInt,
-                      quantityStr,
+                      quantity,
                       optionId,
                       groupId: optionGroupId,
                     } = option;
@@ -542,8 +525,7 @@ const updateProduct = (product) => {
                       optionName,
                       priceIntPenny,
                       priceStr,
-                      quantityInt,
-                      quantityStr,
+                      quantity,
                     };
 
                     return optionData;

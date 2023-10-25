@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import candle_2 from "@/public/images/temp/candle_2.jpeg";
 import { IconButton } from "@mui/material";
@@ -113,6 +113,7 @@ function ProductCard({
 
   // States
   const [isLoading, setIsLoading] = useState(false);
+  const [isSoldOut, setIsSoldOut] = useState(false);
   const [expandedCardId, setExpandedCardId] = useState(null);
   const [isCardOpen, setIsCardOpen] = useState(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
@@ -125,6 +126,33 @@ function ProductCard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const isExpanded = expandedCardId === id;
+
+  useEffect(() => {
+    if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
+      setIsSoldOut(true);
+    }
+
+    if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+      let numOptionsLeft = 0;
+      for (let i = 0; i < optionGroups.length; i++) {
+        const currGroup = optionGroups[i];
+        const { options } = currGroup;
+        for (let j = 0; j < options.length; j++) {
+          const currOption = options[j];
+          const { quantity } = currOption;
+          if (quantity > 0) {
+            numOptionsLeft += quantity;
+          }
+        }
+      }
+
+      if (numOptionsLeft < 1) {
+        setIsSoldOut(true);
+      } else {
+        setIsSoldOut(false);
+      }
+    }
+  }, [product, quantity]);
 
   const handleExpand = () => {
     if (expandedCardId === id) {
@@ -495,22 +523,15 @@ function ProductCard({
     });
 
     const optionSchema = optionsArr.map((option) => {
-      const {
-        optionName,
-        priceIntPenny,
-        priceStr,
-        quantityInt,
-        quantityStr,
-        optionGroupName,
-      } = option;
+      const { optionName, priceIntPenny, priceStr, quantity, optionGroupName } =
+        option;
 
       const data = {
         optionName,
         optionGroupName,
         priceStr,
         priceIntPenny,
-        quantityInt,
-        quantityStr,
+        quantity,
       };
 
       return data;
@@ -547,15 +568,21 @@ function ProductCard({
             <b className="">Price: </b>
             {priceStr}
           </p>
-          {setQuantityByProduct && (
+          {setQuantityByProduct ? (
             <p className="text-xs font-light md:text-sm">
               <b className="">Qty: </b>
               {hasUnlimitedQuantity
                 ? "Unlimited"
-                : quantity == 0
+                : isSoldOut
                 ? "Out of stock"
                 : quantity}
             </p>
+          ) : (
+            !hasUnlimitedQuantity && (
+              <p className="text-xs font-light md:text-sm">
+                {isSoldOut ? "Out of stock" : ""}
+              </p>
+            )
           )}
           <p className="text-xs font-light md:text-sm">
             <b className="">Category: </b>
@@ -775,8 +802,7 @@ function ProductCard({
                         priceStr,
                         imgStr,
                         optionGroupId,
-                        quantityStr,
-                        quantityInt,
+                        quantity,
                       } = option;
 
                       if (optionGroupId == groupId) {
@@ -794,9 +820,9 @@ function ProductCard({
                                 />
                               )}
                               <p className="font-extralight">{optionName}</p>
-                              {quantityStr && (
+                              {quantity && (
                                 <p className="font-extralight">
-                                  ({quantityStr} left)
+                                  ({quantity} left)
                                 </p>
                               )}
                             </div>

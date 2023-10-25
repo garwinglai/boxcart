@@ -197,15 +197,6 @@ function Checkout() {
           selectedPaymentDetails={selectedPaymentDetails}
         />
       )}
-      {/* ) : (
-        <CheckoutForm
-          handleOpenSnackbar={handleOpenSnackbar}
-          accountId={accountId}
-          availablePayments={availablePayments}
-          handleSelectPaymentMethod={handleSelectPaymentMethod}
-          selectedPayment={selectedPayment}
-        />
-      )} */}
     </div>
   );
 }

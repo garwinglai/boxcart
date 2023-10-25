@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import CategoryIcon from "@mui/icons-material/Category";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";

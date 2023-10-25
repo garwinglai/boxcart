@@ -798,8 +798,8 @@ function EditAddToCartProduct({ product }) {
       if (optionsLength === 0) return;
 
       for (let j = 0; j < optionsLength; j++) {
-        const { quantityInt } = options[j];
-        if (quantityInt > maxQuantity) maxQuantity = quantityInt;
+        const { quantity } = options[j];
+        if (quantity > maxQuantity) maxQuantity = quantity;
       }
     }
     const quantityArr = Array.from({ length: maxQuantity }, (_, i) => i + 1);

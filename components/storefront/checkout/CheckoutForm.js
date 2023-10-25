@@ -78,7 +78,12 @@ function CheckoutForm({
     const customerData = buildCustomerData();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
-    const { orderItems, totalItemsOrdered } = structuredOrderData;
+    const {
+      orderItems,
+      totalItemsOrdered,
+      productQuantitiesToUpdate,
+      optionQuantitiesToUpdate,
+    } = structuredOrderData;
     orderDetailsData.totalItemsOrdered = totalItemsOrdered;
 
     if (!structuredOrderData) {
@@ -107,7 +112,11 @@ function CheckoutForm({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ order }),
+      body: JSON.stringify({
+        order,
+        productQuantitiesToUpdate,
+        optionQuantitiesToUpdate,
+      }),
     });
 
     if (!orderResponse.ok) {
@@ -208,6 +217,8 @@ function CheckoutForm({
   const buildOrderItems = async (orderId) => {
     let totalItemsOrdered = 0;
     let orderItems = [];
+    let productQuantitiesToUpdate = [];
+    let optionQuantitiesToUpdate = [];
 
     for (let i = 0; i < cart.length; i++) {
       const cartItem = cart[i];
@@ -222,7 +233,38 @@ function CheckoutForm({
         orderOptionGroups,
         orderQuestionsAnswers,
         defaultImage,
+        hasUnlimitedQuantity,
+        setQuantityByProduct,
       } = cartItem;
+
+      if (!hasUnlimitedQuantity && setQuantityByProduct) {
+        const data = {
+          quantity,
+          productId,
+        };
+
+        productQuantitiesToUpdate.push(data);
+      }
+
+      if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+        for (let j = 0; j < orderOptionGroups.length; j++) {
+          const currOptionGroup = orderOptionGroups[j];
+          const { options } = currOptionGroup;
+
+          for (let k = 0; k < options.length; k++) {
+            const currOption = options[k];
+            const { optionId } = currOption;
+            const parseIntOptionId = parseInt(optionId);
+
+            const data = {
+              quantity,
+              optionId: parseIntOptionId,
+            };
+
+            optionQuantitiesToUpdate.push(data);
+          }
+        }
+      }
 
       totalItemsOrdered += quantity;
 
@@ -277,8 +319,14 @@ function CheckoutForm({
         priceDisplay,
         productName,
         quantity,
-        productId,
         productImage: defaultImage,
+        hasUnlimitedQuantity,
+        setQuantityByProduct,
+        product: {
+          connect: {
+            id: productId,
+          },
+        },
         orderExampleImages: {
           create: exampleImages.map((item) => item),
         },
@@ -329,7 +377,12 @@ function CheckoutForm({
       orderItems.push(cartData);
     }
 
-    return { orderItems, totalItemsOrdered };
+    return {
+      orderItems,
+      totalItemsOrdered,
+      productQuantitiesToUpdate,
+      optionQuantitiesToUpdate,
+    };
   };
 
   return (

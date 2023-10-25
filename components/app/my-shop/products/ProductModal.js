@@ -172,8 +172,7 @@ function ProductModal({
                         priceStr,
                         imgStr,
                         optionGroupId,
-                        quantityStr,
-                        quantityInt,
+                        quantity,
                       } = option;
 
                       if (optionGroupId == groupId) {
@@ -191,9 +190,9 @@ function ProductModal({
                                 />
                               )}
                               <p className="font-extralight">{optionName}</p>
-                              {quantityStr && (
+                              {quantity && (
                                 <p className="font-extralight">
-                                  ({quantityStr} left)
+                                  ({quantity} left)
                                 </p>
                               )}
                             </div>

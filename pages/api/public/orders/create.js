@@ -4,9 +4,13 @@ export default async function handler(req, res) {
   const { method, body } = req;
 
   if (method === "POST") {
-    const { order } = body;
+    const { order, productQuantitiesToUpdate, optionQuantitiesToUpdate } = body;
 
-    const createdOrder = await createOrder(order);
+    const createdOrder = await createOrder(
+      order,
+      productQuantitiesToUpdate,
+      optionQuantitiesToUpdate
+    );
     const { success, value, error } = createdOrder;
 
     if (success) {

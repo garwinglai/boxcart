@@ -23,12 +23,8 @@ const Signin = () => {
   const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState(
-    adminLoginTemp ? adminLoginTemp.email : ""
-  );
-  const [password, setPassword] = useState(
-    adminLoginTemp ? adminLoginTemp.password : ""
-  );
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 

@@ -206,14 +206,18 @@ model OrderItem {
   customNote            String?               @db.Text
   pricePenny            Int
   priceDisplay          String
-  productId             Int
   productImage          String?               @db.Text
+  hasUnlimitedQuantity  Boolean
+  setQuantityByProduct  Boolean
   orderOptionGroups     OrderOptionGroup[]
   orderExampleImages    OrderExampleImage[]
   orderQuestionsAnswers OrderQuestionAnswer[]
   Order                 CustomerOrder         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId               Int
+  product               Product?              @relation(fields: [productId], references: [id])
+  productId             Int?
 
+  @@index([productId])
   @@index([orderId])
 }
 
@@ -413,6 +417,7 @@ model Product {
   relatedCategories          Category[]
   account                    Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId                  Int
+  orders                     OrderItem[]
 
   @@index([accountId])
 }
@@ -482,8 +487,7 @@ model Option {
   optionName      String
   priceIntPenny   Int?        @default(0)
   priceStr        String?     @default("$0.00")
-  quantityStr     String?
-  quantityInt     Int?
+  quantity        Int?
   optionGroup     OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
   optionGroupId   Int
 
