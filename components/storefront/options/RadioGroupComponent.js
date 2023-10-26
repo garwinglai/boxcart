@@ -80,12 +80,10 @@ function RadioGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName} - ${priceStr}`}
                   </p>
-                  {quantity > 0 ? (
+                  {quantity > 0 && (
                     <p className="text-xs font-extralight -mr-1">
                       ({quantity} left)
                     </p>
-                  ) : (
-                    <p className="text-xs font-extralight -mr-1">Sold out</p>
                   )}
                 </div>
               }

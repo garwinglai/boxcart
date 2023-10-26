@@ -103,7 +103,7 @@ function CheckGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName} - ${priceStr}`}
                   </p>
-                  {quantity && (
+                  {quantity > 0 && (
                     <p className="text-xs font-extralight -mr-1">
                       ({quantity} left)
                     </p>

@@ -58,7 +58,7 @@ export async function createNewUser(body) {
               lastName,
               freePeriodEndDateStr,
               freePeriodEndDateEpoch: freePeriodEndDateEpochStr,
-              accessCode,
+              // accessCode,
               businessName,
               subdomain,
               fullDomain,
