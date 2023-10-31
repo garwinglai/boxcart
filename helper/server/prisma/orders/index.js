@@ -37,7 +37,6 @@ export async function createOrder(
         for (let j = 0; j < optionQuantitiesToUpdate.length; j++) {
           const curr = optionQuantitiesToUpdate[j];
           const { optionId, quantity } = curr;
-          console.log("optionId", optionId);
 
           await prisma.option.update({
             where: {

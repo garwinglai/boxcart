@@ -78,6 +78,7 @@ function CheckoutForm({
     const customerData = buildCustomerData();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
+
     const {
       orderItems,
       totalItemsOrdered,
@@ -254,8 +255,9 @@ function CheckoutForm({
           for (let k = 0; k < options.length; k++) {
             const currOption = options[k];
             const { optionId } = currOption;
-            const parseIntOptionId = parseInt(optionId);
+            if (!optionId) continue;
 
+            const parseIntOptionId = parseInt(optionId);
             const data = {
               quantity,
               optionId: parseIntOptionId,

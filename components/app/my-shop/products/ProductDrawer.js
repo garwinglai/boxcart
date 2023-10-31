@@ -1669,8 +1669,7 @@ function ProductDrawer({
       if (quantity && quantity !== 0 && quantity !== "") {
         if (!setQuantityByProduct) {
           // const regex = /^(?!0)\d*$/;
-          const regex = /^(?!0$)\d*$/;
-
+          const regex = /^\d*$/;
           const isQuantityFormat = regex.test(quantity);
 
           if (!isQuantityFormat) quantityError = true;

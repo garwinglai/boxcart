@@ -11,12 +11,22 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Snackbar from "@mui/material/Snackbar";
-import { useCartStore } from "@/lib/store";
+import {
+  useCartStore,
+  useProductQuantityStore,
+  useOptionsQuantityStore,
+} from "@/lib/store";
 import PaymentNotes from "@/components/storefront/checkout/PaymentNotes";
 
 function OrderSubmitted({ order }) {
   const resetCartStore = useCartStore((state) => state.resetCartStore);
   const cartDetails = useCartStore((state) => state.cartDetails);
+  const resetProductStore = useProductQuantityStore(
+    (state) => state.removeAllProducts
+  );
+  const resetQuantityStore = useOptionsQuantityStore(
+    (state) => state.removeAllOptions
+  );
 
   const [snackbar, setSnackbar] = useState({
     isSnackbarOpen: false,
@@ -36,9 +46,12 @@ function OrderSubmitted({ order }) {
 
   useEffect(() => {
     unsetCartStoreData();
+    resetProductStore();
+    resetQuantityStore();
   }, [order]);
 
   const unsetCartStoreData = () => {
+    // Removes cart and cart details
     resetCartStore({
       customerName: "",
       customerEmail: "",

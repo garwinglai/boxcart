@@ -81,6 +81,9 @@ export async function createNewUser(body) {
                     (data) => data.method === "pickup"
                   ),
                   hasLogo: logoImage ? true : false,
+                  isDeliverySet: fulfillmentData.some(
+                    (data) => data.methodInt === 1
+                  ),
                   subdomain,
                 },
               },

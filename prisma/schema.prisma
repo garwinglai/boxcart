@@ -592,7 +592,7 @@ model Fulfillment {
   deliveryFeePriceIntPenny      Int?
   deliveryFeeByDistanceStr      String?
   deliveryFeeByDistanceIntPenny Int?
-  deliveryFeeDistanceMetric     String?
+  deliveryFeeDistanceMetric     String?  @default("mi")
   deliveryFeeByPercentStr       String?
   deliveryFeeByPercent          Float?
   account                       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)

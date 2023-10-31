@@ -11,7 +11,6 @@ import { getLocalStorage } from "@/utils/clientStorage";
 
 function ShopNavTop() {
   const cart = useCartStore((state) => state.cart);
-  const removeCart = useCartStore((state) => state.removeCart);
 
   const [anchor, setAnchor] = useState("right");
   const [isCartOpenRight, setIsCartOpenRight] = useState(false);

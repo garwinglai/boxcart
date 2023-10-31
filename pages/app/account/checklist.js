@@ -15,7 +15,6 @@ import { updateAccountFirstLoginClient } from "@/helper/client/api/account/accou
 import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { setLocalStorage } from "@/utils/clientStorage";
 import { useChecklistStore } from "@/lib/store";
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 
@@ -78,9 +77,9 @@ function Checklist({ userSession, userAccount, pageTitle }) {
   // UseEffects
   useEffect(() => {
     setChecklistStore(checklist);
-    setChecklistStore(isChecklistComplete);
-    setChecklistStore(isNonMandatoryChecklistComplete);
-  }, [checklist]);
+    setChecklistStore({ isChecklistComplete });
+    setChecklistStore({ isNonMandatoryChecklistComplete });
+  }, [checklist, isChecklistComplete, isNonMandatoryChecklistComplete]);
 
   // * action functions
   const handleClose = () => {

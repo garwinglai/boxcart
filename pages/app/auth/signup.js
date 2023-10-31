@@ -1165,7 +1165,7 @@ function Signup({ nextAccountId }) {
           deliveryFeePriceIntPenny: null,
           deliveryFeeByDistanceStr: null,
           deliveryFeeByDistanceIntPenny: null,
-          deliveryFeeDistanceMetric: null,
+          deliveryFeeDistanceMetric: "mi",
         };
       }
       if (method === "pickup") {
@@ -1183,7 +1183,7 @@ function Signup({ nextAccountId }) {
           deliveryFeePriceIntPenny: null,
           deliveryFeeByDistanceStr: null,
           deliveryFeeByDistanceIntPenny: null,
-          deliveryFeeDistanceMetric: null,
+          deliveryFeeDistanceMetric: "mi",
         };
       }
     });

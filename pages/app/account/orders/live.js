@@ -16,7 +16,6 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 function LiveOrders({ orders }) {
-  console.log("orders client", orders);
   const [snackbarValues, setSnackbarValues] = useState({
     snackbarOpen: false,
     snackbarMessage: "",

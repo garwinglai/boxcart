@@ -20,7 +20,9 @@ const publishable_key =
 
 const stripePromise = loadStripe(publishable_key);
 
-function Checkout() {
+function Checkout({ siteData }) {
+  const { id: accountId, acceptedPayments } = siteData;
+
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const cart = useCartStore((state) => state.cart);
@@ -29,7 +31,6 @@ function Checkout() {
     isOpenSnackbar: false,
     snackbarMessage: "",
   });
-  const [accountId, setAccountId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [customerStripeId, setCustomerStripeId] = useState("");
@@ -51,12 +52,10 @@ function Checkout() {
 
   useEffect(() => {
     const cartLength = cart.length;
-    // * Create payment intent
+
     if (cartLength === 0) return;
     const stripeAccountId = getLocalStorage("stripeAccountId");
-    const acceptedPayments = getLocalStorage("acceptedPayments");
-    const parsedAcceptedPayments = JSON.parse(acceptedPayments);
-    const filterForEnabledPayments = parsedAcceptedPayments.filter(
+    const filterForEnabledPayments = acceptedPayments.filter(
       (payment) => payment.isEnabled
     );
     const firstPaymentMethodInArray = filterForEnabledPayments[0].paymentMethod;
@@ -73,15 +72,6 @@ function Checkout() {
       paymentMethod: paymentSelected,
       paymentMethodValues: filterForEnabledPayments,
     });
-  }, []);
-
-  useEffect(() => {
-    const cartLength = cart.length;
-    if (cartLength === 0) return;
-    const accountId = getLocalStorage("accountId");
-    if (!accountId) push("/");
-
-    setAccountId(accountId);
   }, []);
 
   useEffect(() => {
@@ -202,3 +192,33 @@ function Checkout() {
 }
 
 export default Checkout;
+
+export async function getServerSideProps(context) {
+  const { site } = context.query;
+
+  const siteData = await prisma.account.findUnique({
+    where: {
+      subdomain: site,
+    },
+    include: {
+      acceptedPayments: true,
+    },
+  });
+
+  if (!siteData) {
+    return {
+      redirect: {
+        destination: "https://www.boxcart.site",
+        permanent: false,
+      },
+    };
+  }
+
+  const serializedData = JSON.parse(JSON.stringify(siteData));
+
+  return {
+    props: {
+      siteData: serializedData,
+    },
+  };
+}

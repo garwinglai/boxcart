@@ -54,17 +54,13 @@ function Sites({ siteData }) {
     ) {
       setLocalStorage("businessName", businessName);
     }
-    setLocalStorage("accountId", accountId);
-    setLocalStorage("acceptedPayments", JSON.stringify(acceptedPayments));
 
     const stripeAccount = acceptedPayments.find(
       (item) => item.paymentMethod === "stripe"
     );
-
     if (!stripeAccount) return;
 
     const { stripeAccountId } = stripeAccount;
-
     if (stripeAccountId) {
       setLocalStorage("stripeAccountId", stripeAccountId);
     }

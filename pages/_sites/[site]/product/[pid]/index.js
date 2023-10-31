@@ -12,9 +12,14 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ShopLayout from "@/components/layouts/storefront/ShopLayout";
 import prisma from "@/lib/prisma";
 import Snackbar from "@mui/material/Snackbar";
-import { useCartStore } from "@/lib/store";
+import {
+  useCartStore,
+  useProductQuantityStore,
+  useOptionsQuantityStore,
+} from "@/lib/store";
 import { nanoid } from "nanoid";
 import Link from "next/link";
+import CheckmarkGif from "@/public/videos/checkmark.gif";
 
 // generate item quantity constant to 100 values in an array from 1
 const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
@@ -23,6 +28,28 @@ function Product({ product }) {
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
   const cart = useCartStore((state) => state.cart);
+  const productsStore = useProductQuantityStore((state) => state.products);
+  const setProductsStore = useProductQuantityStore(
+    (state) => state.setProducts
+  );
+  const removeProduct = useProductQuantityStore((state) => state.removeProduct);
+  const reduceProductQuantity = useProductQuantityStore(
+    (state) => state.reduceProductQuantity
+  );
+  const optionQuantityStore = useOptionsQuantityStore((state) => state.options);
+  const setOptionsQuantityStore = useOptionsQuantityStore(
+    (state) => state.setOptions
+  );
+  const reduceRemainingQuantity = useOptionsQuantityStore(
+    (state) => state.reduceRemainingQuantity
+  );
+  const updateRemainingMax = useOptionsQuantityStore(
+    (state) => state.updateRemainingMax
+  );
+  const removeOption = useOptionsQuantityStore((state) => state.removeOption);
+  const reduceOptionQuantity = useOptionsQuantityStore(
+    (state) => state.reduceOptionQuantity
+  );
 
   const {
     id,
@@ -41,7 +68,7 @@ function Product({ product }) {
     isSampleProduct,
   } = product;
 
-  const [selectedQuantity, setSelectedQuantity] = useState("1");
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [exampleImages, setExampleImages] = useState([]);
   const [itemTotal, setItemTotal] = useState(product.priceStr);
   const [itemTotalPenny, setItemTotalPenny] = useState(product.priceIntPenny);
@@ -65,44 +92,183 @@ function Product({ product }) {
     isSnackbarOpen: false,
     snackbarMessage: "",
   });
-  const [addedToCart, setAddedToCart] = useState(false);
   const [isSoldOut, setIsSoldOut] = useState(false);
+  const [productQuantity, setProductQuantity] = useState(
+    Array.from({ length: quantity }, (_, i) => i + 1)
+  );
+  const [optionsQuantity, setOptionsQuantity] = useState(
+    Array.from({ length: quantity }, (_, i) => i + 1)
+  );
+  const [addedToCart, setAddedToCart] = useState(false);
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
   // Show default image first
   const imgArr = images.sort((a, b) => b.isDefault - a.isDefault);
 
-  // create an array from 1 to quantity
-  const productQuantity = Array.from({ length: quantity }, (_, i) => i + 1);
-
   const router = useRouter();
   const selectRef = useRef(null);
 
+  // Set product quantity if quantity is set to product
   useEffect(() => {
     if (!hasUnlimitedQuantity && setQuantityByProduct && quantity == 0) {
       setIsSoldOut(true);
     }
 
+    const productExistInSstore = productsStore.find((item) => item.id === id);
+    let finalSelectedQuantity = 0;
+
+    if (productExistInSstore) {
+      const { quantity: quantityStore, initialQuantity } = productExistInSstore;
+
+      let quantityArray = [];
+
+      if (quantity != initialQuantity) {
+        // Store is old from cache, use quantity from db
+
+        const relatedCartItems = cart.filter((item) => item.productId === id);
+        let itemCount = 0;
+
+        for (let i = 0; i < relatedCartItems.length; i++) {
+          const currItem = relatedCartItems[i];
+          const { quantity } = currItem;
+          itemCount += quantity;
+        }
+
+        if (quantity >= itemCount) {
+          quantityArray = Array.from(
+            { length: quantity - itemCount },
+            (_, i) => i + 1
+          );
+          finalSelectedQuantity = 1;
+        } else {
+          quantityArray = Array.from({ length: 0 }, (_, i) => i + 1);
+          finalSelectedQuantity = 0;
+        }
+      } else {
+        // Store is new, use quantity from store
+        quantityArray = Array.from({ length: quantityStore }, (_, i) => i + 1);
+        finalSelectedQuantity = 1;
+      }
+
+      setProductQuantity(quantityArray);
+
+      if (finalSelectedQuantity === 0) {
+        setIsSoldOut(true);
+      } else {
+        setIsSoldOut(false);
+      }
+    } else {
+      const quantityArray = Array.from({ length: quantity }, (_, i) => i + 1);
+      setProductQuantity(quantityArray);
+      finalSelectedQuantity = 1;
+    }
+
+    setSelectedQuantity(finalSelectedQuantity);
+  }, [productsStore]);
+
+  // This checks for maxQuantity of options, and displays the max quantity left between each option available.
+  useEffect(() => {
     if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+      const findOptionQuantityStore = optionQuantityStore.find(
+        (item) => item.productId === id
+      );
+
+      // This keeps track of db quantity.
+      let finalSelectedQuantity = 0;
       let numOptionsLeft = 0;
+      let quantityArr = [];
+
       for (let i = 0; i < optionGroups.length; i++) {
         const currGroup = optionGroups[i];
         const { options } = currGroup;
+        let optionsLeftInGroup = 0;
+
         for (let j = 0; j < options.length; j++) {
           const currOption = options[j];
           const { quantity } = currOption;
+          optionsLeftInGroup += quantity;
+
           if (quantity > 0) {
             numOptionsLeft += quantity;
           }
         }
+
+        if (optionsLeftInGroup == 0) {
+          setIsSoldOut(true);
+          return;
+        } else {
+          setIsSoldOut(false);
+        }
       }
 
+      // This looks for the max quantity between the different options available, and will be used to display how much quantity is left.
+
+      const maxQuantity = findMaxQuantityOfOptionsDb(optionGroups);
+
+      // calculate max option quantity to check if store && db align. If align = current store, if not, then stored values are old.
+      const maxOptionQuantityDb = calculateTotalMaximumOfOptions(optionGroups);
+
+      // if there is a store already
+      if (findOptionQuantityStore) {
+        const { totalOptionsAvailable, remainingMaxQuantity } =
+          findOptionQuantityStore;
+
+        if (maxOptionQuantityDb == totalOptionsAvailable) {
+          // new store
+
+          // Check all available required options.
+          const requiredStoreOptions =
+            findOptionQuantityStore.optionGroups.filter(
+              (item) => item.isRequired
+            );
+
+          // check if any option quantity is zero in store, if it is zero, set soldout to true.
+          for (let i = 0; i < requiredStoreOptions.length; i++) {
+            const { options } = requiredStoreOptions[i];
+            let itemOptionsQuantity = 0;
+
+            for (let j = 0; j < options.length; j++) {
+              const { optionQuantityLeft } = options[j];
+              itemOptionsQuantity += optionQuantityLeft;
+            }
+
+            if (itemOptionsQuantity == 0) {
+              setIsSoldOut(true);
+              return;
+            } else {
+              itemOptionsQuantity = 0;
+            }
+          }
+
+          quantityArr = Array.from(
+            { length: remainingMaxQuantity },
+            (_, i) => i + 1
+          );
+          finalSelectedQuantity = 1;
+        } else {
+          // old store
+        }
+      } else {
+        quantityArr = Array.from({ length: maxQuantity }, (_, i) => i + 1);
+        finalSelectedQuantity = 1;
+      }
+
+      if (maxQuantity === 0 || finalSelectedQuantity === 0) {
+        setIsSoldOut(true);
+      } else {
+        setIsSoldOut(false);
+      }
+
+      setOptionsQuantity(quantityArr);
+      setSelectedQuantity(finalSelectedQuantity);
+
+      // If db is 0, set sold out to true.
       if (numOptionsLeft < 1) {
         setIsSoldOut(true);
       }
     }
-  }, []);
+  }, [productsStore, product, optionQuantityStore]);
 
   function handleBack() {
     router.back();
@@ -193,9 +359,9 @@ function Product({ product }) {
       optionQuantity,
     };
 
-    const radioOptionvaluesLength = radioOptionValues.length;
+    const radioOptionValuesLength = radioOptionValues.length;
 
-    if (radioOptionvaluesLength === 0) {
+    if (radioOptionValuesLength === 0) {
       updatedPricePenny += selectionOptionPricePenny * selectedQuantity;
       setRadioOptionValues((prev) => [...prev, data]);
     } else {
@@ -379,15 +545,16 @@ function Product({ product }) {
     setIsLoading(true);
 
     const requiredOptions = optionGroups.filter((item) => item.isRequired);
-    const requiredQuestions = questions.filter((item) => item.isRequired);
-
     const requiredOptionGroupsLength = requiredOptions.length;
 
+    // This if block checks if required options were selected.
     if (requiredOptionGroupsLength > 0) {
+      // building data to filter out radio and checkbox option groups
       const optionGroupIdAndSelectionType = requiredOptions.map((item) => {
         return { groupId: item.id, selectionType: item.selectionType };
       });
 
+      // Filter out radio and checkbox option groups
       const optionGroupRadios = optionGroupIdAndSelectionType.filter(
         (item) => item.selectionType === 0
       );
@@ -436,6 +603,7 @@ function Product({ product }) {
       }
     }
 
+    // If quantity is tied to options' quantity, then check if selected quantity for the product is more than options' quantity. If so, then there's not enough stock, so throw error "not enough stock".
     if (!setQuantityByProduct) {
       let smallestRadioOptionQuantity;
 
@@ -445,13 +613,12 @@ function Product({ product }) {
 
         if (optionName === "none") continue;
 
-        if (i === 0) {
+        if (!smallestRadioOptionQuantity) {
           smallestRadioOptionQuantity = optionQuantityInt;
-          continue;
-        }
-
-        if (optionQuantityInt < smallestRadioOptionQuantity) {
-          smallestRadioOptionQuantity = optionQuantityInt;
+        } else {
+          if (optionQuantityInt < smallestRadioOptionQuantity) {
+            smallestRadioOptionQuantity = optionQuantityInt;
+          }
         }
       }
 
@@ -463,11 +630,9 @@ function Product({ product }) {
         for (let j = 0; j < options.length; j++) {
           const { optionQuantity } = options[j];
           const optionQuantityInt = parseInt(optionQuantity);
-          // console.log("optionQuantity", optionQuantity);
 
-          if (i === 0 && j === 0) {
+          if (!smallestCheckboxQuantity) {
             smallestCheckboxQuantity = optionQuantityInt;
-            continue;
           } else {
             if (optionQuantityInt < smallestCheckboxQuantity) {
               smallestCheckboxQuantity = optionQuantityInt;
@@ -476,20 +641,14 @@ function Product({ product }) {
         }
       }
 
-      if (
-        smallestRadioOptionQuantity &&
-        smallestRadioOptionQuantity < selectedQuantity
-      ) {
+      if (smallestRadioOptionQuantity < selectedQuantity) {
         handleOpenSnackbar("Not enough in stock.");
         smallestRadioOptionQuantity = null;
         setIsLoading(false);
         return;
       }
 
-      if (
-        smallestCheckboxQuantity &&
-        smallestCheckboxQuantity < selectedQuantity
-      ) {
+      if (smallestCheckboxQuantity < selectedQuantity) {
         handleOpenSnackbar("Not enough in stock.");
         setIsLoading(false);
         smallestCheckboxQuantity = null;
@@ -499,10 +658,299 @@ function Product({ product }) {
 
     const addToCartProductData = structureOrderData();
 
+    if (!hasUnlimitedQuantity && setQuantityByProduct) {
+      updateProductQuantityInStore();
+    }
+
+    if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+      updateOptionQuantityInStore();
+    }
+
+    setAddedToCart(true);
     addSubtotal(itemTotalPenny);
     setCart(addToCartProductData);
-    handleOpenSnackbar("Added.");
     setIsLoading(false);
+  };
+
+  const calculateTotalMaximumOfOptions = (optionGroups) => {
+    let maxOptionQuantityDb = 0;
+
+    for (let i = 0; i < optionGroups.length; i++) {
+      const currGroup = optionGroups[i];
+      const { id: groupId, options } = currGroup;
+      for (let j = 0; j < options.length; j++) {
+        const currOption = options[j];
+        const { quantity } = currOption;
+        maxOptionQuantityDb += quantity;
+      }
+    }
+
+    return maxOptionQuantityDb;
+  };
+
+  const findMaxQuantityOptionStore = (optionStoreGroup) => {
+    let maxQuantity = 0;
+    const selectedOptionIds = [];
+
+    radioOptionValues.map((item) => {
+      const { groupId, optionId } = item;
+      selectedOptionIds.push(optionId);
+    });
+
+    checkboxOptionValues.map((item) => {
+      const { groupId, options } = item;
+      const optionIds = options.map((item) =>
+        selectedOptionIds.push(item.optionId)
+      );
+    });
+
+    for (let i = 0; i < optionStoreGroup.length; i++) {
+      const currSet = optionStoreGroup[i];
+      const { optionGroups } = currSet;
+
+      for (let j = 0; j < optionGroups.length; j++) {
+        const currGroup = optionGroups[j];
+        const { isRequired, options } = currGroup;
+        if (!isRequired) continue;
+
+        for (let k = 0; k < options.length; k++) {
+          const currOption = options[k];
+          const { optionQuantityLeft, optionId } = currOption;
+
+          if (selectedOptionIds.includes(optionId.toString())) {
+            const reducedQuantity =
+              optionQuantityLeft - parseInt(selectedQuantity);
+
+            if (maxQuantity < reducedQuantity) {
+              maxQuantity = reducedQuantity;
+            }
+            continue;
+          }
+
+          if (maxQuantity < optionQuantityLeft)
+            maxQuantity = optionQuantityLeft;
+        }
+      }
+    }
+
+    return maxQuantity;
+  };
+
+  const findMaxQuantityOfOptionsDb = (optionGroups) => {
+    let maxQuantity = 0;
+    const selectedOptionIds = [];
+
+    radioOptionValues.map((item) => {
+      const { groupId, optionId } = item;
+      selectedOptionIds.push(optionId);
+    });
+
+    checkboxOptionValues.map((item) => {
+      const { groupId, options } = item;
+      const optionIds = options.map((item) =>
+        selectedOptionIds.push(item.optionId)
+      );
+    });
+
+    for (let i = 0; i < optionGroups.length; i++) {
+      const currGroup = optionGroups[i];
+      const { options, isRequired } = currGroup;
+      if (!isRequired) continue;
+
+      for (let j = 0; j < options.length; j++) {
+        const currOption = options[j];
+        const { id, quantity } = currOption;
+
+        if (selectedOptionIds.includes(id.toString())) {
+          const reducedQuantity = quantity - parseInt(selectedQuantity);
+
+          if (maxQuantity < reducedQuantity) {
+            maxQuantity = reducedQuantity;
+          }
+          continue;
+        }
+
+        if (maxQuantity < quantity) maxQuantity = quantity;
+      }
+    }
+
+    return maxQuantity;
+  };
+
+  const buildOptionsData = (
+    optionGroups,
+    maxOptionQuantityDb,
+    maxQuantity,
+    selectedQuantityNum
+  ) => {
+    let remainingMaxQuantity = maxQuantity;
+
+    const optionsData = {
+      productId: id,
+      remainingMaxQuantity,
+      remainingOptions: maxOptionQuantityDb - selectedQuantityNum,
+      totalOptionsAvailable: maxOptionQuantityDb,
+      optionGroups: optionGroups.map((item) => {
+        const { id: groupId, options, selectionType, isRequired } = item;
+        // selectionType 0 is radio input, 1 is checkbox input
+
+        const builtOptions = options.map((option) => {
+          const { id: optionId, quantity } = option;
+          const optionQuantityInt = parseInt(quantity);
+          let optionQuantity = optionQuantityInt;
+
+          // Radio values are checked
+          if (selectionType === 0) {
+            for (let i = 0; i < radioOptionValues.length; i++) {
+              const currRadioOption = radioOptionValues[i];
+              const { groupId: groupIdChecked, optionId: optionIdChecked } =
+                currRadioOption;
+
+              if (groupId != groupIdChecked || optionId != optionIdChecked)
+                continue;
+
+              optionQuantity -= selectedQuantityNum;
+            }
+          }
+
+          // Checkbox values are checked
+          if (selectionType === 1) {
+            for (let i = 0; i < checkboxOptionValues.length; i++) {
+              const currOptionGroup = checkboxOptionValues[i];
+              const { groupId: groupIdChecked, options } = currOptionGroup;
+
+              if (groupIdChecked != groupId) continue;
+              for (let j = 0; j < options.length; j++) {
+                const currOption = options[j];
+                const { optionId: optionIdChecked } = currOption;
+
+                if (optionIdChecked != optionId) continue;
+                optionQuantity -= selectedQuantityNum;
+              }
+            }
+          }
+
+          const optionData = {
+            optionId,
+            optionQuantityLeft: optionQuantity,
+            initialOptionQuantity: optionQuantityInt,
+          };
+
+          return optionData;
+        });
+
+        const data = {
+          groupId,
+          isRequired,
+          selectionType,
+          options: builtOptions,
+        };
+
+        return data;
+      }),
+    };
+
+    return optionsData;
+  };
+
+  const updateOptionQuantityInStore = () => {
+    const optionsQtyExistsInStore = optionQuantityStore.find(
+      (item) => item.productId === id
+    );
+    const selectedQuantityNum = parseInt(selectedQuantity);
+    const maxOptionQuantityDb = calculateTotalMaximumOfOptions(optionGroups);
+    const maxQuantity = findMaxQuantityOfOptionsDb(optionGroups);
+
+    const optionsData = buildOptionsData(
+      optionGroups,
+      maxOptionQuantityDb,
+      maxQuantity,
+      selectedQuantityNum
+    );
+
+    if (!optionsQtyExistsInStore) {
+      setOptionsQuantityStore(optionsData);
+    } else {
+      const { totalOptionsAvailable } = optionsQtyExistsInStore;
+
+      // New Store? maxQuantity of db = maxInitialQuantity of optionStore
+      if (maxOptionQuantityDb == totalOptionsAvailable) {
+        // find the current maximum of options left in store
+        const maxQuantityStore =
+          findMaxQuantityOptionStore(optionQuantityStore);
+
+        updateRemainingMax(id, maxQuantityStore);
+        reduceRemainingQuantity(id, selectedQuantityNum);
+
+        // reduce options selected in store
+        const hasRadioOptionValues = radioOptionValues.length > 0;
+        const hasCheckboxOptionValues = checkboxOptionValues.length > 0;
+
+        if (hasRadioOptionValues) {
+          for (let i = 0; i < radioOptionValues.length; i++) {
+            const currRadioOption = radioOptionValues[i];
+            const { groupId, optionId } = currRadioOption;
+
+            reduceOptionQuantity(id, groupId, optionId, selectedQuantityNum);
+          }
+        }
+
+        if (hasCheckboxOptionValues) {
+          for (let i = 0; i < checkboxOptionValues.length; i++) {
+            const currOptionGroup = checkboxOptionValues[i];
+            const { groupId, options } = currOptionGroup;
+
+            for (let j = 0; j < options.length; j++) {
+              const currOption = options[j];
+              const { optionId } = currOption;
+
+              reduceOptionQuantity(id, groupId, optionId, selectedQuantityNum);
+            }
+          }
+        }
+      } else {
+        // Old Store?
+      }
+    }
+  };
+
+  const updateProductQuantityInStore = () => {
+    const productExistsInStore = productsStore.find((item) => item.id === id);
+    const selectedQuantityNum = parseInt(selectedQuantity);
+
+    const updatedQuantity = quantity - selectedQuantityNum;
+    const productData = {
+      id,
+      quantity: updatedQuantity,
+      initialQuantity: quantity,
+    };
+
+    if (!productExistsInStore) {
+      setProductsStore(productData);
+    } else {
+      const { id: productStoreId, initialQuantity } = productExistsInStore;
+
+      // If product store is new
+      if (quantity == initialQuantity) {
+        reduceProductQuantity(id, selectedQuantityNum);
+      } else {
+        // If product store is old, we have to update the store from db
+
+        const relatedCartItems = cart.filter((item) => item.productId === id);
+        const totalQuantityOfItemInCart = relatedCartItems.reduce(
+          (acc, curr) => acc + curr.quantity,
+          0
+        );
+
+        if (quantity >= totalQuantityOfItemInCart) {
+          productData.quantity =
+            quantity - totalQuantityOfItemInCart - selectedQuantityNum;
+        }
+
+        removeProduct(productStoreId);
+        setProductsStore(productData);
+      }
+    }
   };
 
   const structureOrderData = () => {
@@ -620,7 +1068,6 @@ function Product({ product }) {
       orderQuestionsAnswers,
       orderExampleImages,
       hasUnlimitedQuantity,
-      setQuantityByProduct,
     };
 
     return addToCartProductData;
@@ -631,22 +1078,37 @@ function Product({ product }) {
     return (
       <div className="px-6">
         {optionGroups.map((group, index) => {
-          const { id, selectionType } = group;
+          const { id: groupId, selectionType } = group;
           if (selectionType === 0) {
+            const findExistingRadioOptions = radioOptionValues.find(
+              (item) => item.groupId == groupId
+            );
+
+            let radioCheckedOption;
+
+            if (findExistingRadioOptions) {
+              const { optionId } = findExistingRadioOptions;
+              radioCheckedOption = optionId;
+            }
+
             return (
               <RadioGroupComponent
-                key={id}
+                key={groupId}
+                productId={id}
+                radioCheckedOption={radioCheckedOption}
                 currOption={group}
                 handleOptionRadioGroupChange={handleOptionRadioGroupChange(
                   selectionType
                 )}
+                hasUnlimitedQuantity={hasUnlimitedQuantity}
+                setQuantityByProduct={setQuantityByProduct}
               />
             );
           }
 
           if (selectionType === 1) {
             const findExistingCheckboxOptions = checkboxOptionValues.find(
-              (item) => item.groupId == id
+              (item) => item.groupId == groupId
             );
 
             let checkedOptions = [];
@@ -658,12 +1120,16 @@ function Product({ product }) {
 
             return (
               <CheckGroupComponent
-                key={id}
+                key={groupId}
+                productId={id}
+                maxOptionsQuantity={optionsQuantity}
                 checkedOptions={checkedOptions}
                 currOption={group}
                 handleOptionCheckedGroupChange={handleOptionCheckedGroupChange(
                   selectionType
                 )}
+                hasUnlimitedQuantity={hasUnlimitedQuantity}
+                setQuantityByProduct={setQuantityByProduct}
               />
             );
           }
@@ -719,29 +1185,6 @@ function Product({ product }) {
     });
   }
 
-  function showQuantityBasedOnOptions(optionGroups) {
-    let maxQuantity = 0;
-
-    for (let i = 0; i < optionGroups.length; i++) {
-      const { id, options } = optionGroups[i];
-      const optionsLength = options.length;
-
-      if (optionsLength === 0) return;
-
-      for (let j = 0; j < optionsLength; j++) {
-        const { quantity } = options[j];
-        if (quantity > maxQuantity) maxQuantity = quantity;
-      }
-    }
-    const quantityArr = Array.from({ length: maxQuantity }, (_, i) => i + 1);
-
-    return quantityArr.map((item, idx) => (
-      <option key={item} value={item}>
-        {item}
-      </option>
-    ));
-  }
-
   const action = (
     <React.Fragment>
       <IconButton
@@ -754,6 +1197,46 @@ function Product({ product }) {
       </IconButton>
     </React.Fragment>
   );
+
+  if (addedToCart) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-28">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-12 h-12 relative aspect-square">
+            <Image
+              src={CheckmarkGif}
+              alt="checkmark"
+              fill
+              priority
+              className=" object-cover rounded"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+          <h4>Added to cart</h4>
+        </div>
+        <h2>{productName}</h2>
+        <div className={`w-28 h-28 relative aspect-square mt-2 mb-16`}>
+          <Image
+            src={defaultImage}
+            alt="product image"
+            fill
+            priority
+            className="object-cover snap-center rounded"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
+
+        <div className="">
+          <Link
+            href="/"
+            className=" text-center px-4 flex justify-center rounded items-center h-10 border border-[color:var(--black-design-extralight)] font-light text-[color:var(--black-design-extralight)] w-full active:bg-[color:var(--gray-light-med)] "
+          >
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -868,7 +1351,11 @@ function Product({ product }) {
             className="block mb-1 font-medium text-sm text-[color:var(--black-design-extralight)] "
             ref={selectRef}
           >
-            Item Quantity:
+            {hasUnlimitedQuantity
+              ? "Item Quantity:"
+              : setQuantityByProduct
+              ? "Item Quantity: (" + `${productQuantity.length}` + " in stock)"
+              : "Item Quantity: (" + optionsQuantity.length + " in stock)"}
           </label>
           <select
             id="quantitySelect"
@@ -889,7 +1376,11 @@ function Product({ product }) {
                     {item}
                   </option>
                 ))
-              : showQuantityBasedOnOptions(optionGroups)}
+              : optionsQuantity.map((item, idx) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
           </select>
         </div>
         {optionGroups.length > 0 && (
@@ -963,9 +1454,9 @@ function Product({ product }) {
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
           <div className="h-10">
             <ButtonPrimaryStorefront
-              name="Add to Cart"
+              name={isLoading ? "Adding ..." : isSoldOut ? "Sold out" : "Add"}
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isSoldOut}
             />
           </div>
 

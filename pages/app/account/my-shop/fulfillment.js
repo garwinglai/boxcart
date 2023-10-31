@@ -86,25 +86,25 @@ function Fulfillment({ userSession, userAccount }) {
     deliveryMethod
       ? deliveryMethod.deliveryFeeType
         ? deliveryMethod.deliveryFeeType
-        : "free"
-      : "free"
+        : null
+      : null
   );
   const [localDeliveryValues, setLocalDeliveryValues] = useState({
     localDeliveryDistanceStr: deliveryMethod
       ? deliveryMethod.localDeliveryDistanceStr
         ? deliveryMethod.localDeliveryDistanceStr
-        : "5mi/8km"
-      : "5mi/8km",
+        : ""
+      : "",
     localDeliveryDistanceMi: deliveryMethod
       ? deliveryMethod.localDeliveryDistanceMi
         ? deliveryMethod.localDeliveryDistanceMi
-        : 5
-      : 5,
+        : null
+      : null,
     localDeliveryDistanceKm: deliveryMethod
       ? deliveryMethod.localDeliveryDistanceKm
         ? deliveryMethod.localDeliveryDistanceKm
-        : 8
-      : 8,
+        : null
+      : null,
   });
   const [deliveryFeeFlat, setDeliveryFeeFlat] = useState(
     deliveryMethod
@@ -205,9 +205,13 @@ function Fulfillment({ userSession, userAccount }) {
       (fulfillmentMethodInt === 0 && isPickupChecked !== false);
     const deliveryTypeStateChange = deliveryMethod
       ? deliveryMethod.deliveryTypeStr !== deliveryType
+        ? true
+        : false
       : false;
     const deliveryFeeTypeStateChange = deliveryMethod
       ? deliveryMethod.deliveryFeeType !== deliveryFeeType
+        ? true
+        : false
       : false;
     const localDeliveryDistanceStateChange = deliveryMethod
       ? deliveryMethod.localDeliveryDistanceStr !== localDeliveryDistanceStr
@@ -233,11 +237,39 @@ function Fulfillment({ userSession, userAccount }) {
         (deliveryFeeByPercent !== "" ? deliveryFeeByPercent : null)
       : false;
     const deliveryFeeDistanceMetricStateChange = deliveryMethod
-      ? deliveryMethod.deliveryFeeDistanceMetric !== delieveryByDistanceMetric
+      ? deliveryMethod.deliveryTypeInt === 1
+        ? deliveryMethod.deliveryFeeDistanceMetric !== delieveryByDistanceMetric
+          ? true
+          : false
+        : false
       : false;
     const pickupNoteStateChange = pickupMethod
       ? pickupMethod.pickupNote !== pickupNote
       : false;
+
+    //log each of the constants
+    console.log("deliveryCheckStateChange", deliveryCheckStateChange);
+    console.log("pickupCheckStateChange", pickupCheckStateChange);
+    console.log("deliveryTypeStateChange", deliveryTypeStateChange);
+    console.log("deliveryFeeTypeStateChange", deliveryFeeTypeStateChange);
+    console.log(
+      "localDeliveryDistanceStateChange",
+      localDeliveryDistanceStateChange
+    );
+    console.log("deliveryFeeFlatStateChange", deliveryFeeFlatStateChange);
+    console.log(
+      "deliveryFeeByDistanceStateChange",
+      deliveryFeeByDistanceStateChange
+    );
+    console.log(
+      "deliveryFeeByPercentStateChange",
+      deliveryFeeByPercentStateChange
+    );
+    console.log(
+      "deliveryFeeDistanceMetricStateChange",
+      deliveryFeeDistanceMetricStateChange
+    );
+    console.log("pickupNoteStateChange", pickupNoteStateChange);
 
     if (
       deliveryCheckStateChange ||
@@ -596,6 +628,14 @@ function Fulfillment({ userSession, userAccount }) {
     let fulfillmentMethodInt;
     const data = [];
 
+    if (isDeliveryChecked) {
+      if (!deliveryFeeType) {
+        setIsLoading(false);
+        handleOpenSnackbar("Please input delivery fee.");
+        return;
+      }
+    }
+
     if (isDeliveryChecked && !isPickupChecked) {
       fulfillmentDeliveryData = structureFulFillmentDelivery();
       data.push(fulfillmentDeliveryData);
@@ -623,7 +663,7 @@ function Fulfillment({ userSession, userAccount }) {
       fulfillmentMethodInt,
     };
 
-    const accoundId = userAccount.id;
+    const accountId = userAccount.id;
     const checklistComplete = false;
 
     try {
@@ -638,7 +678,7 @@ function Fulfillment({ userSession, userAccount }) {
             setAvailabilityModalMessage(message);
 
             if (isChecklistComplete) {
-              updateIsChecklistComplete(accoundId, checklistComplete);
+              updateIsChecklistComplete(accountId, checklistComplete);
               setChecklistStore({
                 isChecklistComplete: checklistComplete,
                 requireAvailability: true,
@@ -667,7 +707,7 @@ function Fulfillment({ userSession, userAccount }) {
               setAvailabilityModalMessage(message);
 
               if (isChecklistComplete) {
-                updateIsChecklistComplete(accoundId, checklistComplete);
+                updateIsChecklistComplete(accountId, checklistComplete);
                 setChecklistStore({
                   isChecklistComplete: checklistComplete,
                   requireAvailability: true,
@@ -904,7 +944,7 @@ function Fulfillment({ userSession, userAccount }) {
                 />
 
                 <FormControlLabel
-                  value="inHouse"
+                  value="in house"
                   control={<Radio />}
                   label={
                     <p className="text-black text-sm font-light">
@@ -915,7 +955,7 @@ function Fulfillment({ userSession, userAccount }) {
               </RadioGroup>
             </FormControl>
           </div>
-          {deliveryType === "inHouse" && (
+          {deliveryType === "in house" && (
             <div className="py-4 border-b">
               <SignupFormDistance
                 handleChange={handleDeliveryDistanceChange}
