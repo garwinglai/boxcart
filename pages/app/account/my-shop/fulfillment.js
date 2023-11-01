@@ -247,30 +247,6 @@ function Fulfillment({ userSession, userAccount }) {
       ? pickupMethod.pickupNote !== pickupNote
       : false;
 
-    //log each of the constants
-    console.log("deliveryCheckStateChange", deliveryCheckStateChange);
-    console.log("pickupCheckStateChange", pickupCheckStateChange);
-    console.log("deliveryTypeStateChange", deliveryTypeStateChange);
-    console.log("deliveryFeeTypeStateChange", deliveryFeeTypeStateChange);
-    console.log(
-      "localDeliveryDistanceStateChange",
-      localDeliveryDistanceStateChange
-    );
-    console.log("deliveryFeeFlatStateChange", deliveryFeeFlatStateChange);
-    console.log(
-      "deliveryFeeByDistanceStateChange",
-      deliveryFeeByDistanceStateChange
-    );
-    console.log(
-      "deliveryFeeByPercentStateChange",
-      deliveryFeeByPercentStateChange
-    );
-    console.log(
-      "deliveryFeeDistanceMetricStateChange",
-      deliveryFeeDistanceMetricStateChange
-    );
-    console.log("pickupNoteStateChange", pickupNoteStateChange);
-
     if (
       deliveryCheckStateChange ||
       pickupCheckStateChange ||
@@ -1122,12 +1098,12 @@ function Fulfillment({ userSession, userAccount }) {
           <TextField
             id="custom-note"
             name="custom-note"
-            label="Note to customer ..."
+            label="Note for pickup orders ..."
             multiline
             fullWidth
             color="warning"
             disabled={isPickupChecked ? false : true}
-            placeholder="i.e. Arrive 10 minutes ahead of time and send me a text before ringing the doorbell."
+            placeholder="i.e. Please arrive 10 minutes early."
             rows={4}
             onChange={handlePickupNoteChange}
             value={pickupNote}

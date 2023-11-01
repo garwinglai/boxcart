@@ -12,6 +12,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutFormStripe from "@/components/storefront/checkout/CheckoutFormStripe";
 import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
+import prisma from "@/lib/prisma";
 
 const publishable_key =
   process.env.NODE_ENV === "development"

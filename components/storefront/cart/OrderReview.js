@@ -23,8 +23,10 @@ function OrderReview({
     fulfillmentType,
     requireOrderTime,
     requireOrderDate,
+    pickupNote,
   } = cartDetails;
 
+  console.log("pickupNote", pickupNote);
 
   const { push } = useRouter();
 
@@ -46,7 +48,7 @@ function OrderReview({
     } = order;
 
     return (
-      <div className="py-6 mx-4 border-b">
+      <div className="pb-4 mx-4 border-b">
         <h3 className="font-medium mb-2">Order Details:</h3>
         <div className="flex flex-col gap-2 px-2">
           <div className={`${styles.flex} ${styles.review_context}`}>
@@ -132,9 +134,19 @@ function OrderReview({
           </div>
         )}
         {hydrated && fulfillmentType === 1 && (
-          <div className={`${styles.flex} ${styles.review_context}`}>
-            <p className="text-sm">Pickup address:</p>
-            <p className="text-xs font-light text-right">{pickupAddress}</p>
+          <div>
+            <div className={`${styles.flex} ${styles.review_context}`}>
+              <p className="text-sm">Pickup address:</p>
+              <p className="text-xs font-light text-right">{pickupAddress}</p>
+            </div>
+          </div>
+        )}
+        {hydrated && fulfillmentType === 1 && pickupNote && (
+          <div>
+            <div className={`${styles.flex} ${styles.review_context}`}>
+              <p className="text-sm">Note:</p>
+              <p className="text-xs font-light text-right">{pickupNote}</p>
+            </div>
           </div>
         )}
       </div>

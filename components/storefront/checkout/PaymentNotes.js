@@ -5,8 +5,8 @@ function PaymentNotes({ selectedPaymentDetails, isOrderSubmittedPage }) {
     selectedPaymentDetails;
 
   return (
-    <div>
-      {!isOrderSubmittedPage && <h3 className="font-medium">Payment:</h3>}
+    <div className="bg-[color:var(--brown-bg)] rounded px-2">
+      {!isOrderSubmittedPage && <h3 className="font-medium pt-2">Payment:</h3>}
       <div className="p-2 pt-2 lg:px-12">
         <div className="flex justify-between gap-4 mb-2">
           <h4>Payment method:</h4>
@@ -14,7 +14,7 @@ function PaymentNotes({ selectedPaymentDetails, isOrderSubmittedPage }) {
         </div>
         {paymentAccount && (
           <div className="flex justify-between gap-4 mb-2">
-            <h4>Account:</h4>
+            <h4>Pay to Account:</h4>
             <p className=" text-sm font-light">{paymentAccount}</p>
           </div>
         )}
