@@ -96,7 +96,7 @@ function LiveOrders({ orders }) {
             <Calendar />
           </div>
         </SwipeableDrawer>
-        <div className="flex items-center ml-4">
+        <div className="flex items-center ml-4 py-4">
           <p className="text-xs">
             This page only shows pending orders. Completed orders are in
             history.

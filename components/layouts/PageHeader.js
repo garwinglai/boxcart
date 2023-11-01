@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/styles/components/layouts/page-header.module.css";
 import { IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -13,10 +13,17 @@ import { getLocalStorage } from "@/utils/clientStorage";
 import Alert from "@mui/material/Alert";
 import ButtonThird from "../global/buttons/ButtonThird";
 import { useRouter } from "next/router";
+import { onSnapshot, query, where, collection } from "firebase/firestore";
+import { useAccountStore } from "@/lib/store";
+import { db } from "@/firebase/fireConfig";
+import { signOut } from "next-auth/react";
+import NotificationDrawer from "../app/notification/NotificationDrawer";
+import NotificationPopup from "../app/notification/NotificationPopup";
 
 function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   const hydrate = useHasHydrated();
   const checklistStore = useChecklistStore((state) => state.checklist);
+  const accountStore = useAccountStore((state) => state.account);
 
   const { isChecklistComplete, isNonMandatoryChecklistComplete } =
     checklistStore;
@@ -24,20 +31,62 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   const isChecklistAlertOpen =
     !isChecklistComplete || !isNonMandatoryChecklistComplete;
 
-  const { push } = useRouter();
-
-  const handleGoChecklist = () => {
-    push("/account/checklist");
-  };
-
-  const [state, setState] = React.useState({
+  const [notifications, setNotifications] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState({
     top: false,
     left: false,
     bottom: false,
     right: false,
   });
+  const [isNotifMobileOpen, setIsNotifMobileOpen] = useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+  const [isNotifDesktopOpen, setIsNotifDesktopOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
 
-  const toggleDrawer = (anchor, open) => (event) => {
+  const { push } = useRouter();
+
+  useEffect(() => {
+    if (!accountStore) {
+      const logout = async () => {
+        await signOut({
+          redirect: false,
+        });
+      };
+
+      logout();
+      push("/auth/signin");
+    }
+
+    const { accountId, subdomain } = accountStore;
+
+    const notifCollectionRef = collection(db, "notifications");
+    const notifQuery = query(
+      notifCollectionRef,
+      where("accountId", "==", accountId)
+    );
+    const unsubNotif = onSnapshot(notifQuery, (querySnapshot) => {
+      const notifs = [];
+      querySnapshot.forEach((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        data.id = id;
+
+        notifs.push(data);
+      });
+
+      setNotifications(notifs);
+    });
+
+    return () => {
+      unsubNotif();
+    };
+  }, []);
+
+  const toggleMenuDrawer = (anchor, open) => (event) => {
     if (
       event &&
       event.type === "keydown" &&
@@ -46,7 +95,51 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
       return;
     }
 
-    setState({ ...state, [anchor]: open });
+    setIsMenuOpen((prev) => ({ ...prev, [anchor]: open }));
+  };
+
+  const toggleNotifDrawer = (anchor, open) => (event) => {
+    if (
+      event &&
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setIsNotifMobileOpen((prev) => ({ ...prev, [anchor]: open }));
+  };
+
+  const toggleNotifPopup = () => {
+    setIsNotifDesktopOpen((prev) => !prev);
+    console.log("hi");
+  };
+
+  const handleGoChecklist = () => {
+    push("/account/checklist");
+  };
+
+  const handleOpenNotificationMenu = () => {
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth < 768) {
+      toggleNotifDrawer("top", true)();
+      setIsMobileView(true);
+      return;
+    }
+
+    setIsMobileView(false);
+    toggleNotifPopup();
+  };
+
+  const notificationsLabel = (count) => {
+    if (count === 0) {
+      return "no notifications";
+    }
+    if (count > 99) {
+      return "more than 99 notifications";
+    }
+    return `${count} notifications`;
   };
 
   return (
@@ -57,15 +150,45 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
           <h3 className="text-[color:var(--black-design)] ">{pageTitle}</h3>
         </div>
         <div className="flex gap-4 items-center">
-          <IconButton>
-            <Badge color="warning" variant="dot" overlap="circular">
+          <IconButton
+            onClick={handleOpenNotificationMenu}
+            aria-label={notificationsLabel(notifications.length)}
+          >
+            <Badge
+              badgeContent={notifications.length}
+              color="warning"
+              max={99}
+              sx={{
+                "& .MuiBadge-badge": { fontSize: 11 },
+              }}
+            >
               <NotificationsOutlinedIcon
                 sx={{ color: "var(--black-design-extralight)" }}
               />
             </Badge>
           </IconButton>
+          <React.Fragment>
+            <SwipeableDrawer
+              anchor="top"
+              open={isNotifMobileOpen.top}
+              onClose={toggleNotifDrawer("top", false)}
+              onOpen={toggleNotifDrawer("top", true)}
+            >
+              <NotificationDrawer
+                toggleNotifDrawer={toggleNotifDrawer}
+                notifications={notifications}
+                isMobileView={isMobileView}
+              />
+            </SwipeableDrawer>
+            <NotificationPopup
+              isNotifDesktopOpen={isNotifDesktopOpen}
+              toggleNotifPopup={toggleNotifPopup}
+              notifications={notifications}
+              isMobileView={isMobileView}
+            />
+          </React.Fragment>
           <div className="md:hidden">
-            <IconButton onClick={toggleDrawer("right", true)}>
+            <IconButton onClick={toggleMenuDrawer("right", true)}>
               <MenuIcon
                 sx={{ color: "var(--black-design-extralight)" }}
                 fontSize="small"
@@ -78,12 +201,12 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
         </div>
         <SwipeableDrawer
           anchor="right"
-          open={state.right}
-          onClose={toggleDrawer("right", false)}
-          onOpen={toggleDrawer("right", true)}
+          open={isMenuOpen.right}
+          onClose={toggleMenuDrawer("right", false)}
+          onOpen={toggleMenuDrawer("right", true)}
         >
           <MobileNavBar
-            toggleDrawer={toggleDrawer}
+            toggleDrawer={toggleMenuDrawer}
             mobilePageRoute={mobilePageRoute}
           />
         </SwipeableDrawer>

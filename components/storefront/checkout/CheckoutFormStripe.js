@@ -20,6 +20,8 @@ import {
 import calculateAmountMinusStripeFee from "@/utils/stripe-fees";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import PaymentOption from "./PaymentOption";
+import { Timestamp } from "firebase/firestore";
+import { createNotification } from "@/helper/client/api/notifications";
 
 function CheckoutFormStripe({
   handleOpenSnackbar,
@@ -149,8 +151,48 @@ function CheckoutFormStripe({
       return;
     }
 
+    createOrderNotification(orderData);
     setCartDetails({ id });
     chargeCustomer(id);
+  };
+
+  const createOrderNotification = async (orderData) => {
+    const notifData = buildNotifdata(orderData);
+    createNotification(notifData);
+  };
+
+  const buildNotifdata = (orderData) => {
+    const { id, totalDisplay } = orderData;
+    const subdomain = query.site;
+    const now = new Date();
+
+    const timeString = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const dateString = now.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+    const dateTimeString = `${dateString} ${timeString}`;
+
+    const notifData = {
+      accountId: parseInt(accountId),
+      subdomain,
+      relatedPostId: id,
+      globalNotification: false,
+      notificationTypeDisplay: "Order",
+      notificationType: 0,
+      notificationTitle: "New Order",
+      notificationMessage: `${totalDisplay} - order from ${customerFName}.`,
+      createdAt: Timestamp.fromDate(new Date()),
+      dateTimeString,
+    };
+
+    return notifData;
   };
 
   const chargeCustomer = async (id) => {
