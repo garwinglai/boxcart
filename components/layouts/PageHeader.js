@@ -149,7 +149,8 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
           {pageIcon}
           <h3 className="text-[color:var(--black-design)] ">{pageTitle}</h3>
         </div>
-        <div className="flex gap-4 items-center">
+
+        <div className="flex items-center">
           <IconButton
             onClick={handleOpenNotificationMenu}
             aria-label={notificationsLabel(notifications.length)}

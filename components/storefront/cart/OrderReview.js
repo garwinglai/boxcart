@@ -26,8 +26,6 @@ function OrderReview({
     pickupNote,
   } = cartDetails;
 
-  console.log("pickupNote", pickupNote);
-
   const { push } = useRouter();
 
   const handleAddDateTime = () => {

@@ -111,7 +111,6 @@ function CartComponent({ toggleDrawer, isDesktop }) {
     const isThereEnoughStockOptions = await checkIfEnoughStockPerOptionsInCart(
       cart
     );
-    console.log("isThereEnoughStock", isThereEnoughStockOptions);
 
     if (!isThereEnoughStock || !isThereEnoughStockOptions) {
       setIsLoading(false);
@@ -204,7 +203,7 @@ function CartComponent({ toggleDrawer, isDesktop }) {
       const checkStockAPI = `/api/public/orders/check-option-stock?optionId=${optionId}`;
       const checkProductStock = await fetch(checkStockAPI);
       const checkProductStockJSON = await checkProductStock.json();
-      console.log("checkProductStockJSON", checkProductStockJSON);
+
       const {
         quantity: quantityFromDb,
         id: optionIdFromDb,

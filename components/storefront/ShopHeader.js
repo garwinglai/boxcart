@@ -216,13 +216,15 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           </div>
         )}
         <div className=" flex-col h-18 -top-9  gap-2  flex  absolute right-4 md:top-4 md:right-8 sm:h-10 sm:-top-5 sm:flex-row">
-          <button
-            type="button"
-            onClick={isOwner ? handleEditProfile : handleOpenSubscribe}
-            className="text-white font-light text-xs h-8 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
-          >
-            {isOwner ? "Edit Profile" : "Subscribe"}
-          </button>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={isOwner ? handleEditProfile : handleOpenSubscribe}
+              className="text-white font-light text-xs h-8 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
+            >
+              {isOwner ? "Edit Profile" : "Subscribe"}
+            </button>
+          )}
           <Modal
             open={openSubScribe}
             onClose={handleSubscriptionSubmitted}

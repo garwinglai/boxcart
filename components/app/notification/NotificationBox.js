@@ -56,16 +56,15 @@ function NotificationBox({
           {notifications.map((notif) => {
             const { id } = notif;
             return (
-              <React.Fragment>
+              <div key={id}>
                 <NotificationCard
-                  key={id}
                   notif={notif}
                   toggleNotifDrawer={toggleNotifDrawer}
                   toggleNotifPopup={toggleNotifPopup}
                   isMobileView={isMobileView}
                 />
                 <Divider />
-              </React.Fragment>
+              </div>
             );
           })}
 

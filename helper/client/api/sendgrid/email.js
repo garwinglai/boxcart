@@ -39,3 +39,21 @@ export async function sendVerificationEmail(userId, accountId, email) {
     return { success, error };
   }
 }
+
+export async function sendOrderDetailsEmail(data) {
+  const verificationEmailUrl = "/api/public/sendgrid/order-details";
+
+  const result = await fetch(verificationEmailUrl, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  const resultJson = await result.json();
+  const { success, error } = resultJson;
+
+  if (result.status == 200) {
+    return { success, error };
+  } else {
+    return { success, error };
+  }
+}

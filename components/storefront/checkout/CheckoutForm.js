@@ -15,6 +15,7 @@ import PaymentOption from "./PaymentOption";
 import PaymentNotes from "./PaymentNotes";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
+import { sendOrderDetailsEmail } from "@/helper/client/api/sendgrid/email";
 
 function CheckoutForm({
   handleOpenSnackbar,
@@ -23,7 +24,10 @@ function CheckoutForm({
   handleSelectPaymentMethod,
   selectedPayment,
   selectedPaymentDetails,
+  siteData,
 }) {
+  const { businessName } = siteData;
+
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const cart = useCartStore((state) => state.cart);
@@ -70,8 +74,20 @@ function CheckoutForm({
     }
 
     createOrderNotification(orderData);
+    createAndSendOrderEmail(orderData);
     setCartDetails({ id });
     push(`/order-submitted/${id}`);
+  };
+
+  const createAndSendOrderEmail = async (orderData) => {
+    const data = {
+      ...orderData,
+      customerName: customerFName,
+      shopName: businessName,
+      email: customerEmail,
+    };
+
+    sendOrderDetailsEmail(data);
   };
 
   const createOrderNotification = async (orderData) => {

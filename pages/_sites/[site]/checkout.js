@@ -175,6 +175,7 @@ function Checkout({ siteData }) {
             availablePayments={availablePayments}
             handleSelectPaymentMethod={handleSelectPaymentMethod}
             selectedPayment={selectedPayment}
+            siteData={siteData}
           />
         </Elements>
       )}
@@ -186,6 +187,7 @@ function Checkout({ siteData }) {
           handleSelectPaymentMethod={handleSelectPaymentMethod}
           selectedPayment={selectedPayment}
           selectedPaymentDetails={selectedPaymentDetails}
+          siteData={siteData}
         />
       )}
     </div>

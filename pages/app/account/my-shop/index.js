@@ -19,48 +19,8 @@ import { getProductsClient } from "@/helper/client/api/inventory/product-schema"
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "@/firebase/fireConfig";
 
 function MyShop({ userAccount }) {
-  // useEffect(() => {
-  //   const now = new Date();
-  //   const timeString = now.toLocaleTimeString("en-US", {
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     hour12: true,
-  //   });
-  //   const dateString = now.toLocaleDateString("en-US", {
-  //     year: "numeric",
-  //     month: "short",
-  //     day: "numeric",
-  //   });
-  //   const dateTimeString = `${dateString} ${timeString}`;
-  //   console.log(dateTimeString);
-  //   const addData = async () => {
-  //     try {
-  //       const notifCollectionRef = collection(db, "notifications");
-  //       const docRef = await addDoc(notifCollectionRef, {
-  //         accountId: 1,
-  //         subdomain: "london-bakery",
-  //         globalNotification: false,
-  //         notificationTypeDisplay: "order",
-  //         notificationType: 0,
-  //         notificationTitle: "New Order",
-  //         notificationMessage: "$56.95 - order from Tiffany.",
-  //         createdAt: Timestamp.fromDate(new Date()),
-  //         dateTimeString: dateTimeString,
-  //         relatedPostId: 12
-  //       });
-  //       console.log("Document written with ID: ", docRef.id);
-  //     } catch (error) {
-  //       console.log("Error adding document: ", error);
-  //     }
-  //   };
-
-  //   addData();
-  // }, []);
-
   const checklistStore = useChecklistStore((state) => state.checklist);
   const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
