@@ -382,21 +382,33 @@ function CartItem({
   return (
     <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
       <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
-        <div className="min-w-[5rem] h-[5rem] relative">
-          <Image
-            src={
-              isBusiness
-                ? productImage
-                : orderSubmitted
-                ? productImage
-                : defaultImage
-            }
-            alt="product image"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="rounded object-cover w-full h-full"
-          />
-        </div>
+        {productImage && defaultImage ? (
+          <div className="min-w-[5rem] h-[5rem] relative">
+            <Image
+              src={
+                isBusiness
+                  ? productImage
+                  : orderSubmitted
+                  ? productImage
+                  : defaultImage
+              }
+              alt="product image"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="rounded object-cover w-full h-full"
+            />
+          </div>
+        ) : (
+          <div className="min-w-[5rem] h-[5rem] relative">
+            <Image
+              src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+              alt="product image"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="rounded object-cover w-full h-full"
+            />
+          </div>
+        )}
         <div className={`${styles.flexCol} ${styles.item_info_box}`}>
           {showNotEnoughStock && (
             <p className="text-sm font-light text-[color:var(--error)] -mb-2">

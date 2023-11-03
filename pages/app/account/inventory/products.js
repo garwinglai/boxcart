@@ -16,6 +16,11 @@ import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
 import prisma from "@/lib/prisma";
 import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
+import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
+import ButtonThird from "@/components/global/buttons/ButtonThird";
+import Link from "next/link";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 function Products({ userAccount }) {
   // Props
@@ -35,6 +40,14 @@ function Products({ userAccount }) {
     snackbarOpenGlobal: false,
     snackbarMessageGlobal: "",
   });
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isCreateProductMenuOpen = Boolean(anchorEl);
+  const handleOpenProductCreate = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseProductCreate = () => {
+    setAnchorEl(null);
+  };
 
   // DOB States
   const { snackbarOpenGlobal, snackbarMessageGlobal } = openSnackbarGlobal;
@@ -131,6 +144,16 @@ function Products({ userAccount }) {
     );
   };
 
+  const handleCreateProduct = (e) => {
+    toggleDrawer("right", true)(e);
+    handleCloseProductCreate();
+  };
+
+  const handleCreateBatchProduct = (e) => {
+    push("/account/inventory/batch-products");
+    handleCloseProductCreate();
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center mt-[50%] gap-8 md:mt-[25%]">
@@ -156,7 +179,7 @@ function Products({ userAccount }) {
 
   return (
     <div className="py-4 px-4 pb-24 ">
-      <div className="pb-4 flex justify-between items-center">
+      <div className="pb-4 flex justify-between items-start">
         <Snackbar
           open={isSnackbarOpen}
           autoHideDuration={6000}
@@ -176,11 +199,23 @@ function Products({ userAccount }) {
           <ButtonFilter handleClick={handleProductRoute} name="Products" />
           <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
         </div>
-        <div>
-          <ButtonPrimary
-            name="+ Product"
-            handleClick={toggleDrawer("right", true)}
-          />
+        <div className="flex flex-col gap-2 justify-end items-end sm:flex-row">
+          <ButtonPrimary handleClick={handleOpenProductCreate} name="Create" />
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={isCreateProductMenuOpen}
+            onClose={handleCloseProductCreate}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
+          >
+            <MenuItem onClick={handleCreateProduct}>Create Product</MenuItem>
+            <MenuItem onClick={handleCreateBatchProduct}>
+              Batch Upload Product
+            </MenuItem>
+          </Menu>
+
           <ProductDrawer
             state={state}
             toggleDrawer={toggleDrawer}

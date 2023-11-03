@@ -444,16 +444,29 @@ function ShopCard({
     <div className={`${styles.card_box}`}>
       {isOwner ? (
         <div className="w-full">
-          <div className="relative w-full aspect-square">
-            <Image
-              priority={true}
-              src={defaultImage}
-              alt="default product image"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              fill
-              className="object-cover rounded-t"
-            />
-          </div>
+          {defaultImage ? (
+            <div className="relative w-full aspect-square">
+              <Image
+                priority={true}
+                src={defaultImage}
+                alt="default product image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                fill
+                className="object-cover rounded-t"
+              />
+            </div>
+          ) : (
+            <div className="relative w-full aspect-square">
+              <Image
+                priority={true}
+                src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                alt="default product image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                fill
+                className="object-cover rounded-t"
+              />
+            </div>
+          )}
           <div className="flex items-start justify-between h-full pt-1">
             <div className="flex flex-col">
               <h4>{productName}</h4>
@@ -564,15 +577,28 @@ function ShopCard({
       ) : (
         <div className="">
           <Link href={`/product/${id}`} className="w-full">
-            <div className="relative w-full aspect-square">
-              <Image
-                src={defaultImage}
-                alt="default product image"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                fill
-                className="object-cover rounded-t"
-              />
-            </div>
+            {defaultImage ? (
+              <div className="relative w-full aspect-square">
+                <Image
+                  src={defaultImage}
+                  alt="default product image"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  fill
+                  className="object-cover rounded-t"
+                />
+              </div>
+            ) : (
+              <div className="relative w-full aspect-square">
+                <Image
+                  priority={true}
+                  src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                  alt="default product image"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  fill
+                  className="object-cover rounded-t"
+                />
+              </div>
+            )}
             <div className="flex items-start justify-between h-full pt-1">
               <div className="flex flex-col">
                 <h4>{productName}</h4>

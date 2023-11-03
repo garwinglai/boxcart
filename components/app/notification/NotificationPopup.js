@@ -8,14 +8,12 @@ import Fade from "@mui/material/Fade";
 
 const style = {
   position: "absolute",
-  top: "15.75rem",
-  right: "-2%",
-  transform: "translate(-50%, -50%)",
+  top: "6%",
+  right: "12%",
   width: "25rem",
   bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: 1,
-  // p: 4,
 };
 
 function NotificationPopup({

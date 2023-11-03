@@ -84,7 +84,7 @@ function CheckoutForm({
       ...orderData,
       customerName: customerFName,
       shopName: businessName,
-      email: customerEmail,
+      email: customerEmail
     };
 
     sendOrderDetailsEmail(data);

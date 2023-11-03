@@ -1879,7 +1879,7 @@ function ProductDrawer({
                   return (
                     <div
                       key={idx}
-                      className={`relative h-[8rem] min-w-[8rem] inline-block $`}
+                      className={`relative h-[8rem] min-w-[8rem] inline-block`}
                     >
                       <Image
                         src={image}

@@ -547,21 +547,36 @@ function ProductCard({
       }`}
     >
       <div className="flex gap-3 justify-between items-center border-b border-[color:var(--gray-light-med)]">
-        <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
-          <div className="w-full h-full  relative aspect-square">
-            <Image
-              src={defaultImage}
-              alt="default product image"
-              fill
-              priority={true}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="rounded-ss object-cover w-full h-full"
-            />
+        {defaultImage ? (
+          <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+            <div className="w-full h-full  relative aspect-square">
+              <Image
+                src={defaultImage}
+                alt="default product image"
+                fill
+                priority={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="rounded-ss object-cover w-full h-full"
+              />
+            </div>
+            <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
+              {images && images.length} Photos
+            </button>
           </div>
-          <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
-            {images && images.length} Photos
-          </button>
-        </div>
+        ) : (
+          <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+            <div className="w-full h-full relative aspect-square">
+              <Image
+                src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                alt="default product image"
+                fill
+                priority={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="rounded-ss object-cover w-full h-full"
+              />
+            </div>
+          </div>
+        )}
         <div className="flex-grow flex flex-col gap-1 py-2">
           <h2 className="text-base font-medium">{productName}</h2>
           <p className="text-xs font-light md:text-sm">

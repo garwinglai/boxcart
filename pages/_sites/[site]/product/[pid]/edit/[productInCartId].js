@@ -1314,16 +1314,29 @@ function EditAddToCartProduct({ product }) {
           <h4>Cart updated</h4>
         </div>
         <h2>{productName}</h2>
-        <div className={`w-28 h-28 relative aspect-square mt-2 mb-16`}>
-          <Image
-            src={defaultImage}
-            alt="product image"
-            fill
-            priority
-            className="object-cover snap-center rounded"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        </div>
+        {defaultImage ? (
+          <div className={`w-28 h-28 relative aspect-square mt-2 mb-16`}>
+            <Image
+              src={defaultImage}
+              alt="product image"
+              fill
+              priority
+              className="object-cover snap-center rounded"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        ) : (
+          <div className={`w-28 h-28 relative aspect-square mt-2 mb-16`}>
+            <Image
+              src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+              alt="product image"
+              fill
+              priority
+              className="object-cover snap-center rounded"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        )}
 
         <div className="">
           <Link
@@ -1379,17 +1392,34 @@ function EditAddToCartProduct({ product }) {
         </div>
         <div className="flex overflow-x-scroll w-full md:grid md:grid-cols-2 lg:w-5/6 lg:mx-auto xl:w-3/4">
           {isSampleProduct ? (
-            <div className={`min-w-full relative aspect-square md:col-span-2`}>
-              <Image
-                src={defaultImage}
-                alt="product image"
-                fill
-                priority
-                className="object-cover snap-center"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
-          ) : (
+            defaultImage ? (
+              <div
+                className={`min-w-full relative aspect-square md:col-span-2`}
+              >
+                <Image
+                  src={defaultImage}
+                  alt="product image"
+                  fill
+                  priority
+                  className="object-cover snap-center"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+            ) : (
+              <div
+                className={`min-w-full relative aspect-square md:col-span-2`}
+              >
+                <Image
+                  src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                  alt="product image"
+                  fill
+                  priority
+                  className="object-cover snap-center rounded"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+            )
+          ) : images.length > 0 ? (
             images.map((imgItem, index) => {
               const { isDefault, image, id } = imgItem;
 
@@ -1411,6 +1441,17 @@ function EditAddToCartProduct({ product }) {
                 </div>
               );
             })
+          ) : (
+            <div key={id} className={`min-w-full relative aspect-square`}>
+              <Image
+                src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                alt="product image"
+                fill
+                priority
+                className="object-cover snap-center"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
           )}
         </div>
         {images.length > 1 ? (

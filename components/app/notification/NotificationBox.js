@@ -36,14 +36,13 @@ function NotificationBox({
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center px-4 py-2 border-b">
+    <div className="">
+      <div className="flex justify-between items-center px-4 py-2 border-b sticky top-0 bg-white">
         <h2>Notifications {notifCount > 0 ? `( ${notifCount} )` : ""} </h2>
         <IconButton onClick={handleCloseNotif}>
           <Close fontSize="small" />
         </IconButton>
       </div>
-
       {notifCount < 1 ? (
         <div className="h-52 flex flex-col mt-28 items-center gap-4">
           <h4>Nothing to see here...</h4>
@@ -53,22 +52,23 @@ function NotificationBox({
         </div>
       ) : (
         <React.Fragment>
-          {notifications.map((notif) => {
-            const { id } = notif;
-            return (
-              <div key={id}>
-                <NotificationCard
-                  notif={notif}
-                  toggleNotifDrawer={toggleNotifDrawer}
-                  toggleNotifPopup={toggleNotifPopup}
-                  isMobileView={isMobileView}
-                />
-                <Divider />
-              </div>
-            );
-          })}
-
-          <div className="px-4 py-2 w-full text-right sticky bottom-0">
+          <div className=" max-h-96 overflow-y-auto">
+            {notifications.map((notif) => {
+              const { id } = notif;
+              return (
+                <div key={id}>
+                  <NotificationCard
+                    notif={notif}
+                    toggleNotifDrawer={toggleNotifDrawer}
+                    toggleNotifPopup={toggleNotifPopup}
+                    isMobileView={isMobileView}
+                  />
+                  <Divider />
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-4 py-2 w-full text-right sticky bottom-0 bg-white border-t">
             <div className="w-fit ml-auto">
               <ButtonThird handleClick={handleClearAllNotif} name="Clear all" />
             </div>

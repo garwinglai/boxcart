@@ -1,4 +1,60 @@
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+
+export async function createBatchProductsInternal(batchData) {
+  const savedProducts = [];
+  const productWithErrors = [];
+
+  for (let i = 0; i < batchData.length; i++) {
+    const currentProduct = batchData[i];
+
+    try {
+      const product = await prisma.product.create({
+        data: currentProduct,
+      });
+
+      savedProducts.push(product);
+    } catch (error) {
+      const errorData = {
+        errorCode: "",
+        errorMeta: "",
+        errorMessage: "",
+        clientVersion: "",
+        product: currentProduct,
+      };
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        const { code, meta, message, clientVersion } = error;
+        errorData.errorCode = code;
+        errorData.errorMeta = meta;
+        errorData.errorMessage = message;
+        errorData.clientVersion = clientVersion;
+      } else if (error instanceof Prisma.PrismaClientValidationError) {
+        const { message, clientVersion } = error;
+        errorData.errorMessage = message;
+        errorData.clientVersion = clientVersion;
+      } else {
+        const { message, clientVersion } = error;
+        errorData.errorMessage = message;
+        errorData.clientVersion = clientVersion;
+      }
+
+      productWithErrors.push(errorData);
+    }
+  }
+
+  const savedProductsLength = savedProducts.length;
+  const productWithErrorsLength = productWithErrors.length;
+
+  const returnData = {
+    savedCount: savedProductsLength,
+    errorCount: productWithErrorsLength,
+    savedProducts,
+    productWithErrors,
+  };
+
+  return returnData;
+}
 
 export async function createProductServer(product) {
   const { productSchema } = product;

@@ -268,3 +268,37 @@ export const products = [
     ],
   },
 ];
+
+export const csvProductTemplate = {
+  productName: "",
+  description: "",
+  price: "",
+  quantity: "",
+  category1: "",
+  category2: "",
+  category3: "",
+  question1: "",
+  question2: "",
+  question3: "",
+  question4: "",
+  question5: "",
+  customNote: "",
+  customerUploads: "",
+};
+
+export const csvSampleProductTemplate = {
+  productName: "Necklace",
+  description: "Sterling silver necklace",
+  price: "$12.99",
+  quantity: "unlimited",
+  category1: "jewelry",
+  category2: "",
+  category3: "",
+  question1: "Are you allergic to silver?",
+  question2: "",
+  question3: "",
+  question4: "",
+  question5: "",
+  customNote: "yes",
+  customerUploads: "no",
+};
