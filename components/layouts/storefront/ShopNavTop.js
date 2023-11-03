@@ -46,7 +46,7 @@ function ShopNavTop() {
         <IconButton onClick={toggleDrawerRight}>
           <StyledBadge
             badgeContent={cartLength}
-            color="warning"
+            color="secondary"
             fontSize="small"
           >
             <ShoppingCartOutlinedIcon
@@ -68,7 +68,7 @@ function ShopNavTop() {
         >
           <StyledBadge
             badgeContent={cartLength}
-            color="warning"
+            color="secondary"
             fontSize="small"
           >
             <ShoppingCartOutlinedIcon

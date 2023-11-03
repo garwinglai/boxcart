@@ -179,7 +179,6 @@ function OrderGridRowHistory({
       <td className={`${styles.table_data} ${styles.action}`}>
         <Select
           size="small"
-          color="warning"
           autoWidth
           id="select-order-status"
           // variant="outline"
@@ -230,7 +229,6 @@ function OrderGridRowHistory({
       <td className={`${styles.table_data}`}>
         <Select
           size="small"
-          color="warning"
           autoWidth
           id="select-order-status"
           // variant="standard"

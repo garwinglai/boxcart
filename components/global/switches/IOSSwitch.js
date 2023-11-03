@@ -19,7 +19,7 @@ export const IOSSwitch = styled((props) => (
 				backgroundColor:
 					theme.palette.mode === "dark"
 					? "var(--third-light)"
-						: "var(--third-light)",
+						: "var(--primary-light)",
 				opacity: 1,
 				border: 0,
 			},

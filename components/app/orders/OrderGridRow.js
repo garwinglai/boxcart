@@ -183,7 +183,6 @@ function OrderGridRow({
       <td className={`${styles.table_data} ${styles.action}`}>
         <Select
           size="small"
-          color="warning"
           autoWidth
           id="select-order-status"
           // variant="outline"
@@ -234,7 +233,6 @@ function OrderGridRow({
       <td className={`${styles.table_data} ${styles.action}`}>
         <Select
           size="small"
-          color="warning"
           autoWidth
           id="select-order-status"
           // variant="standard"

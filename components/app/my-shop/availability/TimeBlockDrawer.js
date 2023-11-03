@@ -114,7 +114,7 @@ function TimeBlockDrawer({
             >
               <FormControlLabel
                 value="15 min"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="15 min"
                 labelPlacement="start"
                 sx={{
@@ -126,7 +126,7 @@ function TimeBlockDrawer({
               />
               <FormControlLabel
                 value="30 min"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="30 min"
                 labelPlacement="start"
                 sx={{
@@ -138,7 +138,7 @@ function TimeBlockDrawer({
               />
               <FormControlLabel
                 value="1 hour"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="1 hour"
                 labelPlacement="start"
                 sx={{

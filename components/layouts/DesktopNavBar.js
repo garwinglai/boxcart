@@ -148,7 +148,7 @@ function DesktopNavBar({ pageRoute }) {
                   pageRoute === "availability" ||
                   pageRoute === "fulfillment" ||
                   pageRoute === "payments"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -161,7 +161,7 @@ function DesktopNavBar({ pageRoute }) {
                 pageRoute === "availability" ||
                 pageRoute === "fulfillment" ||
                 pageRoute === "payments"
-                  ? "var(--third-dark)"
+                  ? "var(--primary-dark)"
                   : "gray"
               }  `,
             }}
@@ -170,7 +170,7 @@ function DesktopNavBar({ pageRoute }) {
           {openStoreList ? (
             <ExpandLess
               sx={{
-                color: "var(--third-dark)",
+                color: "var(--primary-dark)",
               }}
             />
           ) : (
@@ -190,7 +190,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "availability" && "var(--third-light-soft)"
+                    pageRoute === "availability" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "availability" && "4px"}`,
@@ -202,7 +202,7 @@ function DesktopNavBar({ pageRoute }) {
                     sx={{
                       color: `${
                         pageRoute === "availability"
-                          ? "var(--third-dark)"
+                          ? "var(--primary-dark)"
                           : "gray"
                       }  `,
                     }}
@@ -213,7 +213,7 @@ function DesktopNavBar({ pageRoute }) {
                   sx={{
                     color: `${
                       pageRoute === "availability"
-                        ? "var(--third-dark)"
+                        ? "var(--primary-dark)"
                         : "gray"
                     }  `,
                   }}
@@ -227,7 +227,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "fulfillment" && "var(--third-light-soft)"
+                    pageRoute === "fulfillment" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "fulfillment" && "4px"}`,
@@ -239,7 +239,7 @@ function DesktopNavBar({ pageRoute }) {
                     sx={{
                       color: `${
                         pageRoute === "fulfillment"
-                          ? "var(--third-dark)"
+                          ? "var(--primary-dark)"
                           : "gray"
                       }  `,
                     }}
@@ -249,7 +249,9 @@ function DesktopNavBar({ pageRoute }) {
                   primary={<p className="text-sm font-light">Fulfillment</p>}
                   sx={{
                     color: `${
-                      pageRoute === "fulfillment" ? "var(--third-dark)" : "gray"
+                      pageRoute === "fulfillment"
+                        ? "var(--primary-dark)"
+                        : "gray"
                     }  `,
                   }}
                 />
@@ -262,7 +264,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "payments" && "var(--third-light-soft)"
+                    pageRoute === "payments" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "payments" && "4px"}`,
@@ -273,7 +275,9 @@ function DesktopNavBar({ pageRoute }) {
                     fontSize="small"
                     sx={{
                       color: `${
-                        pageRoute === "payments" ? "var(--third-dark)" : "gray"
+                        pageRoute === "payments"
+                          ? "var(--primary-dark)"
+                          : "gray"
                       }  `,
                     }}
                   />
@@ -282,7 +286,7 @@ function DesktopNavBar({ pageRoute }) {
                   primary={<p className="text-sm font-light">Payments</p>}
                   sx={{
                     color: `${
-                      pageRoute === "payments" ? "var(--third-dark)" : "gray"
+                      pageRoute === "payments" ? "var(--primary-dark)" : "gray"
                     }  `,
                   }}
                 />
@@ -297,7 +301,7 @@ function DesktopNavBar({ pageRoute }) {
               sx={{
                 color: `${
                   pageRoute === "live" || pageRoute === "history"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -308,7 +312,7 @@ function DesktopNavBar({ pageRoute }) {
             sx={{
               color: `${
                 pageRoute === "live" || pageRoute === "history"
-                  ? "var(--third-dark)"
+                  ? "var(--primary-dark)"
                   : "gray"
               }  `,
             }}
@@ -316,7 +320,7 @@ function DesktopNavBar({ pageRoute }) {
           {openOrderList ? (
             <ExpandLess
               sx={{
-                color: "var(--third-dark)",
+                color: "var(--primary-dark)",
               }}
             />
           ) : (
@@ -336,7 +340,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "live" && "var(--third-light-soft)"
+                    pageRoute === "live" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "live" && "4px"}`,
@@ -347,7 +351,7 @@ function DesktopNavBar({ pageRoute }) {
                     fontSize="small"
                     sx={{
                       color: `${
-                        pageRoute === "live" ? "var(--third-dark)" : "gray"
+                        pageRoute === "live" ? "var(--primary-dark)" : "gray"
                       }  `,
                     }}
                   />
@@ -356,7 +360,7 @@ function DesktopNavBar({ pageRoute }) {
                   primary={<p className="text-sm font-light">Live</p>}
                   sx={{
                     color: `${
-                      pageRoute === "live" ? "var(--third-dark)" : "gray"
+                      pageRoute === "live" ? "var(--primary-dark)" : "gray"
                     }  `,
                   }}
                 />
@@ -369,7 +373,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "history" && "var(--third-light-soft)"
+                    pageRoute === "history" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "history" && "4px"}`,
@@ -380,7 +384,7 @@ function DesktopNavBar({ pageRoute }) {
                     fontSize="small"
                     sx={{
                       color: `${
-                        pageRoute === "history" ? "var(--third-dark)" : "gray"
+                        pageRoute === "history" ? "var(--primary-dark)" : "gray"
                       }  `,
                     }}
                   />
@@ -389,7 +393,7 @@ function DesktopNavBar({ pageRoute }) {
                   primary={<p className="text-sm font-light">History</p>}
                   sx={{
                     color: `${
-                      pageRoute === "history" ? "var(--third-dark)" : "gray"
+                      pageRoute === "history" ? "var(--primary-dark)" : "gray"
                     }  `,
                   }}
                 />
@@ -406,7 +410,7 @@ function DesktopNavBar({ pageRoute }) {
             sx={{
               backgroundColor: `${
                 (pageRoute === "products" || pageRoute === "category") &&
-                "var(--third-light-soft)"
+                "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "chat" && "4px"}`,
@@ -417,7 +421,7 @@ function DesktopNavBar({ pageRoute }) {
                 sx={{
                   color: `${
                     pageRoute === "products" || pageRoute === "category"
-                      ? "var(--third-dark)"
+                      ? "var(--primary-dark)"
                       : "gray"
                   }  `,
                 }}
@@ -428,7 +432,7 @@ function DesktopNavBar({ pageRoute }) {
               sx={{
                 color: `${
                   pageRoute === "products" || pageRoute === "category"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -440,7 +444,7 @@ function DesktopNavBar({ pageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "chat" && "var(--third-light-soft)"
+                pageRoute === "chat" && "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "chat" && "4px"}`,
@@ -450,7 +454,7 @@ function DesktopNavBar({ pageRoute }) {
               <SmsIcon
                 sx={{
                   color: `${
-                    pageRoute === "chat" ? "var(--third-dark)" : "gray"
+                    pageRoute === "chat" ? "var(--primary-dark)" : "gray"
                   }  `,
                 }}
               />
@@ -459,7 +463,7 @@ function DesktopNavBar({ pageRoute }) {
               primary="Chat"
               sx={{
                 color: `${
-                  pageRoute === "chat" ? "var(--third-dark)" : "gray"
+                  pageRoute === "chat" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
@@ -470,7 +474,7 @@ function DesktopNavBar({ pageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "contacts" && "var(--third-light-soft)"
+                pageRoute === "contacts" && "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "contacts" && "4px"}`,
@@ -480,7 +484,7 @@ function DesktopNavBar({ pageRoute }) {
               <ContactEmergencyIcon
                 sx={{
                   color: `${
-                    pageRoute === "contacts" ? "var(--third-dark)" : "gray"
+                    pageRoute === "contacts" ? "var(--primary-dark)" : "gray"
                   }  `,
                 }}
               />
@@ -489,7 +493,7 @@ function DesktopNavBar({ pageRoute }) {
               primary="Contacts"
               sx={{
                 color: `${
-                  pageRoute === "contacts" ? "var(--third-dark)" : "gray"
+                  pageRoute === "contacts" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
@@ -502,7 +506,7 @@ function DesktopNavBar({ pageRoute }) {
               sx={{
                 color: `${
                   pageRoute === "membership" || pageRoute === "add-ons"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -513,7 +517,7 @@ function DesktopNavBar({ pageRoute }) {
             sx={{
               color: `${
                 pageRoute === "membership" || pageRoute === "add-ons"
-                  ? "var(--third-dark)"
+                  ? "var(--primary-dark)"
                   : "gray"
               }  `,
             }}
@@ -521,7 +525,7 @@ function DesktopNavBar({ pageRoute }) {
           {openPremiumList ? (
             <ExpandLess
               sx={{
-                color: "var(--third-dark)",
+                color: "var(--primary-dark)",
               }}
             />
           ) : (
@@ -542,7 +546,7 @@ function DesktopNavBar({ pageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    pageRoute === "membership" && "var(--third-light-soft)"
+                    pageRoute === "membership" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${pageRoute === "membership" && "4px"}`,
@@ -555,7 +559,9 @@ function DesktopNavBar({ pageRoute }) {
                   primary={<p className="text-sm font-light">Membership</p>}
                   sx={{
                     color: `${
-                      pageRoute === "membership" ? "var(--third-dark)" : "gray"
+                      pageRoute === "membership"
+                        ? "var(--primary-dark)"
+                        : "gray"
                     }  `,
                   }}
                 />
@@ -568,7 +574,7 @@ function DesktopNavBar({ pageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										pageRoute === "add-ons" && "var(--third-light-soft)"
+										pageRoute === "add-ons" && "var(--primary-light)"
 									}`,
 
 									borderRadius: `${pageRoute === "add-ons" && "4px"}`,
@@ -581,7 +587,7 @@ function DesktopNavBar({ pageRoute }) {
 									primary={<p className="text-sm font-light">Add ons</p>}
 									sx={{
 										color: `${
-											pageRoute === "add-ons" ? "var(--third-dark)" : "gray"
+											pageRoute === "add-ons" ? "var(--primary-dark)" : "gray"
 										}  `,
 									}}
 								/>
@@ -594,7 +600,7 @@ function DesktopNavBar({ pageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "account-settings" && "var(--third-light-soft)"
+                pageRoute === "account-settings" && "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "account-settings" && "4px"}`,
@@ -605,7 +611,7 @@ function DesktopNavBar({ pageRoute }) {
                 sx={{
                   color: `${
                     pageRoute === "account-settings"
-                      ? "var(--third-dark)"
+                      ? "var(--primary-dark)"
                       : "gray"
                   }  `,
                 }}
@@ -616,7 +622,7 @@ function DesktopNavBar({ pageRoute }) {
               sx={{
                 color: `${
                   pageRoute === "account-settings"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -627,7 +633,7 @@ function DesktopNavBar({ pageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "news-room" && "var(--third-light-soft)"
+                pageRoute === "news-room" && "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "news-room" && "4px"}`,
@@ -637,7 +643,7 @@ function DesktopNavBar({ pageRoute }) {
               <NewspaperIcon
                 sx={{
                   color: `${
-                    pageRoute === "news-room" ? "var(--third-dark)" : "gray"
+                    pageRoute === "news-room" ? "var(--primary-dark)" : "gray"
                   }  `,
                 }}
               />
@@ -646,7 +652,7 @@ function DesktopNavBar({ pageRoute }) {
               primary="Newsroom"
               sx={{
                 color: `${
-                  pageRoute === "news-room" ? "var(--third-dark)" : "gray"
+                  pageRoute === "news-room" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
@@ -658,7 +664,7 @@ function DesktopNavBar({ pageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "share-shop" && "var(--third-light-soft)"
+                pageRoute === "share-shop" && "var(--primary-light)"
               }`,
 
               borderRadius: `${pageRoute === "share-shop" && "4px"}`,

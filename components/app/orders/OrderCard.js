@@ -172,7 +172,6 @@ function OrderCard({
           <div className="flex items-center gap-2">
             <Select
               size="small"
-              color="warning"
               autoWidth
               id="select-order-status"
               // variant="outline"
@@ -310,7 +309,6 @@ function OrderCard({
 
                 <Select
                   size="small"
-                  color="warning"
                   autoWidth
                   id="select-order-status"
                   // variant="outline"

@@ -2164,7 +2164,7 @@ function ProductDrawer({
                   >
                     <FormControlLabel
                       value="product"
-                      control={<Radio size="small" color="warning" />}
+                      control={<Radio size="small" color="secondary" />}
                       label={
                         <p className="text-[color:var(--black-design)] text-sm">
                           How much quantity for this product?
@@ -2186,7 +2186,7 @@ function ProductDrawer({
                     )}
                     <FormControlLabel
                       value="option"
-                      control={<Radio size="small" color="warning" />}
+                      control={<Radio size="small" color="secondary" />}
                       label={
                         <p className="text-[color:var(--black-design)] text-sm">
                           Input quantity for each product option below.
@@ -2295,7 +2295,7 @@ function ProductDrawer({
                                     <FormControlLabel
                                       value="required"
                                       control={
-                                        <Radio size="small" color="warning" />
+                                        <Radio size="small" color="secondary" />
                                       }
                                       label={
                                         <p className="text-[color:var(--black-design)] text-sm font-light">
@@ -2307,7 +2307,7 @@ function ProductDrawer({
                                     <FormControlLabel
                                       value="optional"
                                       control={
-                                        <Radio size="small" color="warning" />
+                                        <Radio size="small" color="secondary" />
                                       }
                                       label={
                                         <p className="text-[color:var(--black-design)] text-sm font-light">
@@ -2339,7 +2339,7 @@ function ProductDrawer({
                                     <FormControlLabel
                                       value="one"
                                       control={
-                                        <Radio size="small" color="warning" />
+                                        <Radio size="small" color="secondary" />
                                       }
                                       label={
                                         <p className="text-[color:var(--black-design)] text-sm font-light">
@@ -2351,7 +2351,7 @@ function ProductDrawer({
                                     <FormControlLabel
                                       value="many"
                                       control={
-                                        <Radio size="small" color="warning" />
+                                        <Radio size="small" color="secondary" />
                                       }
                                       label={
                                         <p className="text-[color:var(--black-design)] text-sm font-light">

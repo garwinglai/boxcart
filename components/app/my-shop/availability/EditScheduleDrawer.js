@@ -929,7 +929,7 @@ function EditScheduleDrawer({
             {scheduleTypeEdit === "date" && (
               <FormControlLabel
                 value="date"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="By date"
                 labelPlacement="start"
                 sx={{
@@ -943,7 +943,7 @@ function EditScheduleDrawer({
             {scheduleTypeEdit === "range" && (
               <FormControlLabel
                 value="range"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="By date range"
                 labelPlacement="start"
                 sx={{
@@ -957,7 +957,7 @@ function EditScheduleDrawer({
             {scheduleTypeEdit === "week" && (
               <FormControlLabel
                 value="week"
-                control={<Radio color="warning" />}
+                control={<Radio color="secondary" />}
                 label="Set Weekly schedule - repeats"
                 labelPlacement="start"
                 sx={{

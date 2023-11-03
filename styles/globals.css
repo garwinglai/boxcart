@@ -18,12 +18,12 @@
   --white-design: #fbfbfb;
   --white-med: #e1e1e1;
   --white-light: #e0e0e0;
-  /* --primary-light-soft: #faf8ff;
-	--primary-light: #ddcffc;
-	--primary-light-med: #c4a9ff;
-	--primary: #8952ff;
-	--primary-dark-med: #5b37aa;
-	--primary-dark: #2e1b55; */
+  --primary-light-soft: #f8f9ff;
+	--primary-light: #cfdcfc;
+	--primary-light-med: #a9b7ff;
+	--primary: #5263ff;
+	--primary-dark-med: #3752aa;
+	--primary-dark: #1b2955;
   --secondary-light-soft: #e8f0ff;
   --secondary-light: #c8dcfe;
   --secondary-light-med: #a5c7ff;
@@ -40,18 +40,22 @@
   --success: rgb(75, 255, 126);
   --desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
     rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  --brown-bg: #f3f0ec;
+  --brown-bg: #edecf3;
+  --brown-bg-soft: #e7e4fb;
+  --brown-bg-switch: #421163;
+  --brown-text: #4d1e7d;
+  /* --brown-bg: #f3f0ec;
   --brown-bg-soft: #fbf1e4;
   --brown-bg-switch: #633e11;
-  --brown-text: #7d3e1e;
+  --brown-text: #7d3e1e; */
   --purple: #e302f3;
   --purple-light: #fde8ff;
-  --primary: #7e3815;
+  /* --primary: #7e3815;
   --primary-light: #eeaa88;
   --primary-light-soft: #ffe8dd;
   --primary-light-med: #c2734b;
   --primary-dark: #552209;
-  --primary-dark-med: #7e3b19;
+  --primary-dark-med: #7e3b19; */
   --third: #7e3815;
   --third-light: #eeaa88;
   --third-light-soft: #ffe8dd;

@@ -987,7 +987,7 @@ function CreateScheduleDrawer({
           >
             <FormControlLabel
               value="week"
-              control={<Radio color="warning" />}
+              control={<Radio color="secondary" />}
               label="Set Weekly schedule - repeats"
               labelPlacement="start"
               sx={{
@@ -999,7 +999,7 @@ function CreateScheduleDrawer({
             />
             <FormControlLabel
               value="range"
-              control={<Radio color="warning" />}
+              control={<Radio color="secondary" />}
               label="By date range"
               labelPlacement="start"
               sx={{
@@ -1011,7 +1011,7 @@ function CreateScheduleDrawer({
             />
             <FormControlLabel
               value="date"
-              control={<Radio color="warning" />}
+              control={<Radio color="secondary" />}
               label="By date"
               labelPlacement="start"
               sx={{

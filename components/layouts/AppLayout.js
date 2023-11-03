@@ -14,7 +14,7 @@ function AppLayout({
   const { push } = useRouter();
 
   return (
-    <div className="flex overflow-hidden h-screen bg-[color:var(--brown-bg)] relative">
+    <div className="flex overflow-hidden h-screen relative">
       <DesktopNavBar pageRoute={pageRoute} />
       <div className="overflow-y-scroll w-full">
         <PageHeader

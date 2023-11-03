@@ -19,7 +19,7 @@ function BillingAddress({
           fullWidth
           value={address_1}
           name="address_1"
-          color="warning"
+          color="secondary"
           sx={{ marginTop: "1rem" }}
           onChange={handleCustomerBillingAddressChange}
         />
@@ -31,7 +31,7 @@ function BillingAddress({
           fullWidth
           value={address_2}
           name="address_2"
-          color="warning"
+          color="secondary"
           sx={{ marginTop: "1rem" }}
           onChange={handleCustomerBillingAddressChange}
         />
@@ -46,7 +46,7 @@ function BillingAddress({
           fullWidth
           value={city}
           name="city"
-          color="warning"
+          color="secondary"
           sx={{ marginTop: "1rem" }}
           onChange={handleCustomerBillingAddressChange}
         />
@@ -59,7 +59,7 @@ function BillingAddress({
           fullWidth
           value={state}
           name="state"
-          color="warning"
+          color="secondary"
           sx={{ marginTop: "1rem" }}
           inputProps={{ maxLength: 2 }}
           onChange={handleCustomerBillingAddressChange}
@@ -73,7 +73,7 @@ function BillingAddress({
           fullWidth
           value={zip}
           name="zip"
-          color="warning"
+          color="secondary"
           sx={{ marginTop: "1rem" }}
           onChange={handleCustomerBillingAddressChange}
         />

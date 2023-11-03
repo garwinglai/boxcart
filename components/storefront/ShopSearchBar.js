@@ -135,17 +135,17 @@ function ShopSearchBar({
             >
               <FormControlLabel
                 value="Newest"
-                control={<Radio color="warning" size="small" />}
+                control={<Radio color="secondary" size="small" />}
                 label="Newest"
               />
               <FormControlLabel
                 value="Lowest Price"
-                control={<Radio color="warning" size="small" />}
+                control={<Radio color="secondary" size="small" />}
                 label="Lowest Price"
               />
               <FormControlLabel
                 value="Highest Price"
-                control={<Radio color="warning" size="small" />}
+                control={<Radio color="secondary" size="small" />}
                 label="Highest Price"
               />
             </RadioGroup>

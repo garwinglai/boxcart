@@ -56,7 +56,7 @@ function ShopNavBottom({ mobilePageRoute }) {
         <div className="flex flex-col items-center">
           <IconButton>
             <Badge
-              color="warning"
+              color="secondary"
               variant="dot"
               overlap="circular"
               invisible={mobilePageRoute !== "chat"}
@@ -87,7 +87,7 @@ function ShopNavBottom({ mobilePageRoute }) {
         <div className="flex flex-col items-center">
           <IconButton>
             <Badge
-              color="warning"
+              color="secondary"
               variant="dot"
               overlap="circular"
               invisible={
@@ -124,7 +124,7 @@ function ShopNavBottom({ mobilePageRoute }) {
       <div className="flex flex-col items-center">
         <IconButton onClick={toggleDrawerOrders("bottom", true)}>
           <Badge
-            color="warning"
+            color="secondary"
             variant="dot"
             overlap="circular"
             invisible={
@@ -163,7 +163,7 @@ function ShopNavBottom({ mobilePageRoute }) {
       <div className="flex flex-col items-center">
         <IconButton onClick={toggleDrawerStore("bottom", true)}>
           <Badge
-            color="warning"
+            color="secondary"
             variant="dot"
             overlap="circular"
             invisible={

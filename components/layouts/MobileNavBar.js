@@ -136,7 +136,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                mobilePageRoute === "contacts" && "var(--third-light-soft)"
+                mobilePageRoute === "contacts" && "var(--primary-light)"
               }`,
 
               borderRadius: `${mobilePageRoute === "contacts" && "4px"}`,
@@ -147,7 +147,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                 sx={{
                   color: `${
                     mobilePageRoute === "contacts"
-                      ? "var(--third-dark)"
+                      ? "var(--primary-dark)"
                       : "gray"
                   }  `,
                 }}
@@ -157,7 +157,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               primary="Contacts"
               sx={{
                 color: `${
-                  mobilePageRoute === "contacts" ? "var(--third-dark)" : "gray"
+                  mobilePageRoute === "contacts" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
@@ -171,7 +171,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                 color: `${
                   mobilePageRoute === "membership" ||
                   mobilePageRoute === "add-ons"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -183,7 +183,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               color: `${
                 mobilePageRoute === "membership" ||
                 mobilePageRoute === "add-ons"
-                  ? "var(--third-dark)"
+                  ? "var(--primary-dark)"
                   : "gray"
               }  `,
             }}
@@ -191,7 +191,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           {openPremiumList ? (
             <ExpandLess
               sx={{
-                color: "var(--third-dark)",
+                color: "var(--primary-dark)",
               }}
             />
           ) : (
@@ -214,7 +214,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                 sx={{
                   backgroundColor: `${
                     mobilePageRoute === "membership" &&
-                    "var(--third-light-soft)"
+                    "var(--primary-light)"
                   }`,
 
                   borderRadius: `${mobilePageRoute === "membership" && "4px"}`,
@@ -226,7 +226,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                     sx={{
                       color: `${
                         mobilePageRoute === "membership"
-                          ? "var(--third-dark)"
+                          ? "var(--primary-dark)"
                           : "gray"
                       }  `,
                     }}
@@ -237,7 +237,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                   sx={{
                     color: `${
                       mobilePageRoute === "membership"
-                        ? "var(--third-dark)"
+                        ? "var(--primary-dark)"
                         : "gray"
                     }  `,
                   }}
@@ -252,7 +252,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
 							<MenuItem
 								sx={{
 									backgroundColor: `${
-										mobilePageRoute === "add-ons" && "var(--third-light-soft)"
+										mobilePageRoute === "add-ons" && "var(--primary-light)"
 									}`,
 
 									borderRadius: `${mobilePageRoute === "add-ons" && "4px"}`,
@@ -264,7 +264,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
 										sx={{
 											color: `${
 												mobilePageRoute === "add-ons"
-													? "var(--third-dark)"
+													? "var(--primary-dark)"
 													: "gray"
 											}  `,
 										}}
@@ -275,7 +275,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
 									sx={{
 										color: `${
 											mobilePageRoute === "add-ons"
-												? "var(--third-dark)"
+												? "var(--primary-dark)"
 												: "gray"
 										}  `,
 									}}
@@ -294,7 +294,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             sx={{
               backgroundColor: `${
                 mobilePageRoute === "account-settings" &&
-                "var(--third-light-soft)"
+                "var(--primary-light)"
               }`,
 
               borderRadius: `${
@@ -307,7 +307,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                 sx={{
                   color: `${
                     mobilePageRoute === "account-settings"
-                      ? "var(--third-dark)"
+                      ? "var(--primary-dark)"
                       : "gray"
                   }  `,
                 }}
@@ -318,7 +318,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               sx={{
                 color: `${
                   mobilePageRoute === "account-settings"
-                    ? "var(--third-dark)"
+                    ? "var(--primary-dark)"
                     : "gray"
                 }  `,
               }}
@@ -333,7 +333,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                mobilePageRoute === "news-room" && "var(--third-light-soft)"
+                mobilePageRoute === "news-room" && "var(--primary-light)"
               }`,
 
               borderRadius: `${mobilePageRoute === "news-room" && "4px"}`,
@@ -344,7 +344,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
                 sx={{
                   color: `${
                     mobilePageRoute === "news-room"
-                      ? "var(--third-dark)"
+                      ? "var(--primary-dark)"
                       : "gray"
                   }  `,
                 }}
@@ -354,7 +354,9 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               primary="Newsroom"
               sx={{
                 color: `${
-                  mobilePageRoute === "news-room" ? "var(--third-dark)" : "gray"
+                  mobilePageRoute === "news-room"
+                    ? "var(--primary-dark)"
+                    : "gray"
                 }  `,
               }}
             />
@@ -369,7 +371,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                mobilePageRoute === "share-shop" && "var(--third-light-soft)"
+                mobilePageRoute === "share-shop" && "var(--primary-light)"
               }`,
 
               borderRadius: `${mobilePageRoute === "share-shop" && "4px"}`,

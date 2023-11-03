@@ -101,9 +101,9 @@ function LiveOrders({ orders }) {
             This page only shows pending orders. Completed orders are in
             history.
           </p>
-          <div className="w-fit ml-auto px-4">
+          {/* <div className="w-fit ml-auto px-4">
             <ButtonPrimary name="+ Create Order" />
-          </div>
+          </div> */}
         </div>
 
         <div className={`${styles.incoming_orders_box}`}>

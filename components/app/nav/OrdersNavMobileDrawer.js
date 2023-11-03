@@ -23,8 +23,8 @@ function OrdersNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/orders/live"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
-            mobilePageRoute === "live" && "bg-[color:var(--third-light-soft)]"
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
+            mobilePageRoute === "live" && "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
@@ -35,9 +35,8 @@ function OrdersNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/orders/history"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
-            mobilePageRoute === "history" &&
-            "bg-[color:var(--third-light-soft)]"
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
+            mobilePageRoute === "history" && "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">

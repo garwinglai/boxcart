@@ -1180,7 +1180,7 @@ function Payments({ userAccount }) {
                 {isLoadingStripeConnect ? (
                   <div className="flex items-center gap-2">
                     <CircularProgress
-                      color="warning"
+                      color="secondary"
                       sx={{ width: "1rem", height: "1rem" }}
                       // fontSize="small"
                     />

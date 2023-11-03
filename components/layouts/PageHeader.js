@@ -157,7 +157,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
           >
             <Badge
               badgeContent={notifications.length}
-              color="warning"
+              color="secondary"
               max={99}
               sx={{
                 "& .MuiBadge-badge": { fontSize: 11 },

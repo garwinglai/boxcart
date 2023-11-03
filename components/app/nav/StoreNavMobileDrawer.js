@@ -58,9 +58,9 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/my-shop"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "my-shop" &&
-            "bg-[color:var(--third-light-soft)]"
+            "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
@@ -71,9 +71,9 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/my-shop/availability"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "availability" &&
-            "bg-[color:var(--third-light-soft)]"
+            "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
@@ -84,9 +84,9 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/my-shop/fulfillment"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "fulfillment" &&
-            "bg-[color:var(--third-light-soft)]"
+            "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
@@ -97,9 +97,9 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
         <Link
           href="/account/my-shop/payments"
           onClick={toggleDrawer("bottom", false)}
-          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)] ${
+          className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "payments" &&
-            "bg-[color:var(--third-light-soft)]"
+            "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
