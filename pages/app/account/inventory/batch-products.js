@@ -42,9 +42,9 @@ function BatchProductUpload() {
     });
   };
 
-  const handleDownloadTemplateCSV = (csvProductTemplate) => (e) => {
+  const handleDownloadTemplateCSV = (csvProductTemplate, isExample) => (e) => {
     const template = buildCSV(csvProductTemplate);
-    downloadCSVTemplate(template);
+    downloadCSVTemplate(template, isExample);
   };
 
   const buildCSV = (csvProductTemplate) => {
@@ -86,15 +86,16 @@ function BatchProductUpload() {
     return tableNames;
   };
 
-  const downloadCSVTemplate = (template) => {
+  const downloadCSVTemplate = (template, isExample) => {
     const csvProductTemplateBlob = new Blob([template], {
       type: "text/csv",
     });
 
+    const fileName = isExample ? "example_template.csv" : "batch_template.csv";
     const csvProductTemplateUrl = URL.createObjectURL(csvProductTemplateBlob);
     const downloadLink = document.createElement("a");
     downloadLink.href = csvProductTemplateUrl;
-    downloadLink.download = "product_upload_template.csv";
+    downloadLink.download = fileName;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -355,7 +356,8 @@ function BatchProductUpload() {
             <div>
               <ButtonSecondary
                 handleClick={handleDownloadTemplateCSV(
-                  csvSampleProductTemplate
+                  csvSampleProductTemplate,
+                  "isExample"
                 )}
                 name="Example .csv"
               />
