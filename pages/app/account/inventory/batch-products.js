@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import {
@@ -23,6 +23,17 @@ function BatchProductUpload() {
   const [uploadError, setUploadError] = useState(false);
   const [uploadErrorMessage, setUploadErrorMessage] = useState("");
   const [failedProductsUploaded, setFailedProductsUploaded] = useState([]);
+  const [isDeviceOnMobile, setIsDeviceOnMobile] = useState(true);
+
+  useEffect(() => {
+    // device is considered mobile if it's a tablet or smaller
+    const windowWidth = window.innerWidth;
+    if (windowWidth <= 768) {
+      setIsDeviceOnMobile(true);
+    } else {
+      setIsDeviceOnMobile(false);
+    }
+  }, []);
 
   const handleFileUploadChange = (e) => {
     const file = e.target.files[0];
@@ -350,41 +361,50 @@ function BatchProductUpload() {
       </div>
       <Divider />
       <div className="mt-4">
-        <div>
-          <h4>Download template csv:</h4>
-          <div className="flex gap-8 justify-center mt-4 lg:justify-start">
+        {!isDeviceOnMobile ? (
+          <React.Fragment>
             <div>
-              <ButtonSecondary
-                handleClick={handleDownloadTemplateCSV(
-                  csvSampleProductTemplate,
-                  "isExample"
-                )}
-                name="Example .csv"
+              <h4>Download template csv:</h4>
+              <div className="flex gap-8 justify-center mt-4 lg:justify-start">
+                <div>
+                  <ButtonSecondary
+                    handleClick={handleDownloadTemplateCSV(
+                      csvSampleProductTemplate,
+                      "isExample"
+                    )}
+                    name="Example .csv"
+                  />
+                </div>
+                <div>
+                  <ButtonPrimary
+                    handleClick={handleDownloadTemplateCSV(csvProductTemplate)}
+                    name="Template .csv"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col">
+              <label
+                htmlFor="csvFile"
+                className="text-[color:var(--black-design-extralight)] font-medium"
+              >
+                Upload file
+              </label>
+              <input
+                type="file"
+                id="csvFile"
+                accept=".csv"
+                onChange={handleFileUploadChange}
+                className="mt-1 text-sm"
               />
             </div>
-            <div>
-              <ButtonPrimary
-                handleClick={handleDownloadTemplateCSV(csvProductTemplate)}
-                name="Template .csv"
-              />
-            </div>
+          </React.Fragment>
+        ) : (
+          <div className="mt-8">
+            <h5>*Batch upload only works on desktop.</h5>
           </div>
-        </div>
-        <div className="mt-4 flex flex-col">
-          <label
-            htmlFor="csvFile"
-            className="text-[color:var(--black-design-extralight)] font-medium"
-          >
-            Upload file
-          </label>
-          <input
-            type="file"
-            id="csvFile"
-            accept=".csv"
-            onChange={handleFileUploadChange}
-            className="mt-1 text-sm"
-          />
-        </div>
+        )}
         {uploadedFileCount > 0 && (
           <div className="mt-4">
             <Alert severity="success">
