@@ -200,7 +200,7 @@ function Products({ userAccount }) {
           <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
         </div>
         <div className="flex flex-col gap-2 justify-end items-end sm:flex-row">
-          <ButtonPrimary handleClick={handleOpenProductCreate} name="Create" />
+          <ButtonPrimary handleClick={handleOpenProductCreate} name="+ Create" />
           <Menu
             id="basic-menu"
             anchorEl={anchorEl}

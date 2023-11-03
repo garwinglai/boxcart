@@ -368,7 +368,7 @@ function BatchProductUpload() {
             </div>
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col">
           <label
             htmlFor="csvFile"
             className="text-[color:var(--black-design-extralight)] font-medium"
