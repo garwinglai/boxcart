@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IconButton } from "@mui/material";
+import { CircularProgress, IconButton } from "@mui/material";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import { useRouter } from "next/router";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -38,6 +38,7 @@ function Checkout({ siteData }) {
   const [availablePayments, setAvailablePayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [selectedPaymentDetails, setSelectedPaymentDetails] = useState({});
+  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
 
   const { isOpenSnackbar, snackbarMessage } = snackbarValues;
 
@@ -77,6 +78,7 @@ function Checkout({ siteData }) {
 
   useEffect(() => {
     const cartLength = cart.length;
+    setIsLoadingPayments(false);
     if (cartLength === 0) return;
     if (selectedPayment !== "card") return;
 
@@ -110,6 +112,7 @@ function Checkout({ siteData }) {
   };
 
   const handleSelectPaymentMethod = (payment) => (e) => {
+    setIsLoadingPayments(true);
     const { paymentMethod } = payment;
     const method = paymentMethod === "stripe" ? "card" : paymentMethod;
     if (method !== "card") setClientSecret("");
@@ -144,6 +147,13 @@ function Checkout({ siteData }) {
   };
 
   // if (!clientSecret) return <div>Error loading. Refresh...</div>;
+  if (isLoadingPayments)
+    return (
+      <div className="flex flex-col items-center mt-36">
+        <CircularProgress />
+        Loading payments...
+      </div>
+    );
 
   return (
     <div className="">

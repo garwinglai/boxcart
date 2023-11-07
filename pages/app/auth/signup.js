@@ -1416,7 +1416,7 @@ function Signup({ nextAccountId }) {
   }
 
   return (
-    <div className={`${styles.signup} bg-[color:var(--brown-bg)] min-h-screen`}>
+    <div className={`${styles.signup} min-h-screen`}>
       <Snackbar open={openError} onClose={handleCloseSnackbar}>
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>

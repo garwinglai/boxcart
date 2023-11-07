@@ -122,7 +122,7 @@ function OrderReview({
             ) : (
               isMobile && (
                 <button
-                  onClick={closeDrawer}
+                  onClick={handleAddDateTime}
                   className="text-blue-600 text-sm font-light"
                 >
                   add

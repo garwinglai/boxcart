@@ -14,6 +14,7 @@ function NotificationBox({
   toggleNotifDrawer,
   toggleNotifPopup,
   isMobileView,
+  pageTitle,
 }) {
   const notifCount = notifications.length;
 
@@ -59,6 +60,7 @@ function NotificationBox({
                 <div key={id}>
                   <NotificationCard
                     notif={notif}
+                    pageTitle={pageTitle}
                     toggleNotifDrawer={toggleNotifDrawer}
                     toggleNotifPopup={toggleNotifPopup}
                     isMobileView={isMobileView}

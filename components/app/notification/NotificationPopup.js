@@ -21,6 +21,7 @@ function NotificationPopup({
   notifications,
   toggleNotifPopup,
   isMobileView,
+  pageTitle,
 }) {
   return (
     <div className="relative">
@@ -34,6 +35,7 @@ function NotificationPopup({
         <Fade in={isNotifDesktopOpen}>
           <Box sx={style}>
             <NotificationBox
+              pageTitle={pageTitle}
               toggleNotifPopup={toggleNotifPopup}
               notifications={notifications}
               isMobileView={isMobileView}

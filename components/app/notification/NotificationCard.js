@@ -19,6 +19,7 @@ function NotificationCard({
   toggleNotifDrawer,
   toggleNotifPopup,
   isMobileView,
+  pageTitle,
 }) {
   const {
     id,
@@ -28,13 +29,18 @@ function NotificationCard({
     notificationType,
   } = notif;
 
-  const { push } = useRouter();
+  const { push, reload } = useRouter();
 
   const handleViewNotif = () => {
     handleCloseNotif();
 
     if (notificationType == 0) {
       handleClearNotif();
+
+      if (pageTitle == "Live Orders") {
+        reload();
+        return;
+      }
       push("/account//orders/live");
     }
   };

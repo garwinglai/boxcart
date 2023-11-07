@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import { useRouter } from "next/router";
 import OrderReview from "@/components/storefront/cart/OrderReview";
@@ -49,6 +49,25 @@ function CheckoutForm({
   const { query, push } = router;
   const subdomain = query.site + ".boxcart.shop";
 
+  useEffect(() => {
+    // Initialize cart details in store
+    if (!customerFName) {
+      setCartDetails({ customerFName: "" });
+    }
+
+    if (!customerLName) {
+      setCartDetails({ customerLName: "" });
+    }
+
+    if (!customerEmail) {
+      setCartDetails({ customerEmail: "" });
+    }
+
+    if (!customerPhone) {
+      setCartDetails({ customerPhone: "" });
+    }
+  }, []);
+
   const handleCustomerInfoChange = (e) => {
     const { name, value } = e.target;
     setCartDetails({ [name]: value });
@@ -84,7 +103,7 @@ function CheckoutForm({
       ...orderData,
       customerName: customerFName,
       shopName: businessName,
-      email: customerEmail
+      email: customerEmail,
     };
 
     sendOrderDetailsEmail(data);
@@ -442,6 +461,8 @@ function CheckoutForm({
       optionQuantitiesToUpdate,
     };
   };
+
+  if (!hydrated) return null;
 
   return (
     <form

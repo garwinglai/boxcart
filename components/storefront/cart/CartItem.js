@@ -382,7 +382,7 @@ function CartItem({
   return (
     <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
       <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
-        {productImage && defaultImage ? (
+        {productImage || defaultImage ? (
           <div className="min-w-[5rem] h-[5rem] relative">
             <Image
               src={

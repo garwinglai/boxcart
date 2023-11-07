@@ -108,6 +108,25 @@ function CheckoutFormStripe({
       });
   }, [stripe]);
 
+  useEffect(() => {
+    // Initialize cart details in store
+    if (!customerFName) {
+      setCartDetails({ customerFName: "" });
+    }
+
+    if (!customerLName) {
+      setCartDetails({ customerLName: "" });
+    }
+
+    if (!customerEmail) {
+      setCartDetails({ customerEmail: "" });
+    }
+
+    if (!customerPhone) {
+      setCartDetails({ customerPhone: "" });
+    }
+  }, []);
+
   const updateOrderPaymentStatus = async (orderData) => {
     const updateOrderAPI = "/api/public/orders/updatePaymentStatus";
     const response = await fetch(updateOrderAPI, {
@@ -585,7 +604,6 @@ function CheckoutFormStripe({
         priceDisplay,
         productName,
         quantity,
-        productId,
         productImage: defaultImage,
         hasUnlimitedQuantity,
         setQuantityByProduct,

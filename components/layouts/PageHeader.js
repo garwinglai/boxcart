@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
-import styles from "@/styles/components/layouts/page-header.module.css";
 import { IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import MobileNavBar from "./MobileNavBar";
-import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Badge from "@mui/material/Badge";
 import { useChecklistStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
-import { getLocalStorage } from "@/utils/clientStorage";
 import Alert from "@mui/material/Alert";
 import ButtonThird from "../global/buttons/ButtonThird";
 import { useRouter } from "next/router";
@@ -112,7 +109,6 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
 
   const toggleNotifPopup = () => {
     setIsNotifDesktopOpen((prev) => !prev);
-    console.log("hi");
   };
 
   const handleGoChecklist = () => {
@@ -177,11 +173,13 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
             >
               <NotificationDrawer
                 toggleNotifDrawer={toggleNotifDrawer}
+                pageTitle={pageTitle}
                 notifications={notifications}
                 isMobileView={isMobileView}
               />
             </SwipeableDrawer>
             <NotificationPopup
+              pageTitle={pageTitle}
               isNotifDesktopOpen={isNotifDesktopOpen}
               toggleNotifPopup={toggleNotifPopup}
               notifications={notifications}

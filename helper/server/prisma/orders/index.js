@@ -54,7 +54,6 @@ export async function createOrder(
       return customerOrder;
     });
 
-    console.log("resTransaction", resTransaction);
     return { success: true, value: resTransaction };
   } catch (error) {
     console.log("error", error);

@@ -898,7 +898,12 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     const roundedNumInMi = round(distanceInMi);
     const roundedNumInKm = round(distanceInKm);
 
-    if (roundedNumInMi > localDeliveryDistanceMi) {
+    const delivery = fulfillmentMethods.find(
+      (method) => method.methodInt === 0
+    );
+    const { deliveryTypeInt } = delivery;
+
+    if (deliveryTypeInt === 1 && roundedNumInMi > localDeliveryDistanceMi) {
       setIsDeliveryTooFar(true);
       return null;
     }
