@@ -38,11 +38,10 @@ function PackageComponent({ item, isPaymentByAnnual }) {
         </div>
         <div className="flex justify-between items-center gap-4 mt-4">
           <p className="text-left text-xs font-light">{description}</p>
-          {id !== 2 && (
-            <div>
-              <ButtonPrimary name="select" disabled={id === 2} />
-            </div>
-          )}
+
+          <div>
+            <ButtonPrimary name="coming soon" disabled={id === 2 || id === 1} />
+          </div>
         </div>
       </div>
 
