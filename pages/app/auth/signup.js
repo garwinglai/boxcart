@@ -1423,7 +1423,7 @@ function Signup({ nextAccountId }) {
       </Snackbar>
       <div className="lg:px-52">
         <button onClick={() => push("https://www.boxcart.site")}>
-          <div className=" w-40 h-28 relative">
+          <div className=" w-40 h-28 relative -mt-8 -mb-4">
             <Image
               src={logo}
               alt="boxcart logo"
