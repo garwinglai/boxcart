@@ -173,6 +173,7 @@ model CustomerOrder {
   paymentMethod               String? // "card", "venmo", "cash" .. etc.
   paymentAccount              String? // account for venmo, paypal, zelle, etc.
   paymentInstructions         String?
+  pickupNote                  String?
   // stripeFeePenny      Int? 
   // stripeFeeDisplay    String?
   cardFeePenny                Int?

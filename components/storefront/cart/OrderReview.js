@@ -40,6 +40,7 @@ function OrderReview({
       fulfillmentDisplay,
       deliveryAddress,
       pickupAddress,
+      pickupNote,
       fulfillmentType,
       requireOrderTime,
       requireOrderDate,
@@ -75,10 +76,20 @@ function OrderReview({
 
           {fulfillmentType === 1 && (
             <div className={`${styles.flex} ${styles.review_context}`}>
-              <p>
+              <p className="pr-4">
                 <b>Pickup address:</b>
               </p>
-              <p className="text-sm font-light">{pickupAddress}</p>
+              <p className="text-sm font-light text-right">{pickupAddress}</p>
+            </div>
+          )}
+          {fulfillmentType === 1 && pickupNote && (
+            <div>
+              <div className={`${styles.flex} ${styles.review_context}`}>
+                <p className="pr-4">
+                  <b>Note:</b>
+                </p>
+                <p className="text-sm font-light text-right">{pickupNote}</p>
+              </div>
             </div>
           )}
         </div>

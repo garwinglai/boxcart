@@ -431,6 +431,7 @@ function CheckoutFormStripe({
   const buildOrderData = () => {
     const {
       deliveryAddress,
+      pickupAddress,
       orderForDateDisplay,
       orderForTimeDisplay,
       requireOrderTime,
@@ -447,6 +448,7 @@ function CheckoutFormStripe({
       deliveryFeeDisplay,
       totalPenny,
       totalDisplay,
+      pickupNote,
     } = cartDetails;
 
     // const orderStatus = "pending";
@@ -469,6 +471,7 @@ function CheckoutFormStripe({
     const orderDetailsData = {
       orderId: nanoid(),
       deliveryAddress,
+      pickupAddress,
       orderForDate, // epoch time of date
       orderForDateDisplay,
       orderForTime, // epoch time of exact order for time
@@ -493,6 +496,7 @@ function CheckoutFormStripe({
       totalAfterStripeFeesDisplay,
       paymentMethod,
       paymentStatus,
+      pickupNote,
     };
 
     return orderDetailsData;

@@ -245,6 +245,7 @@ function CheckoutForm({
       deliveryFeeDisplay,
       totalPenny,
       totalDisplay,
+      pickupNote,
     } = cartDetails;
 
     // const orderStatus = "pending";
@@ -285,6 +286,7 @@ function CheckoutForm({
       paymentMethod,
       paymentAccount,
       paymentInstructions,
+      pickupNote,
     };
 
     return orderDetailsData;
