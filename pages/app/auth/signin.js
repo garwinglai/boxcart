@@ -165,7 +165,7 @@ const Signin = () => {
       </Snackbar>
       <Link
         href="https://www.boxcart.site"
-        className="p-8 ml-24 absolute hover:underline flex items-center gap-2"
+        className="p-8 ml-24 absolute hover:underline md:flex items-center gap-2 hidden"
       >
         <ChevronLeft />
         Home
