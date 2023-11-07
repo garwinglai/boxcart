@@ -934,7 +934,6 @@ function Signup({ nextAccountId }) {
     }
 
     const newUserData = await structureUserData(logoImg);
-
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 

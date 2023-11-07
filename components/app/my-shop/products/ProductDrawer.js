@@ -498,8 +498,9 @@ function ProductDrawer({
         continue;
       }
 
-      const isDefault = productPhotosLen && i === 0;
+      const isDefault = productPhotosLen === 0 && i === 0;
       const image = URL.createObjectURL(currFile);
+      console.log("isDefault", isDefault);
       const currImageData = {
         image,
         fileName,
