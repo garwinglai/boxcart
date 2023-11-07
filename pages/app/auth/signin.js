@@ -80,7 +80,8 @@ const Signin = () => {
           email
         );
         const { success, account } = resChecklistComplete;
-        let checklistComplete = false;
+        // let checklistComplete = false;
+        const { isChecklistComplete } = account;
 
         if (!success) {
           console.log("error checking if checklist is complete");
@@ -92,10 +93,10 @@ const Signin = () => {
 
         const signedInRoute =
           process.env.NODE_ENV && process.env.NODE_ENV === "production"
-            ? checklistComplete
+            ? isChecklistComplete
               ? "https://app.boxcart.shop/account/my-shop"
               : "https://app.boxcart.shop/account/checklist"
-            : checklistComplete
+            : isChecklistComplete
             ? "http://app.localhost:3000/account/my-shop"
             : "http://app.localhost:3000/account/checklist";
         push(signedInRoute);
