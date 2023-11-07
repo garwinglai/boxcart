@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       automatic_payment_methods: {
         enabled: true,
       },
-      payment_method: "pm_card_visa",
+      // payment_method: "pm_card_visa", // ! enable this for testing in local
       transfer_data: {
         destination: stripeAccountId,
       },
