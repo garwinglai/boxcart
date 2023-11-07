@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       clientSecret: client_secret,
     });
   } catch (e) {
+    console.log("error", e.message);
     return res.status(400).send({
       error: {
         message: e.message,

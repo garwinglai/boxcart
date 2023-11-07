@@ -530,6 +530,10 @@ function CheckoutForm({
           </div>
           <div className="flex gap-4 mb-4 px-4 flex-wrap md:px-16 lg:p-0">
             {availablePayments.map((payment) => {
+              const { charged_enabled, paymentMethod } = payment;
+
+              if (paymentMethod === "stripe" && !charged_enabled) return null;
+
               return (
                 <PaymentOption
                   payment={payment}
