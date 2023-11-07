@@ -12,6 +12,7 @@ import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIsChecklistCompleteClient } from "@/helper/client/api/account/account-schema";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
+import { ChevronLeft } from "@mui/icons-material";
 
 const adminLoginTemp = {
   // email: "garwingl@usc.edu",
@@ -28,7 +29,7 @@ const Signin = () => {
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const router = useRouter();
+  const { push } = useRouter();
 
   const handleChangeEmail = (e) => {
     const { value, name } = e.target;
@@ -97,7 +98,7 @@ const Signin = () => {
             : checklistComplete
             ? "http://app.localhost:3000/account/my-shop"
             : "http://app.localhost:3000/account/checklist";
-        router.push(signedInRoute);
+        push(signedInRoute);
         return;
       }
 
@@ -161,13 +162,22 @@ const Signin = () => {
       <Snackbar open={openError} onClose={handleCloseSnackbar}>
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
+      <Link
+        href="https://www.boxcart.site"
+        className="p-8 ml-24 absolute hover:underline flex items-center gap-2"
+      >
+        <ChevronLeft />
+        Home
+      </Link>
       <div className={`${styles.outerContainer} md:shadow p-12`}>
         <div className="relative">
-          <Image
-            src={logo}
-            alt="boxcart logo"
-            className=" aspect-video w-40 h-40 object-cover absolute -top-24 -left-14 "
-          />
+          <button onClick={() => push("https://www.boxcart.site")}>
+            <Image
+              src={logo}
+              alt="boxcart logo"
+              className=" aspect-video w-40 h-40 object-cover absolute -top-24 -left-14 "
+            />
+          </button>
           <div className="mx-auto text-center pb-4">
             <Image src={login_icon} alt="login icon" className="mx-auto" />
             <h2 className="">Sign in</h2>

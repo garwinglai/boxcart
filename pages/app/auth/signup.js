@@ -36,6 +36,7 @@ import {
   checkAccessCode,
   checkAccessCodeUsed,
 } from "@/helper/client/api/account/early-bird-code";
+import logo from "@/public/images/logos/boxcart_logo_full.png";
 
 // steps:
 // 0: accessCode
@@ -158,7 +159,7 @@ function Signup({ nextAccountId }) {
   const { tip1, tip2, tip3 } = tipValues;
 
   const subdomainInputRef = useRef(null);
-  const router = useRouter();
+  const { push } = useRouter();
 
   useEffect(() => {
     setIsLoading(false);
@@ -971,7 +972,7 @@ function Signup({ nextAccountId }) {
                 ? "https://app.boxcart.shop/account/checklist"
                 : "http://app.localhost:3000/account/checklist";
 
-            router.push(signedInRoute);
+            push(signedInRoute);
             return;
           }
 
@@ -1420,9 +1421,22 @@ function Signup({ nextAccountId }) {
       <Snackbar open={openError} onClose={handleCloseSnackbar}>
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
-      <div className=" lg:px-52">
-        <h2 className={`${styles.boxcart_logo}`}>BoxCart</h2>
-        <LinearProgressWithLabel value={(step / maxSteps) * 100} />
+      <div className="lg:px-52">
+        <button onClick={() => push("https://www.boxcart.site")}>
+          <div className=" w-40 h-28 relative">
+            <Image
+              src={logo}
+              alt="boxcart logo"
+              fill
+              priority
+              className=" object-cover rounded"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        </button>
+        <div className="-mt-4">
+          <LinearProgressWithLabel value={(step / maxSteps) * 100} />
+        </div>
       </div>
       <div className="md:mt-4 md:px-32">
         <form onSubmit={handleSignup} className={`${styles.form_box}`}>
