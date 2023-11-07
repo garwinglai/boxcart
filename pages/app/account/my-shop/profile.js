@@ -513,7 +513,7 @@ function Profile({ userAccount }) {
     // TODO: stop each action if failed
     if (bannerFile) {
       // Delete if bannerImageFileName was fetched from storage
-      if (fetchedBannerFileName) {
+      if (fetchedBannerFileName && fetchedBannerFileName != bannerFileName) {
         const { success } = await deleteImageFromFirebaseStorage(
           fetchedBannerFileName,
           subdomain,
@@ -539,7 +539,7 @@ function Profile({ userAccount }) {
 
     if (logoFile) {
       // Delete if logoImageFileName was fetched from storage
-      if (fetchedLogoFileName) {
+      if (fetchedLogoFileName && fetchedLogoFileName != logoFileName) {
         const { success } = await deleteImageFromFirebaseStorage(
           fetchedLogoFileName,
           subdomain,

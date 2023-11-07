@@ -934,6 +934,7 @@ function Signup({ nextAccountId }) {
     }
 
     const newUserData = await structureUserData(logoImg);
+    return;
     const signupResponse = await newUserSignup(newUserData);
     const { success, user, error } = signupResponse;
 
@@ -1106,8 +1107,9 @@ function Signup({ nextAccountId }) {
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
     const endToday = date.setHours(23, 59, 59, 999);
-    const freePeriodEndDateStr = new Date(endToday);
-    const freePeriodEndDateEpoch = Date.parse(freePeriodEndDateStr);
+    const freePeriodDate = new Date(endToday);
+    const freePeriodEndDateStr = freePeriodDate.toLocaleDateString();
+    const freePeriodEndDateEpoch = Date.parse(freePeriodDate);
     const fullDomain = subdomain + ".boxcart.shop";
 
     const userData = {

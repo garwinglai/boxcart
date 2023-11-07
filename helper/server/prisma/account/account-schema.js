@@ -58,7 +58,7 @@ export async function updateAccountSettingsServer(body) {
           },
         },
         socials: {
-          upsert: socialLinks.map((social) => {
+          upsert: socialLinks.filter((social) => {
             const { platform, socialLink, id } = social;
 
             if (id) return;

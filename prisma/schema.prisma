@@ -50,16 +50,14 @@ model Account {
   createdAt                       DateTime             @default(now())
   updatedAt                       DateTime             @updatedAt
   referredFrom                    String?
+  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
   isFreePeriodActive              Boolean              @default(true)
-  freePeriodEndDateStr            String?
-  freePeriodEndDateEpoch          String?
-  isFirstLogin                    Boolean              @default(true)
-  isActive                        Boolean              @default(false) //if false, show store coming soon in url. Mark true when checklist complete.
   isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  isBetaPromoActive               Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  freePeriodEndDateStr            String?
+  freePeriodEndDateEpoch          String? // 1 month free
+  isFirstLogin                    Boolean              @default(true)
   isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
   isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
-  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
   email                           String               @unique
   isEmailVerified                 Boolean              @default(false)
   userName                        String
@@ -627,7 +625,7 @@ enum Role {
   SUPERSTAFF
   // BoxCart Partner
   PARTNER
-  // Business owners - users
+  // Business owners - boxcart users
   OWNER
   // User's staff
   STAFF
