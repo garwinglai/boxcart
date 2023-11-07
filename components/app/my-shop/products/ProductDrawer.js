@@ -471,31 +471,56 @@ function ProductDrawer({
 
   const handlePhotoFileChange = (e) => {
     const { name, files } = e.target;
-    const selectedImage = files[0];
+    const filesLen = files.length;
+    const productPhotosLen = productPhotos.length;
 
-    if (!selectedImage) return;
+    const totalImages = filesLen + productPhotosLen;
+    if (totalImages > 8) {
+      handleOpenSnackbar("Maximum of 8 images allowed");
+      return;
+    }
+    if (files.length < 1) return;
 
-    const fileName = selectedImage.name;
+    const imgData = [];
+    let defaultFileName;
+    let defaultImageData;
+
     const productPhotosArr = productPhotos.map((item) => {
       const fName = item.imgFileName ? item.imgFileName : item.fileName;
       return fName;
     });
 
-    if (productPhotosArr.includes(fileName)) {
-      handleOpenSnackbar("Photo already exists");
-      return;
+    for (let i = 0; i < files.length; i++) {
+      const currFile = files[i];
+      const fileName = currFile.name;
+
+      if (productPhotosArr.includes(fileName)) {
+        continue;
+      }
+
+      const isDefault = productPhotosLen && i === 0;
+      const image = URL.createObjectURL(currFile);
+      const currImageData = {
+        image,
+        fileName,
+        imageFile: currFile,
+        isDefault,
+      };
+
+      if (isDefault) {
+        defaultFileName = fileName;
+        defaultImageData = currImageData;
+      }
+
+      imgData.push(currImageData);
     }
 
-    const isDefault = productPhotos.length === 0;
-    const image = URL.createObjectURL(selectedImage);
-    const imgData = { image, fileName, imageFile: selectedImage, isDefault };
+    setProductPhotos((prev) => [...prev, ...imgData]);
 
-    setProductPhotos((prev) => [...prev, imgData]);
-
-    if (isDefault) {
+    if (defaultFileName) {
       setProductValues((prev) => ({
         ...prev,
-        defaultImgStr: fileName,
+        defaultImgStr: defaultFileName,
       }));
       setDefaultImageValues(imgData);
     }
@@ -1866,11 +1891,17 @@ function ProductDrawer({
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
           <div className="w-full relative ">
             <span className="flex items-end justify-between gap-2">
-              <h4 className="text-black font-semibold text-sm ">Photos:</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-black font-semibold text-sm ">Photos:</h4>
+                <p className="text-xs text-[color:var(--gray)] font-light">
+                  8 images max.
+                </p>
+              </div>
               <p className="text-xs text-[color:var(--gray)] font-light">
                 * png or jpeg files only.
               </p>
             </span>
+
             <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
               {productPhotos.length !== 0 ? (
                 productPhotos.map((photo, idx) => {
@@ -1913,26 +1944,29 @@ function ProductDrawer({
               <p className="text-sm text-[color:var(--gray)] font-light">
                 {productPhotos.length} images uploaded.
               </p>
-              <div>
-                <span>
-                  <span className="bg-[color:var(--primary)] py-1 rounded ">
-                    <label
-                      htmlFor="productImageInput"
-                      className=" -translate-y-[2px] bg-white text-[color:var(--primary)] border border-[color:var(--primary)] rounded py-1 px-2 active:bg-[color:var(--priamry-dark)] active:text-white hover:cursor-pointer"
-                    >
-                      Upload
-                    </label>
+              {productPhotos.length < 8 && (
+                <div>
+                  <span>
+                    <span className="bg-[color:var(--primary)] py-1 rounded ">
+                      <label
+                        htmlFor="productImageInput"
+                        className=" -translate-y-[2px] bg-white text-[color:var(--primary)] border border-[color:var(--primary)] rounded py-1 px-2 active:bg-[color:var(--priamry-dark)] active:text-white hover:cursor-pointer"
+                      >
+                        Upload
+                      </label>
+                    </span>
+                    <input
+                      onChange={handlePhotoFileChange}
+                      value=""
+                      type="file"
+                      name="productImage"
+                      id="productImageInput"
+                      className="hidden"
+                      multiple
+                    />
                   </span>
-                  <input
-                    onChange={handlePhotoFileChange}
-                    value=""
-                    type="file"
-                    name="productImage"
-                    id="productImageInput"
-                    className="hidden"
-                  />
-                </span>
-              </div>
+                </div>
+              )}
             </span>
           </div>
           <span className="flex flex-col gap-2 mt-4">

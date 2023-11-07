@@ -24,7 +24,6 @@ import StoreIcon from "@mui/icons-material/Store";
 import StarIcon from "@mui/icons-material/Star";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SmsIcon from "@mui/icons-material/Sms";
-import ButtonThird from "../global/buttons/ButtonThird";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -33,6 +32,10 @@ import { Divider } from "@mui/material";
 import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
+import { ContactEmergency } from "@mui/icons-material";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
+import DiscountIcon from "@mui/icons-material/Discount";
 
 function DesktopNavBar({ pageRoute }) {
   const hydrated = useHasHydrated();
@@ -51,6 +54,9 @@ function DesktopNavBar({ pageRoute }) {
   );
   const [openOrderList, setOpenOrderList] = useState(
     pageRoute === "history" || pageRoute === "live" ? true : false
+  );
+  const [openPromoList, setOpenPromoList] = useState(
+    pageRoute === "gift-card" || pageRoute === "email-marketing" ? true : false
   );
   const [openInventoryList, setOpenInventoryList] = useState(
     pageRoute === "products" || pageRoute === "category" ? true : false
@@ -83,8 +89,8 @@ function DesktopNavBar({ pageRoute }) {
     setOpenOrderList((prev) => !prev);
   };
 
-  const handleInventoryList = () => {
-    setOpenInventoryList((prev) => !prev);
+  const handleNestedPromoList = () => {
+    setOpenPromoList((prev) => !prev);
   };
 
   const handleNestedCommList = () => {
@@ -469,7 +475,7 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-        {/* 
+
         <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
@@ -481,7 +487,7 @@ function DesktopNavBar({ pageRoute }) {
             }}
           >
             <ListItemIcon>
-              <ContactEmergencyIcon
+              <ContactEmergency
                 sx={{
                   color: `${
                     pageRoute === "contacts" ? "var(--primary-dark)" : "gray"
@@ -498,7 +504,122 @@ function DesktopNavBar({ pageRoute }) {
               }}
             />
           </MenuItem>
-        </Link> */}
+        </Link>
+        <MenuItem onClick={handleNestedPromoList}>
+          <ListItemIcon>
+            <DiscountIcon
+              sx={{
+                color: `${
+                  pageRoute === "gift-card" || pageRoute === "email-marketing"
+                    ? "var(--primary-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="Promotions"
+            sx={{
+              color: `${
+                pageRoute === "gift-card" || pageRoute === "email-marketing"
+                  ? "var(--primary-dark)"
+                  : "gray"
+              }  `,
+            }}
+          />
+          {openPromoList ? (
+            <ExpandLess
+              sx={{
+                color: "var(--primary-dark)",
+              }}
+            />
+          ) : (
+            <ExpandMore
+              sx={{
+                color: "gray",
+              }}
+            />
+          )}
+        </MenuItem>
+        <Collapse in={openPromoList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding sx={{ pl: "16px" }}>
+            <Link
+              href="/account/promotion/gift-card"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "gift-card" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "gift-card" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <CardGiftcardIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "gift-card"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Gift card</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "gift-card" ? "var(--primary-dark)" : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/account/promotion/email-marketing"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "email-marketing" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "email-marketing" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <ForwardToInboxIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "email-marketing"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <p className="text-sm font-light">Email marketing</p>
+                  }
+                  sx={{
+                    color: `${
+                      pageRoute === "email-marketing"
+                        ? "var(--primary-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+          </List>
+        </Collapse>
+
         <Divider sx={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>

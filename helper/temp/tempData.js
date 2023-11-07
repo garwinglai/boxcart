@@ -5,6 +5,57 @@ import restaurant_icon from "../../public/images/icons/business_type/restaurant_
 import dessert_icon from "../../public/images/icons/business_type/dessert_icon.png";
 import custom_mug from "../../public/images/temp/custom_mug.jpg";
 import custom_sweater from "../../public/images/temp/custom_sweater.jpg";
+import launch_icon from "@/public/images/icons/launch_icon.png";
+import crowd_funding_icon from "@/public/images/icons/crowd_funding_icon.png";
+
+export const membershipPackages = [
+  {
+    id: 1,
+    icon: launch_icon,
+    planName: "Starter Plan",
+    description: "Perfect for new and small businesses looking to sell online.",
+    priceMonth: 1200,
+    priceYear: 900,
+    pricePerMonthDisplay: "$12 / month",
+    pricePerYearDisplay: "$9 / month",
+    features: [
+      "Help center support",
+      "Storefront",
+      "Order management",
+      "Accept payments",
+      "Simple analytics",
+      "Custom domain",
+    ],
+  },
+  {
+    id: 2,
+    icon: crowd_funding_icon,
+    planName: "Entrepreneur Plan",
+    description: "Perfect for businesses who are looking to grow.",
+    priceMonth: 0,
+    priceYear: 0,
+    pricePerMonthDisplay: "coming soon",
+    pricePerYearDisplay: "coming soon",
+    features: [
+      "Everything in Starter Plan",
+      "Email suppport",
+      "Automated email marketing",
+      "Abandon cart emails",
+      "Automated social media posts",
+      "Chat",
+      "Customer list",
+      "Advanced analytics",
+      "Gift cards",
+      "Discount codes",
+      "Loyalty program",
+      "Customer review",
+      "Team accounts",
+      "Delivery integration",
+      "Bookkeeping",
+      "Custom shop themes",
+    ],
+  },
+];
 
 export const businessTypesArr = [
   {

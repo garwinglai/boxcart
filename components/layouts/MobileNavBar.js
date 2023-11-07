@@ -14,7 +14,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Image from "next/image";
 import Link from "next/link";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import ButtonThird from "../global/buttons/ButtonThird";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
@@ -23,6 +22,11 @@ import { deleteLocalStorage } from "@/utils/clientStorage";
 import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
+import { ContactEmergencyOutlined } from "@mui/icons-material";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import { Divider } from "@mui/material";
+import DiscountIcon from "@mui/icons-material/Discount";
+import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
 
 function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
   const hydrated = useHasHydrated();
@@ -41,8 +45,10 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
       ? true
       : false
   );
-  const [openOrderList, setOpenOrderList] = useState(
-    mobilePageRoute === "history" || mobilePageRoute === "live" ? true : false
+  const [openPromoList, setOpenPromoList] = useState(
+    mobilePageRoute === "gift-card" || mobilePageRoute === "email-marketing"
+      ? true
+      : false
   );
   const [openCommList, setOpenCommList] = useState(
     mobilePageRoute === "contacts" ||
@@ -70,12 +76,12 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
     setOpenStoreList((prev) => !prev);
   };
 
-  const handleNestedOrderList = () => {
-    setOpenOrderList((prev) => !prev);
-  };
-
   const handleNestedCommList = () => {
     setOpenCommList((prev) => !prev);
+  };
+
+  const handleNestedPromoList = () => {
+    setOpenPromoList((prev) => !prev);
   };
 
   const handleNestedPremiumList = () => {
@@ -128,7 +134,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
-        {/* <Link
+        <Link
           href="/account/contacts"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
@@ -143,7 +149,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             }}
           >
             <ListItemIcon>
-              <ContactEmergencyOutlinedIcon
+              <ContactEmergencyOutlined
                 sx={{
                   color: `${
                     mobilePageRoute === "contacts"
@@ -157,13 +163,142 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               primary="Contacts"
               sx={{
                 color: `${
-                  mobilePageRoute === "contacts" ? "var(--primary-dark)" : "gray"
+                  mobilePageRoute === "contacts"
+                    ? "var(--primary-dark)"
+                    : "gray"
                 }  `,
               }}
             />
           </MenuItem>
-        </Link> */}
+        </Link>
 
+        <MenuItem onClick={handleNestedPromoList}>
+          <ListItemIcon>
+            <DiscountIcon
+              sx={{
+                color: `${
+                  mobilePageRoute === "gift-card" ||
+                  mobilePageRoute === "email-marketing"
+                    ? "var(--primary-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="Premium"
+            sx={{
+              color: `${
+                mobilePageRoute === "gift-card" ||
+                mobilePageRoute === "email-marketing"
+                  ? "var(--primary-dark)"
+                  : "gray"
+              }  `,
+            }}
+          />
+          {openPromoList ? (
+            <ExpandLess
+              sx={{
+                color: "var(--primary-dark)",
+              }}
+            />
+          ) : (
+            <ExpandMore
+              sx={{
+                color: "gray",
+              }}
+            />
+          )}
+        </MenuItem>
+
+        <Collapse in={openPromoList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding sx={{ pl: "16px" }}>
+            <Link
+              href="/account/promotion/gift-card"
+              className={`${styles.menu_link_group}`}
+              onClick={toggleDrawer("right", false)}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    mobilePageRoute === "gift-card" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${mobilePageRoute === "gift-card" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <CardGiftcardIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        mobilePageRoute === "gift-card"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Gift card</p>}
+                  sx={{
+                    color: `${
+                      mobilePageRoute === "gift-card"
+                        ? "var(--primary-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/account/promotion/email-marketing"
+              className={`${styles.menu_link_group}`}
+              onClick={toggleDrawer("right", false)}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    mobilePageRoute === "email-marketing" &&
+                    "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${
+                    mobilePageRoute === "email-marketing" && "4px"
+                  }`,
+                }}
+              >
+                <ListItemIcon>
+                  <ForwardToInboxIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        mobilePageRoute === "email-marketing"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <p className="text-sm font-light">Email marketing</p>
+                  }
+                  sx={{
+                    color: `${
+                      mobilePageRoute === "email-marketing"
+                        ? "var(--primary-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+          </List>
+        </Collapse>
+        <div className="my-2">
+          <Divider />
+        </div>
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>
             <StarPurple500Icon
@@ -213,8 +348,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               <MenuItem
                 sx={{
                   backgroundColor: `${
-                    mobilePageRoute === "membership" &&
-                    "var(--primary-light)"
+                    mobilePageRoute === "membership" && "var(--primary-light)"
                   }`,
 
                   borderRadius: `${mobilePageRoute === "membership" && "4px"}`,
@@ -293,8 +427,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           <MenuItem
             sx={{
               backgroundColor: `${
-                mobilePageRoute === "account-settings" &&
-                "var(--primary-light)"
+                mobilePageRoute === "account-settings" && "var(--primary-light)"
               }`,
 
               borderRadius: `${

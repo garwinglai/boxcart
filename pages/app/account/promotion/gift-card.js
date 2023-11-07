@@ -1,19 +1,17 @@
 import React from "react";
-import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AppLayout from "@/components/layouts/AppLayout";
-import MembershipPackages from "@/components/landing/MembershipPackages";
 import { isAuth } from "@/helper/client/auth/isAuth";
-import prisma from "@/lib/prisma";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 
-function MemberShip() {
+function GfitCard() {
   return (
-    <div className="">
-      <MembershipPackages />
+    <div className="flex flex-col justify-center items-center mt-16">
+      <h3>Gift cards coming soon...</h3>
     </div>
   );
 }
 
-export default MemberShip;
+export default GfitCard;
 
 export async function getServerSideProps(context) {
   return isAuth(context, (userSession) => {
@@ -25,7 +23,7 @@ export async function getServerSideProps(context) {
   });
 }
 
-MemberShip.getLayout = function getLayout(
+GfitCard.getLayout = function getLayout(
   page,
   pageTitle,
   pageIcon,
@@ -44,7 +42,7 @@ MemberShip.getLayout = function getLayout(
   );
 };
 
-MemberShip.pageTitle = "MemberShip";
-MemberShip.pageIcon = <CardMembershipIcon />;
-MemberShip.pageRoute = "membership";
-MemberShip.mobilePageRoute = "membership";
+GfitCard.pageTitle = "Gift card";
+GfitCard.pageIcon = <CardGiftcardIcon />;
+GfitCard.pageRoute = "gift-card";
+GfitCard.mobilePageRoute = "gift-card";

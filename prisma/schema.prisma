@@ -50,6 +50,7 @@ model Account {
   createdAt                       DateTime             @default(now())
   updatedAt                       DateTime             @updatedAt
   referredFrom                    String?
+  isActive                        Boolean              @default(true) // free accounts that aren't free
   hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
   isFreePeriodActive              Boolean              @default(true)
   isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
