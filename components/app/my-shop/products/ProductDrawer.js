@@ -93,6 +93,7 @@ function ProductDrawer({
         : []
       : []
   );
+
   const [defaultImageValues, setDefaultImageValues] = useState(null);
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
@@ -523,7 +524,8 @@ function ProductDrawer({
         ...prev,
         defaultImgStr: defaultFileName,
       }));
-      setDefaultImageValues(imgData);
+
+      setDefaultImageValues(defaultImageData);
     }
   };
 
@@ -1286,7 +1288,7 @@ function ProductDrawer({
 
           if (!newProductImagesFileNames.includes(defaultImageFileName)) {
             productObject.productSchema.defaultImage = defaultImageValues.image;
-            productObject.updatedImages = [defaultImageValues];
+            // productObject.updatedImages = [defaultImageValues];
           } else {
             // Loop through newProductImages to find the default image and set to object below.
             for (let i = 0; i < newProductImages.length; i++) {

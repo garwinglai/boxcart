@@ -291,7 +291,6 @@ const updateProduct = (product) => {
     optionSchema,
     questionSchema,
   } = product;
-  console.log("product", product);
 
   const {
     accountId,
