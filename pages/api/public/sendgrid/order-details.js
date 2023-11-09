@@ -20,7 +20,6 @@ export default async function handler(req, res) {
       deliveryAddress,
       email,
     } = bodyParsed;
-    console.log("bodyParsed", bodyParsed);
 
     const now = new Date();
 

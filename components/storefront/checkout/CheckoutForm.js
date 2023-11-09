@@ -15,7 +15,10 @@ import PaymentOption from "./PaymentOption";
 import PaymentNotes from "./PaymentNotes";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
-import { sendOrderDetailsEmail } from "@/helper/client/api/sendgrid/email";
+import {
+  sendOrderDetailsEmail,
+  sendOrderToBusinessEmail,
+} from "@/helper/client/api/sendgrid/email";
 
 function CheckoutForm({
   handleOpenSnackbar,
@@ -26,7 +29,7 @@ function CheckoutForm({
   selectedPaymentDetails,
   siteData,
 }) {
-  const { businessName } = siteData;
+  const { businessName, fullDomain, email } = siteData;
 
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
@@ -85,6 +88,7 @@ function CheckoutForm({
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
     const { id } = orderData;
+    console.log("orderData", orderData);
 
     if (error) {
       handleOpenSnackbar("Error submitting order. Please try again.");
@@ -93,12 +97,30 @@ function CheckoutForm({
     }
 
     createOrderNotification(orderData);
-    createAndSendOrderEmail(orderData);
+    sendEmailToBusiness(orderData, id);
+    createAndSendInvoiceToCustomer(orderData);
     setCartDetails({ id });
     push(`/order-submitted/${id}`);
   };
 
-  const createAndSendOrderEmail = async (orderData) => {
+  const sendEmailToBusiness = async (orderData) => {
+    const orderLink = `${fullDomain}/account/orders/live`;
+
+    const emailData = {
+      email,
+      businessName,
+      orderId: orderData.orderId,
+      totalDisplay: orderData.totalDisplay,
+      totalItemsOrdered: orderData.totalItemsOrdered,
+      orderForDateDisplay: orderData.orderForDateDisplay,
+      customNote: orderData.customNote,
+      orderLink,
+    };
+
+    sendOrderToBusinessEmail(emailData);
+  };
+
+  const createAndSendInvoiceToCustomer = async (orderData) => {
     const data = {
       ...orderData,
       customerName: customerFName,

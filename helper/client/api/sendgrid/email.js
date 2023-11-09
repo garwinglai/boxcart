@@ -41,9 +41,27 @@ export async function sendVerificationEmail(userId, accountId, email) {
 }
 
 export async function sendOrderDetailsEmail(data) {
-  const verificationEmailUrl = "/api/public/sendgrid/order-details";
+  const customerInvoice = "/api/public/sendgrid/order-details";
 
-  const result = await fetch(verificationEmailUrl, {
+  const result = await fetch(customerInvoice, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  const resultJson = await result.json();
+  const { success, error } = resultJson;
+
+  if (result.status == 200) {
+    return { success, error };
+  } else {
+    return { success, error };
+  }
+}
+
+export async function sendOrderToBusinessEmail(data) {
+  const businessEmailOrderNotif = "/api/public/sendgrid/order-to-business";
+
+  const result = await fetch(businessEmailOrderNotif, {
     method: "POST",
     body: JSON.stringify(data),
   });
