@@ -49,6 +49,7 @@ model Account {
   id                              Int                  @id @default(autoincrement())
   createdAt                       DateTime             @default(now())
   updatedAt                       DateTime             @updatedAt
+  version                         String               @default("1.0.0")
   referredFrom                    String?
   isActive                        Boolean              @default(true) // free accounts that aren't free
   hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.

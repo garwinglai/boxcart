@@ -972,7 +972,7 @@ function EditScheduleDrawer({
         </FormControl>
       </div>
       <div className="p-4">{displayscheduleType(scheduleType)}</div>
-      <div className="absolute left-0 bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
+      <div className="fixed  bottom-0 w-full bg-white p-4 shadow-inner md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
         <SaveCancelButtons
           handleCancel={handleCloseDrawer}
           saveButtonType="button"
