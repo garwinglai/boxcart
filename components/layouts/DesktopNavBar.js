@@ -476,7 +476,7 @@ function DesktopNavBar({ pageRoute }) {
           </MenuItem>
         </Link>
 
-        <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
+        {/* <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -504,8 +504,8 @@ function DesktopNavBar({ pageRoute }) {
               }}
             />
           </MenuItem>
-        </Link>
-        <MenuItem onClick={handleNestedPromoList}>
+        </Link> */}
+        {/* <MenuItem onClick={handleNestedPromoList}>
           <ListItemIcon>
             <DiscountIcon
               sx={{
@@ -618,7 +618,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
           </List>
-        </Collapse>
+        </Collapse> */}
 
         <Divider sx={{ marginTop: "1rem", marginBottom: "1rem" }} />
         <MenuItem onClick={handleNestedPremiumList}>

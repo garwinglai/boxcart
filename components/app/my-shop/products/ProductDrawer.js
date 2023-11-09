@@ -500,7 +500,7 @@ function ProductDrawer({
 
       const isDefault = productPhotosLen === 0 && i === 0;
       const image = URL.createObjectURL(currFile);
-      console.log("isDefault", isDefault);
+
       const currImageData = {
         image,
         fileName,
@@ -2543,7 +2543,7 @@ function ProductDrawer({
                 value={customerQuestionInput}
                 onChange={handleCustomerQuestionInputChange}
                 className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
-                placeholder="i.e. What topping would you like?"
+                placeholder="ex: Do you have any allergies?"
               />
             </span>
             <div className="w-fit ml-auto mt-4">

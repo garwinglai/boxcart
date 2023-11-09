@@ -19,6 +19,8 @@ import Snackbar from "@mui/material/Snackbar";
 import { useCartStore } from "@/lib/store";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import { useRouter } from "next/router";
+import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 function Sites({ siteData }) {
   const cart = useCartStore((state) => state.cart);
@@ -207,6 +209,19 @@ function Sites({ siteData }) {
     }
   };
 
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbar}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
   if (!isChecklistComplete)
     return (
       <div className="flex flex-col justify-center items-center w-full mt-32">
@@ -222,7 +237,7 @@ function Sites({ siteData }) {
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
-        // action={action}
+        action={action}
       />
       <div className="flex-grow lg:overflow-y-auto ">
         <ShopHeader

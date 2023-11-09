@@ -1,8 +1,8 @@
 import React from "react";
-
 import Image from "next/image";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import check_icon from "@/public/images/icons/check_icon.png";
+import { useRouter } from "next/router";
 
 function PackageComponent({ item, isPaymentByAnnual }) {
   const {
@@ -17,8 +17,20 @@ function PackageComponent({ item, isPaymentByAnnual }) {
     features,
   } = item;
 
+  const { push } = useRouter();
+
+  const handleSelectPackage = (item, isPaymentByAnnual) => () => {
+    push({
+      pathname: "/account/premium/checkout",
+      query: {
+        planId: item.id,
+        isPaymentByAnnual: isPaymentByAnnual,
+      },
+    });
+  };
+
   return (
-    <div className="rounded bg-white w-full shadow p-4">
+    <div className="rounded bg-white w-fit shadow-lg p-4 mx-auto">
       <div className="border-b pb-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -37,15 +49,20 @@ function PackageComponent({ item, isPaymentByAnnual }) {
           </div>
         </div>
         <div className="flex justify-between items-center gap-4 mt-4">
-          <p className="text-left text-xs font-light">{description}</p>
-
-          <div>
-            <ButtonPrimary name="coming soon" disabled={id === 2 || id === 1} />
-          </div>
+          <p className="text-left text-sm font-light w-[60%]">{description}</p>
+          {id !== 1 && (
+            <div>
+              <ButtonPrimary
+                handleClick={handleSelectPackage(item, isPaymentByAnnual)}
+                name="coming - 1 week"
+                disabled={id === 2}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      <ul className="p-4 flex flex-col gap-2">
+      <ul className="p-4 flex flex-col gap-4">
         {features.map((feature, index) => {
           return (
             <span className="flex items-center gap-2" key={index}>

@@ -1029,15 +1029,15 @@ function Availability({ userAccount }) {
                       <li className="list-disc">Weekly schedules</li>
                     </ul>
                     <p className="my-4">
-                      You may have overlappting store hours. In that case, store
+                      You may have overlapping store hours. In that case, store
                       hours will take priority based on the order above.
                     </p>
-                    <Link
+                    {/* <Link
                       href="/account/my-shop/availability"
                       className="underline mt-4"
                     >
                       Watch video
-                    </Link>
+                    </Link> */}
                   </div>
                 }
               >

@@ -16,6 +16,7 @@ import { db } from "@/firebase/fireConfig";
 import { signOut } from "next-auth/react";
 import NotificationDrawer from "../app/notification/NotificationDrawer";
 import NotificationPopup from "../app/notification/NotificationPopup";
+import Link from "next/link";
 
 function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   const hydrate = useHasHydrated();
@@ -211,27 +212,32 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
         </SwipeableDrawer>
       </div>
       {hydrate && isChecklistAlertOpen && (
-        <Alert
-          severity="error"
-          color="success"
-          variant="filled"
-          action={
-            <ButtonThird
-              name="Go"
-              handleClick={handleGoChecklist}
-              type="button"
-            />
-          }
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "1rem",
-            padding: "0.5rem 1rem",
-          }}
-        >
-          <p className="font-light">Complete checklist to launch your store.</p>
-        </Alert>
+        <Link href="/account/checklist">
+          <Alert
+            // severity="error"
+            // color="success"
+            variant="filled"
+            action={
+              <ButtonThird
+                name="Checklist"
+                handleClick={handleGoChecklist}
+                type="button"
+              />
+            }
+            sx={{
+              backgroundColor: "var(--primary-light-med)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "1rem",
+              padding: "0.5rem 1rem",
+            }}
+          >
+            <p className=" font-normal text-[color:var(--black-design-extralight)]">
+              Complete <u>checklist</u> to launch your store.
+            </p>
+          </Alert>
+        </Link>
       )}
     </div>
   );

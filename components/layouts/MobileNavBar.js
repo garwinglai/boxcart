@@ -134,7 +134,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
-        <Link
+        {/* <Link
           href="/account/contacts"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
@@ -170,9 +170,9 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               }}
             />
           </MenuItem>
-        </Link>
+        </Link> */}
 
-        <MenuItem onClick={handleNestedPromoList}>
+        {/* <MenuItem onClick={handleNestedPromoList}>
           <ListItemIcon>
             <DiscountIcon
               sx={{
@@ -186,7 +186,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             />
           </ListItemIcon>
           <ListItemText
-            primary="Premium"
+            primary="Promotions"
             sx={{
               color: `${
                 mobilePageRoute === "gift-card" ||
@@ -210,7 +210,6 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             />
           )}
         </MenuItem>
-
         <Collapse in={openPromoList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
@@ -295,10 +294,10 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               </MenuItem>
             </Link>
           </List>
-        </Collapse>
-        <div className="my-2">
+        </Collapse> */}
+        {/* <div className="my-2">
           <Divider />
-        </div>
+        </div> */}
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>
             <StarPurple500Icon

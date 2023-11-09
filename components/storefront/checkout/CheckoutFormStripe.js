@@ -771,7 +771,7 @@ function CheckoutFormStripe({
             </div>
           </div>
           <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
-            <h3 className="font-medium">Billing Address:</h3>
+            <h3 className="font-medium">Billing information:</h3>
             <div className="lg:px-12">
               <AddressElement
                 id="address-element"

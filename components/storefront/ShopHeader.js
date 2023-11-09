@@ -25,6 +25,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     id: accountId,
     logoImage,
     bannerImage,
+    businessName,
   } = userAccount ? userAccount : {};
 
   const account = useAccountStore((state) => state.account);
@@ -147,14 +148,39 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: send Email - open snackbar on success & close drawer
     saveContact();
+    await sendEmailToBusiness(messageValues);
     handleCloseDrawer(e);
     setIsLoading(false);
   };
 
+  const sendEmailToBusiness = async (messageValues) => {
+    const emailAPI = "/api/public/storefront/send-email";
+    const payload = {
+      ...messageValues,
+      businessName,
+      businessEmail: userAccount.email,
+    };
+
+    const email = await fetch(emailAPI, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const { success } = await email.json();
+
+    if (success) {
+      handleOpenSnackbar("Message sent");
+    } else {
+      handleOpenSnackbar("Message failed");
+    }
+  };
+
   const saveContact = async () => {
-    const apiUrl = "/api/public/storefront/message";
+    const apiUrl = "/api/public/storefront/save-contact";
 
     const payload = {
       contact: {
@@ -309,11 +335,6 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
             >
               <div className="flex justify-between items-center border-b pb-4">
                 <span className="flex gap-4 items-center">
-                  {/* <Image
-                    src={product_tag_icon}
-                    alt="bardcode icon"
-                    className="w-[3rem] h-[3rem]"
-                  /> */}
                   <h2>Message:</h2>
                 </span>
                 <button

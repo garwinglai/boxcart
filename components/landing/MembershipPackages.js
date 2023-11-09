@@ -15,15 +15,31 @@ function MembershipPackages() {
       <div className="flex flex-col items-center my-4">
         <h1>BoxCart Premium Plans</h1>
         <div className="flex items-center justify-center gap-2 my-4">
-          <p className="font-light text-xs">Pay Monthly</p>
+          <p
+            className={` ${
+              isPaymentByAnnual
+                ? "font-light text-sm text-black"
+                : "font-medium text-sm text-[color:var(--primary)]"
+            }`}
+          >
+            Pay Monthly
+          </p>
           <IOSSwitch
             checked={isPaymentByAnnual}
             onClick={handlePaymentPeriodChange}
           />
-          <p className="font-light text-xs">Pay Yearly (25% off)</p>
+          <p
+            className={` ${
+              !isPaymentByAnnual
+                ? "font-light text-sm text-black"
+                : "font-medium text-sm text-[color:var(--primary)]"
+            }`}
+          >
+            Pay Yearly (25% off)
+          </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mx-auto mt-16">
         {membershipPackages.map((item) => {
           return (
             <PackageComponent
