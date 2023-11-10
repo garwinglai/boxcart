@@ -22,6 +22,10 @@ import BoxLoader from "@/components/global/loaders/BoxLoader";
 import PaymentOption from "./PaymentOption";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
+import {
+  sendOrderInvoiceToCustomer,
+  sendOrderToBusinessEmail,
+} from "@/helper/client/api/sendgrid/email";
 
 function CheckoutFormStripe({
   handleOpenSnackbar,
@@ -29,7 +33,10 @@ function CheckoutFormStripe({
   availablePayments,
   handleSelectPaymentMethod,
   selectedPayment,
+  siteData,
 }) {
+  const { businessName, fullDomain, email, logoImage } = siteData;
+
   const stripe = useStripe();
   const elements = useElements();
 
@@ -128,7 +135,7 @@ function CheckoutFormStripe({
   }, []);
 
   const updateOrderPaymentStatus = async (orderData) => {
-    const updateOrderAPI = "/api/public/orders/updatePaymentStatus";
+    const updateOrderAPI = "/api/public/orders/update-payment-status";
     const response = await fetch(updateOrderAPI, {
       method: "POST",
       headers: {
@@ -162,6 +169,7 @@ function CheckoutFormStripe({
 
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
+
     const { id } = orderData;
 
     if (error) {
@@ -171,8 +179,42 @@ function CheckoutFormStripe({
     }
 
     createOrderNotification(orderData);
+    sendEmailToBusiness(orderData, id);
+    createAndSendInvoiceToCustomer(orderData);
     setCartDetails({ id });
     chargeCustomer(id);
+  };
+
+  const sendEmailToBusiness = async (orderData) => {
+    const orderLink = `app.boxcart.shop/account/orders/live`;
+
+    const emailData = {
+      email,
+      businessName,
+      customerEmail,
+      orderId: orderData.orderId,
+      totalDisplay: orderData.totalDisplay,
+      totalItemsOrdered: orderData.totalItemsOrdered,
+      orderForDateDisplay: orderData.orderForDateDisplay,
+      paymentMethod: orderData.paymentMethod,
+      customNote: orderData.customNote,
+      orderLink,
+    };
+
+    sendOrderToBusinessEmail(emailData);
+  };
+
+  const createAndSendInvoiceToCustomer = async (orderData) => {
+    const data = {
+      ...orderData,
+      customerName: customerFName,
+      businessName,
+      businessEmail: email,
+      email: customerEmail,
+      businessLogo: logoImage,
+    };
+
+    sendOrderInvoiceToCustomer(data);
   };
 
   const createOrderNotification = async (orderData) => {

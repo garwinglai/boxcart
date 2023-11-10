@@ -7,6 +7,7 @@ import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
 import Drawer from "@mui/material/Drawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useAccountStore } from "@/lib/store";
+import { saveContact } from "@/helper/client/api/contacts";
 
 const style = {
   position: "absolute",
@@ -148,7 +149,14 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     e.preventDefault();
     setIsLoading(true);
 
-    saveContact();
+    const contactData = {
+      fName,
+      lName,
+      email,
+      accountId,
+    };
+
+    saveContact(contactData);
     await sendEmailToBusiness(messageValues);
     handleCloseDrawer(e);
     setIsLoading(false);
@@ -176,33 +184,6 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
       handleOpenSnackbar("Message sent");
     } else {
       handleOpenSnackbar("Message failed");
-    }
-  };
-
-  const saveContact = async () => {
-    const apiUrl = "/api/public/storefront/save-contact";
-
-    const payload = {
-      contact: {
-        fName,
-        lName,
-        email,
-      },
-      accountId,
-    };
-
-    const contact = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const { errorCode } = await contact.json();
-
-    if (errorCode === "P2002") {
-      // Contact already added, don't need to handle error
     }
   };
 

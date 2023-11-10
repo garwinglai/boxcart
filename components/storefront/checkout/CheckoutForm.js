@@ -16,9 +16,10 @@ import PaymentNotes from "./PaymentNotes";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
 import {
-  sendOrderDetailsEmail,
+  sendOrderInvoiceToCustomer,
   sendOrderToBusinessEmail,
 } from "@/helper/client/api/sendgrid/email";
+import { saveContact } from "@/helper/client/api/contacts";
 
 function CheckoutForm({
   handleOpenSnackbar,
@@ -29,7 +30,7 @@ function CheckoutForm({
   selectedPaymentDetails,
   siteData,
 }) {
-  const { businessName, fullDomain, email } = siteData;
+  const { businessName, fullDomain, email, logoImage } = siteData;
 
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
@@ -88,7 +89,6 @@ function CheckoutForm({
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
     const { id } = orderData;
-    console.log("orderData", orderData);
 
     if (error) {
       handleOpenSnackbar("Error submitting order. Please try again.");
@@ -96,6 +96,7 @@ function CheckoutForm({
       return;
     }
 
+    // saveContact();
     createOrderNotification(orderData);
     sendEmailToBusiness(orderData, id);
     createAndSendInvoiceToCustomer(orderData);
@@ -104,15 +105,17 @@ function CheckoutForm({
   };
 
   const sendEmailToBusiness = async (orderData) => {
-    const orderLink = `${fullDomain}/account/orders/live`;
+    const orderLink = `app.boxcart.shop/account/orders/live`;
 
     const emailData = {
       email,
       businessName,
+      customerEmail,
       orderId: orderData.orderId,
       totalDisplay: orderData.totalDisplay,
       totalItemsOrdered: orderData.totalItemsOrdered,
       orderForDateDisplay: orderData.orderForDateDisplay,
+      paymentMethod: orderData.paymentMethod,
       customNote: orderData.customNote,
       orderLink,
     };
@@ -124,11 +127,13 @@ function CheckoutForm({
     const data = {
       ...orderData,
       customerName: customerFName,
-      shopName: businessName,
+      businessName,
+      businessEmail: email,
       email: customerEmail,
+      businessLogo: logoImage,
     };
 
-    sendOrderDetailsEmail(data);
+    sendOrderInvoiceToCustomer(data);
   };
 
   const createOrderNotification = async (orderData) => {

@@ -13,6 +13,15 @@ export async function createOrder(
       // 1. create customer order
       const customerOrder = await tx.customerOrder.create({
         data: orderData,
+        include: {
+          orderItems: {
+            include: {
+              orderOptionGroups: true,
+              orderExampleImages: true,
+              orderQuestionsAnswers: true,
+            },
+          },
+        },
       });
 
       if (productQuantityUpdateLength > 0) {

@@ -5,7 +5,7 @@ function PaymentNotes({ selectedPaymentDetails, isOrderSubmittedPage }) {
     selectedPaymentDetails;
 
   return (
-    <div className="bg-[color:var(--brown-bg)] rounded px-2">
+    <div className="bg-[color:var(--important-message)] rounded px-2">
       {!isOrderSubmittedPage && <h3 className="font-medium pt-2">Payment:</h3>}
       <div className="p-2 pt-2 lg:px-12">
         <div className="flex justify-between gap-4 mb-2">
@@ -18,9 +18,9 @@ function PaymentNotes({ selectedPaymentDetails, isOrderSubmittedPage }) {
             <p className=" text-sm font-light">{paymentAccount}</p>
           </div>
         )}
-        <div className="flex justify-between gap-16">
+        <div className="flex flex-col">
           <h4>Instructions:</h4>
-          <p className="text-right text-sm font-light">{paymentInstructions}</p>
+          <p className="text-center text-sm font-medium my-2">{paymentInstructions}</p>
         </div>
       </div>
     </div>

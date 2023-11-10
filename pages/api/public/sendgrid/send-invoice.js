@@ -8,59 +8,63 @@ export default async function handler(req, res) {
     const bodyParsed = JSON.parse(body);
     const {
       customerName,
-      shopName,
+      businessName,
       orderId,
       paymentMethod,
       fulfillmentDisplay,
-      subtotalDisplay,
-      taxAndFeesDisplay,
-      totalDisplay,
-      orderForDateDisplay,
-      orderForTimeDisplay,
       deliveryAddress,
+      pickupAddress,
+      pickupNote,
       email,
+      businessLogo,
+      paymentAccount,
+      paymentInstructions,
+      businessEmail,
+      subtotalDisplay,
+      totalDisplay,
+      taxAndFeesDisplay,
+      deliveryFeeDisplay,
+      orderItems,
+      orderForTimeDisplay,
+      orderForDateDisplay,
+      createdAt,
     } = bodyParsed;
 
-    const now = new Date();
-
-    const timeString = now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    const dateString = now.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-    const createdAt = `${dateString}`;
+    const orderedOnDate = new Date(createdAt).toLocaleDateString();
 
     const mailOptions = {
       to: email,
       from: {
         email: "hello@boxcart.shop",
-        name: "BoxCart",
+        name: businessName,
       },
+      reply_to: businessEmail,
       templateId: "d-4298cbbafeaa49a4aaa4e6f0d9510225",
       dynamic_template_data: {
-        customerName,
-        // shopName,
-        // createdAt,
+        businessName,
+        businessLogo,
         orderId,
-        // paymentMethod,
-        // fulfillmentDisplay,
-        // subtotalDisplay,
-        // taxAndFeesDisplay,
-        // totalDisplay,
-        // orderForDateDisplay,
-        // orderForTimeDisplay,
+        customerName,
+        fulfillmentDisplay,
+        deliveryAddress,
+        pickupNote,
+        pickupAddress,
+        paymentMethod,
+        paymentAccount,
+        paymentInstructions,
+        subtotalDisplay,
+        totalDisplay,
+        taxAndFeesDisplay,
+        deliveryFeeDisplay,
+        orderItems,
+        orderForTimeDisplay,
+        orderForDateDisplay,
+        createdAt: orderedOnDate,
       },
     };
 
     try {
       await sendgrid.send(mailOptions);
-      console.log("sent");
     } catch (error) {
       console.log("Email send failed file: api/sendgrid/verify-email:", error);
       return res

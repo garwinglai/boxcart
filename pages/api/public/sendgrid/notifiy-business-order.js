@@ -14,8 +14,11 @@ export default async function handler(req, res) {
     totalDisplay,
     totalItemsOrdered,
     orderForDateDisplay,
+    paymentMethod,
     customNote,
     orderLink,
+    businessEmail,
+    customerEmail,
   } = bodyParsed;
 
   const mailOptions = {
@@ -24,12 +27,14 @@ export default async function handler(req, res) {
       email: "hello@boxcart.shop",
       name: "BoxCart",
     },
+    reply_to: customerEmail,
     templateId: "d-f00dc1a94b66474d810362557f5e04f9",
     dynamic_template_data: {
       businessName,
       orderId,
       totalDisplay,
       totalItemsOrdered,
+      paymentMethod,
       orderForDateDisplay,
       customNote,
       orderLink,
@@ -38,7 +43,6 @@ export default async function handler(req, res) {
 
   try {
     await sendgrid.send(mailOptions);
-    console.log("sent");
   } catch (error) {
     console.log("Email send failed file:", error);
     return res.status(error.statusCode || 500).json({ error: error.message });

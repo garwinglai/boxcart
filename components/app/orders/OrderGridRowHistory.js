@@ -98,7 +98,7 @@ function OrderGridRowHistory({
     };
 
     const udpateStatusAPI = await fetch(
-      "/api/private/orders/updatePaymentStatus",
+      "/api/private/orders/update-payment-status",
       {
         method: "POST",
         body: JSON.stringify(orderData),

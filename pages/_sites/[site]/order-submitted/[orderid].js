@@ -145,9 +145,15 @@ function OrderSubmitted({ order }) {
               <ContentCopyIcon fontSize="small" />
             </IconButton>
           </div>
-          <p className="font-base underline">
-            Please keep a record of this page.
+          <p className="font-base text-sm">
+            Your invoice was emailed
           </p>
+          <Link
+            href={`/`}
+            className="bg-[color:var(--black-design-extralight)] my-2 rounded text-sm text-white font-light px-4 py-2 active:bg-black"
+          >
+            Continue Shopping
+          </Link>
         </div>
         {paymentMethod !== "card" && (
           <div className="p-4 border-y">
@@ -161,12 +167,6 @@ function OrderSubmitted({ order }) {
           <OrderReview orderSubmitted={true} order={order} isMobile={false} />
           <OrderSubtotal orderSubmitted={true} order={order} />
         </div>
-        <Link
-          href={`/`}
-          className="bg-[color:var(--black-design-extralight)] text-white font-light px-4 py-2 active:bg-black"
-        >
-          Continue Shopping
-        </Link>
       </div>
       <div className="lg:w-1/2 lg:mx-auto">
         <div className="flex justify-between items-center px-4 pt-4">

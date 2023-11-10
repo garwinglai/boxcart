@@ -46,69 +46,70 @@ model User {
 }
 
 model Account {
-  id                              Int                  @id @default(autoincrement())
-  createdAt                       DateTime             @default(now())
-  updatedAt                       DateTime             @updatedAt
-  version                         String               @default("1.0.0")
+  id                              Int      @id @default(autoincrement())
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+  version                         String   @default("1.0.0")
   referredFrom                    String?
-  isActive                        Boolean              @default(true) // free accounts that aren't free
-  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
-  isFreePeriodActive              Boolean              @default(true)
-  isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  isActive                        Boolean  @default(true) // free accounts that aren't free
+  hasPremiumPlan                  Boolean  @default(false) // Default false until user pays for premium plan.
+  isFreePeriodActive              Boolean  @default(true)
+  isBetaUser                      Boolean  @default(true) // Default is true, meantime we are only accepting beta users.
   freePeriodEndDateStr            String?
   freePeriodEndDateEpoch          String? // 1 month free
-  isFirstLogin                    Boolean              @default(true)
-  isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
-  isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
-  email                           String               @unique
-  isEmailVerified                 Boolean              @default(false)
+  isFirstLogin                    Boolean  @default(true)
+  isChecklistComplete             Boolean  @default(false) // Default false until checklist is complete.
+  isNonMandatoryChecklistComplete Boolean  @default(false) // Default false until checklist is complete.
+  email                           String   @unique
+  isEmailVerified                 Boolean  @default(false)
   userName                        String
   firstName                       String
   lastName                        String
-  accessCode                      String?              @unique
+  accessCode                      String?  @unique
   businessName                    String
-  subdomain                       String               @unique
-  fullDomain                      String               @unique
-  businessTypes                   BusinessType[]
+  subdomain                       String   @unique
+  fullDomain                      String   @unique
+
   // logoImgStr             String?
-  logoImageFileName               String?
-  logoImage                       String?              @db.Text
-  bannerImageFileName             String?
-  bannerImage                     String?              @db.Text
-  businessBio                     String?              @db.VarChar(255)
-  socials                         Social[]
-  subscriberCount                 Int                  @default(0)
-  subscribers                     Subscriber[]
-  contacts                        Contact[]
-  fulfillmentMethodInt            Int // 0: delivery, 1: pickup, 2: both
-  fulfillmentMethods              Fulfillment[]
-  address_1                       String
-  address_2                       String?
-  city                            String
-  state                           String
-  zip                             String
-  fullAddress                     String
-  lat                             Float?
-  lng                             Float?
-  geohash                         String?
-  enableTips                      Boolean              @default(false)
-  tips                            Tips?
-  tax                             Tax?
-  user                            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                          Int
+  logoImageFileName    String?
+  logoImage            String?              @db.Text
+  bannerImageFileName  String?
+  bannerImage          String?              @db.Text
+  businessBio          String?              @db.VarChar(255)
+  socials              Social[]
+  subscriberCount      Int                  @default(0)
+  customers            Customer[]
+  subscribers          Subscriber[]
+  contacts             Contact[]
+  fulfillmentMethodInt Int // 0: delivery, 1: pickup, 2: both
+  fulfillmentMethods   Fulfillment[]
+  address_1            String
+  address_2            String?
+  city                 String
+  state                String
+  zip                  String
+  fullAddress          String
+  lat                  Float?
+  lng                  Float?
+  geohash              String?
+  enableTips           Boolean              @default(false)
+  tips                 Tips?
+  tax                  Tax?
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int
   // hasPaymentMethod       Boolean              @default(false)
-  requireDeposit                  Boolean              @default(false)
-  customers                       Customer[]
-  acceptedPayments                AcceptedPayment[]
-  deposit                         Deposit?
-  savedPaymentMethods             SavedPaymentMethod[]
-  premiumPlan                     PremiumPlan[]
-  checklist                       Checklist?
-  products                        Product[]
-  categories                      Category[]
-  availability                    Availability?
-  orders                          CustomerOrder[]
-  taxId                           Int?
+  requireDeposit       Boolean              @default(false)
+  businessTypes        BusinessType[]
+  acceptedPayments     AcceptedPayment[]
+  deposit              Deposit?
+  savedPaymentMethods  SavedPaymentMethod[]
+  premiumPlan          PremiumPlan[]
+  checklist            Checklist?
+  products             Product[]
+  categories           Category[]
+  availability         Availability?
+  orders               CustomerOrder[]
+  taxId                Int?
 
   @@index([userId])
 }

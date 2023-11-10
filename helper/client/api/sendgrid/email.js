@@ -40,8 +40,8 @@ export async function sendVerificationEmail(userId, accountId, email) {
   }
 }
 
-export async function sendOrderDetailsEmail(data) {
-  const customerInvoice = "/api/public/sendgrid/order-details";
+export async function sendOrderInvoiceToCustomer(data) {
+  const customerInvoice = "/api/public/sendgrid/send-invoice";
 
   const result = await fetch(customerInvoice, {
     method: "POST",
@@ -59,7 +59,7 @@ export async function sendOrderDetailsEmail(data) {
 }
 
 export async function sendOrderToBusinessEmail(data) {
-  const businessEmailOrderNotif = "/api/public/sendgrid/order-to-business";
+  const businessEmailOrderNotif = "/api/public/sendgrid/notifiy-business-order";
 
   const result = await fetch(businessEmailOrderNotif, {
     method: "POST",

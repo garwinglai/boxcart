@@ -129,7 +129,7 @@ function OrderReview({
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p className="text-sm">Delivery address:</p>
             {hydrated && deliveryAddress ? (
-              <p className="text-sm font-light">{deliveryAddress}</p>
+              <p className="text-sm font-light text-right">{deliveryAddress}</p>
             ) : (
               isMobile && (
                 <button
