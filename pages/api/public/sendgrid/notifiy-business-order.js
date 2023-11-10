@@ -17,9 +17,14 @@ export default async function handler(req, res) {
     paymentMethod,
     customNote,
     orderLink,
-    businessEmail,
     customerEmail,
+    orderForTimeDisplay,
+    createdAt,
   } = bodyParsed;
+
+  const orderedOnDate = new Date(createdAt).toLocaleDateString();
+  console.log("orderedOnDate", orderedOnDate);
+  console.log("orderForTimeDisplay", orderForTimeDisplay);
 
   const mailOptions = {
     to: email,
@@ -36,8 +41,10 @@ export default async function handler(req, res) {
       totalItemsOrdered,
       paymentMethod,
       orderForDateDisplay,
+      orderForTimeDisplay,
       customNote,
       orderLink,
+      createdAt: orderedOnDate,
     },
   };
 

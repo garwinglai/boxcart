@@ -108,15 +108,10 @@ function CheckoutForm({
     const orderLink = `app.boxcart.shop/account/orders/live`;
 
     const emailData = {
+      ...orderData,
       email,
       businessName,
       customerEmail,
-      orderId: orderData.orderId,
-      totalDisplay: orderData.totalDisplay,
-      totalItemsOrdered: orderData.totalItemsOrdered,
-      orderForDateDisplay: orderData.orderForDateDisplay,
-      paymentMethod: orderData.paymentMethod,
-      customNote: orderData.customNote,
       orderLink,
     };
 
