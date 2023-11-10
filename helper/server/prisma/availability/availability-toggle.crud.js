@@ -14,6 +14,11 @@ export async function updateHasScheduleAccountServer(
       data: {
         hasCustomAvailability: enableSchedule,
       },
+      include: {
+        datesAvailability: true,
+        datesRangedAvailability: true,
+        daysOfWeekAvailability: true,
+      },
     });
 
     return { success: true, value: account };

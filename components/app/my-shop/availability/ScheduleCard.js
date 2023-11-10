@@ -239,7 +239,7 @@ function ScheduleCard({
 
   return (
     <div
-      className={`grid items-center justify-center bg-white rounded px-4 py-1 grid-cols-[.75fr_2.5fr_2.5fr_0.5fr]`}
+      className={`grid items-center justify-center bg-white shadow rounded p-4 py-1 grid-cols-[.75fr_2.5fr_2.5fr_0.5fr]`}
     >
       <IOSSwitch checked={isEnabled} onClick={handleToggleEnableSchedule} />
       <div className={`flex flex-col justify-center items-center`}>

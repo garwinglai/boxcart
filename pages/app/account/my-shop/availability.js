@@ -44,6 +44,11 @@ import { styled } from "@mui/material/styles";
 import Link from "next/link";
 import TimeAdvanceDrawer from "@/components/app/my-shop/availability/TimeAdvanceDrawer";
 import { useHasHydrated } from "@/utils/useHasHydrated";
+import { useChecklistStore } from "@/lib/store";
+import {
+  updateAvailabilityChecklistClient,
+  updateIsChecklistComplete,
+} from "@/helper/client/api/checklist";
 
 const styleMobile = {
   position: "absolute",
@@ -80,7 +85,7 @@ function ServerDay(props) {
     <Badge
       key={props.day.toString()}
       overlap="circular"
-      badgeContent={isSelected ? "🦍" : undefined}
+      badgeContent={isSelected ? "✅" : undefined}
     >
       <PickersDay
         {...other}
@@ -98,6 +103,9 @@ function Availability({ userAccount }) {
     fulfillmentMethods,
     id: accountId,
   } = userAccount ? userAccount : {};
+
+  const checklistStore = useChecklistStore((state) => state.checklist);
+  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
 
   const [selectedDateValues, setSelectedDateValues] = useState({
     selectedDate: new Date().toLocaleDateString(),
@@ -860,7 +868,7 @@ function Availability({ userAccount }) {
     );
 
     if (isPickupAvailable && hasCustomHours) {
-      handleOpenSnackbar("Cannot disable: order pickup is enabled.");
+      handleOpenSnackbar("Cannot disable if order pickup is enabled.");
       return;
     }
 
@@ -876,6 +884,65 @@ function Availability({ userAccount }) {
     if (!success || error) {
       handleOpenSnackbar("Error updating custom hours.");
       setHasCustomHours((prev) => !prev);
+      return;
+    }
+
+    if (isCustomHoursEnabled) updateChecklist(value, isCustomHoursEnabled);
+  };
+
+  const updateChecklist = (availability, isCustomHoursEnabled) => {
+    const {
+      id,
+      accountId,
+      isProductsUploaded,
+      isEmailVerified,
+      isDeliverySet,
+      isPaymentsSet,
+      hasLogo,
+      hasBanner,
+      requireAvailability,
+      isAvailabilitySet,
+      isChecklistComplete,
+    } = checklistStore;
+
+    const {
+      datesAvailability,
+      datesRangedAvailability,
+      daysOfWeekAvailability,
+    } = availability;
+
+    const datesAvailLength = datesAvailability.length;
+    const datesRangedAvailLength = datesRangedAvailability.length;
+    const daysOfWeekAvailLength = daysOfWeekAvailability.length;
+
+    if (
+      datesAvailLength === 0 &&
+      datesRangedAvailLength === 0 &&
+      daysOfWeekAvailLength === 0
+    )
+      return;
+
+    setChecklistStore({ isAvailabilitySet: true });
+
+    const { success, value, error } = updateAvailabilityChecklistClient(
+      accountId,
+      isCustomHoursEnabled
+    );
+
+    if (!success) {
+      console.log("error updating checklist for product:", error);
+      //TODO: handle error for not being able to update checklist.
+    }
+
+    if (
+      isEmailVerified &&
+      isDeliverySet &&
+      isPaymentsSet &&
+      isProductsUploaded
+    ) {
+      const checklistCompleted = true;
+      updateIsChecklistComplete(accountId, checklistCompleted);
+      setChecklistStore({ isChecklistComplete: checklistCompleted });
     }
   };
 
@@ -960,14 +1027,16 @@ function Availability({ userAccount }) {
       <div className="flex flex-col lg:flex-row md:px-8">
         <div className="border-b mb-4 h-fit lg:w-1/2 lg:border-b-0">
           <div className="mb-6">
-            <h3 className="mb-2 ml-4 underline">Selected date:</h3>
-            <div className="flex gap-4 items-center px-8 mt-5  text-[color:var(--third-dark)]">
-              <p>Date:</p>
-              <p>{selectedDate}</p>
+            <h3 className=" ml-8 underline font-normal text-normal">
+              Calendar:
+            </h3>
+            <div className="flex gap-2 items-center ml-8 mt-4  text-[color:var(--third-dark)]">
+              <h6 className="">Date:</h6>
+              <h6 className="text-sm font-light">{selectedDate}</h6>
             </div>
-            <div className="flex gap-4 items-center px-8  text-[color:var(--third-dark)]">
-              <p>Store hours:</p>
-              <p>{selectedDateHourDisplay}</p>
+            <div className="flex gap-2 items-end ml-8  text-[color:var(--third-dark)]">
+              <h6 className="">Store hours:</h6>
+              <h6 className="text-sm font-light">{selectedDateHourDisplay}</h6>
             </div>
           </div>
           <div>
@@ -988,7 +1057,7 @@ function Availability({ userAccount }) {
                         width: 35,
                         height: 35,
                         fontSize: ".9rem",
-                        marginTop: "0.25rem",
+                        // marginTop: "0.25rem",
                       },
                     },
                     width: "90%",
@@ -996,7 +1065,7 @@ function Availability({ userAccount }) {
                     backgroundColor: "white",
                     borderRadius: "8px",
                     padding: "8px 8px",
-                    marginBottom: "2rem",
+                    // marginBottom: "2rem",
                   }}
                   renderLoading={() => <DayCalendarSkeleton />}
                   slots={{
@@ -1012,9 +1081,11 @@ function Availability({ userAccount }) {
             )}
           </div>
         </div>
-        <div className="lg:w-1/2">
+        <div className="lg:w-1/2 lg:border-l pl-4">
           <div className="flex justify-between items-center mb-4 ">
-            <h3 className="ml-4 underline">All schedules:</h3>
+            <h3 className="ml-4 underline text-base font-normal">
+              Created schedules:
+            </h3>
             <div className="flex items-center mr-4">
               <p className="font-light text-sm">Schedule overlap: </p>
               <HtmlTooltip
@@ -1048,10 +1119,8 @@ function Availability({ userAccount }) {
             </div>
           </div>
           {datesAvailabilityLength > 0 && (
-            <div className="px-4 border-b pb-6">
-              <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Specific dates:
-              </h4>
+            <div className="pb-6">
+              <h6 className="px-4 mb-2 text-[color:var(--third-dark)]">Date</h6>
               <div className="px-4 flex flex-col gap-2">
                 {datesAvailability.map((date) => {
                   const {
@@ -1094,11 +1163,11 @@ function Availability({ userAccount }) {
             </div>
           )}
           {datesRangedAvailabilityLength > 0 && (
-            <div className="px-4 border-b pt-4 pb-6">
-              <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Date range:
-              </h4>
-              <div className="px-4 flex flex-col gap-2">
+            <div className="px-4 pt-4 pb-6">
+              <h6 className="mb-2 text-[color:var(--third-dark)]">
+                Date Range
+              </h6>
+              <div className="flex flex-col gap-2">
                 {datesRangedAvailability.map((date) => {
                   const {
                     id,
@@ -1140,11 +1209,11 @@ function Availability({ userAccount }) {
             </div>
           )}
           {daysOfWeekAvailabilityLength > 0 && (
-            <div className="px-4 border-b pt-4 pb-6">
-              <h4 className="mb-2 text-[color:var(--third-dark)]">
-                Weekly schedule: (repeats)
-              </h4>
-              <div className="px-4 flex flex-col gap-2">
+            <div className="px-4  pt-4 pb-6">
+              <h6 className="mb-2 text-[color:var(--third-dark)]">
+                Weekly Schedule <i>(repeats)</i>
+              </h6>
+              <div className="flex flex-col gap-2">
                 {daysOfWeekAvailability.map((date) => {
                   const {
                     id,
@@ -1212,121 +1281,131 @@ function Availability({ userAccount }) {
         action={action}
       />
       <div className="lg:flex">
-        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
-          <div className="flex flex-col">
-            <h4>Set availability</h4>
-            <p className="font-extralight text-xs">
-              If disabled, customers can order for anytime.
-            </p>
-          </div>
-          <IOSSwitch checked={hasCustomHours} onClick={handleSetHoursSwitch} />
-        </div>
-        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
-          <div className="flex flex-col">
-            <h4>Order in advance:</h4>
-            <p className="font-extralight text-xs">
-              Customers must order ahead of time. (Best for custom orders.)
-            </p>
-          </div>
-          <IOSSwitch
-            checked={orderInAdvanceEnabled}
-            onClick={handleOrderInAdvanceSwitch}
-          />
-        </div>
-        <div className="flex justify-between items-center p-4 bg-white rounded m-4 lg:w-1/2">
-          <div className="flex flex-col">
-            <h4>Time block</h4>
-            <p className="font-extralight text-xs">
-              Allow orders to block out time. Best for bakers, restaurants, etc.
-            </p>
-          </div>
-          <IOSSwitch
-            checked={timeBlockEnabled}
-            onClick={handleTimeBlockSwitch}
-          />
-        </div>
-      </div>
-      <div className="md flex flex-col items-end gap-2 md:gap-4">
-        {timeBlockEnabled && (
-          <div className="px-4 pb-2 flex gap-4 justify-between items-center md:pb-0 md:gap-8 md:w-fit  md:pr-6">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base">Time Block:</h3>
+        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex items-center gap-4  justify-between w-full">
+            <div className="flex flex-col">
+              <h4>Set availability</h4>
+              <p className="font-extralight text-xs">
+                If disabled, customers can order for anytime. Enable to specific
+                hours when customers can order.
+              </p>
             </div>
-            <div>
-              <ButtonFourth
-                handleClick={toggleDrawerTimeBlock("right", true)}
-                name={timeBlockCurrentValue}
-              />
-            </div>
-            <Drawer
-              anchor={"right"}
-              open={drawerTimeBlockState["right"]}
-              onClose={toggleDrawerTimeBlock("right", false)}
-            >
-              <TimeBlockDrawer
-                toggleDrawer={toggleDrawerTimeBlock("right", false)}
-                accountId={accountId}
-                timeBlock={timeBlockCurrentValue}
-                handleOpenSnackbar={handleOpenSnackbar}
-                updateTimeBlockCurrValue={updateTimeBlockCurrValue}
-              />
-            </Drawer>
+            <IOSSwitch
+              checked={hasCustomHours}
+              onClick={handleSetHoursSwitch}
+            />
           </div>
-        )}
-        {orderInAdvanceEnabled && (
-          <div className="px-4 gap-4  flex justify-between items-center md:gap-8 md:w-fit  md:pr-6 md:pb-0 ">
-            <h3 className=" text-base">Time in advance:</h3>
-            <div>
-              <ButtonFourth
-                handleClick={toggleDrawerTimeAdvance("right", true)}
-                name={orderInAdvanceDisplay}
-              />
+          {hasCustomHours && (
+            <div className="ml-auto mt-4">
+              <div className="flex justify-betweenitems-center">
+                <div>
+                  <ButtonPrimary
+                    handleClick={toggleDrawer("right", true)}
+                    name="Schedule"
+                    icon={<AddIcon sx={{ fontSize: "14px" }} />}
+                  />
+                </div>
+              </div>
+              <Drawer
+                anchor={"right"}
+                open={drawerState["right"]}
+                onClose={toggleDrawer("right", false)}
+              >
+                <CreateScheduleDrawer
+                  toggleDrawer={toggleDrawer("right", false)}
+                  accountId={accountId}
+                  handleOpenSnackbar={handleOpenSnackbar}
+                  availability={availability}
+                  getAvailabilities={getAvailabilities}
+                />
+              </Drawer>
             </div>
-            <Drawer
-              anchor={"right"}
-              open={drawerTimeAdvanceState["right"]}
-              onClose={toggleDrawerTimeAdvance("right", false)}
-            >
-              <TimeAdvanceDrawer
-                toggleDrawer={toggleDrawerTimeAdvance("right", false)}
-                accountId={accountId}
-                orderTimeInAdvance={orderTimeAdvance}
-                orderTimeInAdvanceMetric={orderTimeAdvanceMetric}
-                handleOpenSnackbar={handleOpenSnackbar}
-                updateOrderInAdvanceTimeDisplay={
-                  updateOrderInAdvanceTimeDisplay
-                }
-              />
-            </Drawer>
+          )}
+        </div>
+        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex gap-4 items-center justify-between w-full">
+            <div className="flex flex-col">
+              <h4>Order in advance:</h4>
+              <p className="font-extralight text-xs">
+                Customers must order ahead of time. (Best for custom orders.)
+              </p>
+            </div>
+            <IOSSwitch
+              checked={orderInAdvanceEnabled}
+              onClick={handleOrderInAdvanceSwitch}
+            />
           </div>
-        )}
-      </div>
-      {hasCustomHours && (
-        <React.Fragment>
-          <div className=" w-full flex justify-end items-center p-4 border-b mb-4 md:px-6">
-            <div className="flex justify-betweenitems-center">
+          {orderInAdvanceEnabled && (
+            <div className="ml-auto mt-4">
               <div>
-                <ButtonPrimary
-                  handleClick={toggleDrawer("right", true)}
-                  name="Schedule"
-                  icon={<AddIcon sx={{ fontSize: "14px" }} />}
+                <ButtonFourth
+                  handleClick={toggleDrawerTimeAdvance("right", true)}
+                  name={orderInAdvanceDisplay}
                 />
               </div>
+              <Drawer
+                anchor={"right"}
+                open={drawerTimeAdvanceState["right"]}
+                onClose={toggleDrawerTimeAdvance("right", false)}
+              >
+                <TimeAdvanceDrawer
+                  toggleDrawer={toggleDrawerTimeAdvance("right", false)}
+                  accountId={accountId}
+                  orderTimeInAdvance={orderTimeAdvance}
+                  orderTimeInAdvanceMetric={orderTimeAdvanceMetric}
+                  handleOpenSnackbar={handleOpenSnackbar}
+                  updateOrderInAdvanceTimeDisplay={
+                    updateOrderInAdvanceTimeDisplay
+                  }
+                />
+              </Drawer>
             </div>
-            <Drawer
-              anchor={"right"}
-              open={drawerState["right"]}
-              onClose={toggleDrawer("right", false)}
-            >
-              <CreateScheduleDrawer
-                toggleDrawer={toggleDrawer("right", false)}
-                accountId={accountId}
-                handleOpenSnackbar={handleOpenSnackbar}
-                availability={availability}
-                getAvailabilities={getAvailabilities}
-              />
-            </Drawer>
+          )}
+        </div>
+
+        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+          <div className="flex items-center gap-4  justify-between w-full">
+            <div className="flex flex-col">
+              <h4>Time block</h4>
+              <p className="font-extralight text-xs">
+                Allow orders to block out time. Best for bakers, restaurants,
+                etc.
+              </p>
+            </div>
+            <IOSSwitch
+              checked={timeBlockEnabled}
+              onClick={handleTimeBlockSwitch}
+            />
           </div>
+
+          {timeBlockEnabled && (
+            <div className="ml-auto mt-4">
+              <div>
+                <ButtonFourth
+                  handleClick={toggleDrawerTimeBlock("right", true)}
+                  name={timeBlockCurrentValue}
+                />
+              </div>
+              <Drawer
+                anchor={"right"}
+                open={drawerTimeBlockState["right"]}
+                onClose={toggleDrawerTimeBlock("right", false)}
+              >
+                <TimeBlockDrawer
+                  toggleDrawer={toggleDrawerTimeBlock("right", false)}
+                  accountId={accountId}
+                  timeBlock={timeBlockCurrentValue}
+                  handleOpenSnackbar={handleOpenSnackbar}
+                  updateTimeBlockCurrValue={updateTimeBlockCurrValue}
+                />
+              </Drawer>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {hasCustomHours && (
+        <div className=" pt-4 border-t">
           {displayMain()}
           {aToggleIsChanged && (
             <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
@@ -1359,7 +1438,7 @@ function Availability({ userAccount }) {
               </Modal>
             </div>
           )}
-        </React.Fragment>
+        </div>
       )}
     </div>
   );
