@@ -1281,13 +1281,13 @@ function Availability({ userAccount }) {
         action={action}
       />
       <div className="lg:flex">
-        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+        <div className="flex flex-col border shadow rounded items- justify-between p-4 bg-white  m-4 lg:w-1/2">
           <div className="flex items-center gap-4  justify-between w-full">
             <div className="flex flex-col">
               <h4>Set availability</h4>
               <p className="font-extralight text-xs">
-                If disabled, customers can order for anytime. Enable to specific
-                hours when customers can order.
+                If disabled, customers can order at anytime. Enable to set
+                custom hours.
               </p>
             </div>
             <IOSSwitch
@@ -1322,7 +1322,7 @@ function Availability({ userAccount }) {
             </div>
           )}
         </div>
-        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+        <div className="flex flex-col border shadow rounded items-center justify-between  p-4 bg-white  m-4 lg:w-1/2">
           <div className="flex gap-4 items-center justify-between w-full">
             <div className="flex flex-col">
               <h4>Order in advance:</h4>
@@ -1363,7 +1363,7 @@ function Availability({ userAccount }) {
           )}
         </div>
 
-        <div className="flex flex-col border shadow rounded- items-center p-4 bg-white rounded m-4 lg:w-1/2">
+        <div className="flex flex-col border shadow rounded items-center justify-between p-4 bg-white  m-4 lg:w-1/2">
           <div className="flex items-center gap-4  justify-between w-full">
             <div className="flex flex-col">
               <h4>Time block</h4>
