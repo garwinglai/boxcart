@@ -18,6 +18,7 @@ function ResetPassword() {
     isSnackbarOpen: false,
     snackbarMessage: "",
   });
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
@@ -73,25 +74,29 @@ function ResetPassword() {
 
     if (password !== confirmPassword) {
       handleOpenSnackbar("Passwords do not match.");
+      setIsUpdatingPassword(false);
       return;
     }
 
     if (password.length < 8) {
       handleOpenSnackbar("Password must be at least 8 characters.");
+      setIsUpdatingPassword(false);
       return;
     }
 
     const { success, error, value } = await resetPassword(password, email);
 
     if (success) {
-      push("/auth/signin");
+      setPasswordUpdated(true);
+      setIsUpdatingPassword(false);
+      handleOpenSnackbar("Password updated.");
+      return;
     }
 
     if (error) {
       handleOpenSnackbar("Problem resetting password. Please try again.");
+      setIsUpdatingPassword(false);
     }
-
-    setIsUpdatingPassword(false);
   };
 
   const resetPassword = async (password, email) => {
@@ -113,6 +118,10 @@ function ResetPassword() {
     return data;
   };
 
+  const handleGoLogin = () => {
+    push("/auth/signin");
+  };
+
   // * Display
   const action = (
     <React.Fragment>
@@ -130,6 +139,13 @@ function ResetPassword() {
   return isLoading ? (
     <div>
       <BoxLoader />
+    </div>
+  ) : passwordUpdated ? (
+    <div className="flex flex-col items-center justify-center mt-36">
+      <h5>Password updated</h5>
+      <div className="mt-4">
+        <ButtonPrimary name="Sign in" handleClick={handleGoLogin} />
+      </div>
     </div>
   ) : isTokenExpired ? (
     <div className="flex flex-col items-center justify-center mt-36">
