@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       templateId: "d-f52222d2942e473da9a50e81f437bb0d",
       dynamic_template_data: {
         signInLink,
-        fourDigitCode,
+        token: fourDigitCode,
       },
     };
 
