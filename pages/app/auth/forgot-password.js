@@ -6,8 +6,6 @@ import { CircularProgress, IconButton, Snackbar } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { setCookie } from "@/utils/clientStorage";
-import boxcart_logo from "@/public/images/logos/boxcart_logo_full.png";
-import Image from "next/image";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -57,8 +55,9 @@ function ForgotPassword() {
     }
 
     let fourDigitCode = Math.floor(1000 + Math.random() * 9000);
-    let tenMinutes = 10;
+    let tenMinutes = 600; //seconds
     setCookie(fourDigitCode, tenMinutes);
+    console.log("fourDigitCode", fourDigitCode);
 
     const res = await sendPasswordResetEmail(email, fourDigitCode);
 

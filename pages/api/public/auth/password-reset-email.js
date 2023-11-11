@@ -23,6 +23,7 @@ export default async function handler(req, res) {
       dynamic_template_data: {
         signInLink,
         token: fourDigitCode,
+        email,
       },
     };
 
