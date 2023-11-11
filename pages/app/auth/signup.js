@@ -1602,7 +1602,7 @@ function Signup({ nextAccountId }) {
                   name="otherBusinessType"
                   value={otherBusinessType}
                   onChange={handleChange}
-                  className="text-sm placeholder:text-sm py-1 bg-[color:var(--brown-bg)] font-light text-black "
+                  className="text-sm placeholder:text-sm py-1 bg-[color:var(--purple-bg)] font-light text-black "
                 />
               </div>
             </div>

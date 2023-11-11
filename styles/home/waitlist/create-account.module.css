@@ -175,7 +175,7 @@
 
   .outmost_container {
     height: 100vh;
-    background-color: var(--brown-bg);
+    background-color: var(--purple-bg);
     display: flex;
     justify-content: center;
     align-items: center;

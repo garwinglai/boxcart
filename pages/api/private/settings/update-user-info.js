@@ -1,5 +1,4 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import { updateAccountSettingsServer } from "@/helper/server/prisma/account/account-schema";
 import { updateUserInfoServer } from "@/helper/server/prisma/settings/userInfo";
 
 export default async function handler(req, res) {

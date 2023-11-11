@@ -41,13 +41,13 @@
   --success: rgb(75, 255, 126);
   --desktop-card-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
     rgba(0, 0, 0, 0.24) 0px 1px 2px;
-  --brown-bg: #edecf3;
-  --brown-bg-soft: #e7e4fb;
-  --brown-bg-switch: #421163;
+  --purple-bg: #edecf3;
+  --purple-bg-soft: #e7e4fb;
+  --purple-bg-switch: #421163;
   --brown-text: #4d1e7d;
-  /* --brown-bg: #f3f0ec;
-  --brown-bg-soft: #fbf1e4;
-  --brown-bg-switch: #633e11;
+  /* --purple-bg: #f3f0ec;
+  --purple-bg-soft: #fbf1e4;
+  --purple-bg-switch: #633e11;
   --brown-text: #7d3e1e; */
   --purple: #e302f3;
   --purple-light: #fde8ff;
@@ -67,7 +67,7 @@
 }
 
 html {
-  /* background-color: var(--brown-bg-soft); */
+  /* background-color: var(--purple-bg-soft); */
 }
 
 * {

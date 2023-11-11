@@ -3,7 +3,7 @@ import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 
 function Pricing() {
   return (
-    <div className="px-4 py-4 pb-24 bg-[color:var(--brown-bg)] min-h-screen md:px-8 lg:px-32">
+    <div className="px-4 py-4 pb-24 bg-[color:var(--purple-bg)] min-h-screen md:px-8 lg:px-32">
       <div className="flex flex-col items-center my-4">
         <h1>BoxCart Premium Plans</h1>
         <h4 className="font-light mt-2">

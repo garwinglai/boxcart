@@ -21,3 +21,11 @@ export function getSessionStorage(key) {
 export function deleteSessionStorage(key) {
   sessionStorage.removeItem(key);
 }
+
+export function setCookie(value, maxAge) {
+  document.cookie = `resetPasswordToken=${value}; max-age=${maxAge}`;
+}
+
+export function getCookie(key) {
+  return document.cookie.split(";").find((c) => c.trim().startsWith(key));
+}

@@ -116,7 +116,7 @@ function VerifyEmail({ serializedSession }) {
   if (!session) {
     return (
       <div
-        className={`${styles.signin} md:bg-[color:var(--brown-bg)] h-screen`}
+        className={`${styles.signin} md:bg-[color:var(--purple-bg)] h-screen`}
       >
         <Snackbar open={openError} onClose={handleCloseSnackbar}>
           <Alert severity="error">{errorMessage}</Alert>

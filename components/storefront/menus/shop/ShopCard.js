@@ -476,7 +476,7 @@ function ShopCard({
                 <p className={`${styles.sold_out_text}`}>Sold out</p>
               )}
             </div>
-            <div className="rounded-full bg-[color:var(--brown-bg)] self-end">
+            <div className="rounded-full bg-[color:var(--purple-bg)] self-end">
               <React.Fragment>
                 <IconButton onClick={handleOpenMenu}>
                   <MoreVertIcon
@@ -608,7 +608,7 @@ function ShopCard({
                   <p className={`${styles.sold_out_text}`}>Sold out</p>
                 )}
               </div>
-              <div className="rounded-full bg-[color:var(--brown-bg)] self-end">
+              <div className="rounded-full bg-[color:var(--purple-bg)] self-end">
                 <div className="bg-[color:var(--white-design)] rounded-full">
                   <IconButton>
                     <StyledBadge

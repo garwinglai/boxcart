@@ -18,6 +18,7 @@ import Grid3x3Icon from "@mui/icons-material/Grid3x3";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import OrderReview from "@/components/storefront/cart/OrderReview";
+import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 
 function OrderCard({
   status,
@@ -40,6 +41,7 @@ function OrderCard({
     requireOrderTime,
     orderItems,
     orderForDateDisplay,
+    paymentMethod,
     orderForTimeDisplay,
     orderId,
     createdAt,
@@ -288,6 +290,10 @@ function OrderCard({
                   <p className="break-words">{deliveryAddress}</p>
                 </div>
               )}
+              <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <AccountBalanceOutlinedIcon fontSize="small" color="disabled" />
+                <p className="break-words">{paymentMethod} pay</p>
+              </div>
             </div>
           </div>
 

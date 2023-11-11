@@ -51,7 +51,7 @@ function PaymentOption({
       onClick={handleSelectPaymentMethod(payment)}
       className={`p-2 border rounded w-1/4 md:w-1/5 ${
         paymentSelected === paymentMethod
-          ? "border-[color:var(--black-design-extralight)] text-[color:var(--black-design-extralight)] bg-[color:var(--brown-bg-soft)]"
+          ? "border-[color:var(--black-design-extralight)] text-[color:var(--black-design-extralight)] bg-[color:var(--purple-bg-soft)]"
           : "text-gray-400"
       } `}
       disabled={paymentSelected === paymentMethod}
