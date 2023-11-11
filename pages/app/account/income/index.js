@@ -24,7 +24,7 @@ import { CircularProgress } from "@mui/material";
 const paymentsAvail = ["stripe", "venmo", "paypal", "zelle", "cash"];
 
 function Income({ userAccount }) {
-  const { acceptedPayments } = userAccount;
+  const { acceptedPayments } = userAccount || {};
 
   const [availBalancePenny, setAvailBalancePenny] = useState(0);
   const [availableStripeBalance, setAvailableStripeBalance] = useState(0);
