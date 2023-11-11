@@ -57,7 +57,6 @@ function ForgotPassword() {
     let fourDigitCode = Math.floor(1000 + Math.random() * 9000);
     let tenMinutes = 600; //seconds
     setCookie(fourDigitCode, tenMinutes);
-    console.log("fourDigitCode", fourDigitCode);
 
     const res = await sendPasswordResetEmail(email, fourDigitCode);
 

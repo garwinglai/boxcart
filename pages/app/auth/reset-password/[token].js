@@ -23,8 +23,6 @@ function ResetPassword() {
 
   const { query, push } = useRouter();
   const { token, email } = query;
-  console.log("email", email);
-  console.log("query", query);
 
   useEffect(() => {
     const resetPasswordToken = getCookie("resetPasswordToken");
@@ -35,8 +33,6 @@ function ResetPassword() {
     }
 
     const cookieToken = resetPasswordToken.split("=")[1];
-
-    console.log("cookieToken", cookieToken);
 
     if (token != cookieToken) {
       setIsDifferentAccessPoint(true);
@@ -84,11 +80,6 @@ function ResetPassword() {
       handleOpenSnackbar("Password must be at least 8 characters.");
       return;
     }
-
-    // TODO: update password with hash
-    // TODO: then push to login page
-    // const signinRoute = "app/auth/signin";
-    // push(signinRoute);
 
     const { success, error, value } = await resetPassword(password, email);
 
@@ -142,7 +133,10 @@ function ResetPassword() {
     </div>
   ) : isTokenExpired ? (
     <div className="flex flex-col items-center justify-center mt-36">
-      <p>This reset password page has expired.</p>
+      <p>
+        This reset password page has expired, or you requested a password reset
+        from a different device.
+      </p>
       <Link href="/auth/forgot-password" className="text-blue-500 text-sm mt-4">
         Forgot password
       </Link>
