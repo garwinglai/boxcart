@@ -229,7 +229,7 @@ function Income({ userAccount }) {
 
           let data = {
             payment,
-            isEnabled: paymentData.isEnabled,
+            isEnabled: false,
             image: "",
           };
 
@@ -237,22 +237,37 @@ function Income({ userAccount }) {
             case "stripe":
               data.image = credit_card;
               data.payment = "Card";
+              if (paymentData) {
+                data.isEnabled = paymentData.isEnabled;
+              }
               break;
             case "venmo":
               data.image = venmo;
               data.payment = "Venmo";
+              if (paymentData) {
+                data.isEnabled = paymentData.isEnabled;
+              }
               break;
             case "paypal":
               data.image = paypal;
               data.payment = "PayPal";
+              if (paymentData) {
+                data.isEnabled = paymentData.isEnabled;
+              }
               break;
             case "zelle":
               data.image = zelle;
               data.payment = "Zelle";
+              if (paymentData) {
+                data.isEnabled = paymentData.isEnabled;
+              }
               break;
             case "cash":
               data.image = cash;
               data.payment = "Cash";
+              if (paymentData) {
+                data.isEnabled = paymentData.isEnabled;
+              }
               break;
             default:
               break;
