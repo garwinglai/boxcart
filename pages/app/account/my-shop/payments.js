@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
-import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
-import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
-import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import Link from "next/link";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/client/auth/isAuth";
@@ -28,6 +25,12 @@ import { CircularProgress } from "@mui/material";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { useChecklistStore } from "@/lib/store";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
+import venmo from "@/public/images/icons/venmo.png";
+import paypal from "@/public/images/icons/paypal.png";
+import zelle from "@/public/images/icons/zelle.png";
+import cash from "@/public/images/icons/cash.png";
+import credit_card from "@/public/images/icons/credit-card.png";
+import Image from "next/image";
 
 const styleMobile = {
   position: "absolute",
@@ -59,7 +62,6 @@ function Payments({ userAccount }) {
     acceptedPayments,
     id: accountId,
   } = account || {};
-  console.log("acceptedPayments", acceptedPayments);
 
   const [stripeInitialState, setStripeInitialState] = useState(false);
   const [cashInitialState, setCashInitialState] = useState(false);
@@ -174,7 +176,7 @@ function Payments({ userAccount }) {
         details_submitted: stripe_details,
         charges_enabled: stripe_charges,
       } = account;
-      console.log("account", account);
+
       // * first param is from db, second param is from stripe API
       // * db defaulted to false,
       // * when stripe param returns true, update db.
@@ -474,14 +476,6 @@ function Payments({ userAccount }) {
     if (value === "stripe") {
       // let stripeData = null;
 
-      // for (let i = 0; i < acceptedPayments.length; i++) {
-      //   const currPayment = acceptedPayments[i];
-      //   const { paymentMethod, details_submitted, charged_enabled } =
-      //     currPayment;
-      //   console.log("currPayment", currPayment);
-      //   if (paymentMethod === "stripe") {
-      //   }
-      // }
       if (!details_submitted) {
         handleOpenSnackbar("Complete Stripe account before enabling this.");
         return;
@@ -768,21 +762,6 @@ function Payments({ userAccount }) {
       const { success, value } = await updatePaymentClient(data);
 
       if (success) {
-        // const { acceptedPayments } = value;
-        // let enabledPaymentsCount = 0;
-
-        // for (let i = 0; i < acceptedPayments.length; i++) {
-        //   const currPayment = acceptedPayments[i];
-        //   const { isEnabled } = currPayment;
-        //   if (isEnabled) enabledPaymentsCount++;
-        // }
-
-        // if (enabledPaymentsCount < 1) {
-        //   handleOpenSnackbar("Please enable at least one payment method.");
-        //   setIsLoading(false);
-        //   return;
-        // }
-
         const { acceptedPayments, tax } = value;
         setAccount(value);
         setInitialStates(acceptedPayments, tax, placeholderCardMessage);
@@ -1145,8 +1124,16 @@ function Payments({ userAccount }) {
           <div className="border-b border-[color:var(--gray-light)] pb-2">
             <div className="flex justify-between mb-2">
               <div>
-                <div className="flex gap-1">
-                  <CreditCardOutlinedIcon sx={{ color: "black" }} />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 aspect-square relative ">
+                    <Image
+                      src={credit_card}
+                      alt="credit card"
+                      className="w-full h-full"
+                      fill
+                      priority
+                    />
+                  </div>
                   <p className="text-black">Credit/Debit Card</p>
                 </div>
                 <p className="text-xs  text-gray-500">
@@ -1210,8 +1197,16 @@ function Payments({ userAccount }) {
           <div className="border-b border-[color:var(--gray-light)] py-4">
             <div className="flex justify-between">
               <div>
-                <div className="flex gap-1">
-                  <AttachMoneyOutlinedIcon sx={{ color: "black" }} />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 aspect-square relative ">
+                    <Image
+                      src={cash}
+                      alt="cash"
+                      className="w-full h-full"
+                      fill
+                      priority
+                    />
+                  </div>
                   <p className="text-black">Cash</p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -1248,8 +1243,16 @@ function Payments({ userAccount }) {
           <div className="border-b border-[color:var(--gray-light)] py-4">
             <div className="flex justify-between">
               <div>
-                <div className="flex gap-1">
-                  <AttachMoneyOutlinedIcon sx={{ color: "black" }} />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 aspect-square relative ">
+                    <Image
+                      src={venmo}
+                      alt="venmo"
+                      className="w-full h-full"
+                      fill
+                      priority
+                    />
+                  </div>
                   <p className="text-black">Venmo</p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -1303,8 +1306,16 @@ function Payments({ userAccount }) {
           <div className="border-b border-[color:var(--gray-light)] py-4">
             <div className="flex justify-between">
               <div>
-                <div className="flex gap-1">
-                  <AccountBalanceOutlinedIcon sx={{ color: "black" }} />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 aspect-square relative ">
+                    <Image
+                      src={zelle}
+                      alt="zelle"
+                      className="w-full h-full"
+                      fill
+                      priority
+                    />
+                  </div>
                   <p className="text-black">Zelle</p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -1364,8 +1375,16 @@ function Payments({ userAccount }) {
           <div className="border-b border-[color:var(--gray-light)] py-4">
             <div className="flex justify-between">
               <div>
-                <div className="flex gap-1">
-                  <AccountBalanceOutlinedIcon sx={{ color: "black" }} />
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 aspect-square relative ">
+                    <Image
+                      src={paypal}
+                      alt="paypal"
+                      className="w-full h-full"
+                      fill
+                      priority
+                    />
+                  </div>
                   <p className="text-black">Paypal</p>
                 </div>
                 <p className="text-xs text-gray-500">

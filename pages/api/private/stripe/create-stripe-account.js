@@ -54,6 +54,13 @@ export default async function handler(req, res) {
         postal_code: zip,
       },
     },
+    settings: {
+      payouts: {
+        schedule: {
+          interval: "manual",
+        },
+      },
+    },
   });
 
   const { id } = account;

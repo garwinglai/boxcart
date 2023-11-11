@@ -24,6 +24,7 @@ import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import { ContactEmergencyOutlined } from "@mui/icons-material";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
+import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import { Divider } from "@mui/material";
 import DiscountIcon from "@mui/icons-material/Discount";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
@@ -107,7 +108,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             <Image
               src={logoImage}
               alt="logo icon"
-              priority
+              // priority
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               fill
               className="bg-white object-contain rounded-full border border-gray-300 shadow-md "
@@ -134,6 +135,41 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
+        {/* <Link
+          href="/account/income"
+          className={`${styles.menu_link_group}`}
+          onClick={toggleDrawer("right", false)}
+        >
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                mobilePageRoute === "income" && "var(--primary-light)"
+              }`,
+
+              borderRadius: `${mobilePageRoute === "income" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <SavingsOutlinedIcon
+                sx={{
+                  color: `${
+                    mobilePageRoute === "income"
+                      ? "var(--primary-dark)"
+                      : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Income"
+              sx={{
+                color: `${
+                  mobilePageRoute === "income" ? "var(--primary-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link> */}
         {/* <Link
           href="/account/contacts"
           className={`${styles.menu_link_group}`}
@@ -295,9 +331,9 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             </Link>
           </List>
         </Collapse> */}
-        {/* <div className="my-2">
+        <div className="my-2">
           <Divider />
-        </div> */}
+        </div>
         <MenuItem onClick={handleNestedPremiumList}>
           <ListItemIcon>
             <StarPurple500Icon

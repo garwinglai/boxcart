@@ -32,6 +32,7 @@ import { Divider } from "@mui/material";
 import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
+import SavingsIcon from "@mui/icons-material/Savings";
 import { ContactEmergency } from "@mui/icons-material";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
@@ -120,7 +121,7 @@ function DesktopNavBar({ pageRoute }) {
             <Image
               src={logoImage}
               alt="logo icon"
-              priority
+              // priority
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               fill
               className="object-contain rounded-full border border-gray-300 shadow-md bg-white"
@@ -475,6 +476,35 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
+        {/* <Link href="/account/income" className={`${styles.menu_link_group}`}>
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                pageRoute === "income" && "var(--primary-light)"
+              }`,
+
+              borderRadius: `${pageRoute === "income" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <SavingsIcon
+                sx={{
+                  color: `${
+                    pageRoute === "income" ? "var(--primary-dark)" : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Income"
+              sx={{
+                color: `${
+                  pageRoute === "income" ? "var(--primary-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link> */}
 
         {/* <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
