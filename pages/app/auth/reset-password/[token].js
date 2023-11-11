@@ -30,7 +30,6 @@ function ResetPassword() {
     const resetPasswordToken = getCookie("resetPasswordToken");
     if (!resetPasswordToken) {
       setIsTokenExpired(true);
-
       setIsLoading(false);
       return;
     }
@@ -88,10 +87,39 @@ function ResetPassword() {
 
     // TODO: update password with hash
     // TODO: then push to login page
-    const signinRoute = "app/auth/signin";
-    push(signinRoute);
+    // const signinRoute = "app/auth/signin";
+    // push(signinRoute);
+
+    const { success, error, value } = await resetPassword(password, email);
+
+    if (success) {
+      push("/auth/signin");
+    }
+
+    if (error) {
+      handleOpenSnackbar("Problem resetting password. Please try again.");
+    }
 
     setIsUpdatingPassword(false);
+  };
+
+  const resetPassword = async (password, email) => {
+    const api = "/api/public/auth/reset-password";
+
+    const body = {
+      password,
+      email,
+    };
+
+    const res = await fetch(api, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return data;
   };
 
   // * Display
@@ -114,7 +142,7 @@ function ResetPassword() {
     </div>
   ) : isTokenExpired ? (
     <div className="flex flex-col items-center justify-center mt-36">
-      <p>Your rest password page has expired.</p>
+      <p>This reset password page has expired.</p>
       <Link href="/auth/forgot-password" className="text-blue-500 text-sm mt-4">
         Forgot password
       </Link>
