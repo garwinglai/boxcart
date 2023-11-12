@@ -3,7 +3,7 @@ import Image from "next/image";
 
 function PaymentCard({ paymentData }) {
   const { payment, isEnabled, image } = paymentData;
-  console.log("isEnabled", isEnabled)
+
   return (
     <div className="flex p-4 border shadow-md rounded-lg justify-between items-center flex-grow gap-8 lg:py-4 lg:px-2">
       <div className="flex items-center gap-2">
@@ -18,7 +18,7 @@ function PaymentCard({ paymentData }) {
           />
         </div>
         <div>
-          <h5>{payment}</h5>
+          <h5 className="text-sm md:text-base">{payment}</h5>
           <p className="text-xs font-extralight">
             {isEnabled ? "enabled" : "disabled"}
           </p>

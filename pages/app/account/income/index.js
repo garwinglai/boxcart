@@ -156,9 +156,9 @@ function Income({ userAccount }) {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
-              <h3>Total income</h3>
+              <h3 className="text-sm md:text-base">Total income</h3>
             </div>
-            <p className="text-[color:var(--money)]">
+            <p className="text-sm md:text-base text-[color:var(--money)]">
               + {availableStripeBalance} $
             </p>
           </div>
@@ -180,39 +180,48 @@ function Income({ userAccount }) {
                 />
               </div>
               <div className="flex flex-col">
-                <h3>Amount available:</h3>
-                <h3>Amount pending:</h3>
+                <h3 className="text-sm md:text-base">Available:</h3>
+                <h3 className="text-sm md:text-base">Pending:</h3>
               </div>
             </div>
             <div className="flex flex-col items-end">
               {availableStripeBalance === 0 ? (
-                <p className="text-gray-500">{availableStripeBalance} $</p>
+                <p className="text-gray-500 text-sm md:text-base">
+                  {availableStripeBalance} $
+                </p>
               ) : (
-                <p className="text-[color:var(--money)]">
+                <p className="text-[color:var(--money)] text-sm md:text-base">
                   + {availableStripeBalance} $
                 </p>
               )}
               {pendingStripeBalance === 0 ? (
-                <p className="text-gray-500">{pendingStripeBalance} $</p>
+                <p className="text-gray-500 text-sm md:text-base">
+                  {pendingStripeBalance} $
+                </p>
               ) : (
-                <p className="text-[color:var(--money)]">
+                <p className="text-[color:var(--money)] text-sm md:text-base">
                   + {pendingStripeBalance} $
                 </p>
               )}
             </div>
           </div>
-          <div className="w-fit ml-auto mt-2">
-            {isCashingOut ? (
-              <CircularProgress size={20} />
-            ) : (
-              <ButtonPrimary
-                handleClick={handleCashOut}
-                name={
-                  availableStripeBalance == 0 ? "Empty balance" : "Withdraw"
-                }
-                disabled={availableStripeBalance == 0}
-              />
-            )}
+          <div className="flex items-center justify-between">
+            <button className="mt-4 underline">Please read</button>
+            <div className="w-fit ml-auto mt-2">
+              {isCashingOut ? (
+                <CircularProgress size={20} />
+              ) : availableStripeBalance == 0 ? (
+                <p className="text-sm font-extralight mt-4 text-gray-400">
+                  No payout balance
+                </p>
+              ) : (
+                <ButtonPrimary
+                  handleClick={handleCashOut}
+                  name="Withdraw"
+                  disabled={availableStripeBalance == 0}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -1871,7 +1871,7 @@ function ProductDrawer({
       />
       <form
         onSubmit={handleSave}
-        className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-28 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
+        className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-56 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
         <div className="flex justify-between items-center">
           <span className="flex gap-4 items-center">
