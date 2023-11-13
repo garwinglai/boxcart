@@ -101,7 +101,7 @@ function CategoryCard({
   };
 
   return (
-    <div className="p-4 rounded w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+    <div className="p-4 rounded-lg w-full shadow-md border bg-white">
       <div className="flex justify-between items-center">
         <div className="flex flex-col gap-1">
           <h4>{categoryName}</h4>

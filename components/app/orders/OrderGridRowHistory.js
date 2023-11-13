@@ -32,6 +32,9 @@ function OrderGridRowHistory({
     id,
     customer,
     stripeOrderId,
+    paymentMethod,
+    accountId,
+    totalPenny,
   } = order;
 
   const { name, email, phoneNum } = customer;
@@ -63,10 +66,10 @@ function OrderGridRowHistory({
   };
 
   const updateOrderStatus = async (value) => {
-    const orderStatus = value;
+    const updatedOrderStatus = value;
     const orderData = {
       id,
-      orderStatus,
+      orderStatus: updatedOrderStatus,
     };
 
     const udpateStatusAPI = await fetch(
@@ -82,8 +85,16 @@ function OrderGridRowHistory({
 
     if (responseStatus === 200) {
       await getAllHistoryOrders();
-      if (orderStatus === "pending") {
+      if (updatedOrderStatus === "pending") {
         handleOpenSnackbar("Moved to pending.");
+      }
+
+      if (updatedOrderStatus !== "completed" && paymentStatus === "paid") {
+        decrementRevenue(totalPenny, accountId, paymentMethod);
+      }
+
+      if (updatedOrderStatus === "completed" && paymentStatus === "paid") {
+        createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
       }
     } else {
       // TODO: Error updating order status - revert to previous for UI
@@ -109,10 +120,60 @@ function OrderGridRowHistory({
     const responseStatus = udpateStatusAPI.status;
 
     if (responseStatus === 200) {
+      if (paymentStatus === "paid" && orderStatus === "completed") {
+        createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
+      }
+
+      if (paymentStatus !== "paid" && orderStatus === "completed") {
+        decrementRevenue(totalPenny, accountId, paymentMethod);
+      }
+
       // TODO: show snackbar of success?
     } else {
       // TODO: Error updating order status - revert to previous for UI
     }
+  };
+
+  const createOrUpdateRevenue = async (
+    totalPenny,
+    accountId,
+    paymentMethod
+  ) => {
+    const revenueData = {
+      accountId,
+      totalPenny,
+      paymentMethod,
+    };
+
+    const createOrUpdateApi = "/api/private/revenue/create-or-increment";
+    const res = await fetch(createOrUpdateApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(revenueData),
+    });
+    const data = res.json();
+    // TODO: log error to db
+  };
+
+  const decrementRevenue = async (totalPenny, accountId, paymentMethod) => {
+    const revenueData = {
+      accountId,
+      totalPenny,
+      paymentMethod,
+    };
+
+    const createOrUpdateApi = "/api/private/revenue/decrement";
+    const res = await fetch(createOrUpdateApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(revenueData),
+    });
+    const data = res.json();
+    // TODO: log error to db
   };
 
   const toggleDrawer = (anchor, open) => (event) => {

@@ -19,7 +19,6 @@ export default async function handler(req, res) {
     return;
   }
   const { method } = req;
-  console.log("meethod", method);
 
   if (method === "POST") {
     const { body } = req;

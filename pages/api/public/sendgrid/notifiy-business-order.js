@@ -23,8 +23,6 @@ export default async function handler(req, res) {
   } = bodyParsed;
 
   const orderedOnDate = new Date(createdAt).toLocaleDateString();
-  console.log("orderedOnDate", orderedOnDate);
-  console.log("orderForTimeDisplay", orderForTimeDisplay);
 
   const mailOptions = {
     to: email,

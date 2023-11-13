@@ -109,9 +109,51 @@ model Account {
   categories           Category[]
   availability         Availability?
   orders               CustomerOrder[]
+  revenue              Revenue?
+  payout               Payout?
   taxId                Int?
+  payoutId             Int?
 
   @@index([userId])
+}
+
+model Revenue {
+  id                 Int      @id @default(autoincrement())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  totalBalancePenny  Int?     @default(0)
+  cardRevenuePenny   Int?     @default(0)
+  cashRevenuePenny   Int?     @default(0)
+  venmoRevenuePenny  Int?     @default(0)
+  zelleRevenuePenny  Int?     @default(0)
+  paypalRevenuePenny Int?     @default(0)
+  account            Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId          Int      @unique
+
+  @@index([accountId])
+}
+
+model Payout {
+  id                           Int      @id @default(autoincrement())
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+  status                       String
+  balance                      Int
+  balanceDisplay               String
+  fees                         Int
+  feesDisplay                  String
+  feesDetails                  String
+  net                          Int
+  netDisplay                   String
+  dateAvailable                String
+  ordersAfterDateDisplay       String
+  ordersAfterDateEpoch         String
+  ordersOnDateAndBeforeDisplay String
+  ordersOnDateAndBeforeEpoch   String
+  account                      Account  @relation(fields: [accountId], references: [id])
+  accountId                    Int      @unique
+
+  @@index([accountId])
 }
 
 model Customer {
@@ -148,12 +190,12 @@ model Tax {
 
 model CustomerOrder {
   id                          Int         @id @default(autoincrement())
+  createdAt                   DateTime    @default(now())
+  updatedAt                   DateTime    @updatedAt
   orderId                     String      @unique
   stripeOrderId               String?
   stripeErrorType             String? //validation_error, unknown_error, card_error
   stripeErrorMessage          String?
-  createdAt                   DateTime    @default(now())
-  updatedAt                   DateTime    @updatedAt
   orderItems                  OrderItem[]
   deliveryAddress             String?
   pickupAddress               String?

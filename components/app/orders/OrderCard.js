@@ -19,6 +19,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import OrderReview from "@/components/storefront/cart/OrderReview";
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 
 function OrderCard({
   status,
@@ -32,8 +33,10 @@ function OrderCard({
   handleOpenSnackbar,
 }) {
   const {
+    cardFeeDisplay,
     fulfillmentDisplay,
     deliveryAddress,
+    totalAfterStripeFeesDisplay,
     totalItemsOrdered,
     totalDisplay,
     fulfillmentType,
@@ -49,6 +52,8 @@ function OrderCard({
     customer,
     stripeErrorMessage,
     stripeErrorType,
+    accountId,
+    totalPenny,
   } = order;
 
   const { name, email, phoneNum } = customer;
@@ -79,10 +84,10 @@ function OrderCard({
   };
 
   const updateOrderStatus = async (value) => {
-    const orderStatus = value;
+    const updatedOrderStatus = value;
     const orderData = {
       id,
-      orderStatus,
+      orderStatus: updatedOrderStatus,
     };
 
     const udpateStatusAPI = await fetch(
@@ -99,12 +104,23 @@ function OrderCard({
     if (responseStatus === 200) {
       if (isHistory) {
         await getAllHistoryOrders();
-        if (orderStatus === "pending") {
+        if (updatedOrderStatus === "pending") {
           handleOpenSnackbar("Moved to live.");
+        }
+        if (updatedOrderStatus !== "completed" && paymentStatus === "paid") {
+          decrementRevenue(totalPenny, accountId, paymentMethod);
+        }
+
+        if (updatedOrderStatus === "completed" && paymentStatus === "paid") {
+          createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
         }
       } else {
         await getOrders();
-        handleOpenSnackbar("Moved to history.");
+        handleOpenSnackbar("Moved to history");
+
+        if (paymentStatus === "paid" && updatedOrderStatus === "completed") {
+          createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
+        }
       }
     } else {
       // TODO: Error updating order status - revert to previous for UI
@@ -130,10 +146,64 @@ function OrderCard({
     const responseStatus = udpateStatusAPI.status;
 
     if (responseStatus === 200) {
-      await getOrders();
+      if (isHistory) {
+        await getAllHistoryOrders();
+        if (paymentStatus === "paid" && orderStatus === "completed") {
+          createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
+        }
+
+        if (paymentStatus !== "paid" && orderStatus === "completed") {
+          decrementRevenue(totalPenny, accountId, paymentMethod);
+        }
+      } else {
+        await getOrders();
+        handleOpenSnackbar("Updated");
+      }
     } else {
       // TODO: Error updating order status - revert to previous for UI
     }
+  };
+
+  const decrementRevenue = async (totalPenny, accountId, paymentMethod) => {
+    const revenueData = {
+      accountId,
+      totalPenny,
+      paymentMethod,
+    };
+
+    const createOrUpdateApi = "/api/private/revenue/decrement";
+    const res = await fetch(createOrUpdateApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(revenueData),
+    });
+    const data = res.json();
+    // TODO: Log error to logs
+  };
+
+  const createOrUpdateRevenue = async (
+    totalPenny,
+    accountId,
+    paymentMethod
+  ) => {
+    const revenueData = {
+      accountId,
+      totalPenny,
+      paymentMethod,
+    };
+
+    const createOrUpdateApi = "/api/private/revenue/create-or-increment";
+    const res = await fetch(createOrUpdateApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(revenueData),
+    });
+    const data = res.json();
+    // TODO: Log error to logs
   };
 
   const handleFooterCloseCard = (e, panel) => {
@@ -235,39 +305,6 @@ function OrderCard({
             )}
           </div>
           <div className={`${styles.flex} ${styles.header_box}`}>
-            <div className={`${styles.group_two}`}>
-              {/* <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                <Grid3x3Icon fontSize="small" color="disabled" />
-                <p>
-                  Id: <span className="break-all">{orderId}</span>
-                </p>
-              </div> */}
-              <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                <TodayOutlinedIcon fontSize="small" color="disabled" />
-                <p>Order date: {orderedOn}</p>
-              </div>
-              {requireOrderDate && (
-                <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                  <EventAvailableIcon fontSize="small" color="disabled" />
-                  <p className="break-normal">
-                    Order for: {requireOrderDate && orderForDateDisplay}
-                    {requireOrderTime && ` @ ` + orderForTimeDisplay}
-                  </p>
-                </div>
-              )}
-              <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                <SellOutlinedIcon fontSize="small" color="disabled" />
-                <p>{totalItemsOrdered} items</p>
-              </div>
-              <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                <PaidOutlinedIcon fontSize="small" color="disabled" />
-                <p>{totalDisplay}</p>
-              </div>
-              <div className={`${styles.flex} ${styles.info_icon_group}`}>
-                <DeliveryDiningIcon fontSize="small" color="disabled" />
-                <p>{fulfillmentDisplay}</p>
-              </div>
-            </div>
             <div className={`${styles.group_one}`}>
               <div className={`${styles.flex} ${styles.info_icon_group}`}>
                 <ContactMailOutlinedIcon fontSize="small" color="disabled" />
@@ -283,7 +320,6 @@ function OrderCard({
                   <p className="break-all">{phoneNum}</p>
                 </div>
               )}
-
               {fulfillmentType === 0 && (
                 <div className={`${styles.flex} ${styles.info_icon_group}`}>
                   <HomeIcon fontSize="small" color="disabled" />
@@ -291,9 +327,57 @@ function OrderCard({
                 </div>
               )}
               <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <DeliveryDiningIcon fontSize="small" color="disabled" />
+                <p>{fulfillmentDisplay}</p>
+              </div>
+              <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <TodayOutlinedIcon fontSize="small" color="disabled" />
+                <p>Order date: {orderedOn}</p>
+              </div>
+              {requireOrderDate && (
+                <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                  <EventAvailableIcon fontSize="small" color="disabled" />
+                  <p className="break-normal">
+                    Order for: {requireOrderDate && orderForDateDisplay}
+                    {requireOrderTime && ` @ ` + orderForTimeDisplay}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className={`${styles.group_two}`}>
+              {/* <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <Grid3x3Icon fontSize="small" color="disabled" />
+                <p>
+                  Id: <span className="break-all">{orderId}</span>
+                </p>
+              </div> */}
+              <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <SellOutlinedIcon fontSize="small" color="disabled" />
+                <p>{totalItemsOrdered} items</p>
+              </div>
+              <div className={`${styles.flex} ${styles.info_icon_group}`}>
                 <AccountBalanceOutlinedIcon fontSize="small" color="disabled" />
                 <p className="break-words">{paymentMethod} pay</p>
               </div>
+              <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                <PaidOutlinedIcon fontSize="small" color="disabled" />
+                <p>{totalDisplay}</p>
+              </div>
+
+              {cardFeeDisplay && (
+                <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                  <CreditCardOutlinedIcon fontSize="small" color="disabled" />
+                  <p className="break-words">card fees: {cardFeeDisplay}</p>
+                </div>
+              )}
+              {totalAfterStripeFeesDisplay && (
+                <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                  <CreditCardOutlinedIcon fontSize="small" color="disabled" />
+                  <p className="break-words">
+                    net: {totalAfterStripeFeesDisplay}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

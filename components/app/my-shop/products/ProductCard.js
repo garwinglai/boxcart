@@ -542,7 +542,7 @@ function ProductCard({
 
   return (
     <div
-      className={`rounded w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white md:row-auto ${
+      className={`rounded-lg w-full shadow-md border bg-white md:row-auto ${
         isExpanded ? "md:grid-row-end-auto" : "md:h-fit"
       }`}
     >

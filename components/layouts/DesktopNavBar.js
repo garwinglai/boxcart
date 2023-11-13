@@ -476,35 +476,35 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-        {/* <Link href="/account/income" className={`${styles.menu_link_group}`}>
+        <Link href="/account/revenue" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
-                pageRoute === "income" && "var(--primary-light)"
+                pageRoute === "revenue" && "var(--primary-light)"
               }`,
 
-              borderRadius: `${pageRoute === "income" && "4px"}`,
+              borderRadius: `${pageRoute === "revenue" && "4px"}`,
             }}
           >
             <ListItemIcon>
               <SavingsIcon
                 sx={{
                   color: `${
-                    pageRoute === "income" ? "var(--primary-dark)" : "gray"
+                    pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
                   }  `,
                 }}
               />
             </ListItemIcon>
             <ListItemText
-              primary="Income"
+              primary="Revenue"
               sx={{
                 color: `${
-                  pageRoute === "income" ? "var(--primary-dark)" : "gray"
+                  pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
           </MenuItem>
-        </Link> */}
+        </Link>
 
         {/* <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem

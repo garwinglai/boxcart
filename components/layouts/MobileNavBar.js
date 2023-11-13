@@ -135,25 +135,25 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
-        {/* <Link
-          href="/account/income"
+        <Link
+          href="/account/revenue"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
         >
           <MenuItem
             sx={{
               backgroundColor: `${
-                mobilePageRoute === "income" && "var(--primary-light)"
+                mobilePageRoute === "revenue" && "var(--primary-light)"
               }`,
 
-              borderRadius: `${mobilePageRoute === "income" && "4px"}`,
+              borderRadius: `${mobilePageRoute === "revenue" && "4px"}`,
             }}
           >
             <ListItemIcon>
               <SavingsOutlinedIcon
                 sx={{
                   color: `${
-                    mobilePageRoute === "income"
+                    mobilePageRoute === "revenue"
                       ? "var(--primary-dark)"
                       : "gray"
                   }  `,
@@ -161,15 +161,15 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               />
             </ListItemIcon>
             <ListItemText
-              primary="Income"
+              primary="Revenue"
               sx={{
                 color: `${
-                  mobilePageRoute === "income" ? "var(--primary-dark)" : "gray"
+                  mobilePageRoute === "revenue" ? "var(--primary-dark)" : "gray"
                 }  `,
               }}
             />
           </MenuItem>
-        </Link> */}
+        </Link>
         {/* <Link
           href="/account/contacts"
           className={`${styles.menu_link_group}`}

@@ -1,10 +1,5 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import {
-  getHistoryOrders,
-  getOrders,
-  getPendingOrders,
-  updateOrderStatusServer,
-} from "@/helper/server/prisma/orders";
+import { getHistoryOrders } from "@/helper/server/prisma/orders";
 
 export default async function handler(req, res) {
   const isLoggedIn = await isAuthServer(req, res);

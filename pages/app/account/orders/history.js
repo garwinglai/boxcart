@@ -46,7 +46,7 @@ function AllOrders({ orders }) {
   };
 
   const getAllHistoryOrders = async () => {
-    const orders = await fetch(`/api/private/orders/getAllHistoryOrders`);
+    const orders = await fetch(`/api/private/orders/get-all-history-orders`);
     const allOrders = await orders.json();
     const responseStatus = orders.status;
 
@@ -140,6 +140,8 @@ function AllOrders({ orders }) {
           </div>
         </div>
       </div> */}
+
+      <h5 className="p-4 md:p-0">All completed orders</h5>
       {allHistoryOrders.length > 0 ? (
         <div className={`${styles.order_grid_box}`}>
           <OrderGridHistory
@@ -188,7 +190,6 @@ export async function getServerSideProps(context) {
       });
 
       serializedData = JSON.parse(JSON.stringify(orders));
-      console.log(" server orders", serializedData);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
       serializedData = null;

@@ -88,7 +88,7 @@ function Checkout({ siteData }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: [{ id: "xl-tshirt", amountPenny, stripeAccountId }],
+        items: [{ amountPenny, stripeAccountId }],
       }),
     })
       .then((res) => res.json())

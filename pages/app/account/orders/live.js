@@ -96,11 +96,9 @@ function LiveOrders({ orders }) {
             <Calendar />
           </div>
         </SwipeableDrawer>
-        <div className="flex items-center ml-4 py-4">
-          <p className="text-xs">
-            This page only shows pending orders. Completed orders are in
-            history.
-          </p>
+        <div className="flex items-center ml-4 pt-4 pb-2 md:py-4">
+          <h5>All pending orders</h5>
+
           {/* <div className="w-fit ml-auto px-4">
             <ButtonPrimary name="+ Create Order" />
           </div> */}
@@ -155,10 +153,7 @@ function LiveOrders({ orders }) {
           </div>
         </SwipeableDrawer>
         <div className="flex items-center">
-          <p className="text-sm">
-            This page only shows pending orders. Completed orders are in
-            history.
-          </p>
+          <h5>All pending orders</h5>
           <div className="w-fit ml-auto">
             <ButtonPrimary name="+ Create Order" />
           </div>
@@ -246,8 +241,6 @@ export async function getServerSideProps(context) {
           customer: true,
         },
       });
-
-      console.log(" server orders", orders);
 
       serializedData = JSON.parse(JSON.stringify(orders));
     } catch (error) {

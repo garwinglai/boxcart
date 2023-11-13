@@ -30,6 +30,7 @@ function OrderGridRow({
     deliveryAddress,
     totalItemsOrdered,
     totalDisplay,
+    totalPenny,
     fulfillmentType,
     requireOrderDate,
     requireOrderTime,
@@ -39,6 +40,8 @@ function OrderGridRow({
     createdAt,
     id,
     customer,
+    accountId,
+    paymentMethod,
   } = order;
 
   const { name } = customer;
@@ -69,10 +72,11 @@ function OrderGridRow({
   };
 
   const updateOrderStatus = async (value) => {
-    const orderStatus = value;
+    const updatedOrderStatus = value;
+
     const orderData = {
       id,
-      orderStatus,
+      orderStatus: updatedOrderStatus,
     };
 
     const udpateStatusAPI = await fetch(
@@ -88,10 +92,38 @@ function OrderGridRow({
 
     if (responseStatus === 200) {
       await getOrders();
+
+      if (paymentStatus === "paid" && updatedOrderStatus === "completed") {
+        createOrUpdateRevenue(totalPenny, accountId, paymentMethod);
+      }
+
       handleOpenSnackbar("Moved to history.");
     } else {
       // TODO: Error updating order status - revert to previous for UI
     }
+  };
+
+  const createOrUpdateRevenue = async (
+    totalPenny,
+    accountId,
+    paymentMethod
+  ) => {
+    const revenueData = {
+      accountId,
+      totalPenny,
+      paymentMethod,
+    };
+
+    const createOrUpdateApi = "/api/private/revenue/create-or-increment";
+    const res = await fetch(createOrUpdateApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(revenueData),
+    });
+    const data = res.json();
+    // TODO: log error to db
   };
 
   const updatePayStatus = async (value) => {

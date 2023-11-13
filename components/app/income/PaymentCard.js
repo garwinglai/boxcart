@@ -1,8 +1,9 @@
 import React from "react";
 import Image from "next/image";
+import { CircularProgress } from "@mui/material";
 
-function PaymentCard({ paymentData }) {
-  const { payment, isEnabled, image } = paymentData;
+function PaymentCard({ paymentData, isLoading }) {
+  const { payment, isEnabled, image, revenue } = paymentData;
 
   return (
     <div className="flex p-4 border shadow-md rounded-lg justify-between items-center flex-grow gap-8 lg:py-4 lg:px-2">
@@ -24,7 +25,11 @@ function PaymentCard({ paymentData }) {
           </p>
         </div>
       </div>
-      <p className="text-[color:var(--money)]">+ 10,201 $</p>
+      {isLoading ? (
+        <CircularProgress size={20} />
+      ) : (
+        <p className="text-[color:var(--money)]">+ {revenue} $</p>
+      )}
     </div>
   );
 }
