@@ -23,6 +23,9 @@ import { CircularProgress } from "@mui/material";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HelpIcon from "@mui/icons-material/Help";
+import money_withdraw from "@/public/images/icons/money-withdraw.png";
+import PayoutGrid from "@/components/app/income/PayoutGrid";
+import { calculateStripePayoutFee } from "@/utils/stripe-fees";
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -68,6 +71,40 @@ function Revenue({ userAccount }) {
   const { showAlert, alertMsg } = alert;
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    let ignore = false;
+    if (!stripeAccId) return;
+    setIsLoading(true);
+    const retrievePayouts = async () => {
+      const retrievePayoutsApi = `/api/private/stripe/retrieve-payouts/${stripeAccId}`;
+
+      const res = await fetch(retrievePayoutsApi, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const { success, error, payouts } = await res.json();
+
+      if (success) {
+        const { data } = payouts;
+        if (!ignore) {
+          setPayouts(data);
+        }
+      }
+
+      if (error) {
+        handleOpenAlert("Error retrieving payouts.");
+      }
+
+      setIsLoading(false);
+    };
+
+    retrievePayouts();
+
+    return () => (ignore = true);
+  }, [stripeAccId]);
 
   useEffect(() => {
     let ignore = false;
@@ -131,6 +168,7 @@ function Revenue({ userAccount }) {
       let { stripeAccountId } = acceptedPayments.find(
         (payment) => payment.paymentMethod === "stripe"
       );
+      console.log("stripeAccountId", stripeAccountId);
 
       const getBalanceApi = `/api/private/stripe/get-balance/${stripeAccountId}`;
 
@@ -145,6 +183,7 @@ function Revenue({ userAccount }) {
 
       if (error) {
         // TODO: show snackbar
+        console.log("error", error);
       }
 
       if (success) {
@@ -157,7 +196,7 @@ function Revenue({ userAccount }) {
         setAvailableStripeBalance(availBalance);
         setPendingStripeBalance(pendingBalance);
       }
-
+      console.log("here");
       setIsLoadingStripeBalance(false);
     };
 
@@ -176,39 +215,155 @@ function Revenue({ userAccount }) {
     push("/account/orders/live");
   };
 
-  const handleCashOut = async () => {
+  const handleWithdraw = async () => {
     setIsCashingOut(true);
-    const cashOutApi = `/api/private/stripe/payout`;
 
-    const body = {
-      amount: availBalancePenny,
+    // Pull payout to see when was last payout, collect $2 if new mont
+    const recentPayout = await fetchMostRecentPayout(accountId);
+
+    if (!recentPayout.success || recentPayout.error) {
+      handleOpenAlert("Error retrieving payout.");
+      setIsCashingOut(false);
+      return;
+    }
+
+    let hasMonthylFee = false;
+
+    // First payout
+    if (recentPayout.payout) {
+      const { createdAt } = recentPayout.payout;
+      const currentMonth = new Date().getMonth();
+      const lastPayoutMonth = new Date(createdAt).getMonth();
+      if (currentMonth !== lastPayoutMonth) {
+        hasMonthylFee = true;
+      }
+    }
+
+    const transferAmountPenny = calculateStripePayoutFee(
+      availBalancePenny,
+      hasMonthylFee
+    );
+
+    const transferData = {
+      amount: transferAmountPenny,
       stripeAccId,
     };
+
+    // Transfer payout fees
+    const transfer = await transferPayoutFees(transferData);
+
+    if (!transfer.success || transfer.error) {
+      handleOpenAlert("Transfer payout error.");
+      setIsCashingOut(false);
+      return;
+    }
+
+    const netBalancePenny = availBalancePenny - transferAmountPenny;
+    const stripePayoutData = {
+      amount: netBalancePenny,
+      stripeAccId,
+    };
+
+    // Create payout
+    const stripePayout = await createStripePayout(stripePayoutData);
+
+    if (stripePayout.error || !stripePayout.success) {
+      handleOpenAlert("Payout error.");
+      setIsCashingOut(false);
+      return;
+    }
+
+    const { amount, arrival_date, id: stripePayoutId } = payout;
+    const arrival = new Date(arrival_date * 1000).toLocaleDateString();
+
+    const balanceDisplay = `$${(availBalancePenny / 100).toFixed(2)}`;
+    const feesDisplay = `$${(transferAmountPenny / 100).toFixed(2)}`;
+    const netDisplay = `$${(amount / 100).toFixed(2)}`;
+
+    // Save data to payouts
+    const savePayoutData = {
+      stripeAccountId: stripeAccId,
+      stripePayoutId,
+      balance: availBalancePenny,
+      balanceDisplay,
+      fees: transferAmountPenny,
+      feesDisplay,
+      net: amount,
+      netDisplay,
+    };
+
+    const createdPayout = await createPayoutPrisma(savePayoutData, accountId);
+
+    if (!createdPayout.success || createdPayout.error) {
+      // TODO: log error of payout
+    }
+
+    setAvailBalancePenny(0);
+    setAvailableStripeBalance(0);
+    handleOpenAlert(`Payout ${amount / 100} will arrive on ${arrival}`);
+    setIsCashingOut(false);
+  };
+
+  const createPayoutPrisma = async (payoutData, accountId) => {
+    const createPayoutApi = `/api/private/payout/create-payout`;
+    const data = {
+      accountId,
+      payoutData,
+    };
+
+    const res = await fetch(createPayoutApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const createdPayout = await res.json();
+    return createdPayout;
+  };
+
+  const fetchMostRecentPayout = async (accountId) => {
+    const api = `/api/private/payout/get-payout/${accountId}`;
+    const res = await fetch(api, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+
+    return data;
+  };
+
+  const transferPayoutFees = async (transferData) => {
+    const transferApi = `/api/private/stripe/transfer-payout-fee`;
+
+    const res = await fetch(transferApi, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(transferData),
+    });
+    const transfer = await res.json();
+
+    return transfer;
+  };
+
+  const createStripePayout = async (stripePayoutData) => {
+    const cashOutApi = `/api/private/stripe/create-payout`;
 
     const res = await fetch(cashOutApi, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(stripePayoutData),
     });
 
     const data = await res.json();
-    const { success, error, payout } = data;
-
-    if (error) {
-      handleOpenAlert("Payout error.");
-    }
-
-    if (success) {
-      const { amount, arrival_date, status } = payout;
-      const arrival = new Date(arrival_date * 1000);
-      setAvailBalancePenny(0);
-      setAvailableStripeBalance(0);
-      handleOpenAlert(`Payout ${amount / 100} will arrive on ${arrival}`);
-    }
-
-    setIsCashingOut(false);
+    return data;
   };
 
   const action = (
@@ -368,13 +523,13 @@ function Revenue({ userAccount }) {
             <div className="w-fit ml-auto">
               {isCashingOut ? (
                 <CircularProgress size={20} />
-              ) : availableStripeBalance == 0 ? (
+              ) : availableStripeBalance !== 0 ? (
                 <p className="text-xs md:text-sm font-extralight text-gray-400 border rounded-full px-2 py-1">
                   No payout balance
                 </p>
               ) : (
                 <ButtonPrimary
-                  handleClick={handleCashOut}
+                  handleClick={handleWithdraw}
                   name="Withdraw"
                   disabled={availableStripeBalance == 0}
                 />
@@ -462,7 +617,25 @@ function Revenue({ userAccount }) {
           <p className="font-light text-sm ">Payout history</p>
         </Divider>
       </div>
-      {payouts.length === 0 ? <p>No payouts</p> : <p>Payouts</p>}
+      {payouts.length === 0 ? (
+        <div className="opacity-50 flex flex-col items-center mt-6">
+          <div className="w-12 h-12 aspect-square relative ">
+            <Image
+              src={money_withdraw}
+              alt="cash out"
+              className="w-full h-full "
+              fill
+              // priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+          <p className="mx-auto">No payouts yet</p>
+        </div>
+      ) : (
+        <div className="border rounded-lg shadow-md">
+          <PayoutGrid payouts={payouts} />
+        </div>
+      )}
     </div>
   );
 }

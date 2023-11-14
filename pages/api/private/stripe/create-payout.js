@@ -18,18 +18,26 @@ export default async function handler(req, res) {
     res.status(401).json({ message: "Invalid credentials." });
     return;
   }
+  const { method } = req;
 
-  const { query } = req;
-  const { stripeAccId } = query;
-  console.log("what is up2", stripeAccId);
-  try {
-    const balance = await stripe.balance.retrieve({
-      stripeAccount: stripeAccId,
-    });
-    console.log(balance);
-    res.status(200).json({ success: true, balance });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ success: false, error });
+  if (method === "POST") {
+    const { body } = req;
+    const { stripeAccId, amount } = body;
+
+    try {
+      const payout = await stripe.payouts.create(
+        {
+          amount: 100,
+          currency: "usd",
+        },
+        {
+          stripeAccount: stripeAccId,
+        }
+      );
+      res.status(200).json({ success: true, payout });
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 }

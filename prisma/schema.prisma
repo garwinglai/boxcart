@@ -110,7 +110,7 @@ model Account {
   availability         Availability?
   orders               CustomerOrder[]
   revenue              Revenue?
-  payout               Payout?
+  payout               Payout[]
   taxId                Int?
   payoutId             Int?
 
@@ -134,24 +134,19 @@ model Revenue {
 }
 
 model Payout {
-  id                           Int      @id @default(autoincrement())
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
-  status                       String
-  balance                      Int
-  balanceDisplay               String
-  fees                         Int
-  feesDisplay                  String
-  feesDetails                  String
-  net                          Int
-  netDisplay                   String
-  dateAvailable                String
-  ordersAfterDateDisplay       String
-  ordersAfterDateEpoch         String
-  ordersOnDateAndBeforeDisplay String
-  ordersOnDateAndBeforeEpoch   String
-  account                      Account  @relation(fields: [accountId], references: [id])
-  accountId                    Int      @unique
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  stripeAccountId String
+  stripePayoutId  String
+  balance         Int
+  balanceDisplay  String
+  fees            Int
+  feesDisplay     String
+  net             Int
+  netDisplay      String
+  account         Account  @relation(fields: [accountId], references: [id])
+  accountId       Int      @unique
 
   @@index([accountId])
 }

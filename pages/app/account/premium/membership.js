@@ -1,14 +1,14 @@
 import React from "react";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AppLayout from "@/components/layouts/AppLayout";
-import MembershipPackages from "@/components/landing/MembershipPackages";
+import MembershipPage from "@/components/landing/MembershipPage";
 import { isAuth } from "@/helper/client/auth/isAuth";
 import prisma from "@/lib/prisma";
 
 function MemberShip() {
   return (
     <div className="">
-      <MembershipPackages />
+      <MembershipPage />
     </div>
   );
 }

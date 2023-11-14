@@ -1,0 +1,145 @@
+.flex {
+  display: flex;
+}
+
+.order_drawer_title_box {
+  padding: 1rem 1.5rem 0 1.5rem;
+  justify-content: space-between;
+}
+
+.order_drawer_title_group {
+  align-items: center;
+  gap: 1rem;
+}
+
+.order_icon_image {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.close_btn_group {
+  align-items: center;
+  background-color: transparent;
+  color: var(--secondary-dark-med);
+}
+
+.close_btn_group:active {
+  color: var(--secondary);
+}
+
+.drawer_box {
+  background-color: var(--gray-light);
+}
+
+.table_row,
+.row_btn {
+  display: contents;
+}
+
+.table_row > td {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.black_text p {
+  color: var(--gray);
+}
+
+.table_data {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-weight: 300;
+  padding: 1rem 0;
+}
+
+.table_row:nth-child(even) td:first-child,
+.table_row:nth-child(odd) td:first-child {
+  border-top-left-radius: 5px;
+  border-end-start-radius: 5px;
+}
+
+.table_row:nth-child(even) td:last-child,
+.table_row:nth-child(odd) td:last-child {
+  border-top-right-radius: 5px;
+  border-end-end-radius: 5px;
+}
+
+.status_text {
+  font-weight: 300;
+  width: fit-content;
+  font-size: 12px;
+  padding: 0 8px;
+  border-radius: 4px;
+}
+
+.accepted_text {
+  color: rgb(1, 151, 41);
+  background-color: rgb(237, 255, 242);
+  border: 1px solid rgb(1, 151, 41);
+}
+
+.canceled_text {
+  color: var(--black-design-extralight);
+  background-color: var(--gray-light);
+  border: 1px solid var(--black-design-extralight);
+}
+
+.processing_text {
+  color: var(--purple);
+  background-color: var(--purple-light);
+  border: 1px solid var(--purple);
+}
+
+.error_text {
+  color: var(--error);
+  background-color: var(--error-light);
+  border: 1px solid var(--error);
+}
+
+.pending_text {
+  color: rgb(255, 119, 0);
+  background-color: rgb(255, 239, 216);
+  border: 1px solid rgb(255, 119, 0);
+}
+
+.completed_text {
+  color: rgb(1, 151, 41);
+  background-color: rgb(237, 255, 242);
+  border: 1px solid rgb(1, 151, 41);
+}
+
+.canceled_text {
+  color: var(--black-design-extralight);
+  background-color: var(--gray-light);
+  border: 1px solid var(--black-design-extralight);
+}
+
+.view_more_btn {
+  height: auto;
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .table_row:hover td {
+    cursor: pointer;
+    background-color: var(--gray-light);
+    color: var(--black);
+  }
+
+  .table_row:hover > td > .refunded {
+    border: 1px solid rgb(255, 119, 0);
+  }
+
+  .table_row:hover > td > .paid {
+    border: 1px solid rgb(0, 161, 43);
+  }
+
+  .table_row:hover > td > .canceled {
+    border: 1px solid rgb(78, 78, 78);
+  }
+
+  .table_row:hover > td > .declined {
+    border: 1px solid rgb(137, 0, 0);
+  }
+}

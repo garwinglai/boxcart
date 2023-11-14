@@ -8,7 +8,13 @@ function Checkout() {
   const { push, query } = useRouter();
   const { planId, isPaymentByAnnual } = query;
 
-  return <div>Checkout</div>;
+  // TODO: 
+
+  return (
+    <div>
+      {planId}, {isPaymentByAnnual}
+    </div>
+  );
 }
 
 export default Checkout;

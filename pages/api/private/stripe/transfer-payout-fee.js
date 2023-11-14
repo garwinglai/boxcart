@@ -25,16 +25,18 @@ export default async function handler(req, res) {
     const { stripeAccId, amount } = body;
 
     try {
-      const payout = await stripe.payouts.create(
+      const transfer = await stripe.transfers.create(
         {
           amount,
           currency: "usd",
+          destination: "acct_1NunzsJYT3F0eBGG",
         },
         {
           stripeAccount: stripeAccId,
         }
       );
-      res.status(200).json({ success: true, payout });
+
+      res.status(200).json({ success: true, transfer });
     } catch (error) {
       console.log(error.message);
       res.status(500).json({ success: false, error: error.message });

@@ -19,17 +19,20 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { query } = req;
-  const { stripeAccId } = query;
-  console.log("what is up2", stripeAccId);
-  try {
-    const balance = await stripe.balance.retrieve({
-      stripeAccount: stripeAccId,
-    });
-    console.log(balance);
-    res.status(200).json({ success: true, balance });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ success: false, error });
+  const { method, query } = req;
+
+  if (method === "GET") {
+    const { stripeId } = query;
+
+    try {
+      const payouts = await stripe.payouts.list({
+        stripeAccount: stripeId,
+      });
+
+      res.status(200).json({ success: true, payouts });
+    } catch (error) {
+      console.log("error", error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
 }
