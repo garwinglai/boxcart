@@ -42,7 +42,6 @@ export default function App({
           pageRoute,
           mobilePageRoute
         )}
-        <Script src="https://js.stripe.com/v3/pricing-table.js" async />
       </SessionProvider>
     </>
   );

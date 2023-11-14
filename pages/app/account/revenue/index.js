@@ -164,6 +164,9 @@ function Revenue({ userAccount }) {
 
   useEffect(() => {
     setIsLoadingStripeBalance(true);
+
+    if (!acceptedPayments) return;
+
     const getStripeBalance = async () => {
       let { stripeAccountId } = acceptedPayments.find(
         (payment) => payment.paymentMethod === "stripe"

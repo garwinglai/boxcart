@@ -17,15 +17,6 @@ function MembershipPage() {
     setIsPaymentByAnnual((prev) => !prev);
   };
 
-  return hydrated ? (
-    <stripe-pricing-table
-      pricing-table-id="prctbl_1OA17GJYT3F0eBGGEGl3yyZN"
-      publishable-key={publishable_key}
-    ></stripe-pricing-table>
-  ) : (
-    <p>test</p>
-  );
-
   return (
     <div className="px-4 py-4 pb-24">
       <div className="flex flex-col items-center my-4">
