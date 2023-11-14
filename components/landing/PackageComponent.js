@@ -54,7 +54,7 @@ function PackageComponent({ item, isPaymentByAnnual }) {
             <div>
               <ButtonPrimary
                 handleClick={handleSelectPackage(item, isPaymentByAnnual)}
-                name="subscribe"
+                name="coming soon"
                 disabled={id === 2}
               />
             </div>
