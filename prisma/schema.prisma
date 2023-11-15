@@ -103,7 +103,7 @@ model Account {
   acceptedPayments     AcceptedPayment[]
   deposit              Deposit?
   savedPaymentMethods  SavedPaymentMethod[]
-  premiumPlan          PremiumPlan[]
+  premiumPlan          PremiumPlan?
   checklist            Checklist?
   products             Product[]
   categories           Category[]
@@ -551,26 +551,20 @@ model Checklist {
 }
 
 model PremiumPlan {
-  id                    Int      @id @default(autoincrement())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  planName              String?
-  planInt               Int? // 0 base, 1 mid, 2high
-  costStr               String?
-  costIntPenny          Int?
-  payPeriod             String?
-  nextPaymentDateStr    String?
-  nextPaymentDateEpoch  String?
-  previousBillDateStr   String?
-  previousBillDateEpoch String?
-  autoRenew             Boolean  @default(true)
-  totalPaidStr          String?
-  totalPaidInt          Int?
-  userName              String?
-  businessName          String?
-  email                 String?
-  account               Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId             Int
+  id                   Int      @id @default(autoincrement())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  stripeCustomerId     String   @unique
+  stripeSubscriptionId String
+  planName             String
+  price                Int
+  priceDisplay         String
+  payPeriod            String?
+  periodStart          Int
+  periodEnd            Int
+  autoRenew            Boolean  @default(true)
+  account              Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId            Int      @unique
 
   @@index([accountId])
 }

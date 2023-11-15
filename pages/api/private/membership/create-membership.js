@@ -1,0 +1,35 @@
+import { isAuthServer } from "@/helper/server/auth/isAuthServer";
+import prisma from "@/lib/prisma";
+
+export default async function handler(req, res) {
+  const isLoggedIn = await isAuthServer(req, res);
+
+  if (!isLoggedIn) {
+    res.status(401).json({ message: "Invalid credentials." });
+    return;
+  }
+
+  const { method, body } = req;
+
+  if (method === "POST") {
+    const { accountId, premiumPlanData } = body;
+    const id = parseInt(accountId);
+
+    const membership = await prisma.premiumPlan.create({
+      data: {
+        ...premiumPlanData,
+        account: {
+          connect: {
+            id,
+          },
+        },
+      },
+    });
+
+    try {
+      res.status(200).json({ success: true, membership });
+    } catch (error) {
+      res.status(500).json({ success: false, error });
+    }
+  }
+}

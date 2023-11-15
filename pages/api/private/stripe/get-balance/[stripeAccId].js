@@ -21,12 +21,12 @@ export default async function handler(req, res) {
 
   const { query } = req;
   const { stripeAccId } = query;
-  console.log("what is up2", stripeAccId);
+
   try {
     const balance = await stripe.balance.retrieve({
       stripeAccount: stripeAccId,
     });
-    console.log(balance);
+
     res.status(200).json({ success: true, balance });
   } catch (error) {
     console.log(error.message);

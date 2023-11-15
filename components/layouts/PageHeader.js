@@ -13,7 +13,6 @@ import { useRouter } from "next/router";
 import { onSnapshot, query, where, collection } from "firebase/firestore";
 import { useAccountStore } from "@/lib/store";
 import { db } from "@/firebase/fireConfig";
-import { signOut } from "next-auth/react";
 import NotificationDrawer from "../app/notification/NotificationDrawer";
 import NotificationPopup from "../app/notification/NotificationPopup";
 import Link from "next/link";
@@ -48,17 +47,6 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   const { push } = useRouter();
 
   useEffect(() => {
-    if (!accountStore) {
-      const logout = async () => {
-        await signOut({
-          redirect: false,
-        });
-      };
-
-      logout();
-      push("/auth/signin");
-    }
-
     const { accountId, subdomain } = accountStore;
 
     const notifCollectionRef = collection(db, "notifications");

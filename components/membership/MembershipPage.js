@@ -9,7 +9,12 @@ const publishable_key =
     ? process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_STRIPE_LIVE_PUBLISHABLE_KEY;
 
-function MembershipPage() {
+function MembershipPage({
+  userAccount,
+  stripePrices,
+  stripeProducts,
+  isPublic,
+}) {
   const hydrated = useHasHydrated();
   const [isPaymentByAnnual, setIsPaymentByAnnual] = useState(true);
 
@@ -25,7 +30,7 @@ function MembershipPage() {
           <p
             className={` ${
               isPaymentByAnnual
-                ? "font-light text-sm text-black"
+                ? "font-medium text-sm text-black"
                 : "font-medium text-sm text-[color:var(--primary)]"
             }`}
           >
@@ -38,7 +43,7 @@ function MembershipPage() {
           <p
             className={` ${
               !isPaymentByAnnual
-                ? "font-light text-sm text-black"
+                ? "font-medium text-sm text-black"
                 : "font-medium text-sm text-[color:var(--primary)]"
             }`}
           >
@@ -46,13 +51,32 @@ function MembershipPage() {
           </p>
         </div>
       </div>
-      <div className="mx-auto mt-16">
-        {membershipPackages.map((item) => {
+      <div className="mx-auto">
+        {stripeProducts.map((product) => {
+          const { id, default_price } = product;
+
+          const prices = stripePrices.filter((price) => {
+            const { product: productId } = price;
+            if (productId === id) {
+              return price;
+            }
+          });
+
+          const defaultPrice = prices.find(
+            (price) => price.id === default_price
+          );
+
+          const otherPrice = prices.find((price) => price.id !== default_price);
+
           return (
             <PackageComponent
-              key={item.id}
-              item={item}
+              key={id}
+              product={product}
+              otherPrice={otherPrice}
+              defaultPrice={defaultPrice}
               isPaymentByAnnual={isPaymentByAnnual}
+              userAccount={userAccount}
+              isPublic={isPublic}
             />
           );
         })}

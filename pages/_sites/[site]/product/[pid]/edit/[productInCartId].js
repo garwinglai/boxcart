@@ -286,7 +286,7 @@ function EditAddToCartProduct({ product }) {
         setTotalQuantityOfItemInCart(totalQuantityOfProductInCart);
         setCurrentAddedToCartOptionIds(relatedOrderOptionIds);
       }
-      console.log("remainingMaxQuantity", remainingMaxQuantity);
+
       quantityArr = Array.from(
         { length: remainingMaxQuantity },
         (_, i) => i + 1
@@ -824,7 +824,7 @@ function EditAddToCartProduct({ product }) {
     setCart(addToCartProductData);
     setIsLoading(false);
   };
-  console.log("Cart", cart);
+
   const updateOptionsQuantityStore = () => {
     const findOptionQuantityStore = optionQuantityStore.find(
       (item) => item.productId === id
@@ -837,7 +837,7 @@ function EditAddToCartProduct({ product }) {
       (item) =>
         item.productId === id && item.addToCartTempItemId !== productInCartId
     );
-    console.log("allRelatedProductsInCart", allRelatedProductsInCart);
+
     const relatedorderOptionIds = [];
 
     if (allRelatedProductsInCart.length > 0) {

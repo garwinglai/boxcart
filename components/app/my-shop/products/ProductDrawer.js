@@ -1767,20 +1767,6 @@ function ProductDrawer({
     setIsSaveProductLoading(false);
   };
 
-  // * Display
-  const action = (
-    <React.Fragment>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleCloseSnackbar}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
-
   function getOptionTitle(position) {
     const titleArr = optionGroupTitles.filter((item) => {
       if (item.position === position) return item.title;
@@ -1858,6 +1844,20 @@ function ProductDrawer({
 
     return quantityValue;
   }
+
+  // * Display
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSnackbar}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   return (
     <Drawer anchor={"right"} open={state["right"]} onClose={handleCloseDrawer}>

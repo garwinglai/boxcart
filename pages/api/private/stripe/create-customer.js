@@ -22,19 +22,14 @@ export default async function handler(req, res) {
 
   if (method === "POST") {
     const { body } = req;
-    const { stripeAccId, amount } = body;
+    const { email, name } = body;
 
     try {
-      const payout = await stripe.payouts.create(
-        {
-          amount,
-          currency: "usd",
-        },
-        {
-          stripeAccount: stripeAccId,
-        }
-      );
-      res.status(200).json({ success: true, payout });
+      const customer = await stripe.customers.create({
+        email,
+        name,
+      });
+      res.status(200).json({ success: true, customer });
     } catch (error) {
       console.log(error.message);
       res.status(500).json({ success: false, error: error.message });
