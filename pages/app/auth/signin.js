@@ -228,13 +228,13 @@ const Signin = () => {
         </div>
         <footer className={`${styles.termsContainer} ${styles.flexRow}`}>
           <Link
-            href="/"
+            href="https://www.boxcart.site/privacy-policy"
             className={`${styles.link} mt-4 underline font-light text-sm`}
           >
             Privacy
           </Link>
           <Link
-            href="/"
+            href="https://www.boxcart.site/terms-conditions"
             className={`${styles.link} mt-4 underline font-light text-sm`}
           >
             Terms
