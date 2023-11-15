@@ -83,7 +83,7 @@ function PackageComponent({
               <h2 className="font-medium text-4xl">${monthlyPrice}</h2>
               <span>
                 <p className="text-xs font-base text-gray-500">per</p>
-                <p className="text-xs font-base text-gray-500">year</p>
+                <p className="text-xs font-base text-gray-500">month</p>
               </span>
             </div>
           )}
