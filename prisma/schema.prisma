@@ -262,8 +262,8 @@ model OrderItem {
 
 model OrderQuestionAnswer {
   id          Int        @id @default(autoincrement())
-  question    String
-  answer      String
+  question    String     @db.TinyText
+  answer      String     @db.Text
   orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   orderItemId Int?
 
@@ -332,7 +332,7 @@ model AcceptedPayment {
   stripeAccountId     String?  @unique
   paymentMethod       String
   paymentAccount      String?
-  paymentInstructions String?
+  paymentInstructions String?  @db.TinyText
   account             Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId           Int
   createdAt           DateTime @default(now())
@@ -439,7 +439,7 @@ model Product {
   isSampleProduct            Boolean       @default(false)
   isEnabled                  Boolean       @default(true)
   productName                String
-  description                String
+  description                String        @db.Text
   priceIntPenny              Int
   priceStr                   String
   defaultImageFileName       String?
@@ -492,7 +492,7 @@ model Question {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  question    String
+  question    String   @db.TinyText
   productName String
   isRequired  Boolean  @default(true)
   product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
