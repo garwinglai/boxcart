@@ -1077,7 +1077,7 @@ function ProductDrawer({
       return;
     }
 
-    // setIsSaveProductLoading(true);
+    setIsSaveProductLoading(true);
 
     // Create regex to make sure quantity doesn't have decimal places
     if (setQuantityByProduct) {
