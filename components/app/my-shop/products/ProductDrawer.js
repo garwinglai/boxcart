@@ -30,6 +30,7 @@ import {
   getDownloadURL,
   ref,
   uploadBytes,
+  uploadBytesResumable,
 } from "firebase/storage";
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
@@ -1076,7 +1077,7 @@ function ProductDrawer({
       return;
     }
 
-    setIsSaveProductLoading(true);
+    // setIsSaveProductLoading(true);
 
     // Create regex to make sure quantity doesn't have decimal places
     if (setQuantityByProduct) {
@@ -1151,30 +1152,18 @@ function ProductDrawer({
       const productImageUrls = [];
       const fireStorageId = nanoid();
 
-      for (let i = 0; i < productPhotos.length; i++) {
-        const currPhoto = productPhotos[i];
-        const { fileName, imageFile, isDefault } = currPhoto;
+      const res = await saveProductImagesToFirebase(
+        productPhotos,
+        fireStorageId,
+        subdomain
+      );
 
-        const { photoUrl, error } = await saveProductImagesToFirebase(
-          fileName,
-          imageFile,
-          subdomain,
-          fireStorageId
-        );
-
-        if (error) {
-          uploadProductImageError = true;
-        }
-
-        const photoData = {
-          fileName,
-          isDefault,
-          image: photoUrl,
-          fireStorageId,
-        };
-
-        productImageUrls.push(photoData);
+      if (!res.success || res.error) {
+        uploadProductImageError = true;
+        // TODO: log error
       }
+
+      productImageUrls.push(...res.photoUrls);
 
       if (uploadProductImageError) {
         handleOpenSnackbarGlobal("Error uploading images.");
@@ -1243,30 +1232,18 @@ function ProductDrawer({
       const { fireStorageId } = product;
 
       if (newProductPhotos.length > 0) {
-        for (let i = 0; i < newProductPhotos.length; i++) {
-          const currPhoto = newProductPhotos[i];
-          const { fileName, imageFile, isDefault } = currPhoto;
+        const res = await saveProductImagesToFirebase(
+          newProductPhotos,
+          fireStorageId,
+          subdomain
+        );
 
-          const { photoUrl, error } = await saveProductImagesToFirebase(
-            fileName,
-            imageFile,
-            subdomain,
-            fireStorageId
-          );
-
-          if (error) {
-            uploadProductImageError = true;
-          }
-
-          const photoData = {
-            imgFileName: fileName,
-            isDefault,
-            image: photoUrl,
-            fireStorageId,
-          };
-          newProductImages.push(photoData);
+        if (!res.success || res.error) {
+          uploadProductImageError = true;
+          // TODO: log error
         }
 
+        newProductImages.push(...res.photoUrls);
         productObject.imageSchema = newProductImages;
       }
 
@@ -1359,31 +1336,69 @@ function ProductDrawer({
       console.log("error deleting images from firebase:", error);
     }
   };
-
   const saveProductImagesToFirebase = async (
-    fileName,
-    imageFile,
-    subdomain,
-    fireStorageId
+    productPhotos,
+    fireStorageId,
+    subdomain
   ) => {
-    const photoRef = ref(
-      storage,
-      `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
-    );
+    const uploadPromises = [];
 
-    try {
-      await uploadBytes(photoRef, imageFile);
-    } catch (error) {
-      console.log("error uploading product image:", error);
-      return { error };
+    for (let i = 0; i < productPhotos.length; i++) {
+      const currPhoto = productPhotos[i];
+      const { fileName, imageFile, isDefault } = currPhoto;
+
+      const photoRef = ref(
+        storage,
+        `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+      );
+
+      const uploadTask = uploadBytes(photoRef, imageFile);
+      uploadPromises.push(uploadTask);
     }
 
     try {
-      const photoUrl = await getDownloadURL(photoRef);
-      return { photoUrl };
+      await Promise.all(uploadPromises);
     } catch (error) {
-      console.log("error getting download url");
-      return { error };
+      console.log("error uploading product image:", error);
+      return { success: false, error };
+    }
+
+    const photoUrlPromises = [];
+    const photosData = [];
+
+    for (let j = 0; j < productPhotos.length; j++) {
+      const currPhoto = productPhotos[j];
+      const { fileName, imageFile, isDefault } = currPhoto;
+
+      const photoRef = ref(
+        storage,
+        `account/${subdomain}/products/${fireStorageId}/productImages/${fileName}`
+      );
+
+      const photoData = {
+        imgFileName: fileName,
+        isDefault,
+        image: "",
+        fireStorageId,
+      };
+
+      const photoUrl = getDownloadURL(photoRef);
+      photoUrlPromises.push(photoUrl);
+      photosData.push(photoData);
+    }
+
+    try {
+      const photoUrls = await Promise.all(photoUrlPromises);
+      const restructurePhotoData = photosData.map((item, idx) => {
+        item.image = photoUrls[idx];
+        return item;
+      });
+
+      return { success: true, photoUrls: restructurePhotoData };
+    } catch (error) {
+      console.log("photo Url error", error);
+
+      return { success: false, error };
     }
   };
 
@@ -1955,7 +1970,7 @@ function ProductDrawer({
                         htmlFor="productImageInput"
                         className=" -translate-y-[2px] bg-white text-[color:var(--primary)] border border-[color:var(--primary)] rounded py-1 px-2 active:bg-[color:var(--priamry-dark)] active:text-white hover:cursor-pointer"
                       >
-                        Upload
+                        Upload Multiple
                       </label>
                     </span>
                     <input
