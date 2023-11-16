@@ -190,7 +190,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
   return (
     <React.Fragment>
       {bannerImage ? (
-        <div className="w-full h-40 md:h-52 relative border-b">
+        <div className="w-full h-48 md:h-72 relative border-b">
           <Image
             src={bannerImage}
             alt="business banner"
@@ -301,7 +301,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           <button
             type="button"
             onClick={isOwner ? handleShareStore : handleMessage}
-            className="md:block bg-white font-light text-xs h-8 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400"
+            className="md:block bg-white font-light text-xs h-8 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400 mt-4 sm:mt-0"
           >
             {isOwner ? "Share Store" : "Message"}
           </button>
