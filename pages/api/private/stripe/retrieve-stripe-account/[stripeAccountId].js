@@ -20,12 +20,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { body } = req;
-  const { stripeAccountId } = JSON.parse(body);
+  const { query } = req;
+  const { stripeAccountId } = query;
 
   // * Retrieve Stripe Account
-
-  const account = await stripe.accounts.retrieve(stripeAccountId);
-
-  res.status(200).json({ account });
+  try {
+    const account = await stripe.accounts.retrieve(stripeAccountId);
+    res.status(200).json({ success: true, account });
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
 }

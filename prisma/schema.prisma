@@ -556,9 +556,14 @@ model PremiumPlan {
   updatedAt            DateTime @updatedAt
   stripeCustomerId     String   @unique
   stripeSubscriptionId String
+  stripePlanId         String
   planName             String
   price                Int
   priceDisplay         String
+  stripeFees           Int
+  stripeFeesDisplay    String
+  totalCharged         Int
+  totalChargedDisplay  String
   payPeriod            String?
   periodStart          Int
   periodEnd            Int

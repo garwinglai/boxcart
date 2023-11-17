@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IOSSwitch } from "../global/switches/IOSSwitch";
-import PackageComponent from "./PackageComponent";
+import SubscriptionPackage from "./SubscriptionPackage";
 import { membershipPackages } from "@/helper/temp/tempData";
 import { useHasHydrated } from "@/utils/useHasHydrated";
-
-const publishable_key =
-  process.env.NODE_ENV === "development"
-    ? process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY
-    : process.env.NEXT_PUBLIC_STRIPE_LIVE_PUBLISHABLE_KEY;
 
 function MembershipPage({
   userAccount,
   stripePrices,
   stripeProducts,
   isPublic,
+  hasSubScription,
 }) {
   const hydrated = useHasHydrated();
   const [isPaymentByAnnual, setIsPaymentByAnnual] = useState(true);
@@ -47,10 +43,18 @@ function MembershipPage({
                 : "font-medium text-sm text-[color:var(--primary)]"
             }`}
           >
-            Pay Yearly (25% off)
+            Pay Yearly (26.5% off)
           </p>
         </div>
       </div>
+      {isPublic && (
+        <div className=" flex flex-col items-center justify-center mb-8">
+          <h2 className="w-[16rem] mb-2 text-center text-base">
+            For the next 100 users, we&apos;ll create your shop for you, FREE.
+          </h2>
+          <p className="text-sm font-extralight">Offer ends on 11/24.</p>
+        </div>
+      )}
       <div className="mx-auto">
         {stripeProducts.map((product) => {
           const { id, default_price } = product;
@@ -69,7 +73,7 @@ function MembershipPage({
           const otherPrice = prices.find((price) => price.id !== default_price);
 
           return (
-            <PackageComponent
+            <SubscriptionPackage
               key={id}
               product={product}
               otherPrice={otherPrice}
@@ -77,6 +81,7 @@ function MembershipPage({
               isPaymentByAnnual={isPaymentByAnnual}
               userAccount={userAccount}
               isPublic={isPublic}
+              hasSubScription={hasSubScription}
             />
           );
         })}

@@ -340,7 +340,7 @@ function Revenue({ userAccount }) {
   };
 
   const transferPayoutFees = async (transferData) => {
-    const transferApi = `/api/private/stripe/transfer-payout-fee`;
+    const transferApi = `/api/private/stripe/transfer-fee-to-platform`;
 
     const res = await fetch(transferApi, {
       method: "POST",

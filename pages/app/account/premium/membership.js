@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AppLayout from "@/components/layouts/AppLayout";
 import MembershipPage from "@/components/membership/MembershipPage";
@@ -6,6 +6,48 @@ import { isAuth } from "@/helper/client/auth/isAuth";
 import prisma from "@/lib/prisma";
 
 function MemberShip({ userAccount, stripePrices, stripeProducts }) {
+  const [hasSubScription, setHasSubScription] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+    if (ignore) return;
+
+    const { premiumPlan } = userAccount || {};
+
+    if (!premiumPlan) {
+      setHasSubScription(false);
+      return;
+    }
+
+    const retrieveSub = async () => {
+      const getSubApi = `/api/private/stripe/retrieve-subscription/${premiumPlan.stripeSubscriptionId}`;
+
+      const res = await fetch(getSubApi, {
+        method: "GET",
+      });
+      const sub = await res.json();
+
+      if (!sub.success || sub.error) {
+        setHasSubScription(false);
+        return;
+      }
+
+      const { plan } = sub.subscription;
+
+      if (!plan.active) {
+        setHasSubScription(false);
+        return;
+      }
+
+      // * this can be used for the future when adding more product subscriptions.
+      const { product, id: priceId } = plan;
+      setHasSubScription(true);
+    };
+
+    retrieveSub();
+
+    return () => (ignore = true);
+  }, []);
   return (
     <div className="">
       <MembershipPage
@@ -13,6 +55,7 @@ function MemberShip({ userAccount, stripePrices, stripeProducts }) {
         stripeProducts={stripeProducts}
         userAccount={userAccount}
         isPublic={false}
+        hasSubScription={hasSubScription}
       />
     </div>
   );
@@ -62,7 +105,7 @@ export async function getServerSideProps(context) {
 
     try {
       const [account, products, prices] = await Promise.all(promises);
-      console.log("products", products);
+
       serializedAccount = JSON.parse(JSON.stringify(account));
       stripeProducts = products.data.filter((product) => product.active);
       stripePrices = prices.data;

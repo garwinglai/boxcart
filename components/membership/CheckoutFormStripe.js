@@ -13,6 +13,8 @@ import { Divider, Snackbar, TextField } from "@mui/material";
 import { useAccountStore, useMembershipStore } from "@/lib/store";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
+import { useRouter } from "next/router";
+import ChevronLeft from "@mui/icons-material/ChevronLeft";
 
 function CheckoutFormStripe({
   membership,
@@ -44,6 +46,11 @@ function CheckoutFormStripe({
   const { interval } = recurring;
 
   const priceDisplay = `$${(price.unit_amount / 100).toFixed(2)}`;
+  const stripeFeeYearly = "$3.95";
+  const stripeFeeMonthly = "$0.71";
+
+  const subTotalYearly = "$108.00";
+  const subTotalMonthly = "$12.00";
 
   // States
   const [email, setEmail] = useState("");
@@ -54,6 +61,7 @@ function CheckoutFormStripe({
   const [isLoading, setIsLoading] = useState(false);
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
+  const { back } = useRouter();
 
   const handleCustomerInfoChange = (e) => {
     setEmail(e.target.value);
@@ -148,11 +156,25 @@ function CheckoutFormStripe({
         stripeCustomerId: stripeCustomerId ? stripeCustomerId : customer.id,
         stripeSubscriptionId: subscriptionRes.subscription.id,
         planName: name,
-        price: price.unit_amount,
-        priceDisplay,
+        totalCharged: price.unit_amount,
+        totalChargedDisplay: `$${(price.unit_amount / 100).toFixed(2)}`,
+        price:
+          interval === "year"
+            ? parseFloat(subTotalYearly.split("$").pop()) * 100
+            : parseFloat(subTotalMonthly.split("$").pop()) * 100,
+        priceDisplay: interval === "year" ? subTotalYearly : subTotalMonthly,
+        totalCharged: price.unit_amount,
+        totalChargedDisplay: `$${(price.unit_amount / 100).toFixed(2)}`,
+        stripeFees:
+          interval === "year"
+            ? parseFloat(stripeFeeYearly.split("$").pop()) * 100
+            : parseFloat(stripeFeeMonthly.split("$").pop()) * 100,
+        stripeFeesDisplay:
+          interval === "year" ? stripeFeeYearly : stripeFeeMonthly,
         payPeriod: interval,
         periodStart: subscriptionRes.subscription.current_period_start,
         periodEnd: subscriptionRes.subscription.current_period_end,
+        stripePlanId: membership.id,
       };
       const accountId = accountStore.accountId;
 
@@ -242,6 +264,12 @@ function CheckoutFormStripe({
     </React.Fragment>
   );
 
+  const handleBackToMembership = () => {
+    back();
+    removeMembershipPriceStore();
+    removeMembershipProductStore();
+  };
+
   return (
     <div className="pb-56 md:p-4 ">
       <Snackbar
@@ -254,7 +282,16 @@ function CheckoutFormStripe({
       />
 
       <div className="flex flex-col items-center gap-4 mb-8 lg:flex-row lg:flex-wrap lg:ml-4">
-        <h4 className="mr-auto p-4 text-gray-700 lg:w-full">BoxCart LLC</h4>
+        <button
+          onClick={handleBackToMembership}
+          className=" mr-auto mt-4 ml-4 md:mt-0 md:ml-0"
+        >
+          <span className="flex items-center">
+            <ChevronLeft size="small" />
+            <p className="text-sm font-extralight">Back</p>
+          </span>
+        </button>
+        <h4 className="md:mr-auto p-4 text-gray-700 lg:w-full">BoxCart LLC</h4>
 
         <div className="relative w-16 h-16">
           <Image
@@ -265,7 +302,6 @@ function CheckoutFormStripe({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
-
         <div className="flex flex-col items-center gap-1 lg:items-start">
           <h4 className="text-gray-400">Subscribe to {name}</h4>
           <div className="flex gap-2 items-center">
@@ -276,8 +312,20 @@ function CheckoutFormStripe({
             </span>
           </div>
         </div>
-        <div className="lg:ml-auto lg:mr-4">
-          <p className="text-sm border-t pt-2 lg:border-none">
+        <div className="w-full text-center lg:text-right px-4 mt-4 lg:w-fit lg:ml-auto">
+          <h4 className="text-lg border-b w-fit mx-auto lg:mx-0 lg:ml-auto">
+            Overview:
+          </h4>
+          <div className="pb-2 pl-2">
+            <p className="text-sm pt-2">
+              Subtotal: {interval === "year" ? subTotalYearly : subTotalMonthly}
+            </p>
+            <p className="text-sm pt-2">
+              Tax & fees:{" "}
+              {interval === "year" ? stripeFeeYearly : stripeFeeMonthly}
+            </p>
+          </div>
+          <p className="text-sm pt-2 pl-2 w-fit mx-auto border-t font-medium">
             Total due today: {priceDisplay}
           </p>
         </div>

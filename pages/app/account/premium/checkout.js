@@ -54,7 +54,7 @@ function Checkout({ premiumPlan }) {
 
   const options = {
     mode: "subscription",
-    amount: 1099,
+    amount: 0,
     currency: "usd",
     // Fully customizable with appearance API.
     appearance: {

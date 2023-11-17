@@ -6,16 +6,15 @@ import { useRouter } from "next/router";
 import { useMembershipStore } from "@/lib/store";
 import ButtonThird from "../global/buttons/ButtonThird";
 
-function PackageComponent({
+function SubscriptionPackage({
   product,
   isPaymentByAnnual,
   otherPrice,
   defaultPrice,
   userAccount,
   isPublic,
+  hasSubScription,
 }) {
-  const { premiumPlan } = userAccount || {};
-
   const setMembershipProductStore = useMembershipStore(
     (state) => state.setMembershipProduct
   );
@@ -69,18 +68,18 @@ function PackageComponent({
         <div className="">
           {isPaymentByAnnual ? (
             <div className="flex gap-2 items-center w-full">
-              <h2 className="font-medium text-4xl">${yearlyPrice}</h2>
+              {yearlyPrice && <h2 className="font-medium text-4xl">$108</h2>}
               <span>
                 <p className="text-xs font-base text-gray-500">per</p>
                 <p className="text-xs font-base text-gray-500">year</p>
               </span>
               <p className="ml-auto text-[color:var(--primary)] text-sm font-light">
-                25% off
+                26.5% off
               </p>
             </div>
           ) : (
             <div className="flex gap-2 items-center">
-              <h2 className="font-medium text-4xl">${monthlyPrice}</h2>
+              {monthlyPrice && <h2 className="font-medium text-4xl">$12</h2>}
               <span>
                 <p className="text-xs font-base text-gray-500">per</p>
                 <p className="text-xs font-base text-gray-500">month</p>
@@ -94,9 +93,11 @@ function PackageComponent({
               handleClick={handleSignup}
               name="Sign up - 1 month free"
             />
-            <p className="font-extralight text-xs text-gray-500">No credit card required</p>
+            <p className="font-extralight text-xs text-gray-500">
+              No credit card required
+            </p>
           </div>
-        ) : premiumPlan && premiumPlan.planName === name ? (
+        ) : hasSubScription ? (
           <div>
             <ButtonThird
               handleClick={handleSelectCurrentPlan}
@@ -129,4 +130,4 @@ function PackageComponent({
   );
 }
 
-export default PackageComponent;
+export default SubscriptionPackage;

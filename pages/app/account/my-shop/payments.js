@@ -164,14 +164,18 @@ function Payments({ userAccount }) {
     if (!stripeAccountId) return;
 
     const fetchStripeAccount = async () => {
-      const retrieveStripeAccountAPI =
-        "/api/private/stripe/retrieve-stripe-account";
+      const retrieveStripeAccountAPI = `/api/private/stripe/retrieve-stripe-account/${stripeAccountId}`;
       const retrieveStripeAccountRes = await fetch(retrieveStripeAccountAPI, {
-        method: "POST",
-        body: JSON.stringify({ stripeAccountId }),
+        method: "GET",
       });
       const retrieveStripeAccountJSON = await retrieveStripeAccountRes.json();
-      const { account } = retrieveStripeAccountJSON;
+      const { success, account, error } = retrieveStripeAccountJSON;
+
+      if (!success || error) {
+        handleOpenSnackbar("Could not get credit account.");
+        return;
+      }
+
       const {
         details_submitted: stripe_details,
         charges_enabled: stripe_charges,
