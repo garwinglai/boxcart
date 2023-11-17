@@ -62,8 +62,9 @@ export async function getServerSideProps(context) {
 
     try {
       const [account, products, prices] = await Promise.all(promises);
+      console.log("products", products);
       serializedAccount = JSON.parse(JSON.stringify(account));
-      stripeProducts = products.data;
+      stripeProducts = products.data.filter((product) => product.active);
       stripePrices = prices.data;
     } catch (error) {
       console.log("serversideprops membership error:", error);
