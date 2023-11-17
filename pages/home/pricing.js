@@ -63,7 +63,7 @@ export async function getServerSideProps(context) {
   try {
     const [products, prices] = await Promise.all(promises);
 
-    stripeProducts = products.data;
+    stripeProducts = products.data.filter((product) => product.active);
     stripePrices = prices.data;
   } catch (error) {
     console.log("serversideprops membership error:", error);
