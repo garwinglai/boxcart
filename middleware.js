@@ -53,6 +53,11 @@ export function middleware(req) {
 
   // console.log("middleware currentHost", currentHost);
 
+  // console.log("hostName:", hostname);
+  // console.log("currentHost:", currentHost);
+  // console.log("pathname:", pathname);
+  // console.log("url.pathname:", url.pathname);
+
   if (!url.pathname.includes(".") && !url.pathname.startsWith("/api")) {
     if (currentHost == "app") {
       // if (

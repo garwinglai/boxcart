@@ -26,6 +26,17 @@ import HelpIcon from "@mui/icons-material/Help";
 import money_withdraw from "@/public/images/icons/money-withdraw.png";
 import PayoutGrid from "@/components/app/income/PayoutGrid";
 import { calculateStripePayoutFee } from "@/utils/stripe-fees";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+import PayoutDetails from "@/components/app/revenue/PayoutDetails";
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -67,6 +78,24 @@ function Revenue({ userAccount }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingStripeBalance, setIsLoadingStripeBalance] = useState(false);
   const [payouts, setPayouts] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+  const [payoutDetail, setPayoutDetail] = useState("");
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setDrawerOpen({ ...drawerOpen, [anchor]: open });
+  };
 
   const { showAlert, alertMsg } = alert;
 
@@ -171,7 +200,6 @@ function Revenue({ userAccount }) {
       let { stripeAccountId } = acceptedPayments.find(
         (payment) => payment.paymentMethod === "stripe"
       );
-      console.log("stripeAccountId", stripeAccountId);
 
       const getBalanceApi = `/api/private/stripe/get-balance/${stripeAccountId}`;
 
@@ -199,12 +227,25 @@ function Revenue({ userAccount }) {
         setAvailableStripeBalance(availBalance);
         setPendingStripeBalance(pendingBalance);
       }
-      console.log("here");
+
       setIsLoadingStripeBalance(false);
     };
 
     getStripeBalance();
   }, []);
+
+  const handleViewDetails = (payout) => (e) => {
+    e.preventDefault();
+
+    toggleDrawer("right", true)(e);
+
+    setPayoutDetail(payout);
+  };
+
+  const closeViewDetails = (e) => {
+    toggleDrawer("right", false)(e);
+    setPayoutDetail({});
+  };
 
   const closeAlert = () => {
     setAlert({ showAlert: false, alertMsg: "" });
@@ -221,7 +262,7 @@ function Revenue({ userAccount }) {
   const handleWithdraw = async () => {
     setIsCashingOut(true);
 
-    // Pull payout to see when was last payout, collect $2 if new mont
+    // Pull payout to see when was last payout, collect $2 if new month
     const recentPayout = await fetchMostRecentPayout(accountId);
 
     if (!recentPayout.success || recentPayout.error) {
@@ -236,10 +277,17 @@ function Revenue({ userAccount }) {
     if (recentPayout.payout) {
       const { createdAt } = recentPayout.payout;
       const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
       const lastPayoutMonth = new Date(createdAt).getMonth();
-      if (currentMonth !== lastPayoutMonth) {
+      const lastPayoutYear = new Date(createdAt).getFullYear();
+      if (
+        (currentMonth !== lastPayoutMonth && currentYear === lastPayoutYear) ||
+        (currentMonth === lastPayoutMonth && currentYear !== lastPayoutYear)
+      ) {
         hasMonthylFee = true;
       }
+    } else {
+      hasMonthylFee = true;
     }
 
     const transferAmountPenny = calculateStripePayoutFee(
@@ -253,9 +301,9 @@ function Revenue({ userAccount }) {
     };
 
     // Transfer payout fees
-    const transfer = await transferPayoutFees(transferData);
+    const stripeTransfer = await transferPayoutFees(transferData);
 
-    if (!transfer.success || transfer.error) {
+    if (!stripeTransfer.success || stripeTransfer.error) {
       handleOpenAlert("Transfer payout error.");
       setIsCashingOut(false);
       return;
@@ -276,7 +324,7 @@ function Revenue({ userAccount }) {
       return;
     }
 
-    const { amount, arrival_date, id: stripePayoutId } = payout;
+    const { amount, arrival_date, id: stripePayoutId } = stripePayout.payout;
     const arrival = new Date(arrival_date * 1000).toLocaleDateString();
 
     const balanceDisplay = `$${(availBalancePenny / 100).toFixed(2)}`;
@@ -287,6 +335,7 @@ function Revenue({ userAccount }) {
     const savePayoutData = {
       stripeAccountId: stripeAccId,
       stripePayoutId,
+      stripeTransferId: stripeTransfer.transfer.id,
       balance: availBalancePenny,
       balanceDisplay,
       fees: transferAmountPenny,
@@ -327,7 +376,7 @@ function Revenue({ userAccount }) {
   };
 
   const fetchMostRecentPayout = async (accountId) => {
-    const api = `/api/private/payout/get-payout/${accountId}`;
+    const api = `/api/private/payout/get-last-payout/${accountId}`;
     const res = await fetch(api, {
       method: "GET",
       headers: {
@@ -481,7 +530,7 @@ function Revenue({ userAccount }) {
                         there will be a cash out button.
                       </li>
                       <li className="list-disc">
-                        First payout will be available after 7 days, 14 days for
+                        Payout will be available after 7 days, 14 days for
                         certain industries, and 30 days if you&apos;re in
                         Brazil.
                       </li>
@@ -526,7 +575,7 @@ function Revenue({ userAccount }) {
             <div className="w-fit ml-auto">
               {isCashingOut ? (
                 <CircularProgress size={20} />
-              ) : availableStripeBalance !== 0 ? (
+              ) : availableStripeBalance === 0 ? (
                 <p className="text-xs md:text-sm font-extralight text-gray-400 border rounded-full px-2 py-1">
                   No payout balance
                 </p>
@@ -636,9 +685,20 @@ function Revenue({ userAccount }) {
         </div>
       ) : (
         <div className="border rounded-lg shadow-md">
-          <PayoutGrid payouts={payouts} />
+          <PayoutGrid payouts={payouts} handleViewDetails={handleViewDetails} />
         </div>
       )}
+
+      <Drawer
+        anchor={"right"}
+        open={drawerOpen["right"]}
+        onClose={toggleDrawer("right", false)}
+      >
+        <PayoutDetails
+          payoutDetail={payoutDetail}
+          closeViewDetails={closeViewDetails}
+        />
+      </Drawer>
     </div>
   );
 }

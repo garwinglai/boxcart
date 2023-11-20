@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "@/styles/app/revenue/payout-row.module.css";
 
-function PayoutRow({ payout }) {
+function PayoutRow({ payout, handleViewDetails }) {
   const { amount, arrival_date, created, status } = payout;
 
   const amountDisplay = (amount / 100).toFixed(2);
   const createdDate = new Date(created * 1000).toLocaleDateString();
   const arrivalDate = new Date(arrival_date * 1000).toLocaleDateString();
+
   return (
-    <tr className={`${styles.table_row}`}>
+    <tr className={`${styles.table_row}`} onClick={handleViewDetails(payout)}>
       <td
         className={`${styles.table_data}`}
         // onClick={toggleDrawer("right", true)}
@@ -37,7 +38,10 @@ function PayoutRow({ payout }) {
         className={`${styles.table_data} ${styles.black_text}`}
         // onClick={toggleDrawer("right", true)}
       >
-        <button className="text-sm text-[color:var(--primary)] hover:cursor-pointer">
+        <button
+          onClick={handleViewDetails(payout)}
+          className="text-sm text-[color:var(--primary)] hover:cursor-pointer"
+        >
           Details
         </button>
       </td>

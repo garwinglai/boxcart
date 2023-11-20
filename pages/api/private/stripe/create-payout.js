@@ -36,7 +36,8 @@ export default async function handler(req, res) {
       );
       res.status(200).json({ success: true, payout });
     } catch (error) {
-      console.log(error.message);
+      console.log("Stripe payout error", error);
+
       res.status(500).json({ success: false, error: error.message });
     }
   }

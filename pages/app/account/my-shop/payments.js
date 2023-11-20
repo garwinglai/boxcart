@@ -1145,7 +1145,7 @@ function Payments({ userAccount }) {
                   credit card.
                 </p>
                 <p className="text-xs mt-2 list-item  text-gray-500">
-                  CC fees: 2.9% + 30¢ per transaction
+                  CC fees: 3.1% + 30¢ per transaction
                 </p>
                 <p className="text-xs mt-2 list-item  text-gray-500">
                   +1% if outside of US

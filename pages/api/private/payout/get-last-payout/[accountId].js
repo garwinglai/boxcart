@@ -1,9 +1,4 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import {
-  getOrders,
-  getPendingOrders,
-  updateOrderStatusServer,
-} from "@/helper/server/prisma/orders";
 import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
@@ -14,27 +9,24 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { method, body } = req;
+  const { method, query } = req;
 
   if (method === "GET") {
-    const { accountId, payoutData } = body;
+    const { accountId } = query;
     const id = parseInt(accountId);
 
-    try {
-      const payout = await prisma.payout.create({
-        data: {
-          ...payoutData,
-          account: {
-            connect: {
-              id,
-            },
-          },
-        },
-      });
+    const payout = await prisma.payout.findFirst({
+      where: {
+        accountId: id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
+    try {
       res.status(200).json({ success: true, payout });
     } catch (error) {
-      console.log("prisma payout error", error);
       res.status(500).json({ success: false, error });
     }
   }

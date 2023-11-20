@@ -30,7 +30,7 @@ export async function getServerSideProps(ctx) {
   return {
     redirect: {
       permanent: false,
-      destination: "https://app.boxcart.shop",
+      destination: "https://home.boxcart.shop",
     },
   };
 }

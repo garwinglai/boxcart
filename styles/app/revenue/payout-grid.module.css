@@ -20,7 +20,7 @@
 .table_title {
   padding: 15px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  /* text-overflow: ellipsis; */
   white-space: nowrap;
   position: sticky;
   top: 0;

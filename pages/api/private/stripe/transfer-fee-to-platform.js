@@ -38,7 +38,8 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true, transfer });
     } catch (error) {
-      console.log(error.message);
+      console.log("Transfer error", error);
+
       res.status(500).json({ success: false, error: error.message });
     }
   }

@@ -1,9 +1,4 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import {
-  getOrders,
-  getPendingOrders,
-  updateOrderStatusServer,
-} from "@/helper/server/prisma/orders";
 import prisma from "@/lib/prisma";
 
 export default async function handler(req, res) {
@@ -17,15 +12,11 @@ export default async function handler(req, res) {
   const { method, query } = req;
 
   if (method === "GET") {
-    const { accountId } = query;
-    const id = parseInt(accountId);
+    const { stripePayoutId } = query;
 
-    const payout = await prisma.payout.findFirst({
+    const payout = await prisma.payout.findUnique({
       where: {
-        accountId: id,
-      },
-      orderBy: {
-        createdAt: "desc",
+        stripePayoutId,
       },
     });
 
