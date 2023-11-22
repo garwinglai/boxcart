@@ -4,13 +4,6 @@ export default function calculateAmountMinusStripeFee(amountPenny) {
   const stripeFeeRounded = Math.round(stripeFee * 100) / 100;
   let stripeFeeRoundedPenny = stripeFeeRounded * 100;
 
-  const amountToPayout = amountPenny - stripeFeeRoundedPenny;
-  const payoutFee = (amountToPayout / 100) * 0.0025;
-  const payoutFeeRounded = Math.round(payoutFee * 100) / 100;
-  const payoutFeeRoundedPenny = payoutFeeRounded * 100;
-
-  stripeFeeRoundedPenny += payoutFeeRoundedPenny;
-
   return stripeFeeRoundedPenny;
 }
 

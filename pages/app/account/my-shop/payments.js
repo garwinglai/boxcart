@@ -1145,7 +1145,7 @@ function Payments({ userAccount }) {
                   credit card.
                 </p>
                 <p className="text-xs mt-2 list-item  text-gray-500">
-                  CC fees: 3.1% + 30¢ per transaction
+                  CC fees: 2.9% + 30¢ per transaction
                 </p>
                 <p className="text-xs mt-2 list-item  text-gray-500">
                   +1% if outside of US
@@ -1167,7 +1167,7 @@ function Payments({ userAccount }) {
                       // fontSize="small"
                     />
                     {!stripeAccountId ? (
-                      <p className="text-sm font-light">Setting up...</p>
+                      <p className="text-sm font-light">Navigating to Stripe...</p>
                     ) : (
                       <p className="text-sm font-light">Gathering...</p>
                     )}

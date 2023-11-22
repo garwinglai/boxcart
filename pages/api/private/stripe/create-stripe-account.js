@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
   // * Create Stripe Account
   const account = await stripe.accounts.create({
-    type: "express",
+    type: "standard",
     email,
     business_profile: {
       name: businessName,

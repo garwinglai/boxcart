@@ -9,7 +9,7 @@ import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import { getLocalStorage } from "@/utils/clientStorage";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+import { Elements, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import CheckoutFormStripe from "@/components/storefront/checkout/CheckoutFormStripe";
 import CheckoutForm from "@/components/storefront/checkout/CheckoutForm";
 import prisma from "@/lib/prisma";
@@ -18,8 +18,6 @@ const publishable_key =
   process.env.NODE_ENV === "development"
     ? process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_STRIPE_LIVE_PUBLISHABLE_KEY;
-
-const stripePromise = loadStripe(publishable_key);
 
 function Checkout({ siteData }) {
   const { id: accountId, acceptedPayments } = siteData;
@@ -32,6 +30,7 @@ function Checkout({ siteData }) {
     isOpenSnackbar: false,
     snackbarMessage: "",
   });
+  const [stripePromise, setStripePromise] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [customerStripeId, setCustomerStripeId] = useState("");
@@ -81,6 +80,13 @@ function Checkout({ siteData }) {
     setIsLoadingPayments(false);
     if (cartLength === 0) return;
     if (selectedPayment !== "card") return;
+    if (stripeAccountId === "") return;
+
+    const stripePromise = loadStripe(publishable_key, {
+      stripeAccount: stripeAccountId,
+    });
+
+    setStripePromise(stripePromise);
 
     const { totalPenny: amountPenny } = cartDetails;
 
@@ -94,6 +100,7 @@ function Checkout({ siteData }) {
       .then((res) => res.json())
       .then((data) => {
         const { clientSecret } = data;
+        console.log("clientSecret", clientSecret);
         setClientSecret(clientSecret);
       })
       .catch((err) => console.log("Err", err));
@@ -178,7 +185,7 @@ function Checkout({ siteData }) {
         </div>
       </div>
       {selectedPayment === "card" && clientSecret && (
-        <Elements options={options} stripe={stripePromise} key={clientSecret}>
+        <Elements options={options} stripe={stripePromise}>
           <CheckoutFormStripe
             handleOpenSnackbar={handleOpenSnackbar}
             accountId={accountId}

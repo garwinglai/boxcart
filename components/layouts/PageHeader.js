@@ -10,7 +10,13 @@ import { useHasHydrated } from "@/utils/useHasHydrated";
 import Alert from "@mui/material/Alert";
 import ButtonThird from "../global/buttons/ButtonThird";
 import { useRouter } from "next/router";
-import { onSnapshot, query, where, collection } from "firebase/firestore";
+import {
+  onSnapshot,
+  query,
+  where,
+  collection,
+  orderBy,
+} from "firebase/firestore";
 import { useAccountStore } from "@/lib/store";
 import { db } from "@/firebase/fireConfig";
 import NotificationDrawer from "../app/notification/NotificationDrawer";
@@ -52,6 +58,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
     const notifCollectionRef = collection(db, "notifications");
     const notifQuery = query(
       notifCollectionRef,
+      orderBy("createdAt", "desc"),
       where("accountId", "==", accountId)
     );
     const unsubNotif = onSnapshot(notifQuery, (querySnapshot) => {

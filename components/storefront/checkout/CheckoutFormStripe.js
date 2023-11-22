@@ -178,11 +178,11 @@ function CheckoutFormStripe({
       return;
     }
 
+    chargeCustomer(id);
     createOrderNotification(orderData);
     sendEmailToBusiness(orderData, id);
     createAndSendInvoiceToCustomer(orderData);
     setCartDetails({ id });
-    chargeCustomer(id);
   };
 
   const sendEmailToBusiness = async (orderData) => {

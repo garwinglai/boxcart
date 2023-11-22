@@ -15,20 +15,18 @@ export default async function handler(req, res) {
 
   // Create a PaymentIntent with the order amount and currency
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountPenny, // In pennys
-      currency: "usd",
-      application_fee_amount: stripeFeeRoundedPenny, // In pennys.
-      // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-      automatic_payment_methods: {
-        enabled: true,
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: 1000,
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
       },
-      // payment_method: "pm_card_visa", // ! enable this for testing in local
-      transfer_data: {
-        destination: stripeAccountId,
-      },
-      on_behalf_of: stripeAccountId,
-    });
+      {
+        stripeAccount: stripeAccountId,
+      }
+    );
 
     const { client_secret } = paymentIntent;
 
@@ -37,7 +35,7 @@ export default async function handler(req, res) {
     });
   } catch (e) {
     console.log("error", e.message);
-    return res.status(400).send({
+    res.status(400).send({
       error: {
         message: e.message,
       },
