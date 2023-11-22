@@ -134,20 +134,20 @@ model Revenue {
 }
 
 model Payout {
-  id               Int      @id @default(autoincrement())
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  stripeAccountId  String
-  stripePayoutId   String   @unique
-  stripeTransferId String
-  balance          Int
-  balanceDisplay   String
-  fees             Int
-  feesDisplay      String
-  net              Int
-  netDisplay       String
-  account          Account  @relation(fields: [accountId], references: [id])
-  accountId        Int      @unique
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  stripeAccountId String
+  stripePayoutId  String   @unique
+  // stripeTransferId String
+  balance         Int
+  balanceDisplay  String
+  // fees             Int
+  // feesDisplay      String
+  net             Int
+  netDisplay      String
+  account         Account  @relation(fields: [accountId], references: [id])
+  accountId       Int      @unique
 
   @@index([accountId])
 }

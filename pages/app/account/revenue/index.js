@@ -263,55 +263,55 @@ function Revenue({ userAccount }) {
     setIsCashingOut(true);
 
     // Pull payout to see when was last payout, collect $2 if new month
-    const recentPayout = await fetchMostRecentPayout(accountId);
+    // const recentPayout = await fetchMostRecentPayout(accountId);
 
-    if (!recentPayout.success || recentPayout.error) {
-      handleOpenAlert("Error retrieving payout.");
-      setIsCashingOut(false);
-      return;
-    }
+    // if (!recentPayout.success || recentPayout.error) {
+    //   handleOpenAlert("Error retrieving payout.");
+    //   setIsCashingOut(false);
+    //   return;
+    // }
 
-    let hasMonthylFee = false;
+    // let hasMonthylFee = false;
 
     // First payout
-    if (recentPayout.payout) {
-      const { createdAt } = recentPayout.payout;
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const lastPayoutMonth = new Date(createdAt).getMonth();
-      const lastPayoutYear = new Date(createdAt).getFullYear();
-      if (
-        (currentMonth !== lastPayoutMonth && currentYear === lastPayoutYear) ||
-        (currentMonth === lastPayoutMonth && currentYear !== lastPayoutYear)
-      ) {
-        hasMonthylFee = true;
-      }
-    } else {
-      hasMonthylFee = true;
-    }
+    // if (recentPayout.payout) {
+    //   const { createdAt } = recentPayout.payout;
+    //   const currentMonth = new Date().getMonth();
+    //   const currentYear = new Date().getFullYear();
+    //   const lastPayoutMonth = new Date(createdAt).getMonth();
+    //   const lastPayoutYear = new Date(createdAt).getFullYear();
+    //   if (
+    //     (currentMonth !== lastPayoutMonth && currentYear === lastPayoutYear) ||
+    //     (currentMonth === lastPayoutMonth && currentYear !== lastPayoutYear)
+    //   ) {
+    //     hasMonthylFee = true;
+    //   }
+    // } else {
+    //   hasMonthylFee = true;
+    // }
 
-    const transferAmountPenny = calculateStripePayoutFee(
-      availBalancePenny,
-      hasMonthylFee
-    );
+    // const transferAmountPenny = calculateStripePayoutFee(
+    //   availBalancePenny,
+    //   hasMonthylFee
+    // );
 
-    const transferData = {
-      amount: transferAmountPenny,
-      stripeAccId,
-    };
+    // const transferData = {
+    //   amount: transferAmountPenny,
+    //   stripeAccId,
+    // };
 
     // Transfer payout fees
-    const stripeTransfer = await transferPayoutFees(transferData);
+    // const stripeTransfer = await transferPayoutFees(transferData);
 
-    if (!stripeTransfer.success || stripeTransfer.error) {
-      handleOpenAlert("Transfer payout error.");
-      setIsCashingOut(false);
-      return;
-    }
+    // if (!stripeTransfer.success || stripeTransfer.error) {
+    //   handleOpenAlert("Transfer payout error.");
+    //   setIsCashingOut(false);
+    //   return;
+    // }
 
-    const netBalancePenny = availBalancePenny - transferAmountPenny;
+    // const netBalancePenny = availBalancePenny - transferAmountPenny;
     const stripePayoutData = {
-      amount: netBalancePenny,
+      amount: availBalancePenny,
       stripeAccId,
     };
 
@@ -328,18 +328,18 @@ function Revenue({ userAccount }) {
     const arrival = new Date(arrival_date * 1000).toLocaleDateString();
 
     const balanceDisplay = `$${(availBalancePenny / 100).toFixed(2)}`;
-    const feesDisplay = `$${(transferAmountPenny / 100).toFixed(2)}`;
+    // const feesDisplay = `$${(transferAmountPenny / 100).toFixed(2)}`;
     const netDisplay = `$${(amount / 100).toFixed(2)}`;
 
     // Save data to payouts
     const savePayoutData = {
       stripeAccountId: stripeAccId,
       stripePayoutId,
-      stripeTransferId: stripeTransfer.transfer.id,
+      // stripeTransferId: stripeTransfer.transfer.id,
       balance: availBalancePenny,
       balanceDisplay,
-      fees: transferAmountPenny,
-      feesDisplay,
+      // fees: transferAmountPenny,
+      // feesDisplay,
       net: amount,
       netDisplay,
     };
