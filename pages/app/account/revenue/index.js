@@ -133,7 +133,7 @@ function Revenue({ userAccount }) {
     retrievePayouts();
 
     return () => (ignore = true);
-  }, [stripeAccId]);
+  }, [stripeAccId, availBalancePenny]);
 
   useEffect(() => {
     let ignore = false;
@@ -318,6 +318,8 @@ function Revenue({ userAccount }) {
     // Create payout
     const stripePayout = await createStripePayout(stripePayoutData);
 
+    console.log("stripePayou", stripePayout);
+
     if (stripePayout.error || !stripePayout.success) {
       handleOpenAlert("Payout error.");
       setIsCashingOut(false);
@@ -340,8 +342,8 @@ function Revenue({ userAccount }) {
       balanceDisplay,
       // fees: transferAmountPenny,
       // feesDisplay,
-      net: amount,
-      netDisplay,
+      // net: amount,
+      // netDisplay,
     };
 
     const createdPayout = await createPayoutPrisma(savePayoutData, accountId);
@@ -352,7 +354,7 @@ function Revenue({ userAccount }) {
 
     setAvailBalancePenny(0);
     setAvailableStripeBalance(0);
-    handleOpenAlert(`Payout ${amount / 100} will arrive on ${arrival}`);
+    handleOpenAlert(`Payout will arrive on ${arrival}`);
     setIsCashingOut(false);
   };
 
@@ -375,18 +377,18 @@ function Revenue({ userAccount }) {
     return createdPayout;
   };
 
-  const fetchMostRecentPayout = async (accountId) => {
-    const api = `/api/private/payout/get-last-payout/${accountId}`;
-    const res = await fetch(api, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
+  // const fetchMostRecentPayout = async (accountId) => {
+  //   const api = `/api/private/payout/get-last-payout/${accountId}`;
+  //   const res = await fetch(api, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   });
+  //   const data = await res.json();
 
-    return data;
-  };
+  //   return data;
+  // };
 
   const transferPayoutFees = async (transferData) => {
     const transferApi = `/api/private/stripe/transfer-fee-to-platform`;

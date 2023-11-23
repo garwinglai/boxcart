@@ -76,16 +76,12 @@ function PayoutDetails({ payoutDetail, closeViewDetails }) {
             <p className="text-sm font-medium">Arrival date</p>
             <p className="text-sm font-medium">Status</p>
             <p className="text-sm font-medium">Amount</p>
-            <p className="text-sm font-medium">Fees</p>
-            <p className="text-sm font-medium">Net</p>
           </div>
           <div className="flex flex-col text-right gap-2">
             <p className="text-sm">{createdDate}</p>
             <p className="text-sm">{arrivalDate}</p>
             <p className="text-sm">{status}</p>
             <p className="text-sm">{balanceDisplay}</p>
-            <p className="text-sm">{feesDisplay}</p>
-            <p className="text-sm">{netDisplay}</p>
           </div>
         </div>
       </div>

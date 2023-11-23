@@ -10,7 +10,7 @@ function PayoutGrid({ payouts, handleViewDetails }) {
           <th className={`${styles.table_title}`}>Created</th>
           <th className={`${styles.table_title}`}>Status</th>
           <th className={`${styles.table_title}`}>Arrival</th>
-          <th className={`${styles.table_title}`}>Before fees</th>
+          <th className={`${styles.table_title}`}>Amount</th>
           <th className={`${styles.table_title}`}>Action</th>
         </tr>
       </thead>

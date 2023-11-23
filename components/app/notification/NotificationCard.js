@@ -41,7 +41,7 @@ function NotificationCard({
         reload();
         return;
       }
-      push("/account//orders/live");
+      push("/account/orders/live");
     }
   };
 
