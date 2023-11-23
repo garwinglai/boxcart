@@ -1908,16 +1908,21 @@ function ProductDrawer({
         </div>
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
           <div className="w-full relative ">
-            <span className="flex items-end justify-between gap-2">
+            <span className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 <h4 className="text-black font-semibold text-sm ">Photos:</h4>
                 <p className="text-xs text-[color:var(--gray)] font-light">
                   8 images max.
                 </p>
               </div>
-              <p className="text-xs text-[color:var(--gray)] font-light">
-                * png or jpeg files only.
-              </p>
+              <div>
+                <p className="text-xs text-right text-[color:var(--gray)] font-light">
+                  * png or jpeg files only
+                </p>
+                <p className="text-xs text-right text-[color:var(--gray)] font-light">
+                  For clear photos - 800px x 800px
+                </p>
+              </div>
             </span>
 
             <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">

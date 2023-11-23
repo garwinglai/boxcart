@@ -809,9 +809,19 @@ function Profile({ userAccount }) {
         className="lg:w-1/2 py-4 flex flex-col gap-4 "
       >
         <div className="p-4 mx-4 rounded flex flex-col gap-2 relative  bg-white   shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
-          <div className="flex justify-between items-end">
+          <div className="flex justify-between items-start">
             <h3>Business Info</h3>
-            <p className="text-xs font-light">Supported files: jpeg, png</p>
+            <div>
+              <p className="text-xs font-light text-right">
+                Supported files: jpeg, png
+              </p>
+              <p className="text-xs font-extralight text-right">
+                Banner: 720px x 1280px
+              </p>
+              <p className="text-xs font-extralight text-right">
+                Logo: 100px x 100px
+              </p>
+            </div>
           </div>
           <div className=" relative">
             {bannerImage ? (

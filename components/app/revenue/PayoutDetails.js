@@ -14,8 +14,8 @@ function PayoutDetails({ payoutDetail, closeViewDetails }) {
     createdAt: "",
     stripePayoutId: "",
     balanceDisplay: "",
-    feesDisplay: "",
-    netDisplay: "",
+    // feesDisplay: "",
+    // netDisplay: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -81,7 +81,7 @@ function PayoutDetails({ payoutDetail, closeViewDetails }) {
             <p className="text-sm">{createdDate}</p>
             <p className="text-sm">{arrivalDate}</p>
             <p className="text-sm">{status}</p>
-            <p className="text-sm">{balanceDisplay}</p>
+            <p className="text-sm">{amount}</p>
           </div>
         </div>
       </div>
