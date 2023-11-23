@@ -22,6 +22,7 @@ export default async function handler(req, res) {
         automatic_payment_methods: {
           enabled: true,
         },
+        payment_method_configuration: "pmc_1Nx3BgJYT3F0eBGGXZs9en9w",
       },
       {
         stripeAccount: stripeAccountId,

@@ -62,6 +62,8 @@ function CheckoutFormStripe({
   const subdomain = query.site + ".boxcart.shop";
 
   useEffect(() => {
+    console.log("here");
+    console.log("stripe", stripe);
     if (!stripe) {
       return;
     }
@@ -111,7 +113,7 @@ function CheckoutFormStripe({
             handleOpenSnackbar("Something went wrong.");
             break;
         }
-        setIsPaymentProcessing(false);
+        // setIsPaymentProcessing(false);
       });
   }, [stripe]);
 
@@ -272,6 +274,7 @@ function CheckoutFormStripe({
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error) {
+      console.log("error", error);
       const { type, message } = error;
       const errorData = {
         id,
@@ -817,7 +820,7 @@ function CheckoutFormStripe({
             <div className="lg:px-12">
               <AddressElement
                 id="address-element"
-                options={{ mode: "billing" }}
+                options={{ mode: "shipping" }}
               />
             </div>
           </div>

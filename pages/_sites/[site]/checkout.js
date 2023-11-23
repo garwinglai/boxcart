@@ -59,19 +59,33 @@ function Checkout({ siteData }) {
     const filterForEnabledPayments = acceptedPayments.filter(
       (payment) => payment.isEnabled
     );
-    const firstPaymentMethodInArray = filterForEnabledPayments[0].paymentMethod;
+
+    const builtPaymentArray = [];
+
+    for (let i = 0; i < filterForEnabledPayments.length; i++) {
+      const currPayment = filterForEnabledPayments[i];
+      const { paymentMethod } = currPayment;
+      console.log("paymentMethod", paymentMethod);
+      if (paymentMethod === "stripe") {
+        builtPaymentArray.unshift(currPayment);
+      } else {
+        builtPaymentArray.push(currPayment);
+      }
+    }
+
+    const firstPaymentMethodInArray = builtPaymentArray[0].paymentMethod;
     const paymentSelected =
       firstPaymentMethodInArray === "stripe"
         ? "card"
         : firstPaymentMethodInArray;
 
-    setAvailablePayments(filterForEnabledPayments);
+    setAvailablePayments(builtPaymentArray);
     setSelectedPayment(paymentSelected);
-    setSelectedPaymentDetails(filterForEnabledPayments[0]);
+    setSelectedPaymentDetails(builtPaymentArray[0]);
     setStripeAccountId(stripeAccountId);
     setCartDetails({
       paymentMethod: paymentSelected,
-      paymentMethodValues: filterForEnabledPayments,
+      paymentMethodValues: builtPaymentArray,
     });
   }, []);
 
@@ -100,7 +114,7 @@ function Checkout({ siteData }) {
       .then((res) => res.json())
       .then((data) => {
         const { clientSecret } = data;
-        console.log("clientSecret", clientSecret);
+
         setClientSecret(clientSecret);
       })
       .catch((err) => console.log("Err", err));

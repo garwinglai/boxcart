@@ -54,6 +54,7 @@ function OrderCard({
     stripeErrorType,
     accountId,
     totalPenny,
+    stripeOrderId,
   } = order;
 
   const { name, email, phoneNum } = customer;
@@ -223,7 +224,9 @@ function OrderCard({
           >
             <span className="flex gap-2 items-center">
               <h4 className="">ID:</h4>
-              <p className="font-extralight text-xs">{orderId}</p>
+              <p className="font-extralight text-xs">
+                {paymentMethod === "card" ? stripeOrderId : orderId}
+              </p>
             </span>
             {!isDesktop && (
               <div className={`${styles.group_three}`}>
