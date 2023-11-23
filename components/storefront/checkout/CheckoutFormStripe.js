@@ -62,8 +62,6 @@ function CheckoutFormStripe({
   const subdomain = query.site + ".boxcart.shop";
 
   useEffect(() => {
-    console.log("here");
-    console.log("stripe", stripe);
     if (!stripe) {
       return;
     }
