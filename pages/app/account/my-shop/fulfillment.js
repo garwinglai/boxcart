@@ -831,8 +831,40 @@ function Fulfillment({ userSession, userAccount }) {
     </React.Fragment>
   );
 
+  const handleCreateAddy = async () => {
+    const api = "/api/private/shippo/create-address";
+
+    const res = await fetch(api, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ test: "hi" }),
+    });
+
+    const data = await res.json();
+    console.log("shippo data", data);
+  };
+
+  const getAllCarriers = async () => {
+    const api = "/api/private/shippo/list-all-carriers";
+
+    const res = await fetch(api, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    console.log("shippo carriers", data);
+  };
+
   return (
     <div className="flex flex-col pb-40 md:pb-32 lg:flex-row lg:p-4 lg:pb-32 ">
+      <button className="border" onClick={getAllCarriers}>
+        Create addy
+      </button>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -942,6 +974,23 @@ function Fulfillment({ userSession, userAccount }) {
               <FormLabel id="demo-radio-buttons-group-label" className="mb-2 ">
                 <p className=" text-black ">Fee:</p>
               </FormLabel>
+              <div className="flex my-2 gap-2 flex-col">
+                <div className="flex gap-2 items-center">
+                  <span className=" px-1 text-xs rounded-full bg-[color:var(--gray-light)] border border-[color:var(--gray-light-med)] text-[color:var(--gray-light-med)]">
+                    Coming soon
+                  </span>
+                  <p className="text-gray-700 text-xs font-extralight">
+                    Automated carrier pricing. USPS, UPS, FedEx, DHL, and more.
+                  </p>
+                </div>
+                <Link
+                  target="_blank"
+                  href="https://goshippo.com/shipping-calculator"
+                  className="underline text-xs font-light text-blue-600"
+                >
+                  View discounted shipping rates
+                </Link>
+              </div>
               <RadioGroup
                 aria-labelledby="demo-radio-buttons-group-label"
                 defaultValue="free"
@@ -1048,14 +1097,6 @@ function Fulfillment({ userSession, userAccount }) {
                 </div>
               </RadioGroup>
             </FormControl>
-            <div className="flex mt-8 gap-2 items-center">
-              <p className="text-gray-700 text-xs">
-                Connect third party delivery.
-              </p>
-              <span className=" px-1 text-xs rounded-full bg-[color:var(--gray-light)] border border-[color:var(--gray-light-med)] text-[color:var(--gray-light-med)]">
-                Coming soon
-              </span>
-            </div>
           </div>
         </div>
         <div

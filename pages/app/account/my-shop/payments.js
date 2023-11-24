@@ -456,8 +456,7 @@ function Payments({ userAccount }) {
   };
 
   const handleViewTaxRatesClick = () => {
-    const taxRateUrl =
-      "https://taxfoundation.org/data/all/state/2023-sales-tax-rates-midyear/";
+    const taxRateUrl = "https://quaderno.io/sales-tax-calculator/";
     window.open(taxRateUrl, "_blank", "noreferrer");
   };
 
@@ -1138,11 +1137,10 @@ function Payments({ userAccount }) {
                       priority
                     />
                   </div>
-                  <p className="text-black">Credit/Debit Card</p>
+                  <p className="text-black">Online Payments</p>
                 </div>
                 <p className="text-xs  text-gray-500">
-                  Increase your sales by allowing your customers to pay with
-                  credit card.
+                  Credit, Google Pay, Afterpay, Cash App, Affirm.
                 </p>
                 <p className="text-xs mt-2 list-item  text-gray-500">
                   CC fees: 2.9% + 30¢ per transaction
@@ -1167,7 +1165,9 @@ function Payments({ userAccount }) {
                       // fontSize="small"
                     />
                     {!stripeAccountId ? (
-                      <p className="text-sm font-light">Navigating to Stripe...</p>
+                      <p className="text-sm font-light">
+                        Navigating to Stripe...
+                      </p>
                     ) : (
                       <p className="text-sm font-light">Gathering...</p>
                     )}

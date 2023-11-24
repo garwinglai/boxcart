@@ -39,6 +39,7 @@
 		"react-geocode": "^0.2.3",
 		"react-phone-input-2": "^2.15.1",
 		"react-qr-code": "^2.0.12",
+		"shippo": "^1.7.1",
 		"stripe": "^13.8.0",
 		"swr": "^2.1.0",
 		"use-places-autocomplete": "^4.0.1",
