@@ -1502,12 +1502,14 @@ function Payments({ userAccount }) {
         type="button"
         onClick={async () => {
           const deleteAPI = "/api/private/stripe/delete-account";
+          console.log("stripeAccountId", stripeAccountId);
 
           const deleteRes = await fetch(deleteAPI, {
             method: "POST",
             body: JSON.stringify({ stripeAccountId }),
           });
           const deleteData = await deleteRes.json();
+          console.log("deleteData", deleteData);
           const { success } = deleteData;
           if (success) {
             const deletePaymentAPI =
