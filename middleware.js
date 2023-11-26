@@ -28,17 +28,16 @@ export function middleware(req) {
       url.pathname = `/app${url.pathname}`;
       return NextResponse.rewrite(url);
     }
-    return;
-    if (
-      hostname === "localhost:3000" ||
-      hostname === "boxcart.vercel.app" ||
-      hostname === "boxcart.shop" ||
-      hostname === "www.boxcart.shop"
-    ) {
-      // console.log("rewrite to home/");
-      url.pathname = `/home${url.pathname}`;
-      return NextResponse.rewrite(url);
-    }
+    // if (
+    //   hostname === "localhost:3000" ||
+    //   hostname === "boxcart.vercel.app" ||
+    //   hostname === "boxcart.shop" ||
+    //   hostname === "www.boxcart.shop"
+    // ) {
+    // console.log("rewrite to home/");
+    url.pathname = `/home${url.pathname}`;
+    return NextResponse.rewrite(url);
+    // }
 
     // console.log("rewrite to _site");
     url.pathname = `/_sites/${currentHost}${url.pathname}`;
