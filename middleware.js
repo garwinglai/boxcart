@@ -30,13 +30,14 @@ export function middleware(req) {
     }
 
     if (
+      currentHost == "home" ||
       hostname === "localhost:3000" ||
       hostname === "boxcart.vercel.app" ||
       hostname === "boxcart.shop" ||
       hostname === "www.boxcart.shop"
     ) {
       // console.log("rewrite to home/");
-      url.pathname = `/home${url.pathname}`;
+      // url.pathname = `/home${url.pathname}`;
       return NextResponse.rewrite(url);
     }
 
