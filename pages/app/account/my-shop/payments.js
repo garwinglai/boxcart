@@ -1498,10 +1498,9 @@ function Payments({ userAccount }) {
         </div>
       )}
       <button
-      className="hover:border w-fit text-xs text-white"
+        className="hover:border w-fit text-xs text-white"
         type="button"
         onClick={async () => {
-          console.log("stripeAccountId", stripeAccountId);
           const deleteAPI = "/api/private/stripe/delete-account";
 
           const deleteRes = await fetch(deleteAPI, {
