@@ -28,7 +28,7 @@ export function middleware(req) {
       url.pathname = `/app${url.pathname}`;
       return NextResponse.rewrite(url);
     }
-    // return;
+    return;
     if (
       hostname === "localhost:3000" ||
       hostname === "boxcart.vercel.app" ||

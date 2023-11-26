@@ -20,7 +20,7 @@ const stripe = require("stripe")(secretKey);
 function Pricing({ stripePrices, stripeProducts }) {
   return (
     <div className="px-4 py-4 pb-24 bg-[color:var(--purple-bg)] min-h-screen md:px-8 lg:px-32">
-      <Link href="https://www.boxcart.site">
+      <Link href="https://www.home.boxcart.shop">
         <div className="w-32 h-32 absolute -top-6  left-0 md:w-48 md:h-48 md:-top-14">
           <Image
             src={boxcart_logo}

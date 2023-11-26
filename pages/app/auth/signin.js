@@ -164,7 +164,7 @@ const Signin = () => {
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
       <Link
-        href="https://www.boxcart.site"
+        href="https://www.home.boxcart.shop"
         className="p-8 ml-24 absolute hover:underline md:flex items-center gap-2 hidden"
       >
         <ChevronLeft />
@@ -172,7 +172,7 @@ const Signin = () => {
       </Link>
       <div className={`${styles.outerContainer} md:shadow p-12`}>
         <div className="relative">
-          <button onClick={() => push("https://www.boxcart.site")}>
+          <button onClick={() => push("https://www.home.boxcart.shop")}>
             <Image
               src={logo}
               alt="boxcart logo"
@@ -228,13 +228,13 @@ const Signin = () => {
         </div>
         <footer className={`${styles.termsContainer} ${styles.flexRow}`}>
           <Link
-            href="https://www.boxcart.site/privacy-policy"
+            href="https://www.home.boxcart.shop/privacy-policy"
             className={`${styles.link} mt-4 underline font-light text-sm`}
           >
             Privacy
           </Link>
           <Link
-            href="https://www.boxcart.site/terms-conditions"
+            href="https://www.home.boxcart.shop/terms-conditions"
             className={`${styles.link} mt-4 underline font-light text-sm`}
           >
             Terms

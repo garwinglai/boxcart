@@ -242,7 +242,7 @@ export async function getServerSideProps(context) {
   if (!siteData) {
     return {
       redirect: {
-        destination: "https://www.boxcart.site",
+        destination: "https://www.home.boxcart.shop",
         permanent: false,
       },
     };

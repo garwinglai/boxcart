@@ -1423,7 +1423,7 @@ function Signup({ nextAccountId }) {
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
       <div className="lg:px-52">
-        <button onClick={() => push("https://www.boxcart.site")}>
+        <button onClick={() => push("https://www.home.boxcart.shop")}>
           <div className=" w-40 h-28 relative -mt-8 -mb-4">
             <Image
               src={logo}
