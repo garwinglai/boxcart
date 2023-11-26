@@ -1497,6 +1497,33 @@ function Payments({ userAccount }) {
           </Modal>
         </div>
       )}
+      <button
+      className="hover:border w-fit text-xs text-white"
+        type="button"
+        onClick={async () => {
+          console.log("stripeAccountId", stripeAccountId);
+          const deleteAPI = "/api/private/stripe/delete-account";
+
+          const deleteRes = await fetch(deleteAPI, {
+            method: "POST",
+            body: JSON.stringify({ stripeAccountId }),
+          });
+          const deleteData = await deleteRes.json();
+          const { success } = deleteData;
+          if (success) {
+            const deletePaymentAPI =
+              "/api/private/payments/delete-stripe-payment";
+            const deletePaymentRes = await fetch(deletePaymentAPI, {
+              method: "POST",
+              body: JSON.stringify({ stripeAccountId }),
+            });
+            const deletePaymentData = await deletePaymentRes.json();
+            console.log("deletePaymentData", deletePaymentData);
+          }
+        }}
+      >
+        delete
+      </button>
     </form>
   );
 }

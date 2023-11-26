@@ -29,6 +29,11 @@ export function middleware(req) {
       return NextResponse.rewrite(url);
     }
 
+    // if (currentHost == "admin") {
+    //   url.pathname = `/admin${url.pathname}`;
+    //   return NextResponse.rewrite(url);
+    // }
+
     if (
       currentHost == "home" ||
       hostname === "localhost:3000" ||

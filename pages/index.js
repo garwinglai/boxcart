@@ -26,11 +26,11 @@ export default function Home() {
   );
 }
 
-export async function getServerSideProps(ctx) {
-  return {
-    redirect: {
-      permanent: false,
-      destination: "https://home.boxcart.shop",
-    },
-  };
-}
+// export async function getServerSideProps(ctx) {
+//   return {
+//     redirect: {
+//       permanent: false,
+//       destination: "https://home.boxcart.shop",
+//     },
+//   };
+// }
