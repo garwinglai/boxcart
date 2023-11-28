@@ -1423,23 +1423,34 @@ function Signup({ nextAccountId }) {
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
       <div className="lg:px-52">
-        <button onClick={() => push("https://www.home.boxcart.shop")}>
-          <div className=" w-40 h-28 relative -mt-8 -mb-4">
-            <Image
-              src={logo}
-              alt="boxcart logo"
-              fill
-              priority
-              className=" object-cover rounded"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => push("https://www.home.boxcart.shop")}>
+            <div className=" w-40 h-28 relative -mt-8 -mb-4 -ml-8">
+              <Image
+                src={logo}
+                alt="boxcart logo"
+                fill
+                priority
+                className=" object-cover rounded"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+          </button>
+          <div className="flex flex-col md:flex-row md:gap-2 items-end mb-4">
+            <p className="text-sm">Have an account?</p>
+            <Link
+              href="/auth/signin"
+              className="text-sm underlin text-blue-500"
+            >
+              Sign in
+            </Link>
           </div>
-        </button>
+        </div>
         <div className="-mt-4">
           <LinearProgressWithLabel value={(step / maxSteps) * 100} />
         </div>
       </div>
-      <div className="md:mt-4 md:px-32">
+      <div className="md:mt-4 md:px-32 xl:px-80">
         <form onSubmit={handleSignup} className={`${styles.form_box}`}>
           {/* Access code */}
           {step == 0 && (
@@ -1491,7 +1502,7 @@ function Signup({ nextAccountId }) {
                 What&apos;s your business name? *
               </label>
               <input
-                autoFocus
+                // autoFocus
                 onKeyDown={(e) => {
                   const keyDown = e.key;
                   if (keyDown === "Enter") {
@@ -1525,7 +1536,7 @@ function Signup({ nextAccountId }) {
               <div className={`${styles.input_pair}`}>
                 <div className={`${styles.input_group}`}>
                   <input
-                    autoFocus
+                    // autoFocus
                     onKeyDown={(e) => {
                       const keyDown = e.key;
                       if (keyDown === "Enter") {
@@ -1589,7 +1600,7 @@ function Signup({ nextAccountId }) {
                     label={label}
                     imgSrc={imgSrc}
                     imgAlt={imgAlt}
-                    autoFocus
+                    // autoFocus
                   />
                 );
               })}
@@ -1598,11 +1609,11 @@ function Signup({ nextAccountId }) {
                 <input
                   id="other"
                   type="text"
-                  placeholder="other:"
+                  placeholder="Other:"
                   name="otherBusinessType"
                   value={otherBusinessType}
                   onChange={handleChange}
-                  className="text-sm placeholder:text-sm py-1 bg-[color:var(--purple-bg)] font-light text-black "
+                  className="text-sm placeholder:text-sm py-1 font-light text-black "
                 />
               </div>
             </div>
@@ -1667,7 +1678,7 @@ function Signup({ nextAccountId }) {
                 Enter your business bio.
               </label>
               <textarea
-                autoFocus
+                // autoFocus
                 type="text"
                 id="business-bio"
                 name="businessBio"
@@ -1869,7 +1880,7 @@ function Signup({ nextAccountId }) {
               </label>
               <textarea
                 type="text"
-                autoFocus
+                // autoFocus
                 id="pickup_note"
                 name="pickupNote"
                 value={pickupNote}

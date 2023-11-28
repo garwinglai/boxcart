@@ -11,7 +11,7 @@ function SignupFormAddress({ handleChange, signupValues }) {
       </label>
       <div className={`${styles.flexCol}`}>
         <input
-          autoFocus
+          // autoFocus
           type="text"
           id="address_1"
           name="address_1"

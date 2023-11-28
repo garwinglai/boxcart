@@ -70,7 +70,7 @@
 .btn {
   padding: 10px 15px;
   font-size: 1rem;
-  border-radius: 5px;
+  border-radius: 45px;
   border: none;
   color: var(--white);
   /* -webkit-box-shadow: 4px 8px 19px -3px var(--primary-dark-med);
