@@ -72,7 +72,7 @@ function ShopSearchBar({
           name="search"
           id="search"
           placeholder="Search all products"
-          className="bg-[color:var(--gray-light)] w-full py-3 rounded-full font-light text-sm indent-12 lg:rounded lg:border lg:border-[color:var(--gray-light-med)]"
+          className=" w-full py-3 rounded-full font-light text-sm bg-[color:var(--gray-light)] border lg:border-[color:var(--gray-light-med)] active:border-[color:var(--gray-light-med)] focus:border-[color:var(--gray)] ring-0 pl-12 outline-none"
         />
       </div>
       <div className="lg:hidden">

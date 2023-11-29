@@ -1285,31 +1285,31 @@ function Product({ product }) {
             </IconButton>
           </div>
         </div>
-        <div className="flex overflow-x-scroll w-full md:grid md:grid-cols-2 lg:w-5/6 lg:mx-auto xl:w-3/4">
+        <div className="flex gap-2 snap-x overflow-x-scroll w-full md:grid md:grid-cols-2 lg:w-5/6 lg:mx-auto xl:w-3/4">
           {isSampleProduct ? (
             defaultImage ? (
               <div
-                className={`min-w-full relative aspect-square md:col-span-2`}
+                className={`min-w-full snap-center relative aspect-square md:col-span-1 `}
               >
                 <Image
                   src={defaultImage}
                   alt="product image"
                   fill
                   priority
-                  className="object-cover snap-center"
+                  className="object-cover "
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
             ) : (
               <div
-                className={`min-w-full relative aspect-square md:col-span-2`}
+                className={`min-w-full snap-center relative aspect-square md:col-span-1`}
               >
                 <Image
                   src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
                   alt="product image"
                   fill
                   priority
-                  className="object-cover snap-center rounded"
+                  className="object-cover  rounded"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
@@ -1321,8 +1321,8 @@ function Product({ product }) {
               return (
                 <div
                   key={id}
-                  className={`min-w-full relative aspect-square ${
-                    isDefault ? "md:col-span-2" : "md:col-span-1 "
+                  className={`min-w-full snap-center relative aspect-square ${
+                    isDefault ? "md:col-span-1" : "md:col-span-1 "
                   }`}
                 >
                   <Image
@@ -1330,20 +1330,23 @@ function Product({ product }) {
                     alt="product image"
                     fill
                     priority
-                    className="object-cover snap-center"
+                    className="object-cover "
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
               );
             })
           ) : (
-            <div key={id} className={`min-w-full relative aspect-square`}>
+            <div
+              key={id}
+              className={`min-w-full snap-center relative aspect-square`}
+            >
               <Image
                 src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
                 alt="product image"
                 fill
                 priority
-                className="object-cover snap-center"
+                className="object-cover "
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>

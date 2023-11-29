@@ -30,7 +30,7 @@ function ShopMenu({
         <div
           className={`w-full grid grid-cols-2 gap-x-2 gap-y-6 ${
             isOwner ? "md:grid-cols-3" : "md:grid-cols-3"
-          } lg:grid-cols-4  xl:grid-cols-5`}
+          } lg:grid-cols-4  3xl:grid-cols-5`}
         >
           {products &&
             products.map((product, idx) => {

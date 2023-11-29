@@ -10,9 +10,11 @@ import youtube_icon from "@/public/images/icons/socials/youtube_icon.png";
 import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 import Image from "next/image";
+import ShareIcon from "@mui/icons-material/Share";
 
-function ShopBio({ isOwner, userAccount }) {
-  const { businessName, businessBio, city, socials } = userAccount || {};
+function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
+  const { businessName, businessBio, city, socials, fullDomain } =
+    userAccount || {};
 
   const handleOpenSocialLink = (url) => (value) => {
     // check if url has "https://" if not add it
@@ -20,9 +22,20 @@ function ShopBio({ isOwner, userAccount }) {
     window.open(newUrl, "_blank");
   };
 
+  const handleCopyUrlToClipboard = (fullDomain) => (e) => {
+    //copy full domain to clipboard
+    navigator.clipboard.writeText(fullDomain);
+    handleOpenSnackbar("Website URL copied.");
+  };
+
   return (
-    <div className="mt-20 px-4 md:mt-24 md:px-8 md:mb-4">
-      <h4 className="mb-2">{businessName}</h4>
+    <div className="mt-8 px-4 md:mt-14 md:mb-4">
+      <div className="flex items-center justify-between gap-2">
+        <h4 className="">{businessName}</h4>
+        <IconButton onClick={handleCopyUrlToClipboard(fullDomain)}>
+          <ShareIcon fontSize="small" />
+        </IconButton>
+      </div>
       {/* <p className="text-xs font-light">
         <span className=" text-base font-medium">12.2k </span>
         Subscribed

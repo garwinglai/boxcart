@@ -247,10 +247,14 @@ function Sites({ siteData }) {
         />
 
         <div className="md:flex md:justify-between">
-          <div className="md:w-3/5 lg:w-2/5">
-            <ShopBio isOwner={false} userAccount={siteData} />
+          <div className="md:w-1/2">
+            <ShopBio
+              isOwner={false}
+              userAccount={siteData}
+              handleOpenSnackbar={handleOpenSnackbar}
+            />
           </div>
-          <div className=" md:mt-16 md:w-1/2">
+          <div className=" md:mt-12 md:w-1/2">
             <ShopFulfillment
               isOwner={false}
               userAccount={siteData}
@@ -296,9 +300,9 @@ function Sites({ siteData }) {
           )}
         </div>
       </div>
-      <div className="hidden lg:block lg:w-[20rem] xl:w-[25rem] relative ">
+      {/* <div className="hidden lg:block lg:w-[20rem] xl:w-[25rem] relative ">
         <CartComponent isDesktop={true} tax={tax} />
-      </div>
+      </div> */}
     </div>
   );
 }

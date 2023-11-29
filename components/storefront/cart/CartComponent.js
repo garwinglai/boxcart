@@ -352,7 +352,7 @@ function CartComponent({ toggleDrawer, isDesktop }) {
   );
 
   return (
-    <div className="flex flex-col w-screen pb-16 lg:w-full lg:border-l lg:border-[color:var(--gray-light-med)] lg:h-full ">
+    <div className="flex flex-col w-screen pb-16 lg:border-l lg:border-[color:var(--gray-light-med)] lg:h-full md:w-[45vw] lg:w-[35vw] xl:w-[25vw]">
       <Snackbar
         anchorOrigin={{ vertical, horizontal }}
         open={isOpen}
@@ -361,12 +361,12 @@ function CartComponent({ toggleDrawer, isDesktop }) {
         key={vertical + horizontal}
         action={action}
       />
-      <div className="flex justify-between items-center py-2 px-4 sticky top-0 bg-white border-b border-[color:var(--gray-light-med)] z-10 lg:w-[20rem] xl:w-[25rem]">
+      <div className="flex justify-between items-center py-2 px-4 sticky top-0 bg-white border-b border-[color:var(--gray-light-med)] z-10 ">
         <h2 className="text-[color:var(--black-design-extralight)]  font-medium">
           My Cart
         </h2>
 
-        <div className="lg:hidden">
+        <div className="">
           <IconButton onClick={toggleDrawer}>
             <CloseIcon color="black" />
           </IconButton>
@@ -405,11 +405,7 @@ function CartComponent({ toggleDrawer, isDesktop }) {
         )}
       </div>
 
-      <div
-        className={`fixed bottom-0 w-full p-4 bg-white border-y border-[color:var(--gray-light-med)] ${
-          isDesktop ? "lg:w-[20rem] xl:w-[25rem]" : "lg:w-full"
-        } ${isDesktop && cartLength === 0 ? "hidden" : "block"}`}
-      >
+      <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-inner md:absolute  md:w-[45vw] lg:w-[35vw] xl:w-[25vw]">
         <button
           onClick={cartLength === 0 ? toggleDrawer : handleCheckout}
           className="rounded text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"

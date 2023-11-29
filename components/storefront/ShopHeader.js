@@ -16,7 +16,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  // borderRadius: "4px",
+  borderRadius: "8px",
   boxShadow: 24,
   p: 4,
 };
@@ -190,7 +190,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
   return (
     <React.Fragment>
       {bannerImage ? (
-        <div className="w-full h-48 md:h-72 relative border-b">
+        <div className="w-full h-36 sm:h-44 md:h-60 lg:h-72 relative border-b">
           <Image
             src={bannerImage}
             alt="business banner"
@@ -207,7 +207,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
       )}
       <div className="relative">
         {logoImage ? (
-          <div className="w-28 h-28 absolute -top-16 left-4 md:w-32 md:h-32 lg:left-12">
+          <div className="w-16 h-16 absolute -top-8 md:-top-12  left-4 md:w-24 md:h-24 lg:left-4">
             <Image
               src={logoImage}
               alt="business logo"
@@ -222,16 +222,21 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
             Logo
           </div>
         )}
-        <div className=" flex-col h-18 -top-9  gap-2  flex  absolute right-4 md:top-4 md:right-8 sm:h-10 sm:-top-5 sm:flex-row">
-          {isOwner && (
-            <button
-              type="button"
-              onClick={isOwner ? handleEditProfile : handleOpenSubscribe}
-              className="text-white font-light text-xs h-8 px-6 bg-[color:var(--black-design-extralight)] active:bg-black"
-            >
-              {isOwner ? "Edit Profile" : "Subscribe"}
-            </button>
-          )}
+        <div className="gap-2 -top-4 flex absolute right-4">
+          <button
+            type="button"
+            onClick={isOwner ? handleEditProfile : handleOpenSubscribe}
+            className="text-white font-light text-xs h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
+          >
+            {isOwner ? "Edit Profile" : "Subscribe"}
+          </button>
+          <button
+            type="button"
+            onClick={isOwner ? handleShareStore : handleMessage}
+            className="md:block rounded bg-white font-light text-xs h-8 px-4 border border-[color:var(--black-design-extralight)] active:bg-gray-400 md:text-sm md:px-6"
+          >
+            {isOwner ? "Share Store" : "Message"}
+          </button>
           <Modal
             open={openSubScribe}
             onClose={handleSubscriptionSubmitted}
@@ -243,7 +248,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
                 {!customerEmailSubmitted ? (
                   <>
                     <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-light">Stay connected 👋</h3>
+                      <h3 className="font-light">Stay connected!</h3>
                       <button
                         onClick={handleSubscriptionSubmitted}
                         type="button"
@@ -274,8 +279,8 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
                         name={isLoading ? "Subscribing..." : "Subscribe"}
                       />
                     </div>
-                    <h5 className="mt-4 font-light text-[color:var(--black-design-extralight)]">
-                      Updates, discounts, &amp; more!
+                    <h5 className="mt-4 font-light text-sm text-[color:var(--black-design-extralight)]">
+                      Receive updates, discounts, &amp; more!
                     </h5>
                   </>
                 ) : (
@@ -298,13 +303,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
               </form>
             </Box>
           </Modal>
-          <button
-            type="button"
-            onClick={isOwner ? handleShareStore : handleMessage}
-            className="md:block bg-white font-light text-xs h-8 px-6 border border-[color:var(--black-design-extralight)] active:bg-gray-400 mt-4 sm:mt-0"
-          >
-            {isOwner ? "Share Store" : "Message"}
-          </button>
+
           <Drawer
             anchor={"right"}
             open={openMessage["right"]}

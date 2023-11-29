@@ -42,7 +42,7 @@ function ShopNavTop() {
       <Link href="/" className="text-[color:var(--black-design)] font-medium">
         {businessName ? businessName : "Home"}
       </Link>
-      <div className="lg:hidden">
+      <div className="">
         <IconButton onClick={toggleDrawerRight}>
           <StyledBadge
             badgeContent={cartLength}
@@ -61,7 +61,7 @@ function ShopNavTop() {
           isCartOpenRight={isCartOpenRight}
         />
       </div>
-      <div className="hidden lg:block">
+      {/* <div className="hidden lg:block">
         <IconButton
           onClick={handleDesktopCartClick}
           // sx={{ marginRight: "1rem" }}
@@ -77,7 +77,7 @@ function ShopNavTop() {
             />
           </StyledBadge>
         </IconButton>
-      </div>
+      </div> */}
     </nav>
   );
 }
