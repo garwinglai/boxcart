@@ -207,7 +207,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
       )}
       <div className="relative">
         {logoImage ? (
-          <div className="w-16 h-16 absolute -top-8 md:-top-12  left-4 md:w-24 md:h-24 lg:left-4">
+          <div className="w-20 h-20 absolute -top-10 md:-top-12  left-4 md:w-24 md:h-24 lg:left-4">
             <Image
               src={logoImage}
               alt="business logo"
@@ -218,7 +218,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
             />
           </div>
         ) : (
-          <div className="absolute -top-12 left-4 rounded-full w-24 h-24 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
+          <div className="absolute -top-10 left-4 rounded-full w-20 h-20 bg-[color:var(--gray-light)] flex justify-center items-center border text-[color:var(--gray-text)] text-center">
             Logo
           </div>
         )}
