@@ -283,6 +283,7 @@ export async function getServerSideProps(context) {
           categories: true,
           products: {
             include: {
+              reviews: true,
               optionGroups: {
                 include: {
                   options: true,

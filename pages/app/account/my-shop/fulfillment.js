@@ -862,9 +862,9 @@ function Fulfillment({ userSession, userAccount }) {
 
   return (
     <div className="flex flex-col pb-40 md:pb-32 lg:flex-row lg:p-4 lg:pb-32 ">
-      <button className="border" onClick={getAllCarriers}>
+      {/* <button className="border" onClick={getAllCarriers}>
         Create addy
-      </button>
+      </button> */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import candle_2 from "@/public/images/temp/candle_2.jpeg";
-import { IconButton } from "@mui/material";
-import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import { IconButton, Rating } from "@mui/material";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import AspectRatioOutlinedIcon from "@mui/icons-material/AspectRatioOutlined";
 import ProductModal from "./ProductModal";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -24,7 +21,6 @@ import {
 } from "@/helper/client/api/inventory/product-schema";
 import { nanoid } from "@/utils/generateId";
 import { deleteObject, ref, uploadBytes } from "firebase/storage";
-
 import { storage } from "@/firebase/fireConfig";
 
 const style = {
@@ -97,6 +93,9 @@ function ProductCard({
     id,
     isEnabled,
     productName,
+    rating,
+    reviewCount,
+    reviews,
     priceIntPenny,
     priceStr,
     defaultImage,
@@ -115,7 +114,6 @@ function ProductCard({
   const [isLoading, setIsLoading] = useState(false);
   const [isSoldOut, setIsSoldOut] = useState(false);
   const [expandedCardId, setExpandedCardId] = useState(null);
-  const [isCardOpen, setIsCardOpen] = useState(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isItemEnabled, setIsItemEnabled] = useState(isEnabled);
   const [state, setState] = useState({
@@ -153,16 +151,6 @@ function ProductCard({
       }
     }
   }, [product, quantity]);
-
-  const handleExpand = () => {
-    if (expandedCardId === id) {
-      setExpandedCardId(null);
-    } else {
-      setExpandedCardId(id);
-    }
-
-    setIsCardOpen((prev) => !prev);
-  };
 
   const handleClickListenerExpand = () => {
     setIsCardModalOpen((prev) => !prev);
@@ -546,7 +534,7 @@ function ProductCard({
         isExpanded ? "md:grid-row-end-auto" : "md:h-fit"
       }`}
     >
-      <div className="flex gap-3 justify-between items-center border-b border-[color:var(--gray-light-med)]">
+      <div className="flex justify-between items-start border-b border-[color:var(--gray-light-med)]">
         {defaultImage ? (
           <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
             <div className="w-full h-full  relative aspect-square">
@@ -577,15 +565,28 @@ function ProductCard({
             </div>
           </div>
         )}
-        <div className="flex-grow flex flex-col gap-1 py-2">
-          <h2 className="text-base font-medium">{productName}</h2>
+        <div className="flex-grow flex flex-col p-2">
+          <h2 className="text-sm font-medium sm:text-base md:text-lg ">
+            {productName}
+          </h2>
+          <div className="flex items-center gap-1">
+            <Rating
+              name="read-only"
+              value={parseInt(rating)}
+              readOnly
+              sx={{ fontSize: "0.75rem" }}
+            />
+            <p className="text-[color:var(--gray-text)] font-extralight text-xs md:text-sm">
+              ({reviewCount})
+            </p>
+          </div>
           <p className="text-xs font-light md:text-sm">
-            <b className="">Price: </b>
+            <b className="text-xs md:text-sm">Price: </b>
             {priceStr}
           </p>
           {setQuantityByProduct ? (
             <p className="text-xs font-light md:text-sm">
-              <b className="">Qty: </b>
+              <b className="text-xs md:text-sm">Qty: </b>
               {hasUnlimitedQuantity
                 ? "Unlimited"
                 : isSoldOut
@@ -599,19 +600,6 @@ function ProductCard({
               </p>
             )
           )}
-          <p className="text-xs font-light md:text-sm">
-            <b className="">Category: </b>
-            {relatedCategories && relatedCategories.length > 0
-              ? relatedCategories.map((category, idx) => {
-                  const { categoryName } = category;
-                  const relatedCategoriesLength = relatedCategories.length;
-                  if (idx === relatedCategoriesLength - 1)
-                    return <span key={categoryName}>{categoryName}</span>;
-
-                  return <span key={categoryName}>{categoryName}, </span>;
-                })
-              : "n/a"}
-          </p>
         </div>
         <div className="mr-2">
           <IconButton onClick={handleOpenMenu}>
@@ -707,7 +695,7 @@ function ProductCard({
           <p
             className={`text-xs ${
               isItemEnabled
-                ? "text-[color:var(--primary-dark-med)] "
+                ? "text-[color:var(--secondary-dark-med)] "
                 : "text-[color:var(--gray-text)] "
             }`}
           >
@@ -719,7 +707,7 @@ function ProductCard({
           />
         </span>
 
-        <div className="hidden lg:block">
+        <div className="">
           <IconButton
             onClick={handleClickListenerExpand}
             sx={{ marginRight: "8px" }}
@@ -727,155 +715,15 @@ function ProductCard({
             <AspectRatioOutlinedIcon fontSize="small" />
           </IconButton>
           <ProductModal
+            account={userAccount}
             toggleDrawer={toggleDrawer}
             isCardModalOpen={isCardModalOpen}
             handleClickListenerExpand={handleClickListenerExpand}
+            handleOpenSnackbar={handleOpenSnackbar}
             product={product}
           />
         </div>
-        <div className="lg:hidden">
-          <IconButton onClick={handleExpand}>
-            {isCardOpen ? (
-              <ExpandLessIcon fontSize="small" />
-            ) : (
-              <ExpandMoreOutlinedIcon fontSize="small" />
-            )}
-          </IconButton>
-        </div>
       </div>
-      {isCardOpen && (
-        <div className="border-t border-[color:var(--gray-light-med)]">
-          <div className="px-4 pt-4 ">
-            <span className="flex items-end justify-between gap-2">
-              <h4 className="text-sm font-medium">Images:</h4>
-            </span>
-            <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
-              {images && images.length !== 0 ? (
-                images.map((photo, idx) => {
-                  const { image, imgFileName, isDefault } = photo;
-                  return (
-                    <div
-                      key={idx}
-                      className={`relative h-[5rem] min-w-[5rem] inline-block $`}
-                    >
-                      <Image
-                        src={image}
-                        alt="product image"
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover rounded inline-block"
-                      />
-                      {isDefault && (
-                        <p className="absolute font-extralight bottom-1 left-1 text-white rounded text-sm px-1 bg-[color:var(--black-design-extralight)]">
-                          Default
-                        </p>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="h-32 w-32 border roudned flex justify-center items-center text-[color:var(--gray-text)] text-sm font-light">
-                  Image
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="p-4 border-b border-[color:var(--gray-light)] ">
-            <h4 className="text-sm font-medium">Description</h4>
-            <p className="text-sm px-8 font-extralight mt-2">{description}</p>
-          </div>
-          <div className="p-4 border-b border-[color:var(--gray-light)] ">
-            <h4 className="text-sm font-medium">Product options</h4>
-            {optionGroups.length === 0 ? (
-              <p className="text-sm font-extralight text-[color:var(--gray-text)] text-center mt-4">
-                No options available
-              </p>
-            ) : (
-              optionGroups.map((group) => {
-                const {
-                  optionGroupName,
-                  options,
-                  id: groupId,
-                  selectionDisplay,
-                  isRequiredDisplay,
-                } = group;
-
-                return (
-                  <div className="px-8 pt-2" key={groupId}>
-                    <div className="flex justify-between items-center  mb-2">
-                      <span className="flex items-center gap-2">
-                        <h5 className="text-sm">{optionGroupName}:</h5>
-                      </span>
-                      <p className="text-xs font-extralight">
-                        {isRequiredDisplay} - ({selectionDisplay})
-                      </p>
-                    </div>
-                    {options.map((option) => {
-                      const {
-                        id: optionId,
-                        optionName,
-                        priceStr,
-                        imgStr,
-                        optionGroupId,
-                        quantity,
-                      } = option;
-
-                      if (optionGroupId == groupId) {
-                        return (
-                          <div
-                            key={optionId}
-                            className="flex justify-between items-center pl-2 font-light text-sm mb-1 md:text-sm"
-                          >
-                            <div className="flex items-center gap-2">
-                              {imgStr && (
-                                <Image
-                                  src={candle_2}
-                                  alt="image"
-                                  className="rounded object-cover w-10 h-10"
-                                />
-                              )}
-                              <p className="font-extralight">{optionName}</p>
-                              {quantity && (
-                                <p className="font-extralight">
-                                  ({quantity} left)
-                                </p>
-                              )}
-                            </div>
-                            <p className="font-extralight">{priceStr}</p>
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
-                );
-              })
-            )}
-          </div>
-          <div className="p-4">
-            <h4 className="text-sm font-medium">Questions for customers</h4>
-            <div className="px-8 pt-2">
-              {questions.length === 0 ? (
-                <p className="text-sm font-extralight text-[color:var(--gray-text)] text-center mt-4 md:text-sm">
-                  No questions
-                </p>
-              ) : (
-                questions.map((item) => {
-                  const { question, id, isRequired } = item;
-
-                  return (
-                    <div key={id} className="flex justify-between items-center">
-                      <p className="font-extralight text-sm">{question}</p>
-                      <p className="font-extralight text-sm">
-                        {isRequired ? "(required)" : "(optional)"}
-                      </p>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

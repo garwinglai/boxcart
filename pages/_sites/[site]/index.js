@@ -88,7 +88,7 @@ function Sites({ siteData }) {
     let typeOfFulfillment;
     let displayFulfillmentType;
 
-    if (fulfillmentType) {
+    if (fulfillmentType && fulfillmentType == fulfillmentMethodInt) {
       typeOfFulfillment = fulfillmentType;
       displayFulfillmentType = fulfillmentDisplay;
       pickupNote = cartDetails.pickupNote;
@@ -239,14 +239,14 @@ function Sites({ siteData }) {
         message={snackbarMessage}
         action={action}
       />
-      <div className="flex-grow lg:overflow-y-auto ">
+      <div className="flex-grow lg:overflow-y-auto">
         <ShopHeader
           isOwner={false}
           handleOpenSnackbar={handleOpenSnackbar}
           userAccount={siteData}
         />
 
-        <div className="md:flex md:justify-between">
+        <div className="md:flex md:justify-between md:items-end lg:px-28">
           <div className="md:w-1/2">
             <ShopBio
               isOwner={false}
@@ -262,19 +262,21 @@ function Sites({ siteData }) {
             />
           </div>
         </div>
-        <div className="px-4">
+        <div className="px-4 lg:px-28">
           <Divider light />
         </div>
-        <ShopSearchBar
-          isOwner={false}
-          allProducts={products}
-          categories={currCategories}
-          getProductsByCategory={getProductsByCategory}
-          getAllProducts={getAllProducts}
-          handleSortSearchResults={handleSortSearchResults}
-        />
-        <div className="flex w-full xl:mt-4">
-          <div className="hidden lg:block lg:w-1/5 xl:w-2/12">
+        <div className="mt-2 lg:px-28">
+          <ShopSearchBar
+            isOwner={false}
+            allProducts={products}
+            categories={currCategories}
+            getProductsByCategory={getProductsByCategory}
+            getAllProducts={getAllProducts}
+            handleSortSearchResults={handleSortSearchResults}
+          />
+        </div>
+        <div className="flex w-full lg:px-28 xl:mt-4">
+          <div className="hidden lg:block min-w-fit">
             <CategoryShopList
               isOwner={false}
               categories={currCategories}
@@ -288,7 +290,7 @@ function Sites({ siteData }) {
               <BoxLoader />
             </div>
           ) : (
-            <div className="w-full lg:w-4/5 xl:w-10/12 h-full pb-16">
+            <div className="w-full flex-1 h-full pb-16">
               <ShopMenu
                 isOwner={false}
                 categories={categories}

@@ -14,12 +14,12 @@ export const IOSSwitch = styled((props) => (
     transitionDuration: "300ms",
     "&.Mui-checked": {
       transform: "translateX(16px)",
-      color: "var(--primary)",
+      color: "var(--secondary)",
       "& + .MuiSwitch-track": {
         backgroundColor:
           theme.palette.mode === "dark"
-            ? "var(--primary-light)"
-            : "var(--primary-light)",
+            ? "var(--secondary-light)"
+            : "var(--secondary-light)",
         opacity: 1,
         border: 0,
       },
@@ -28,7 +28,7 @@ export const IOSSwitch = styled((props) => (
       },
     },
     "&.Mui-focusVisible .MuiSwitch-thumb": {
-      color: "var(--primary-light)",
+      color: "var(--secondary-light)",
       border: "6px solid #fff",
     },
     "&.Mui-disabled .MuiSwitch-thumb": {

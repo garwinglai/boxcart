@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from "react";
 import { ShopSwitch } from "../global/switches/ShopSwitch";
 import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
 import TakeoutDiningOutlinedIcon from "@mui/icons-material/TakeoutDiningOutlined";
-import Accordion from "@mui/material/Accordion";
+// import Accordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import { styled } from "@mui/material/styles";
@@ -21,18 +21,43 @@ import { getGeocode, getLatLng } from "use-places-autocomplete";
 import { useLoadScript } from "@react-google-maps/api";
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
+import MuiAccordion from "@mui/material/Accordion";
+import ButtonPrimary from "../global/buttons/ButtonPrimary";
+import ButtonFourth from "../global/buttons/ButtonFourth";
+import ButtonFilter from "../global/buttons/ButtonFilter";
 
-const style = {
+const styledDeliveryModal = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "min-content",
+  width: "95%",
+  "@media (min-width: 769px)": {
+    width: "50%",
+  },
+  "@media (min-width: 1025px)": {
+    width: "30%",
+  },
   bgcolor: "background.paper",
-  // border: "2px solid #000",
   boxShadow: 24,
-  borderRadius: "4px",
-  p: 4,
+  borderRadius: "8px",
+};
+
+const styledAvailModal = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "95%",
+  "@media (min-width: 769px)": {
+    width: "50%",
+  },
+  "@media (min-width: 1025px)": {
+    width: "30%",
+  },
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  borderRadius: "8px",
 };
 
 function ServerDay(props) {
@@ -57,8 +82,8 @@ function ServerDay(props) {
   );
 }
 
-let stagedDeliveryDate = "Select date";
-let stagedDeliveryTime = "time";
+let stagedDeliveryDate = "";
+let stagedDeliveryTime = "";
 
 function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const hydrated = useHasHydrated();
@@ -158,9 +183,10 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   // }, [cartDetails]);
 
   const handleOpenAvailabilityModalOwner = () => {
+    console.log("here");
     let date = dayjs();
 
-    if (orderForDateDisplay !== "" && orderForDateDisplay !== "Select date") {
+    if (orderForDateDisplay !== "") {
       date = dayjs(orderForDateDisplay);
       setCalendarDate(date);
       setCalendarMonth(date);
@@ -935,376 +961,419 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     return result;
   };
 
+  const [openDeliveryAddressModal, setOpenDeliveryAddressModal] =
+    useState(false);
+  const [openDeliveryPickupModal, setOpenDeliveryPickupModal] = useState(false);
+
+  const handleOpenDeliveryPickupModal = () => {
+    setOpenDeliveryPickupModal(true);
+  };
+
+  const handleCloseDeliveryPickupModal = () => {
+    setOpenDeliveryPickupModal(false);
+  };
+
+  const handleOpenDeliveryAddressModal = () => {
+    setOpenDeliveryAddressModal(true);
+  };
+
+  const handleCloseDeliveryAddressModal = () => {
+    setOpenDeliveryAddressModal(false);
+  };
+
+  const handleSetDeliveryAddress = (fulfillmentType) => (e) => {
+    // Pickup
+    if (fulfillmentType === 1) {
+      setOpenDeliveryAddressModal(false);
+      setOpenDeliveryPickupModal(false);
+      return;
+    }
+
+    // Delivery
+    if (!deliveryAddress) {
+      handleOpenSnackbar("Please enter a delivery address.");
+      return;
+    }
+
+    if (isDeliveryTooFar) {
+      handleOpenSnackbar(
+        "Sorry, we can't deliver to that address. Please try another."
+      );
+      return;
+    }
+
+    setOpenDeliveryAddressModal(false);
+    setOpenDeliveryPickupModal(false);
+  };
+
   return (
-    <div className="p-4 w-full flex flex-col md:flex-col-reverse ">
+    <div className="px-4 pb-4 w-full flex flex-row-reverse gap-4 justify-start items-end">
       {!isOwner ? (
         fulfillmentMethodInt === 2 ? (
-          <Accordion
-            onChange={handleSwitch}
-            expanded={hydrated && fulfillmentType === 0}
-            aria-controls="panel1bh-content"
-            id="panel1bh-header"
-            sx={{
-              border: "1px solid var(--gray-light-med)",
-              boxShadow: "none",
-              width: "100%",
-              borderRadius: "4px",
-            }}
-          >
-            <AccordionSummary
-              expandIcon={
-                <ShopSwitch
-                  checked={hydrated && fulfillmentType === 0}
-                  onClick={handleSwitch}
-                />
-              }
-              aria-controls="panel1a-content"
-              id="panel1a-header"
+          <div className="flex-grow w-1/2 lg:flex-grow-0 lg:w-5/12">
+            {hydrated && fulfillmentType === 0 && deliveryAddress && (
+              <button
+                onClick={handleOpenDeliveryAddressModal}
+                className="text-center text-xs w-full font-light mb-2 underline"
+              >
+                {deliveryAddress}
+              </button>
+            )}
+            <button
+              onClick={handleOpenDeliveryPickupModal}
+              type="button"
+              className=" rounded w-full h-full py-2 text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] lg:flex-grow-0"
             >
-              {/* <div className=""> */}
-              {hydrated && fulfillmentType === 0 ? (
-                <div className="flex gap-1 items-center">
-                  <TakeoutDiningOutlinedIcon
-                    fontSize="small"
-                    sx={{ color: "var(--gray-light-med)" }}
-                  />
-                  <p className="text-sm font-light text-[color:var(--gray-light-med)]">
-                    pickup
-                  </p>
-                  <p className="text-sm text-[color:var(--black-design-extralight)]">
-                    {" "}
-                    /{" "}
-                  </p>
-                  <DeliveryDiningOutlinedIcon
-                    fontSize="small"
-                    sx={{ color: "var(--black-design-extralight)" }}
-                  />
-                  {fulfillmentMethods.map((method) => {
-                    const {
-                      id,
-                      methodInt,
-                      deliveryTypeInt,
-                      localDeliveryDistanceStr,
-                    } = method;
-
-                    // methodInt 0: delivery, 1: pickup
-                    if (methodInt === 0) {
-                      // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
-                      if (methodInt === 0 && deliveryTypeInt === 1) {
-                        return (
-                          <div key={id} className="flex items-center">
-                            <p className="text-sm text-[color:var(--black-design-extralight)]  ">
-                              delivery :
-                            </p>
-                            <p className="text-xs font-light text-[color:var(--black-design-extralight)] ml-1 ">
-                              {localDeliveryDistanceStr}
-                            </p>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div key={id} className="flex items-center">
-                            <p className="text-sm text-[color:var(--black-design-extralight)]  ">
-                              delivery
-                            </p>
-                          </div>
-                        );
-                      }
-                    }
-                  })}
-                </div>
-              ) : (
-                <span className="flex gap-1 items-center">
-                  <TakeoutDiningOutlinedIcon
-                    fontSize="small"
-                    sx={{ color: "var(--black-design-extralight)" }}
-                  />
-                  <p className="text-sm text-[color:var(--black-design-extralight)]">
-                    pickup
-                  </p>
-                  <p className="text-sm text-[color:var(--black-design-extralight)]">
-                    /
-                  </p>
-                  <div className="flex gap-1 items-center">
-                    <DeliveryDiningOutlinedIcon
-                      fontSize="small"
-                      sx={{ color: "var(--gray-light-med)" }}
-                    />
-                    {fulfillmentMethods.map((method) => {
-                      const {
-                        id,
-                        methodInt,
-                        deliveryTypeInt,
-                        localDeliveryDistanceStr,
-                      } = method;
-
-                      // methodInt 0: delivery, 1: pickup
-                      if (methodInt === 0) {
-                        // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
-                        if (methodInt === 0 && deliveryTypeInt === 1) {
-                          return (
-                            <div key={id} className="flex items-center">
-                              <p className="text-sm font-light text-[color:var(--gray-light-med)]  ">
-                                delivery :
-                              </p>
-                              <p className="text-xs font-light text-[color:var(--gray-light-med)] ml-1 ">
-                                {localDeliveryDistanceStr}
-                              </p>
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <div key={id} className="flex items-center">
-                              <p className="text-sm text-[color:var(--gray-light-med)]  ">
-                                delivery
-                              </p>
-                            </div>
-                          );
-                        }
-                      }
-                    })}
-                  </div>
-                </span>
-              )}
-              {/* </div> */}
-            </AccordionSummary>
-            <AccordionDetails>
-              {isLoaded ? (
-                <React.Fragment>
-                  <PlacesAutoComplete
-                    setIsDeliveryTooFar={setIsDeliveryTooFar}
-                    address={deliveryAddress}
-                    placeholder="deliver to: address"
-                    onAddressSelect={(address) => {
-                      getGeocode({ address: address }).then((results) => {
-                        const { lat, lng } = getLatLng(results[0]);
-
-                        const distance = getDistance(lat, lng, bizLat, bizLng);
-
-                        if (distance) {
-                          const { roundedNumInMi, roundedNumInKm } = distance;
-                          setCartDetails({ deliveryAddress: address });
-                          updateDeliveryFee(roundedNumInMi, roundedNumInKm);
-                        } else {
-                          setCartDetails({ deliveryAddress: "" });
-                        }
-
-                        setLat(lat);
-                        setLng(lng);
-                      });
+              {hydrated && fulfillmentType === 1 ? "Set Pickup" : "Set Delivery"}
+            </button>
+            <Modal
+              open={openDeliveryPickupModal}
+              onClose={handleCloseDeliveryPickupModal}
+              aria-labelledby="delivery address modal"
+              aria-describedby="enter delivery address modal"
+            >
+              <Box sx={styledDeliveryModal}>
+                <div className="max-h-[36rem] p-4 rounded-lg overflow-y-scroll">
+                  <h3 className="mb-2">Select fulfillment:</h3>
+                  <Accordion
+                    onChange={handleSwitch}
+                    expanded={hydrated && fulfillmentType === 0}
+                    aria-controls="panel1bh-content"
+                    id="panel1bh-header"
+                    sx={{
+                      border: "1px solid var(--gray-light-med)",
+                      boxShadow: "none",
+                      width: "100%",
+                      borderRadius: `8px`,
                     }}
-                  />
-                  {isDeliveryTooFar && (
-                    <p className="font-light text-sm mt-2 ml-2 text-[color:var(--primary)]">
-                      * Location too far.
-                    </p>
-                  )}
-                </React.Fragment>
-              ) : (
-                <p className="font-light text-xs">Loading...</p>
-              )}
-            </AccordionDetails>
-          </Accordion>
-        ) : fulfillmentMethodInt === 1 ? (
-          <div className="flex justify-between items-center bg-gray-100 p-4 rounded">
-            <div className="flex gap-1 items-center">
-              <TakeoutDiningOutlinedIcon
-                fontSize="small"
-                sx={{ color: "text-gray-800" }}
-              />
-              <p className="text-sm text-gray-800">pickup only</p>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="flex justify-between items-center border-b bg-gray-100 p-4 rounded-t">
-              <div className="flex gap-1 items-center">
-                <DeliveryDiningOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: "text-gray-800" }}
-                />
-                {fulfillmentMethods.map((method) => {
-                  const {
-                    id,
-                    methodInt,
-                    deliveryTypeInt,
-                    localDeliveryDistanceStr,
-                  } = method;
-
-                  // methodInt 0: delivery, 1: pickup
-                  // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
-                  if (methodInt === 0) {
-                    if (methodInt === 0 && deliveryTypeInt === 1) {
-                      return (
-                        <div key={id} className="flex items-center">
-                          <p className="text-sm text-gray-800  ">delivery :</p>
-                          <p className="text-xs font-light text-gray-800 ml-1 ">
-                            within {localDeliveryDistanceStr}
+                  >
+                    <AccordionSummary
+                      expandIcon={
+                        <ShopSwitch
+                          checked={hydrated && fulfillmentType === 0}
+                          onClick={handleSwitch}
+                        />
+                      }
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      {hydrated && fulfillmentType === 0 ? (
+                        <div className="flex gap-1 items-center">
+                          <p className="text-sm font-light text-[color:var(--gray-light-med)]">
+                            pickup
                           </p>
+                          <p className="text-sm text-[color:var(--black-design-extralight)]">
+                            {" "}
+                            /{" "}
+                          </p>
+
+                          {fulfillmentMethods.map((method) => {
+                            const {
+                              id,
+                              methodInt,
+                              deliveryTypeInt,
+                              localDeliveryDistanceStr,
+                            } = method;
+
+                            // methodInt 0: delivery, 1: pickup
+                            if (methodInt === 0) {
+                              // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
+                              if (methodInt === 0 && deliveryTypeInt === 1) {
+                                return (
+                                  <div key={id} className="flex items-center">
+                                    <p className="text-sm text-[color:var(--black-design-extralight)]  ">
+                                      delivery :
+                                    </p>
+                                    <p className="text-xs font-light text-[color:var(--black-design-extralight)] ml-1 ">
+                                      {localDeliveryDistanceStr}
+                                    </p>
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div key={id} className="flex items-center">
+                                    <p className="text-sm text-[color:var(--black-design-extralight)]  ">
+                                      delivery
+                                    </p>
+                                  </div>
+                                );
+                              }
+                            }
+                          })}
                         </div>
-                      );
-                    } else {
-                      return (
-                        <div key={id} className="flex items-center">
-                          <p className="text-sm text-gray-800  ">delivery</p>
-                        </div>
-                      );
-                    }
-                  }
-                })}
-              </div>
-            </div>
-            <div className=" bg-gray-100 p-4 rounded-b">
-              {isLoaded ? (
-                <React.Fragment>
-                  <div className="flex ">
-                    <PlacesAutoComplete
-                      setIsDeliveryTooFar={setIsDeliveryTooFar}
-                      placeholder="deliver to: address"
-                      onAddressSelect={(address) => {
-                        getGeocode({ address: address }).then((results) => {
-                          const { lat, lng } = getLatLng(results[0]);
+                      ) : (
+                        <span className="flex gap-1 items-center">
+                          <p className="text-sm text-[color:var(--black-design-extralight)]">
+                            pickup
+                          </p>
+                          <p className="text-sm text-[color:var(--black-design-extralight)]">
+                            /
+                          </p>
+                          <div className="flex gap-1 items-center">
+                            {fulfillmentMethods.map((method) => {
+                              const {
+                                id,
+                                methodInt,
+                                deliveryTypeInt,
+                                localDeliveryDistanceStr,
+                              } = method;
 
-                          const distance = getDistance(
-                            lat,
-                            lng,
-                            bizLat,
-                            bizLng
-                          );
+                              // methodInt 0: delivery, 1: pickup
+                              if (methodInt === 0) {
+                                // deliveryTypeInt 0: self-delivery, 1: third party (uber, ups, etc.)
+                                if (methodInt === 0 && deliveryTypeInt === 1) {
+                                  return (
+                                    <div key={id} className="flex items-center">
+                                      <p className="text-sm font-light text-[color:var(--gray-light-med)]  ">
+                                        delivery :
+                                      </p>
+                                      <p className="text-xs font-light text-[color:var(--gray-light-med)] ml-1 ">
+                                        {localDeliveryDistanceStr}
+                                      </p>
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <div key={id} className="flex items-center">
+                                      <p className="text-sm text-[color:var(--gray-light-med)]  ">
+                                        delivery
+                                      </p>
+                                    </div>
+                                  );
+                                }
+                              }
+                            })}
+                          </div>
+                        </span>
+                      )}
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      {isLoaded ? (
+                        <React.Fragment>
+                          <PlacesAutoComplete
+                            setIsDeliveryTooFar={setIsDeliveryTooFar}
+                            address={deliveryAddress}
+                            placeholder="deliver to: address"
+                            onAddressSelect={(address) => {
+                              getGeocode({ address: address }).then(
+                                (results) => {
+                                  const { lat, lng } = getLatLng(results[0]);
 
-                          if (distance) {
-                            const { roundedNumInMi, roundedNumInKm } = distance;
-                            setCartDetails({ deliveryAddress: address });
-                            updateDeliveryFee(roundedNumInMi, roundedNumInKm);
-                          } else {
-                            setCartDetails({ deliveryAddress: "" });
-                          }
+                                  const distance = getDistance(
+                                    lat,
+                                    lng,
+                                    bizLat,
+                                    bizLng
+                                  );
 
-                          setLat(lat);
-                          setLng(lng);
-                        });
-                      }}
-                    />
+                                  if (distance) {
+                                    const { roundedNumInMi, roundedNumInKm } =
+                                      distance;
+                                    setCartDetails({
+                                      deliveryAddress: address,
+                                    });
+                                    updateDeliveryFee(
+                                      roundedNumInMi,
+                                      roundedNumInKm
+                                    );
+                                  } else {
+                                    setCartDetails({ deliveryAddress: "" });
+                                  }
+
+                                  setLat(lat);
+                                  setLng(lng);
+                                }
+                              );
+                            }}
+                          />
+                          {isDeliveryTooFar && (
+                            <p className="font-light text-sm mt-2 ml-2 text-[color:var(--primary)]">
+                              * Location too far.
+                            </p>
+                          )}
+                        </React.Fragment>
+                      ) : (
+                        <p className="font-light text-xs">Loading...</p>
+                      )}
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <div className="">
+                    <button
+                      onClick={handleSetDeliveryAddress(fulfillmentType)}
+                      className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
+                    >
+                      Set fulfillment
+                    </button>
                   </div>
-                  {isDeliveryTooFar && (
-                    <p className="font-light text-sm mt-2 ml-2 text-[color:var(--primary)]">
-                      * Location too far.
-                    </p>
+                </div>
+              </Box>
+            </Modal>
+          </div>
+        ) : fulfillmentMethodInt === 1 ? (
+          <button
+            disabled
+            type="button"
+            className=" rounded w-1/2 py-2 text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] lg:w-5/12"
+          >
+            Pickup only
+          </button>
+        ) : (
+          <div className="flex-grow w-1/2 lg:w-5/12 lg:flex-grow-0">
+            {hydrated && deliveryAddress && (
+              <button
+                onClick={handleOpenDeliveryAddressModal}
+                className="text-center text-xs w-full font-light mb-2 underline"
+              >
+                {deliveryAddress}
+              </button>
+            )}
+            <button
+              onClick={handleOpenDeliveryAddressModal}
+              type="button"
+              className=" rounded w-full py-2 text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] lg:flex-grow-0"
+            >
+              Delivery info
+            </button>
+
+            <Modal
+              open={openDeliveryAddressModal}
+              onClose={handleCloseDeliveryAddressModal}
+              aria-labelledby="delivery address modal"
+              aria-describedby="enter delivery address modal"
+            >
+              <Box sx={styledDeliveryModal}>
+                <div className="max-h-[36rem] overflow-y-scroll">
+                  {isLoaded ? (
+                    <div className="rounded-lg p-4">
+                      <h3 className="mb-4">Enter delivery address:</h3>
+                      <PlacesAutoComplete
+                        setIsDeliveryTooFar={setIsDeliveryTooFar}
+                        address={deliveryAddress}
+                        placeholder="deliver to: address"
+                        onAddressSelect={(address) => {
+                          getGeocode({ address: address }).then((results) => {
+                            const { lat, lng } = getLatLng(results[0]);
+
+                            const distance = getDistance(
+                              lat,
+                              lng,
+                              bizLat,
+                              bizLng
+                            );
+
+                            if (distance) {
+                              const { roundedNumInMi, roundedNumInKm } =
+                                distance;
+                              setCartDetails({ deliveryAddress: address });
+                              updateDeliveryFee(roundedNumInMi, roundedNumInKm);
+                            } else {
+                              setCartDetails({ deliveryAddress: "" });
+                            }
+
+                            setLat(lat);
+                            setLng(lng);
+                          });
+                        }}
+                      />
+                      {isDeliveryTooFar && (
+                        <p className="font-light text-sm mt-2 ml-2 text-[color:var(--error)]">
+                          * Location too far.
+                        </p>
+                      )}
+                      <button
+                        onClick={handleSetDeliveryAddress(fulfillmentType)}
+                        className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
+                      >
+                        Set address
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="font-light text-xs">Loading...</p>
                   )}
-                </React.Fragment>
-              ) : (
-                <p className="font-light text-xs">Loading...</p>
-              )}
-            </div>
+                </div>
+              </Box>
+            </Modal>
           </div>
         )
       ) : (
-        <div className="flex justify-between items-center bg-gray-100  p-4 rounded">
+        <div className="flex-grow h-full w-1/2 lg:flex-grow-0 lg:w-5/12">
           {fulfillmentMethodInt == 0 && (
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]"></p>
-              <div className="flex gap-1 items-center">
-                <DeliveryDiningOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: "text-gray-800" }}
-                />
-                <p className="text-sm text-gray-800">delivery</p>
-              </div>
-            </div>
+            <button
+              onClick={handleChangeDeliveryClick}
+              type="button"
+              className="rounded w-full h-full  py-2 text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] lg:flex-grow-0"
+            >
+              Edit delivery
+            </button>
           )}
           {fulfillmentMethodInt == 1 && (
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]"></p>
-              <div className="flex gap-1 items-center">
-                <TakeoutDiningOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: "text-gray-800" }}
-                />
-                <p className="text-sm text-gray-800">pickup only</p>
-              </div>
-            </div>
+            <button
+              onClick={handleChangeDeliveryClick}
+              type="button"
+              className="rounded py-2 w-full h-full text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] active:bg-[color:var(--primary)] active:from-[color:var(--secondary)] active:to-[color:var(--primary)]"
+            >
+              Edit pickup
+            </button>
           )}
           {fulfillmentMethodInt == 2 && (
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-[color:var(--brown-text)]"></p>
-              <div className="flex gap-1 items-center">
-                <DeliveryDiningOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: "text-gray-800" }}
-                />
-                <p className="text-sm text-gray-800">delivery</p>
-              </div>
-              <p className="text-sm text-gray-800">+</p>
-              <div className="flex gap-1 items-center">
-                <TakeoutDiningOutlinedIcon
-                  fontSize="small"
-                  sx={{ color: "text-gray-800" }}
-                />
-                <p className="text-sm text-gray-800">pickup</p>
-              </div>
-            </div>
+            <button
+              onClick={handleChangeDeliveryClick}
+              type="button"
+              className="rounded py-2 w-full h-full text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] active:bg-[color:var(--primary)] active:from-[color:var(--secondary)] active:to-[color:var(--primary)]"
+            >
+              Edit delivery
+            </button>
           )}
-          <button
-            onClick={handleChangeDeliveryClick}
-            className="underline font-light text-sm"
-          >
-            edit
-          </button>
         </div>
       )}
 
       {hasCustomAvailability && isOwner ? (
-        <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--gray-light-med)] rounded md:mb-4 ">
-          <span className="flex items-center gap-2">
-            <p className="font-extralight text-sm ">Store hours:</p>
-            <button
-              onClick={handleOpenAvailabilityModalOwner}
-              className="font-extralight text-xs underline"
-            >
-              View availabilities
-            </button>
-          </span>
-          <span className="border border-[color:var(--gray-light-med)] h-4 "></span>
-          <button
-            onClick={handleChangeAvailabilityClick}
-            className="text-sm underline text-[color:var(--black-design-extralight)] font-light "
-          >
-            edit
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleOpenAvailabilityModalOwner}
+          className="flex justify-center gap-1 items-center font-normal  py-2 w-1/2 rounded text-[color:var(--gray)] bg-[color:var(--gray-light)] focus:text-black active:bg-[color:var(--gray)] flex-wrap text-sm
+            lg:w-5/12"
+        >
+          Availability
+        </button>
       ) : (
         hasCustomAvailability &&
         availability &&
         (datesAvailability.length !== 0 ||
           datesRangedAvailability.length !== 0 ||
           daysOfWeekAvailability.length !== 0) && (
-          <div className="px-4 py-2 mt-2 flex justify-between items-center border border-[color:var(--black-design-extralight)] rounded md:mb-4 ">
-            <span className="flex flex-col">
-              <p className="font-extralight text-[color:var(--gray-light-med)] ">
-                Get it by
-              </p>
-              <div className="flex gap-2">
-                <p className="text-[color:var(--black-design-extralight)] text-sm font-light ">
-                  {hydrated && orderForDateDisplay === ""
-                    ? "Select a date"
-                    : hydrated && orderForDateDisplay}
-                </p>
-
-                {isTimeBlockEnabled && (
-                  <p className="text-[color:var(--black-design-extralight)] text-sm font-light ">
-                    {hydrated && orderForTimeDisplay === ""
-                      ? "& time"
-                      : `@ ${hydrated && orderForTimeDisplay}`}
-                  </p>
-                )}
-              </div>
-            </span>
-            <span className="border border-[color:var(--gray-light-med)] h-4 "></span>
+          <div className="w-1/2 lg:w-5/12">
+            {hydrated &&
+              orderForDateDisplay &&
+              (isTimeBlockEnabled ? (
+                <button
+                  onClick={handleOpenAvailabilityModalOwner}
+                  className="flex items-center justify-center w-full mb-2"
+                >
+                  <span className="text-xs font-light">
+                    ({orderForDateDisplay}
+                  </span>
+                  {orderForTimeDisplay !== "" && (
+                    <span className="text-xs font-light pl-1">
+                      @ {orderForTimeDisplay})
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={handleOpenAvailabilityModalOwner}
+                  className="text-xs font-light text-center mb-2 w-full"
+                >
+                  ({hydrated && orderForDateDisplay})
+                </button>
+              ))}
             <button
+              type="button"
               onClick={handleOpenAvailabilityModalOwner}
-              className="text-sm underline text-[color:var(--black-design-extralight)] font-light "
+              className="flex w-full justify-center gap-1 text-sm items-center py-2 rounded text-[color:var(--gray)] bg-[color:var(--gray-light)] focus:text-black active:bg-[color:var(--gray)] flex-wrap"
             >
-              change
+              Get it by
             </button>
           </div>
         )
@@ -1312,14 +1381,14 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
       <Modal
         open={openAvailabilityModalOwner}
         onClose={handleCloseAvailabilityModalOwner}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+        aria-labelledby="calendar-modal"
+        aria-describedby="view of calendar to select date and time"
       >
-        <Box sx={style}>
+        <Box sx={styledAvailModal}>
           <div className="max-h-[36rem] overflow-y-scroll">
-            <div className="mb-4 border-b pb-4">
-              <h3 className="pb-2  border-b">Availability:</h3>
-              <div className="flex gap-2 items-center mt-4  text-[color:var(--black-design-extralight)]">
+            <div className="border-b p-4">
+              <h3 className="pb-2 underline">Availability:</h3>
+              <div className="flex gap-2 items-center text-[color:var(--black-design-extralight)]">
                 <p className="font-medium">Date:</p>
                 <p className="font-light">{selectedDate}</p>
               </div>
@@ -1335,65 +1404,90 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                 </div>
               )}
             </div>
+            <div className=" mb-16">
+              {!isOwner ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateCalendar
+                    disablePast
+                    defaultValue={calendarDate}
+                    defaultCalendarMonth={calendarMonth}
+                    loading={isLoading}
+                    onMonthChange={handleMonthChange}
+                    onChange={handleDateClick}
+                    renderLoading={() => <DayCalendarSkeleton />}
+                    slots={{
+                      day: ServerDay,
+                    }}
+                    slotProps={{
+                      day: {
+                        highlightedDays,
+                      },
+                    }}
+                    sx={{
+                      width: "300px",
+                    }}
+                  />
+                </LocalizationProvider>
+              ) : (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateCalendar
+                    disablePast
+                    defaultValue={calendarDate}
+                    defaultCalendarMonth={calendarMonth}
+                    loading={isLoading}
+                    onMonthChange={handleMonthChange}
+                    onChange={handleDateClick}
+                    slots={{
+                      day: ServerDay,
+                    }}
+                    slotProps={{
+                      day: {
+                        highlightedDays,
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              )}
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateCalendar
-                disablePast
-                defaultValue={calendarDate}
-                defaultCalendarMonth={calendarMonth}
-                loading={isLoading}
-                onMonthChange={handleMonthChange}
-                onChange={handleDateClick}
-                renderLoading={() => <DayCalendarSkeleton />}
-                slots={{
-                  day: ServerDay,
-                }}
-                slotProps={{
-                  day: {
-                    highlightedDays,
-                  },
-                }}
-              />
-            </LocalizationProvider>
-
-            {isTimeBlockEnabled && timeBlockTimes.length !== 0 && (
-              <div className="border-t pt-4 pb-16 flex flex-col gap-4 text-[color:var(--black-design-extralight)]">
-                <div className="flex items-center gap-2">
-                  <p className=" whitespace-nowrap">Available times:</p>
-                  {isOwner && <p className="font-light text-xs">View only</p>}
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {timeBlockTimes.map((time, i) => {
-                    return isOwner ? (
-                      <p
-                        key={i}
-                        className="whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-light-med)] w-fit"
-                      >
-                        {time}
-                      </p>
-                    ) : (
-                      <button
-                        name={time}
-                        onClick={handleSelectTime}
-                        key={i}
-                        className={`whitespace-nowrap border rounded px-2 py-1 text-[color:var(--gray-light-med)] w-fit hover:bg-[color:var(--gray)] hover:text-white focus:bg-[color:var(--black-design-extralight)] focus:text-white
+              {isTimeBlockEnabled && timeBlockTimes.length !== 0 && (
+                <div className=" border-t py-4 px-6 pb-16 flex flex-col gap-4 text-[color:var(--black-design-extralight)]">
+                  <div className="flex items-center gap-2">
+                    <p className=" whitespace-nowrap">Available times:</p>
+                    {isOwner && <p className="font-light text-xs">View only</p>}
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    {timeBlockTimes.map((time, i) => {
+                      return isOwner ? (
+                        <p
+                          key={i}
+                          className="whitespace-nowrap border rounded w-full py-1 text-[color:var(--gray-light-med)] text-center"
+                        >
+                          {time}
+                        </p>
+                      ) : (
+                        <button
+                          name={time}
+                          onClick={handleSelectTime}
+                          key={i}
+                          className={`whitespace-nowrap border rounded py-1 text-center text-[color:var(--gray-light-med)] w-full hover:bg-[color:var(--gray-light-med)] hover:text-white focus:bg-[color:var(--secondary)] focus:text-white
                         ${
                           hydrated && orderForTimeDisplay == time
-                            ? "bg-[color:var(--black-design-extralight)] text-white"
+                            ? "bg-[color:var(--secondary)] text-white"
                             : ""
                         }
                         
                         `}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
+                        >
+                          {time}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
-            {!isOwner && (
-              <div className="flex gap-4 fixed bottom-0 w-full left-0 py-3 px-9 sm:p-4 bg-white border-t">
+              )}
+            </div>
+            {!isOwner ? (
+              <div className="flex gap-4 rounded-b-lg fixed bottom-0 w-full left-0 py-3 px-9 sm:p-4 bg-white border-t z-10">
                 <button
                   onClick={handleCancelDeliveryChange}
                   className="w-1/2 border border-[color:var(--black-design-extralight)] rounded text-[color:var(--black-design-extralight)] py-1 active:bg-[color:var(--black-design-extralight)] active:text-white"
@@ -1407,6 +1501,13 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                   Set
                 </button>
               </div>
+            ) : (
+              <div className="fixed bottom-0 rounded-b-lg left-0 w-full py-3 px-9 sm:p-4 bg-white border-t z-10">
+                <ButtonPrimary
+                  name="Edit availability"
+                  handleClick={handleChangeAvailabilityClick}
+                />
+              </div>
             )}
           </div>
         </Box>
@@ -1418,7 +1519,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 export default ShopFulfillment;
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1.5),
   borderTop: `1px solid ${theme.palette.divider}`,
 }));
 
@@ -1429,3 +1530,15 @@ const AccordionSummary = styled((props) => <MuiAccordionSummary {...props} />)(
     },
   })
 );
+
+const Accordion = styled((props) => (
+  <MuiAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+  // border: `1px solid ${theme.palette.divider}`,
+  // "&:not(:last-child)": {
+  //   borderBottom: 0,
+  // },
+  // "&:before": {
+  //   display: "none",
+  // },
+}));

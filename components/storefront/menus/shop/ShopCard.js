@@ -3,7 +3,7 @@ import styles from "../../../../styles/components/storefront/menus/shop-card.mod
 import Image from "next/image";
 import Link from "next/link";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import { IconButton } from "@mui/material";
+import { IconButton, Rating } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ProductDrawer from "@/components/app/my-shop/products/ProductDrawer";
 import MenuItem from "@mui/material/MenuItem";
@@ -467,110 +467,126 @@ function ShopCard({
               />
             </div>
           )}
-          <div className="flex items-start justify-between h-full pt-1">
-            <div className="flex flex-col">
-              <h4>{productName}</h4>
+          <div className="flex flex-col pt-1">
+            <div className="">
+              <h4 className="text-sm font-medium">{productName}</h4>
+              <div className="flex items-center gap-2 mb-1">
+                <Rating
+                  name="read-only"
+                  value={parseInt(product.rating)}
+                  readOnly
+                  sx={{ fontSize: "0.75rem" }}
+                />
+                <p className="text-[color:var(--gray-text)] font-extralight text-xs">
+                  ({product.reviewCount})
+                </p>
+              </div>
 
-              <p className={`${styles.price}`}>{priceStr}</p>
               {isSoldOut && (
                 <p className={`${styles.sold_out_text}`}>Sold out</p>
               )}
             </div>
-            <div className="rounded-full bg-[color:var(--purple-bg)] self-end">
-              <React.Fragment>
-                <IconButton onClick={handleOpenMenu}>
-                  <MoreVertIcon
-                    fontSize="small"
-                    sx={{ color: "var(--brown-text)" }}
-                  />
-                </IconButton>
-                <StyledMenu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                  }}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                >
-                  <MenuItem onClick={handleMenuClick} sx={{ fontSize: "12px" }}>
-                    Edit
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleOpenRemoveModal}
-                    sx={{ fontSize: "12px" }}
+            <div className="flex justify-between items-center w-full">
+              <p className="text-sm font-base">{priceStr}</p>
+              <div className="rounded-full hover:bg-[color:var(--primary-light-soft)] self-end">
+                <React.Fragment>
+                  <IconButton onClick={handleOpenMenu}>
+                    <MoreVertIcon
+                      fontSize="small"
+                      // sx={{ color: "var(--brown-text)" }}
+                    />
+                  </IconButton>
+                  <StyledMenu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      "aria-labelledby": "basic-button",
+                    }}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "left",
+                    }}
                   >
-                    Delete
-                  </MenuItem>
-                  <Modal
-                    open={isDeleteModalOpen}
-                    onClose={handleCloseDeleteModal}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <div className="flex flex-col items-center gap-2">
-                        <Image
-                          src={delete_folder_icon}
-                          alt="delete folder icon"
-                          className="w-10 h-10"
-                        />
-                        <p>You&apos;re about to delete this product:</p>
-                        <h2 className="mb-2">{productName}</h2>
-                        <div className="flex  gap-4 items-center mt-2 w-full">
-                          <div className="w-1/2">
-                            <ButtonSecondary
-                              name="Cancel"
-                              type="button"
-                              handleClick={handleCloseDeleteModal}
-                            />
-                          </div>
-                          {isLoading ? (
-                            <div className="w-1/2 flex justify-center items-center">
-                              <BoxLoader />
-                            </div>
-                          ) : (
+                    <MenuItem
+                      onClick={handleMenuClick}
+                      sx={{ fontSize: "12px" }}
+                    >
+                      Edit
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleOpenRemoveModal}
+                      sx={{ fontSize: "12px" }}
+                    >
+                      Delete
+                    </MenuItem>
+                    <Modal
+                      open={isDeleteModalOpen}
+                      onClose={handleCloseDeleteModal}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                    >
+                      <Box sx={style}>
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={delete_folder_icon}
+                            alt="delete folder icon"
+                            className="w-10 h-10"
+                          />
+                          <p>You&apos;re about to delete this product:</p>
+                          <h2 className="mb-2">{productName}</h2>
+                          <div className="flex  gap-4 items-center mt-2 w-full">
                             <div className="w-1/2">
-                              <ButtonPrimary
-                                name="Delete"
+                              <ButtonSecondary
+                                name="Cancel"
                                 type="button"
-                                handleClick={handleDeleteProduct(id, images)}
-                                isLoading={isLoading}
+                                handleClick={handleCloseDeleteModal}
                               />
                             </div>
-                          )}
+                            {isLoading ? (
+                              <div className="w-1/2 flex justify-center items-center">
+                                <BoxLoader />
+                              </div>
+                            ) : (
+                              <div className="w-1/2">
+                                <ButtonPrimary
+                                  name="Delete"
+                                  type="button"
+                                  handleClick={handleDeleteProduct(id, images)}
+                                  isLoading={isLoading}
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Box>
-                  </Modal>
+                      </Box>
+                    </Modal>
 
-                  <MenuItem
-                    onClick={handleDuplicateProduct}
-                    sx={{ fontSize: "12px" }}
-                  >
-                    Duplicate
-                  </MenuItem>
-                </StyledMenu>
-                <ProductDrawer
-                  state={state}
-                  toggleDrawer={toggleDrawer}
-                  product={product}
-                  categories={categories}
-                  isEditProduct={true}
-                  accountId={accountId}
-                  updateProductList={updateProductList}
-                  handleOpenSnackbarGlobal={handleOpenSnackbar}
-                  getAllProducts={getAllProducts}
-                />
-              </React.Fragment>
+                    <MenuItem
+                      onClick={handleDuplicateProduct}
+                      sx={{ fontSize: "12px" }}
+                    >
+                      Duplicate
+                    </MenuItem>
+                  </StyledMenu>
+                  <ProductDrawer
+                    state={state}
+                    toggleDrawer={toggleDrawer}
+                    product={product}
+                    categories={categories}
+                    isEditProduct={true}
+                    accountId={accountId}
+                    updateProductList={updateProductList}
+                    handleOpenSnackbarGlobal={handleOpenSnackbar}
+                    getAllProducts={getAllProducts}
+                  />
+                </React.Fragment>
+              </div>
             </div>
           </div>
         </div>
@@ -599,29 +615,42 @@ function ShopCard({
                 />
               </div>
             )}
-            <div className="flex items-start justify-between h-full pt-1">
-              <div className="flex flex-col">
-                <h4>{productName}</h4>
+            <div className="flex flex-col pt-1">
+              <div className="">
+                <h4 className="text-sm font-medium">{productName}</h4>
+                <div className="flex items-center gap-2 mb-1">
+                  <Rating
+                    name="read-only"
+                    value={parseInt(product.rating)}
+                    readOnly
+                    sx={{ fontSize: "0.75rem" }}
+                  />
+                  <p className="text-[color:var(--gray-text)] font-extralight text-xs">
+                    ({product.reviewCount})
+                  </p>
+                </div>
 
-                <p className={`${styles.price}`}>{priceStr}</p>
                 {isSoldOut && (
                   <p className={`${styles.sold_out_text}`}>Sold out</p>
                 )}
               </div>
-              <div className="rounded-full bg-[color:var(--purple-bg)] self-end">
-                <div className="bg-[color:var(--white-design)] rounded-full">
-                  <IconButton>
-                    <StyledBadge
-                      badgeContent={numProductInCart}
-                      color="warning"
-                      fontSize="small"
-                    >
-                      <AddShoppingCartIcon
-                        sx={{ color: "var(--black-design-extralight)" }}
+              <div className="flex justify-between items-center w-full">
+                <p className="text-sm font-base">{priceStr}</p>
+                <div className="rounded-full hover:bg-[color:var(--purple-bg)] self-end">
+                  <div className="bg-[color:var(--white-design)] rounded-full">
+                    <IconButton>
+                      <StyledBadge
+                        badgeContent={numProductInCart}
+                        color="warning"
                         fontSize="small"
-                      />
-                    </StyledBadge>
-                  </IconButton>
+                      >
+                        <AddShoppingCartIcon
+                          sx={{ color: "var(--black-design-extralight)" }}
+                          fontSize="small"
+                        />
+                      </StyledBadge>
+                    </IconButton>
+                  </div>
                 </div>
               </div>
             </div>

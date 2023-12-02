@@ -58,8 +58,8 @@ function OrderSubmitted({ order }) {
       customerPhone: "",
       requireOrderTime: false,
       requireOrderDate: false,
-      orderForDateDisplay: "Select date",
-      orderForTimeDisplay: "time",
+      orderForDateDisplay: "",
+      orderForTimeDisplay: "",
       fulfillmentType: null,
       fulfillmentDisplay: null,
       deliveryAddress: "",
@@ -145,9 +145,7 @@ function OrderSubmitted({ order }) {
               <ContentCopyIcon fontSize="small" />
             </IconButton>
           </div>
-          <p className="font-base text-sm">
-            Your invoice was emailed
-          </p>
+          <p className="font-base text-sm">Your invoice was emailed</p>
           <Link
             href={`/`}
             className="bg-[color:var(--black-design-extralight)] my-2 rounded text-sm text-white font-light px-4 py-2 active:bg-black"

@@ -48,17 +48,19 @@ function OrderReview({
 
     return (
       <div className="pb-4 mx-4 border-b">
-        <h3 className="font-medium mb-2">Order Details:</h3>
+        <h3 className="font-medium mt-4 mb-2">Order Details:</h3>
         <div className="flex flex-col gap-2 px-2">
-          <div className={`${styles.flex} ${styles.review_context}`}>
-            <p>
-              <b>For date:</b>
-            </p>
-            <p className="text-sm font-light">
-              {requireOrderDate && orderForDateDisplay}
-              {requireOrderTime && ` @ ` + orderForTimeDisplay}
-            </p>
-          </div>
+          {requireOrderDate && (
+            <div className={`${styles.flex} ${styles.review_context}`}>
+              <p>
+                <b>For date:</b>
+              </p>
+              <p className="text-sm font-light">
+                {requireOrderDate && orderForDateDisplay}
+                {requireOrderTime && ` @ ` + orderForTimeDisplay}
+              </p>
+            </div>
+          )}
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p>
               <b>Fulfillment:</b>
@@ -96,21 +98,23 @@ function OrderReview({
       </div>
     );
   }
-
+  console.log("requireOrderDate", requireOrderDate);
+  console.log("requireTime", requireOrderTime);
   return (
     <div className="py-6 mx-4 border-b">
       <h3 className="font-medium mb-2">Order Details:</h3>
       <div className="flex flex-col gap-2 px-2">
-        {hydrated && (requireOrderDate || requireOrderTime) && (
+        {hydrated && requireOrderDate && (
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p className="text-sm">For date:</p>
             <div className="flex items-center gap-2">
               <p className="text-xs font-light">
-                {requireOrderDate && orderForDateDisplay}
-                {requireOrderTime && ` @ ` + orderForTimeDisplay}
+                {requireOrderDate && orderForDateDisplay && orderForDateDisplay}
+                {requireOrderTime &&
+                  orderForTimeDisplay &&
+                  ` @ ` + orderForTimeDisplay}
               </p>
-              {((requireOrderDate && orderForDateDisplay === "Select date") ||
-                (requireOrderTime && orderForTimeDisplay === "time")) && (
+              {requireOrderDate && orderForDateDisplay === "" && (
                 <button
                   onClick={handleAddDateTime}
                   className="text-blue-600 text-sm font-light"

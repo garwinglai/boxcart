@@ -13,6 +13,7 @@ import { Close } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { db } from "@/firebase/fireConfig";
 import { doc, deleteDoc } from "firebase/firestore";
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 
 function NotificationCard({
   notif,
@@ -34,7 +35,7 @@ function NotificationCard({
   const handleViewNotif = () => {
     handleCloseNotif();
 
-    if (notificationType == 0) {
+    if (notificationType == 0) { //orders
       handleClearNotif();
 
       if (pageTitle == "Live Orders") {
@@ -42,6 +43,16 @@ function NotificationCard({
         return;
       }
       push("/account/orders/live");
+    }
+
+    if (notificationType == 1) { // reviews
+      handleClearNotif();
+
+      if (pageTitle == "Products") {
+        reload();
+        return;
+      }
+      push("/account/inventory/products");
     }
   };
 
@@ -63,6 +74,9 @@ function NotificationCard({
       <div className="flex items-start gap-2">
         {notificationType == 0 && (
           <AttachMoneyIcon color="success" sx={{ marginTop: "1rem" }} />
+        )}
+        {notificationType == 1 && (
+          <RateReviewOutlinedIcon sx={{ marginTop: "1rem", color: "gold" }} />
         )}
         <div className="w-full">
           <div className="flex justify-between items-center">

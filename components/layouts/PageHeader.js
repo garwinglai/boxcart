@@ -15,6 +15,7 @@ import {
   query,
   where,
   collection,
+  getDocs,
   orderBy,
 } from "firebase/firestore";
 import { useAccountStore } from "@/lib/store";
@@ -59,11 +60,13 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
     const notifQuery = query(
       notifCollectionRef,
       orderBy("createdAt", "desc"),
-      where("accountId", "==", accountId)
+      where("accountId", "==", 1)
     );
+
     const unsubNotif = onSnapshot(notifQuery, (querySnapshot) => {
       const notifs = [];
       querySnapshot.forEach((doc) => {
+        console.log("doc", doc);
         const id = doc.id;
         const data = doc.data();
         data.id = id;

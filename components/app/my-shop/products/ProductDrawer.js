@@ -1575,6 +1575,10 @@ function ProductDrawer({
       priceValue += ".00";
     }
 
+    if (priceValue.split(".")[0] == "") {
+      priceValue = "0" + priceValue;
+    }
+
     const convertToPriceStr = `$${priceValue}`;
 
     const productSchema = {
@@ -1602,6 +1606,7 @@ function ProductDrawer({
 
     return productSchema;
   };
+
   const structureImageSchema = (images) => {
     const photoDatatArr = [];
 

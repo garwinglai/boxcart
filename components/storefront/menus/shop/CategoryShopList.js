@@ -41,7 +41,7 @@ function CategoryShopList({
               onClick={handleCategoryClick(id, categoryName)}
               className="text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] active:bg-[color:var(--third-light)]"
             >
-              <span className="flex items-center gap-4 justify-between">
+              <span className="flex items-center gap-12 justify-between">
                 <p className="font-light text-left">{categoryName}</p>
                 <p className="font-extralight">{productCount}</p>
               </span>

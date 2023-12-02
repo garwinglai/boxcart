@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import ShareIcon from "@mui/icons-material/Share";
-import { IconButton } from "@mui/material";
+import { IconButton, Rating } from "@mui/material";
 import Image from "next/image";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import RadioGroupComponent from "@/components/storefront/options/RadioGroupComponent";
@@ -20,11 +20,15 @@ import {
 import { nanoid } from "nanoid";
 import Link from "next/link";
 import CheckmarkGif from "@/public/videos/checkmark.gif";
+import ReviewComponent from "@/components/storefront/reviews/ReviewComponent";
 
 // generate item quantity constant to 100 values in an array from 1
 const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function Product({ product }) {
+  const { account, id: productId } = product || {};
+  const { id: accountId } = account || {};
+
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
   const cart = useCartStore((state) => state.cart);
@@ -68,6 +72,7 @@ function Product({ product }) {
     isSampleProduct,
   } = product;
 
+  const [reviews, setReviews] = useState(product.reviews);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [exampleImages, setExampleImages] = useState([]);
   const [itemTotal, setItemTotal] = useState(product.priceStr);
@@ -269,6 +274,23 @@ function Product({ product }) {
       }
     }
   }, [productsStore, product, optionQuantityStore]);
+
+  const getReviews = async (accountId, productId) => {
+    const api = `/api/public/storefront/review/retrieve?accountId=${accountId}&productId=${productId}`;
+    const res = await fetch(api, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const { success, error, reviews } = await res.json();
+
+    if (!success || error) {
+      return handleOpenSnackbar("Couldn't load reviews.");
+    }
+
+    setReviews(reviews);
+  };
 
   function handleBack() {
     router.back();
@@ -1369,24 +1391,26 @@ function Product({ product }) {
         )}
         <div className="flex flex-col gap-2 px-6 pb-4 border-b border-[color:var(--gray-light)]">
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">{productName}</h3>
+            <div>
+              <h3 className="font-medium">{productName}</h3>
+              <div className="flex items-center gap-2">
+                <Rating
+                  name="read-only"
+                  value={parseInt(product.rating)}
+                  readOnly
+                  sx={{ fontSize: "0.75rem" }}
+                />
+                <p className="text-[color:var(--gray-text)] font-extralight text-xs">
+                  ({product.reviewCount})
+                </p>
+              </div>
+            </div>
             <p className="font-medium">{priceStr}</p>
           </div>
           <div className="flex justify-between gap-4  md:flex-col-reverse md:items-start md:gap-2">
             <p className="font-light text-sm text-[color:var(--gray)] ">
               {description}
             </p>
-            {/* <div className="flex flex-col items-end md:items-start">
-							<p className="text-[color:var(--gray-text)] font-extralight text-xs">{`(${reviewCountStr})`}</p>
-
-							<Rating
-								name="read-only"
-								defaultValue={reviewDouble}
-								precision={0.5}
-								readOnly
-								size="small"
-							/>
-						</div> */}
           </div>
         </div>
         <div className="relative px-6 pb-4 pt-3">
@@ -1462,7 +1486,7 @@ function Product({ product }) {
             </div>
           </div>
         )}
-        <div className="flex overflow-x-scroll w-full gap-2 px-6 border-b">
+        <div className="flex overflow-x-scroll w-full gap-2 px-6">
           {exampleImages.length !== 0 &&
             exampleImages.map((item, idx) => (
               <div key={idx} className="flex flex-col max-w-[5rem] gap-1 pb-4">
@@ -1491,9 +1515,18 @@ function Product({ product }) {
               </div>
             ))}
         </div>
-        <div className="flex px-6 pt-4 justify-between items-center">
+        <div className="flex px-6 py-4 justify-between items-center border-b">
           <h3 className="font-medium">Item total:</h3>
           <p className="font-medium">{itemTotal}</p>
+        </div>
+        <div className="md:hidden">
+          <ReviewComponent
+            getReviews={getReviews}
+            product={product}
+            account={account}
+            reviews={reviews}
+            handleOpenSnackbar={handleOpenSnackbar}
+          />
         </div>
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
           <div className="h-10">
@@ -1511,6 +1544,15 @@ function Product({ product }) {
             Continue Shopping
           </Link>
         </div>
+        <div className="hidden md:block">
+          <ReviewComponent
+            getReviews={getReviews}
+            product={product}
+            account={account}
+            reviews={reviews}
+            handleOpenSnackbar={handleOpenSnackbar}
+          />
+        </div>
       </div>
     </form>
   );
@@ -1526,23 +1568,57 @@ export async function getServerSideProps(context) {
   const { pid } = context.query;
   const id = parseInt(pid);
 
-  const product = await prisma.product.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      account: true,
-      images: true,
-      optionGroups: {
-        include: {
-          options: true,
+  try {
+    const product = await prisma.product.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        account: true,
+        reviews: {
+          orderBy: {
+            createdAt: "desc",
+          },
         },
+        images: true,
+        optionGroups: {
+          include: {
+            options: true,
+          },
+        },
+        questions: true,
       },
-      questions: true,
-    },
-  });
+    });
 
-  if (!product) {
+    if (!product) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
+    const { account } = product;
+
+    if (!account.isChecklistComplete) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
+    const serializedProduct = JSON.parse(JSON.stringify(product));
+
+    return {
+      props: {
+        product: serializedProduct,
+      },
+    };
+  } catch (error) {
+    console.log(error);
     return {
       redirect: {
         destination: "/",
@@ -1550,23 +1626,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
-  const { account } = product;
-
-  if (!account.isChecklistComplete) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  const serializedProduct = JSON.parse(JSON.stringify(product));
-
-  return {
-    props: {
-      product: serializedProduct,
-    },
-  };
 }

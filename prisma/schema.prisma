@@ -46,73 +46,75 @@ model User {
 }
 
 model Account {
-  id                              Int      @id @default(autoincrement())
-  createdAt                       DateTime @default(now())
-  updatedAt                       DateTime @updatedAt
-  version                         String   @default("1.0.0")
+  id                              Int                  @id @default(autoincrement())
+  createdAt                       DateTime             @default(now())
+  updatedAt                       DateTime             @updatedAt
+  version                         String               @default("1.0.0")
   referredFrom                    String?
-  isActive                        Boolean  @default(true) // free accounts that aren't free
-  hasPremiumPlan                  Boolean  @default(false) // Default false until user pays for premium plan.
-  isFreePeriodActive              Boolean  @default(true)
-  isBetaUser                      Boolean  @default(true) // Default is true, meantime we are only accepting beta users.
+  isActive                        Boolean              @default(true) // free accounts that aren't free
+  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
+  isFreePeriodActive              Boolean              @default(true)
+  isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
   freePeriodEndDateStr            String?
   freePeriodEndDateEpoch          String? // 1 month free
-  isFirstLogin                    Boolean  @default(true)
-  isChecklistComplete             Boolean  @default(false) // Default false until checklist is complete.
-  isNonMandatoryChecklistComplete Boolean  @default(false) // Default false until checklist is complete.
-  email                           String   @unique
-  isEmailVerified                 Boolean  @default(false)
+  isFirstLogin                    Boolean              @default(true)
+  isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
+  isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
+  email                           String               @unique
+  isEmailVerified                 Boolean              @default(false)
   userName                        String
   firstName                       String
   lastName                        String
-  accessCode                      String?  @unique
+  accessCode                      String?              @unique
   businessName                    String
-  subdomain                       String   @unique
-  fullDomain                      String   @unique
-
+  subdomain                       String               @unique
+  fullDomain                      String               @unique
   // logoImgStr             String?
-  logoImageFileName    String?
-  logoImage            String?              @db.Text
-  bannerImageFileName  String?
-  bannerImage          String?              @db.Text
-  businessBio          String?              @db.VarChar(255)
-  socials              Social[]
-  subscriberCount      Int                  @default(0)
-  customers            Customer[]
-  subscribers          Subscriber[]
-  contacts             Contact[]
-  fulfillmentMethodInt Int // 0: delivery, 1: pickup, 2: both
-  fulfillmentMethods   Fulfillment[]
-  address_1            String
-  address_2            String?
-  city                 String
-  state                String
-  zip                  String
-  fullAddress          String
-  lat                  Float?
-  lng                  Float?
-  geohash              String?
-  enableTips           Boolean              @default(false)
-  tips                 Tips?
-  tax                  Tax?
-  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId               Int
+  logoImageFileName               String?
+  logoImage                       String?              @db.Text
+  bannerImageFileName             String?
+  bannerImage                     String?              @db.Text
+  businessBio                     String?              @db.VarChar(255)
+  socials                         Social[]
+  subscriberCount                 Int                  @default(0)
+  customers                       Customer[]
+  subscribers                     Subscriber[]
+  contacts                        Contact[]
+  fulfillmentMethodInt            Int // 0: delivery, 1: pickup, 2: both
+  fulfillmentMethods              Fulfillment[]
+  address_1                       String
+  address_2                       String?
+  city                            String
+  state                           String
+  zip                             String
+  fullAddress                     String
+  lat                             Float?
+  lng                             Float?
+  geohash                         String?
+  enableTips                      Boolean              @default(false)
+  rating                          String               @default("5.00")
+  reviewCount                     Int                  @default(1)
+  tips                            Tips?
+  tax                             Tax?
+  user                            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                          Int
   // hasPaymentMethod       Boolean              @default(false)
-  requireDeposit       Boolean              @default(false)
-  businessTypes        BusinessType[]
-  acceptedPayments     AcceptedPayment[]
-  deposit              Deposit?
-  savedPaymentMethods  SavedPaymentMethod[]
-  premiumPlan          PremiumPlan?
-  checklist            Checklist?
-  products             Product[]
-  categories           Category[]
-  availability         Availability?
-  orders               CustomerOrder[]
-  revenue              Revenue?
-  payout               Payout[]
-  taxId                Int?
-  payoutId             Int?
+  requireDeposit                  Boolean              @default(false)
+  businessTypes                   BusinessType[]
+  acceptedPayments                AcceptedPayment[]
+  deposit                         Deposit?
+  savedPaymentMethods             SavedPaymentMethod[]
+  premiumPlan                     PremiumPlan?
+  checklist                       Checklist?
+  products                        Product[]
+  categories                      Category[]
+  availability                    Availability?
+  orders                          CustomerOrder[]
+  revenue                         Revenue?
+  payout                          Payout[]
+  reviews                         Review[]
+  taxId                           Int?
+  payoutId                        Int?
 
   @@index([userId])
 }
@@ -161,14 +163,10 @@ model Customer {
   email           String          @unique
   stripeId        String?
   deliveryAddress String?
-  // address_1       String?
-  // address_2       String?
-  // city            String?
-  // state           String?
-  // zip             String?
   orders          CustomerOrder[]
   account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId       Int
+  reviews         Review[]
 
   @@index([accountId])
 }
@@ -232,6 +230,7 @@ model CustomerOrder {
   accountId                   Int
   customer                    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId                  Int
+  products                    Product[]
 
   @@index([accountId])
   @@index([customerId])
@@ -433,31 +432,62 @@ model DaysOfWeekAvailability {
   @@index([availabilityId])
 }
 
+model Review {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String
+  rating     String   @default("0.00")
+  review     String   @db.Text
+  title      String
+  email      String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+
+  @@index([accountId])
+  @@index([productId])
+  @@index([customerId])
+}
+
 model Product {
-  id                         Int           @id @default(autoincrement())
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-  isSampleProduct            Boolean       @default(false)
-  isEnabled                  Boolean       @default(true)
+  id                         Int             @id @default(autoincrement())
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
+  isSampleProduct            Boolean         @default(false)
+  isEnabled                  Boolean         @default(true)
   productName                String
-  description                String        @db.Text
+  description                String          @db.Text
   priceIntPenny              Int
   priceStr                   String
   defaultImageFileName       String?
-  defaultImage               String?       @db.Text
+  defaultImage               String?         @db.Text
   images                     Image[]
-  fireStorageId              String?       @unique //id to find image file in firebase storage.
-  hasUnlimitedQuantity       Boolean       @default(true)
-  setQuantityByProduct       Boolean       @default(true) //If false, set qty by variant and total up for qty.
+  fireStorageId              String?         @unique //id to find image file in firebase storage.
+  hasUnlimitedQuantity       Boolean         @default(true)
+  setQuantityByProduct       Boolean         @default(true) //If false, set qty by variant and total up for qty.
   quantity                   Int?
-  enableCustomNote           Boolean       @default(false)
-  enableCustomerImageUploads Boolean       @default(false)
+  enableCustomNote           Boolean         @default(false)
+  enableCustomerImageUploads Boolean         @default(false)
+  rating                     String          @default("0.00")
+  reviewCount                Int             @default(0)
+  fiveStarCount              Int             @default(0)
+  fourStarCount              Int             @default(0)
+  threeStarCount             Int             @default(0)
+  twoStarCount               Int             @default(0)
+  oneStarCount               Int             @default(0)
+  reviews                    Review[]
   optionGroups               OptionGroup[]
   questions                  Question[]
   relatedCategories          Category[]
-  account                    Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account                    Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId                  Int
   orders                     OrderItem[]
+  customerOrder              CustomerOrder[]
+  customerOrderId            Int?
 
   @@index([accountId])
 }

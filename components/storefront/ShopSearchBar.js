@@ -14,6 +14,7 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
+import { IconButton } from "@mui/material";
 
 function ShopSearchBar({
   isOwner,
@@ -59,32 +60,30 @@ function ShopSearchBar({
   };
 
   return (
-    <div className="flex py-2 px-4 gap-2 items-center justify-between lg:justify-start">
-      <div className="relative flex-grow py-2 lg:flex-grow-0 lg:w-2/4 lg:pr-4">
+    <div className="flex px-4 gap-2 items-center justify-between lg:justify-start">
+      <div className="relative flex-grow py-2 lg:flex-grow-0 lg:w-1/3">
         <label
           htmlFor="search"
-          className="absolute flex items-center gap-2 top-[18px] left-4 text-[color:var(--gray-text)] font-light text-sm"
+          className="absolute flex items-center gap-2 top-[16px] left-5 text-[color:var(--gray-text)] font-light text-sm"
         >
-          <SearchOutlinedIcon />
+          <SearchOutlinedIcon fontSize="small" />
         </label>
         <input
           type="text"
           name="search"
           id="search"
           placeholder="Search all products"
-          className=" w-full py-3 rounded-full font-light text-sm bg-[color:var(--gray-light)] border lg:border-[color:var(--gray-light-med)] active:border-[color:var(--gray-light-med)] focus:border-[color:var(--gray)] ring-0 pl-12 outline-none"
+          className=" w-full py-2 rounded font-light text-xs bg-[color:var(--gray-light-soft)] border lg:border-[color:var(--gray-light-med)] active:border-[color:var(--gray-light-med)] focus:border-[color:var(--gray)] ring-0 pl-12 outline-none"
         />
       </div>
       <div className="lg:hidden">
-        <button
-          onClick={toggleDrawer("bottom", true)}
-          className="bg-[color:var(--gray-light)] text-white rounded-full py-2 px-3 "
-        >
+        <IconButton onClick={toggleDrawer("bottom", true)}>
           <FilterListOutlinedIcon
             fontSize="small"
             sx={{ color: "var(--black-design-extralight)" }}
           />
-        </button>
+        </IconButton>
+
         <FilterCategoryDrawer
           getAllProducts={getAllProducts}
           allProducts={allProducts}
@@ -96,20 +95,17 @@ function ShopSearchBar({
         />
       </div>
       <div className="lg:hidden">
-        <button
-          onClick={handleOpenSortMenu}
-          className="bg-[color:var(--gray-light)] text-white rounded-full py-2 px-3 "
-        >
+        <IconButton onClick={handleOpenSortMenu}>
           <SortOutlinedIcon
             fontSize="small"
             sx={{ color: "var(--black-design-extralight)" }}
           />
-        </button>
+        </IconButton>
       </div>
       <div className="hidden lg:block">
         <button
           onClick={handleOpenSortMenu}
-          className="flex gap-2 items-center bg-[color:var(--black-design-extralight)] text-white text-xs rounded-full font-extralight px-4 py-2"
+          className="flex gap-2 items-center bg-[color:var(--gray-light)] text-black text-xs rounded font-extralight px-4 py-2"
         >
           <p>Sort by Newest</p>
           <KeyboardArrowDownIcon fontSize="small" />

@@ -14,7 +14,13 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "95%",
+  "@media (min-width: 769px)": {
+    width: "50%",
+  },
+  "@media (min-width: 1025px)": {
+    width: "30%",
+  },
   bgcolor: "background.paper",
   borderRadius: "8px",
   boxShadow: 24,
@@ -205,7 +211,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
           banner.img
         </div>
       )}
-      <div className="relative">
+      <div className={`relative ${isOwner ? "" : "lg:mx-28"}`}>
         {logoImage ? (
           <div className="w-20 h-20 absolute -top-10 md:-top-12  left-4 md:w-24 md:h-24 lg:left-4">
             <Image

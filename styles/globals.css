@@ -19,11 +19,11 @@
   --white-med: #e1e1e1;
   --white-light: #e0e0e0;
   --primary-light-soft: #faf7ff;
-	--primary-light: #e1d3ff;
-	--primary-light-med: #bd9fff;
-	--primary: #8952FF;
-	--primary-dark-med: #5631a7;
-	--primary-dark: #2f1b5a;
+  --primary-light: #e1d3ff;
+  --primary-light-med: #bd9fff;
+  --primary: #8952ff;
+  --primary-dark-med: #5631a7;
+  --primary-dark: #2f1b5a;
   --secondary-light-soft: #e8f0ff;
   --secondary-light: #c8dcfe;
   --secondary-light-med: #a5c7ff;
@@ -34,6 +34,7 @@
   --gray-light-med: #bfbebe;
   --gray-text: #8f8f8f;
   --gray-light: #dfdfdf80;
+  --gray-light-soft: #f2f2f280;
   --badge: #ff9500;
   --important-message: #ffe5c1;
   --error: rgb(254, 78, 78);
@@ -65,6 +66,7 @@
   --third-dark: #552209;
   --third-dark-med: #7e3b19;
   --modal-shadow: #00000059 0px 5px 15px;
+  --star: #ffbb00;
 }
 
 html {

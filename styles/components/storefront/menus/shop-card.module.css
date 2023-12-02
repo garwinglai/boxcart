@@ -1,56 +1,19 @@
-.flex {
-  display: flex;
-}
-
-.flexCol {
-  display: flex;
-  flex-direction: column;
-}
-
 .card_box {
   background-color: var(--white);
   position: relative;
 }
 
-.card_button_box_link {
-  border: transparent;
-  background-color: transparent;
-  text-decoration: none;
-  color: var(--black);
-  height: 100%;
-}
-
-.card_button_box_link:visited {
-  color: var(--black);
-}
-
-.card_button_box_link:active {
-  filter: brightness(88%);
-}
-
-.card_context_box {
-  padding: 8px 8px 0 0;
-  height: 100%;
-}
-
-.card_context_box h4 {
-  font-weight: 300;
-}
-
 .sold_out_text {
+  top: 0.25rem;
+  right: 0.5rem;
+  position: absolute;
   margin-top: 4px;
-  color: rgb(254, 145, 145);
+  color: rgb(255, 0, 0);
+  background-color: rgb(255, 225, 225);
+  border-radius: 45px;
+  padding: 2px 8px;
   font-size: 12px;
-}
-
-.rating_box {
-  align-items: center;
-  gap: 4px;
-}
-
-.rating_box p {
-  font-size: 12px;
-  color: var(--black-design-extralight);
+  font-weight: 400;
 }
 
 .price {

@@ -3,7 +3,7 @@ import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import { IconButton } from "@mui/material";
+import { IconButton, Rating } from "@mui/material";
 import facebook_icon from "@/public/images/icons/socials/facebook_icon.png";
 import instagram_icon from "@/public/images/icons/socials/instagram_icon.png";
 import youtube_icon from "@/public/images/icons/socials/youtube_icon.png";
@@ -29,12 +29,26 @@ function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
   };
 
   return (
-    <div className="mt-10 px-4 md:mt-14 md:mb-4">
+    <div className="mt-10 px-4 md:mt-14 lg:mb-4">
       <div className="flex items-center justify-between gap-2">
         <h4 className="">{businessName}</h4>
         <IconButton onClick={handleCopyUrlToClipboard(fullDomain)}>
           <ShareIcon fontSize="small" />
         </IconButton>
+      </div>
+      <div className="flex items-center gap-1 mb-1">
+        <p className="text-[color:var(--gray)] font-light text-sm">
+          {userAccount.rating}
+        </p>
+        <Rating
+          name="read-only"
+          value={parseInt(userAccount.rating)}
+          readOnly
+          sx={{ fontSize: "0.75rem" }}
+        />
+        <p className="text-[color:var(--gray-text)] font-extralight text-xs">
+          ({userAccount.reviewCount})
+        </p>
       </div>
       {/* <p className="text-xs font-light">
         <span className=" text-base font-medium">12.2k </span>

@@ -170,9 +170,22 @@ function CheckoutForm({
     return notifData;
   };
 
+  const getAllProductIds = () => {
+    const allProductIds = [];
+    cart.forEach((product) => {
+      const id = parseInt(product.productId);
+
+      if (!allProductIds.includes(id)) {
+        allProductIds.push({ id });
+      }
+    });
+    return allProductIds;
+  };
+
   const createOrder = async () => {
     const orderDetailsData = buildOrderData();
     const customerData = buildCustomerData();
+    const allProductIds = getAllProductIds();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
 
@@ -202,6 +215,9 @@ function CheckoutForm({
         connect: {
           id: parseInt(accountId),
         },
+      },
+      products: {
+        connect: allProductIds,
       },
     };
 

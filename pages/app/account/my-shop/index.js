@@ -156,7 +156,7 @@ function MyShop({ userAccount }) {
   };
 
   return (
-    <div className="bg-white pb-20">
+    <div className="bg-white mb-28 lg:mb-0">
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -165,11 +165,11 @@ function MyShop({ userAccount }) {
         // action={action}
       />
       <ShopHeader isOwner={true} userAccount={userAccount} />
-      <div className="lg:flex lg:justify-between">
-        <div className="lg:w-2/5">
+      <div className="lg:flex lg:justify-between lg:items-end">
+        <div className="lg:w-1/2">
           <ShopBio isOwner={true} userAccount={userAccount} />
         </div>
-        <div className=" lg:mt-16 lg:w-2/5">
+        <div className=" lg:mt-12 lg:w-1/2">
           <ShopFulfillment isOwner={true} userAccount={userAccount} />
         </div>
       </div>
@@ -200,7 +200,7 @@ function MyShop({ userAccount }) {
             <BoxLoader />
           </div>
         ) : (
-          <div className="w-full lg:w-4/5 xl:w-10/12 h-screen">
+          <div className="w-full lg:w-4/5 xl:w-10/12 lg:pb-16">
             <ShopMenu
               isOwner={true}
               products={currProducts}

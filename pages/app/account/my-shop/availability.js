@@ -1025,21 +1025,19 @@ function Availability({ userAccount }) {
 
     return (
       <div className="flex flex-col lg:flex-row md:px-8">
-        <div className="border-b mb-4 h-fit lg:w-1/2 lg:border-b-0">
-          <div className="mb-6">
-            <h3 className=" ml-8 underline font-normal text-normal">
-              Calendar:
-            </h3>
-            <div className="flex gap-2 items-center ml-8 mt-4  text-[color:var(--third-dark)]">
+        <div className="border-b mb-4 h-fit lg:w-5/12 xl:w-1/3 lg:border-b-0">
+          <div className="">
+            <h3 className=" ml-8 font-normal text-normal mb-2">Calendar:</h3>
+            <div className="flex gap-2 items-center ml-8 text-[color:var(--black)]">
               <h6 className="">Date:</h6>
               <h6 className="text-sm font-light">{selectedDate}</h6>
             </div>
-            <div className="flex gap-2 items-end ml-8  text-[color:var(--third-dark)]">
+            <div className="flex gap-2 items-end ml-8  text-[color:var(--black)]">
               <h6 className="">Store hours:</h6>
               <h6 className="text-sm font-light">{selectedDateHourDisplay}</h6>
             </div>
           </div>
-          <div>
+          <div className="my-4">
             {/* <h3 className="mb-2 ml-4 underline">Calendar:</h3> */}
             {hydrated && (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1049,20 +1047,16 @@ function Availability({ userAccount }) {
                   onChange={handleDateClick}
                   sx={{
                     ...{
-                      "& .MuiPickersDay-root.Mui-selected": {
-                        // width: 20,
-                        // height: 20,
-                      },
                       "& .MuiPickersDay-root": {
                         width: 35,
                         height: 35,
-                        fontSize: ".9rem",
+                        fontSize: "rem",
                         // marginTop: "0.25rem",
                       },
                     },
                     width: "90%",
                     fontSize: "1rem",
-                    backgroundColor: "white",
+                    backgroundColor: "var(--gray-light-soft)",
                     borderRadius: "8px",
                     padding: "8px 8px",
                     // marginBottom: "2rem",
@@ -1081,11 +1075,9 @@ function Availability({ userAccount }) {
             )}
           </div>
         </div>
-        <div className="lg:w-1/2 lg:border-l pl-4">
+        <div className="lg:flex-grow lg:border-l pl-4">
           <div className="flex justify-between items-center mb-4 ">
-            <h3 className="ml-4 underline text-base font-normal">
-              Created schedules:
-            </h3>
+            <h3 className="ml-4 text-normal font-normal">Created schedules:</h3>
             <div className="flex items-center mr-4">
               <p className="font-light text-sm">Schedule overlap: </p>
               <HtmlTooltip

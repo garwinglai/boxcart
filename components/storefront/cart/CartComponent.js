@@ -87,19 +87,13 @@ function CartComponent({ toggleDrawer, isDesktop }) {
       return;
     }
 
-    if (
-      requireOrderDate &&
-      (orderForDateDisplay === "Select date" || orderForDateDisplay === "")
-    ) {
+    if (requireOrderDate && orderForDateDisplay === "") {
       handleOpenSnackBar("Please select a date for your order.");
       setIsLoading(false);
       return;
     }
 
-    if (
-      requireOrderTime &&
-      (orderForTimeDisplay === "time" || orderForTimeDisplay === "")
-    ) {
+    if (requireOrderTime && orderForTimeDisplay === "") {
       handleOpenSnackBar("Please select a time for your order.");
       setIsLoading(false);
       return;

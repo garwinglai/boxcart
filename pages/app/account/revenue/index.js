@@ -201,6 +201,8 @@ function Revenue({ userAccount }) {
         (payment) => payment.paymentMethod === "stripe"
       );
 
+      if (!stripeAccountId) return;
+
       const getBalanceApi = `/api/private/stripe/get-balance/${stripeAccountId}`;
 
       const res = await fetch(getBalanceApi, {

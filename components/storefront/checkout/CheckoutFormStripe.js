@@ -245,8 +245,8 @@ function CheckoutFormStripe({
       subdomain,
       relatedPostId: id,
       globalNotification: false,
-      notificationTypeDisplay: "Order",
-      notificationType: 0,
+      notificationTypeDisplay: "Order", //true if sent from boxcart
+      notificationType: 0, //0: order, 1:review
       notificationTitle: "New Order",
       notificationMessage: `${totalDisplay} - order from ${customerFName}.`,
       createdAt: Timestamp.fromDate(new Date()),
@@ -395,9 +395,22 @@ function CheckoutFormStripe({
     // TODO: Get interns to code errorLog
   };
 
+  const getAllProductIds = () => {
+    const allProductIds = [];
+    cart.forEach((product) => {
+      const id = parseInt(product.productId);
+
+      if (!allProductIds.includes(id)) {
+        allProductIds.push({ id });
+      }
+    });
+    return allProductIds;
+  };
+
   const createOrder = async () => {
     const orderDetailsData = buildOrderData();
     const customerData = buildCustomerData();
+    const allProductIds = getAllProductIds();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
     const {
@@ -426,6 +439,9 @@ function CheckoutFormStripe({
         connect: {
           id: parseInt(accountId),
         },
+      },
+      products: {
+        connect: allProductIds,
       },
     };
 
