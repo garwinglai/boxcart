@@ -60,7 +60,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
     const notifQuery = query(
       notifCollectionRef,
       orderBy("createdAt", "desc"),
-      where("accountId", "==", 1)
+      where("accountId", "==", accountId)
     );
 
     const unsubNotif = onSnapshot(notifQuery, (querySnapshot) => {

@@ -48,10 +48,10 @@ function ReviewComponent({
   const [openCreateReview, setOpenCreateReview] = useState(false);
   const [reviewValues, setReviewValues] = useState({
     rating: 0,
-    title: "fab",
-    review: "test review one to 3",
-    email: "garwinglai@gmail.com",
-    name: "gar",
+    title: "",
+    review: "",
+    email: "",
+    name: "",
   });
 
   const { rating, title, review, email, name } = reviewValues;
