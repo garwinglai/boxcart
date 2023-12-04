@@ -207,7 +207,14 @@ export async function getServerSideProps(context) {
         include: {
           categories: {
             include: {
-              products: true,
+              products: {
+                orderBy: {
+                  productName: "asc",
+                },
+              },
+            },
+            orderBy: {
+              categoryName: "asc",
             },
           },
           products: true,

@@ -239,6 +239,9 @@ export async function getServerSideProps(context) {
             include: {
               products: true,
             },
+            orderBy: {
+              categoryName: "asc",
+            },
           },
           products: {
             include: {

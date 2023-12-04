@@ -283,7 +283,11 @@ export async function getServerSideProps(context) {
           categories: true,
           products: {
             include: {
-              reviews: true,
+              reviews: {
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
               optionGroups: {
                 include: {
                   options: true,
@@ -292,6 +296,9 @@ export async function getServerSideProps(context) {
               questions: true,
               relatedCategories: true,
               images: true,
+            },
+            orderBy: {
+              productName: "asc",
             },
           },
         },
