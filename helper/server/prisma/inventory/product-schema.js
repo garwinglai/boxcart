@@ -630,6 +630,9 @@ export async function getProductsServer(accountId) {
             relatedCategories: true,
             images: true,
           },
+          orderBy: {
+            productName: "asc",
+          },
         },
       },
     });
