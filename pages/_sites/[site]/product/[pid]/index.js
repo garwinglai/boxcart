@@ -76,8 +76,16 @@ function Product({ product }) {
   const [reviews, setReviews] = useState(product.reviews);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [exampleImages, setExampleImages] = useState([]);
-  const [itemTotal, setItemTotal] = useState(product.priceStr);
-  const [itemTotalPenny, setItemTotalPenny] = useState(product.priceIntPenny);
+  const [itemTotal, setItemTotal] = useState(
+    product.salePriceStr || product.salePriceStr !== ""
+      ? product.salePriceStr
+      : product.priceStr
+  );
+  const [itemTotalPenny, setItemTotalPenny] = useState(
+    product.salePricePenny || product.salePricePenny !== null
+      ? product.salePricePenny
+      : product.priceIntPenny
+  );
   const [radioOptionValues, setRadioOptionValues] = useState([]);
   const [checkboxOptionValues, setCheckboxOptionValues] = useState([]);
   const [customerNote, setCustomerNote] = useState("");
@@ -1411,7 +1419,18 @@ function Product({ product }) {
                 </p>
               </div>
             </div>
-            <p className="font-medium">{priceStr}</p>
+            <p className="">
+              {salePriceStr && salePriceStr !== "" ? (
+                <span>
+                  <span className=" line-through text-xs font-extralight mr-2 text-gray-500">
+                    {priceStr}
+                  </span>
+                  <span>{salePriceStr}</span>
+                </span>
+              ) : (
+                <span className="font-medium">{priceStr}</span>
+              )}
+            </p>
           </div>
           <div className="flex justify-between gap-4  md:flex-col-reverse md:items-start md:gap-2">
             <p className="font-light text-sm text-[color:var(--gray)] ">

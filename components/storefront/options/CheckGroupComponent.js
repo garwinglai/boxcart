@@ -194,9 +194,9 @@ function CheckGroupComponent({
                   color="warning"
                   checked={isOptionChecked}
                   disabled={
-                    !hasUnlimitedQuantity &&
-                    !setQuantityByProduct &&
-                    quantity <= 0
+                    !hasUnlimitedQuantity && !setQuantityByProduct && quantity
+                      ? quantity <= 0
+                      : false
                   }
                 />
               }
@@ -205,11 +205,13 @@ function CheckGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName}  +${priceStr}`}
                   </p>
-                  {!hasUnlimitedQuantity && !setQuantityByProduct && (
-                    <p className="text-xs font-extralight -mr-1">
-                      ({quantity} left)
-                    </p>
-                  )}
+                  {!hasUnlimitedQuantity &&
+                    !setQuantityByProduct &&
+                    quantity && (
+                      <p className="text-xs font-extralight -mr-1">
+                        ({quantity} left)
+                      </p>
+                    )}
                 </div>
               }
               labelPlacement="start"

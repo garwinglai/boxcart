@@ -115,7 +115,9 @@ function RadioGroupComponent({
           const { id, optionName, priceStr } = option;
 
           let quantity = 0;
-
+          {
+            /* console.log("optionQuantities", optionQuantities); */
+          }
           // looping through state to ensure quantities are in real time, and updated.
           for (let i = 0; i < optionQuantities.length; i++) {
             const curr = optionQuantities[i];
@@ -162,9 +164,9 @@ function RadioGroupComponent({
                   color="warning"
                   checked={isOptionChecked}
                   disabled={
-                    !hasUnlimitedQuantity &&
-                    !setQuantityByProduct &&
-                    quantity <= 0
+                    !hasUnlimitedQuantity && !setQuantityByProduct && quantity
+                      ? quantity <= 0
+                      : false
                   }
                 />
               }
@@ -173,11 +175,13 @@ function RadioGroupComponent({
                   <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
                     {`${optionName} +${priceStr}`}
                   </p>
-                  {!hasUnlimitedQuantity && !setQuantityByProduct && (
-                    <p className="text-xs font-extralight -mr-1">
-                      ({quantity} left)
-                    </p>
-                  )}
+                  {!hasUnlimitedQuantity &&
+                    !setQuantityByProduct &&
+                    quantity && (
+                      <p className="text-xs font-extralight -mr-1">
+                        ({quantity} left)
+                      </p>
+                    )}
                 </div>
               }
               labelPlacement="start"

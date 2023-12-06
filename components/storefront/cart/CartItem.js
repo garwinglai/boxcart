@@ -141,6 +141,12 @@ function CartItem({
         quantityToReduceFromProductStore
       );
     }
+
+    if (hasUnlimitedQuantity) {
+      addQuantityToCartItem(addToCartTempItemId);
+      addSubtotal(priceToAddPenny);
+      addCartItemPrice(addToCartTempItemId, priceToAddPenny);
+    }
   };
 
   const subtractQuantityFromOptionsStore = (

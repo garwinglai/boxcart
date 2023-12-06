@@ -1647,7 +1647,7 @@ function ProductDrawer({
       defaultImageFileName: defaultImgStr,
       priceIntPenny,
       priceStr: convertToPriceStr,
-      salePricePenny,
+      salePricePenny: salePricePenny ? salePricePenny : null,
       salePriceStr: convertToSalePriceStr,
       quantity: quantity ? (quantity === 0 ? 0 : parseInt(quantity)) : 0,
       hasUnlimitedQuantity,

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import ShareIcon from "@mui/icons-material/Share";
-import { IconButton } from "@mui/material";
+import { IconButton, Rating } from "@mui/material";
 // import { products } from "@/helper/temp/tempData";
 import Image from "next/image";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -21,11 +21,15 @@ import {
 import { nanoid } from "nanoid";
 import Link from "next/link";
 import CheckmarkGif from "@/public/videos/checkmark.gif";
+import ReviewComponent from "@/components/storefront/reviews/ReviewComponent";
 
 // generate item quantity constant to 100 values in an array from 1
 const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function EditAddToCartProduct({ product }) {
+  const { account, id: productId } = product || {};
+  const { id: accountId } = account || {};
+
   const cart = useCartStore((state) => state.cart);
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
@@ -79,11 +83,20 @@ function EditAddToCartProduct({ product }) {
     isSampleProduct,
   } = product;
 
+  const [reviews, setReviews] = useState(product.reviews);
   const [beforeEditPricePenny, setBeforeEditPricePenny] = useState(0);
   const [selectedQuantity, setSelectedQuantity] = useState("1");
   const [exampleImages, setExampleImages] = useState([]);
-  const [itemTotal, setItemTotal] = useState(product.priceStr);
-  const [itemTotalPenny, setItemTotalPenny] = useState(product.priceIntPenny);
+  const [itemTotal, setItemTotal] = useState(
+    product.salePriceStr || product.salePriceStr !== ""
+      ? product.salePriceStr
+      : product.priceStr
+  );
+  const [itemTotalPenny, setItemTotalPenny] = useState(
+    product.salePricePenny || product.salePricePenny !== null
+      ? product.salePricePenny
+      : product.priceIntPenny
+  );
   const [radioOptionValues, setRadioOptionValues] = useState([]);
   const [checkboxOptionValues, setCheckboxOptionValues] = useState([]);
   const [customerNote, setCustomerNote] = useState("");
@@ -358,6 +371,23 @@ function EditAddToCartProduct({ product }) {
     setExampleImages(orderExampleImages);
     setBusinessQuestions(orderQuestionsAnswers);
   }, [productInCartId, product]);
+
+  const getReviews = async (accountId, productId) => {
+    const api = `/api/public/storefront/review/retrieve?accountId=${accountId}&productId=${productId}`;
+    const res = await fetch(api, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const { success, error, reviews } = await res.json();
+
+    if (!success || error) {
+      return handleOpenSnackbar("Couldn't load reviews.");
+    }
+
+    setReviews(reviews);
+  };
 
   const findMaxQuantityOfOptionsDb = (optionGroups) => {
     let maxQuantity = 0;
@@ -1198,6 +1228,7 @@ function EditAddToCartProduct({ product }) {
                 totalQuantityOfItemInCart={totalQuantityOfItemInCart}
                 currentAddedToCartOptionIds={currentAddedToCartOptionIds}
                 selectedValue={selectedValue}
+                hasUnlimitedQuantity={hasUnlimitedQuantity}
                 radioCheckedOption={radioCheckedOption}
                 currOption={group}
                 handleOptionRadioGroupChange={handleOptionRadioGroupChange(
@@ -1477,8 +1508,32 @@ function EditAddToCartProduct({ product }) {
         )}
         <div className="flex flex-col gap-2 px-6 pb-4 border-b border-[color:var(--gray-light)]">
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">{productName}</h3>
-            <p className="font-medium">{priceStr}</p>
+            <div>
+              <h3 className="font-medium">{productName}</h3>
+              <div className="flex items-center gap-2">
+                <Rating
+                  name="read-only"
+                  value={parseInt(product.rating)}
+                  readOnly
+                  sx={{ fontSize: "0.75rem" }}
+                />
+                <p className="text-[color:var(--gray-text)] font-extralight text-xs">
+                  ({product.reviewCount})
+                </p>
+              </div>
+            </div>
+            <p className="">
+              {salePriceStr && salePriceStr !== "" ? (
+                <span>
+                  <span className=" line-through text-xs font-extralight mr-2 text-gray-500">
+                    {priceStr}
+                  </span>
+                  <span>{salePriceStr}</span>
+                </span>
+              ) : (
+                <span className="font-medium">{priceStr}</span>
+              )}
+            </p>
           </div>
           <div className="flex justify-between gap-4  md:flex-col-reverse md:items-start md:gap-2">
             <p className="font-light text-sm text-[color:var(--gray)] ">
@@ -1603,6 +1658,15 @@ function EditAddToCartProduct({ product }) {
           <h3 className="font-medium">Item total:</h3>
           <p className="font-medium">{itemTotal}</p>
         </div>
+        <div className="md:hidden">
+          <ReviewComponent
+            getReviews={getReviews}
+            product={product}
+            account={account}
+            reviews={reviews}
+            handleOpenSnackbar={handleOpenSnackbar}
+          />
+        </div>
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
           <div className="h-10">
             <ButtonPrimaryStorefront
@@ -1618,6 +1682,15 @@ function EditAddToCartProduct({ product }) {
           >
             Continue Shopping
           </Link>
+        </div>
+        <div className="hidden md:block">
+          <ReviewComponent
+            getReviews={getReviews}
+            product={product}
+            account={account}
+            reviews={reviews}
+            handleOpenSnackbar={handleOpenSnackbar}
+          />
         </div>
       </div>
     </form>
@@ -1647,6 +1720,11 @@ export async function getServerSideProps(context) {
         },
       },
       questions: true,
+      reviews: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   });
 
