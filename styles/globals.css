@@ -67,6 +67,8 @@
   --third-dark-med: #7e3b19;
   --modal-shadow: #00000059 0px 5px 15px;
   --star: #ffbb00;
+  --sale-bg: rgb(255, 236, 236);
+  --sale-text: #ff4141;
 }
 
 html {

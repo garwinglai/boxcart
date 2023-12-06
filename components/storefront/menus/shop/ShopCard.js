@@ -47,6 +47,7 @@ function ShopCard({
     description,
     priceIntPenny,
     priceStr,
+    salePriceStr,
     defaultImageFileName,
     defaultImage,
     images,
@@ -363,6 +364,8 @@ function ShopCard({
       description,
       priceIntPenny,
       priceStr,
+      salePriceStr,
+      salePricePenny,
       quantity,
       hasUnlimitedQuantity,
       setQuantityByProduct,
@@ -377,6 +380,8 @@ function ShopCard({
       description,
       priceIntPenny,
       priceStr,
+      salePriceStr,
+      salePricePenny,
       quantity,
       hasUnlimitedQuantity,
       setQuantityByProduct,
@@ -482,12 +487,30 @@ function ShopCard({
                 </p>
               </div>
 
-              {isSoldOut && (
-                <p className={`${styles.sold_out_text}`}>Sold out</p>
+              {isSoldOut ? (
+                <p className="text-[color:var(--sale-text)] absolute top-1 right-2 rounded-full text-xs px-4 py-1 mt-1">
+                  Sold out
+                </p>
+              ) : (
+                salePriceStr &&
+                salePriceStr !== "" && (
+                  <p className="bg-[color:var(--sale-bg)] text-[color:var(--sale-text)] absolute top-1 right-2 rounded-full text-xs px-4 py-1 mt-1">
+                    Sale
+                  </p>
+                )
               )}
             </div>
             <div className="flex justify-between items-center w-full">
-              <p className="text-sm font-base">{priceStr}</p>
+              {salePriceStr && salePriceStr !== "" ? (
+                <span>
+                  <span>{salePriceStr}</span>
+                  <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
+                    {priceStr}
+                  </span>
+                </span>
+              ) : (
+                <span>{priceStr}</span>
+              )}
               <div className="rounded-full hover:bg-[color:var(--primary-light-soft)] self-end">
                 <React.Fragment>
                   <IconButton onClick={handleOpenMenu}>
@@ -630,12 +653,30 @@ function ShopCard({
                   </p>
                 </div>
 
-                {isSoldOut && (
-                  <p className={`${styles.sold_out_text}`}>Sold out</p>
+                {isSoldOut ? (
+                  <p className="text-[color:var(--sale-text)] absolute top-1 right-2 rounded-full text-xs px-4 py-1 mt-1">
+                    Sold out
+                  </p>
+                ) : (
+                  salePriceStr &&
+                  salePriceStr !== "" && (
+                    <p className="bg-[color:var(--sale-bg)] text-[color:var(--sale-text)] absolute top-1 right-2 rounded-full text-xs px-4 py-1 mt-1">
+                      Sale
+                    </p>
+                  )
                 )}
               </div>
               <div className="flex justify-between items-center w-full">
-                <p className="text-sm font-base">{priceStr}</p>
+                {salePriceStr && salePriceStr !== "" ? (
+                  <span>
+                    <span>{salePriceStr}</span>
+                    <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
+                      {priceStr}
+                    </span>
+                  </span>
+                ) : (
+                  <span>{priceStr}</span>
+                )}
                 <div className="rounded-full hover:bg-[color:var(--purple-bg)] self-end">
                   <div className="bg-[color:var(--white-design)] rounded-full">
                     <IconButton>

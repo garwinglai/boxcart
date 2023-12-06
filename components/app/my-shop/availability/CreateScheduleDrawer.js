@@ -964,7 +964,7 @@ function CreateScheduleDrawer({
             alt="calendar icon"
             className=" opacity-50 mx-auto w-8 h-8"
           />
-          <h4>Create Schedule</h4>
+          <h3>Create Schedule</h3>
         </span>
         <IconButton onClick={toggleDrawer}>
           <CloseIcon />
@@ -977,6 +977,11 @@ function CreateScheduleDrawer({
             padding: "16px",
           }}
         >
+          <p className="text-sm px-4 border-b pb-2 f">
+            *** Setting schedule is only necessary if your customers can select
+            pickup times, choose their own delivery dates, or book appointments.
+            Otherwise, we recommend to disable.
+          </p>
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="date"

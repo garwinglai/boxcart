@@ -47,6 +47,7 @@ function ProductModal({
     productName,
     priceIntPenny,
     priceStr,
+    salePriceStr,
     images,
     imgArrJson,
     description,
@@ -123,7 +124,16 @@ function ProductModal({
               <h4 className="font-medium lg:text-base">{productName}</h4>
               <div className="flex gap-2 items-end text-xs font-light lg:text-sm ">
                 <p className="font-medium">Price:</p>
-                <p>{priceStr}</p>
+                {salePriceStr && salePriceStr !== "" ? (
+                  <span>
+                    <span>{salePriceStr}</span>
+                    <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
+                      {priceStr}
+                    </span>
+                  </span>
+                ) : (
+                  <span>{priceStr}</span>
+                )}
               </div>
               <p className="text-xs font-light lg:text-sm">
                 <b className=" font-medium">Description: </b>

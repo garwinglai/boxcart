@@ -66,7 +66,6 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
     const unsubNotif = onSnapshot(notifQuery, (querySnapshot) => {
       const notifs = [];
       querySnapshot.forEach((doc) => {
-        console.log("doc", doc);
         const id = doc.id;
         const data = doc.data();
         data.id = id;

@@ -868,7 +868,7 @@ function Availability({ userAccount }) {
     );
 
     if (isPickupAvailable && hasCustomHours) {
-      handleOpenSnackbar("Cannot disable if order pickup is enabled.");
+      handleOpenSnackbar("Cannot disable. Pickup is enabled in Fulfillment.");
       return;
     }
 
@@ -1278,8 +1278,8 @@ function Availability({ userAccount }) {
             <div className="flex flex-col">
               <h4>Set availability</h4>
               <p className="font-extralight text-xs">
-                If disabled, customers can order at anytime. Enable to set
-                custom hours.
+                Availability will allow customers to select delivery date,
+                pickup time, or book a service.
               </p>
             </div>
             <IOSSwitch
@@ -1358,10 +1358,10 @@ function Availability({ userAccount }) {
         <div className="flex flex-col border shadow rounded items-center justify-between p-4 bg-white  m-4 lg:w-1/2">
           <div className="flex items-center gap-4  justify-between w-full">
             <div className="flex flex-col">
-              <h4>Time block</h4>
+              <h4>Time buffer</h4>
               <p className="font-extralight text-xs">
-                Allow orders to block out time. Best for bakers, restaurants,
-                etc.
+                Set a time buffer in your availability. Best for food, bookings,
+                services, etc.
               </p>
             </div>
             <IOSSwitch

@@ -1675,7 +1675,7 @@ function Signup({ nextAccountId }) {
                 htmlFor="business-bio"
                 className="text-black font-medium mb-4"
               >
-                Enter your business bio.
+                Enter a short bio about your business.
               </label>
               <textarea
                 // autoFocus

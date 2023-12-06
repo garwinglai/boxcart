@@ -62,6 +62,7 @@ function EditAddToCartProduct({ product }) {
     productName,
     description,
     priceStr,
+    salePriceStr,
     priceIntPenny,
     reviewStr,
     reviewDouble,
@@ -1466,8 +1467,13 @@ function EditAddToCartProduct({ product }) {
         )}
       </div>
       <div className="md:w-[35%] md:pt-10 md:sticky md:top-0">
-        {isSoldOut && (
-          <h4 className="text-[color:var(--error)] px-6">Sold out</h4>
+        {isSoldOut ? (
+          <h4 className="text-[color:var(--sale-text)] px-6">Sold out</h4>
+        ) : (
+          salePriceStr &&
+          salePriceStr !== "" && (
+            <h4 className="text-[color:var(--sale-text)] px-6">Sale</h4>
+          )
         )}
         <div className="flex flex-col gap-2 px-6 pb-4 border-b border-[color:var(--gray-light)]">
           <div className="flex justify-between items-center">

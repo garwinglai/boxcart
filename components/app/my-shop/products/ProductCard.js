@@ -98,6 +98,7 @@ function ProductCard({
     reviews,
     priceIntPenny,
     priceStr,
+    salePriceStr,
     defaultImage,
     images,
     imgArrJson,
@@ -550,6 +551,11 @@ function ProductCard({
             <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
               {images && images.length} Photos
             </button>
+            {salePriceStr && salePriceStr !== "" && (
+              <p className="bg-[color:var(--sale-bg)] text-[color:var(--sale-text)] absolute top-1 right-1 rounded-full text-xs px-4 py-1 mt-1">
+                Sale
+              </p>
+            )}
           </div>
         ) : (
           <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
@@ -582,16 +588,29 @@ function ProductCard({
           </div>
           <p className="text-xs font-light md:text-sm">
             <b className="text-xs md:text-sm">Price: </b>
-            {priceStr}
+            {salePriceStr && salePriceStr !== "" ? (
+              <span>
+                <span>{salePriceStr}</span>
+                <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
+                  {priceStr}
+                </span>
+              </span>
+            ) : (
+              <span>{priceStr}</span>
+            )}
           </p>
           {setQuantityByProduct ? (
             <p className="text-xs font-light md:text-sm">
               <b className="text-xs md:text-sm">Qty: </b>
-              {hasUnlimitedQuantity
-                ? "Unlimited"
-                : isSoldOut
-                ? "Out of stock"
-                : quantity}
+              {hasUnlimitedQuantity ? (
+                "Unlimited"
+              ) : isSoldOut ? (
+                <span className="text-[color:var(--sale-text)] text-xs">
+                  Sold out
+                </span>
+              ) : (
+                quantity
+              )}
             </p>
           ) : (
             !hasUnlimitedQuantity && (

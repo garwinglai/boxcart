@@ -461,6 +461,8 @@ model Product {
   isEnabled                  Boolean         @default(true)
   productName                String
   description                String          @db.Text
+  salePricePenny             Int?
+  salePriceStr               String?
   priceIntPenny              Int
   priceStr                   String
   defaultImageFileName       String?

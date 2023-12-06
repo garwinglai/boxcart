@@ -83,17 +83,17 @@ function TimeBlockDrawer({
             alt="clock icon"
             className=" opacity-50 mx-auto w-8 h-8"
           />
-          <h4>Time Block</h4>
+          <h3>Time Buffer</h3>
         </span>
         <IconButton onClick={toggleDrawer}>
           <CloseIcon />
         </IconButton>
       </div>
       <div className="p-4">
-        <h4 className="">Set order intervals.</h4>
+        <h4 className="">Set buffer intervals:</h4>
         <p className="font-light text-sm">
-          This will allow your customers to place orders within the set time
-          interval. <br /> (e.g. customers can place orders or pickup every{" "}
+          This creates a time buffer in your available schedule.
+          <br /> (e.g. customers can place orders or book a time every{" "}
           <b>{timeBlockValue}</b>
           .)
         </p>

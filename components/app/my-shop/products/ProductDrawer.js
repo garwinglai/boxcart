@@ -99,6 +99,16 @@ function ProductDrawer({
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
+    salePriceInt: product
+      ? product.salePricePenny
+        ? (product.salePricePenny / 100).toFixed(2)
+        : ""
+      : "",
+    salePriceStr: product
+      ? product.salePriceStr
+        ? product.salePriceStr
+        : ""
+      : "",
     priceInt: product ? (product.priceIntPenny / 100).toFixed(2) : "",
     priceStr: product ? product.priceStr : "",
     defaultImgStr: product ? product.defaultImageFileName : "",
@@ -141,6 +151,7 @@ function ProductDrawer({
     description,
     priceInt,
     priceStr,
+    salePriceInt,
     defaultImgStr,
     imgArrJson,
     quantity,
@@ -1101,6 +1112,12 @@ function ProductDrawer({
     }
 
     const productSchema = structureProductSchema();
+    // Incorrect product inputs
+    if (!productSchema) {
+      setIsSaveProductLoading(false);
+      return;
+    }
+
     const questionSchema = structureQuestionSchema();
     const structuredOptions = structureOptionGroupSchema();
 
@@ -1447,6 +1464,8 @@ function ProductDrawer({
         description: "",
         priceInt: "",
         priceStr: "",
+        salePriceInt: "",
+        salePriceStr: "",
         defaultImgStr: "",
         imgArrJson: "",
         quantity: 1,
@@ -1488,6 +1507,8 @@ function ProductDrawer({
         description,
         priceIntPenny,
         priceStr,
+        salePricePenny,
+        salePriceStr,
         defaultImgStr,
         defaultImageFileName,
         imgArrJson,
@@ -1509,6 +1530,10 @@ function ProductDrawer({
         description,
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
+        salePriceInt:
+          salePricePenny && salePricePenny !== "" ? salePricePenny / 100 : "",
+        salePriceStr:
+          salePriceStr && salePriceStr !== "" ? salePriceStr.slice(1) : "",
         defaultImgStr: defaultImageFileName,
         imgArrJson,
         quantity,
@@ -1564,8 +1589,40 @@ function ProductDrawer({
   };
 
   const structureProductSchema = () => {
+    // Converting and checking sale price
+
+    let salePricePenny = "";
+    let convertToSalePriceStr = "";
+
+    if (salePriceInt != "") {
+      salePricePenny = parseInt((salePriceInt * 100).toFixed(2));
+      let salePriceValue = salePriceInt.toString();
+
+      if (
+        salePriceValue.includes(".") &&
+        salePriceValue.split(".")[1].length === 1
+      ) {
+        salePriceValue += "0";
+      }
+
+      if (!salePriceValue.includes(".")) {
+        salePriceValue += ".00";
+      }
+
+      if (salePriceValue.split(".")[0] == "") {
+        salePriceValue = "0" + salePriceValue;
+      }
+
+      convertToSalePriceStr = `$${salePriceValue}`;
+    }
+
     const priceIntPenny = parseInt((priceInt * 100).toFixed(2));
     let priceValue = priceInt.toString();
+
+    if (salePricePenny >= priceIntPenny) {
+      handleOpenSnackbar("Sale price must be less than original price.");
+      return null;
+    }
 
     if (priceValue.includes(".") && priceValue.split(".")[1].length === 1) {
       priceValue += "0";
@@ -1590,6 +1647,8 @@ function ProductDrawer({
       defaultImageFileName: defaultImgStr,
       priceIntPenny,
       priceStr: convertToPriceStr,
+      salePricePenny,
+      salePriceStr: convertToSalePriceStr,
       quantity: quantity ? (quantity === 0 ? 0 : parseInt(quantity)) : 0,
       hasUnlimitedQuantity,
       setQuantityByProduct,
@@ -2062,9 +2121,37 @@ function ProductDrawer({
               onKeyDown={handleKeyDown}
               required
               type="number"
+              step="0.01"
               name="priceInt"
               id="price"
               value={priceInt}
+              onChange={handleProductInputChange}
+              className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
+            />
+          </span>
+          <span className="flex flex-col gap-2 mt-4 relative">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="price"
+                className="text-black font-medium text-base "
+              >
+                Sale price:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(optional)</p>
+              </span>
+            </div>
+            <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
+              $
+            </span>
+            {/* //create an input for price so that it only has 2 decimals */}
+            <input
+              onKeyDown={handleKeyDown}
+              type="number"
+              step="0.01"
+              name="salePriceInt"
+              id="sales-price"
+              value={salePriceInt}
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
             />

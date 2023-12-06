@@ -115,14 +115,14 @@ function TimeAdvanceDrawer({
             alt="clock icon"
             className=" opacity-50 mx-auto w-8 h-8"
           />
-          <h4>Order in Advance</h4>
+          <h3>Order in Advance</h3>
         </span>
         <IconButton onClick={toggleDrawer}>
           <CloseIcon />
         </IconButton>
       </div>
       <div className="p-4">
-        <h4 className="">Set order in advance.</h4>
+        <h4 className="">Set order in advance time:</h4>
         <p className="font-light text-sm">
           Set a time that customers must order ahead of. <br /> (e.g. customer
           must order 24 hours in advance.)
