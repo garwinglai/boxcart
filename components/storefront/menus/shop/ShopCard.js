@@ -35,6 +35,7 @@ function ShopCard({
   handleOpenSnackbar,
   getAllProducts,
   userAccount,
+  setIsDuplicatingProduct,
   numProductInCart,
 }) {
   const { account } = useAccountStore((state) => state.account);
@@ -242,6 +243,7 @@ function ShopCard({
 
   const handleDuplicateProduct = async () => {
     handleClose();
+    setIsDuplicatingProduct(true);
     handleOpenSnackbar("Duplicating product...");
 
     const productSchema = structureProductSchema(product);
@@ -249,43 +251,15 @@ function ShopCard({
     const structuredOptions = structureOptionGroupSchema(product);
     const { optionGroupSchema, optionSchema } = structuredOptions;
 
-    let uploadProductImageError = false;
-    const productImageUrls = [];
     const { images } = product;
     const { subdomain } = userAccount;
     const fireStorageId = nanoid();
 
-    for (let i = 0; i < images.length; i++) {
-      const currPhoto = images[i];
-      const {
-        imgFileName: fileName,
-        image: imageFile,
-        isDefault,
-        fireStorageId: oldStorageId,
-      } = currPhoto;
-
-      const { success, error } = await copyImageFile(
-        fileName,
-        imageFile,
-        subdomain,
-        fireStorageId,
-        oldStorageId
-      );
-
-      if (error) {
-        uploadProductImageError = true;
-        break;
-      }
-
-      const photoData = {
-        imgFileName: fileName,
-        isDefault,
-        image: imageFile,
-        fireStorageId,
-      };
-
-      productImageUrls.push(photoData);
-    }
+    const { productImageUrls, uploadProductImageError } = await copyImageFile(
+      images,
+      subdomain,
+      fireStorageId
+    );
 
     if (uploadProductImageError) {
       handleOpenSnackbar("Error uploading images.");
@@ -325,33 +299,52 @@ function ShopCard({
       return;
     }
 
+    setIsDuplicatingProduct(false);
     handleOpenSnackbar("Duplicated.");
     getAllProducts(accountId);
   };
 
-  const copyImageFile = async (
-    fileName,
-    imageFile,
-    subdomain,
-    fireStorageId,
-    oldStorageId
-  ) => {
+  const copyImageFile = async (images, subdomain, fireStorageId) => {
     const api = "/api/private/inventory/images/copy";
-    const { success, message } = fetch(api, {
+    const res = await fetch(api, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fileName,
-        imageFile,
+        images,
         subdomain,
         fireStorageId,
-        oldStorageId,
       }),
     });
 
-    return { success, message };
+    const { success } = await res.json();
+
+    if (!success)
+      return { productImageUrls: null, uploadProductImageError: true };
+
+    const productImageUrls = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const currPhoto = images[i];
+      const {
+        imgFileName: fileName,
+        image: imageFile,
+        isDefault,
+        fireStorageId: oldStorageId,
+      } = currPhoto;
+
+      const photoData = {
+        imgFileName: fileName,
+        isDefault,
+        image: imageFile,
+        fireStorageId,
+      };
+
+      productImageUrls.push(photoData);
+    }
+
+    return { productImageUrls, uploadProductImageError: false };
   };
 
   const structureProductSchema = (product) => {

@@ -12,6 +12,7 @@ function ShopMenu({
   updateProductList,
   handleOpenSnackbar,
   getAllProducts,
+  setIsDuplicatingProduct,
   currCategory,
   userAccount,
 }) {
@@ -48,6 +49,7 @@ function ShopMenu({
                     isOwner={isOwner}
                     categories={categories}
                     accountId={accountId}
+                    setIsDuplicatingProduct={setIsDuplicatingProduct}
                     updateProductList={updateProductList}
                     handleOpenSnackbar={handleOpenSnackbar}
                     getAllProducts={getAllProducts}

@@ -39,6 +39,7 @@ function MyShop({ userAccount }) {
     id: accountId,
   } = userAccount ? userAccount : {};
 
+  const [isDuplicatingProduct, setIsDuplicatingProduct] = useState(false);
   const [currCategory, setCurrCategory] = useState("All Products");
   const [currCategories, setCurrCategories] = useState(
     categories ? categories : []
@@ -159,7 +160,7 @@ function MyShop({ userAccount }) {
     <div className="bg-white mb-28 lg:mb-0">
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={isDuplicatingProduct ? null : 3000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
         // action={action}
@@ -206,6 +207,7 @@ function MyShop({ userAccount }) {
               products={currProducts}
               categories={currCategories}
               accountId={accountId}
+              setIsDuplicatingProduct={setIsDuplicatingProduct}
               updateProductList={updateProductList}
               handleOpenSnackbar={handleOpenSnackbar}
               getAllProducts={getAllProducts}

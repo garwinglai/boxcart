@@ -27,6 +27,7 @@ function Products({ userAccount }) {
   const { products, categories, logoImgStr, id: accountId } = userAccount || {};
 
   // States
+  const [isDuplicatingProduct, setIsDuplicatingProduct] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     isSnackbarOpen: false,
@@ -182,7 +183,7 @@ function Products({ userAccount }) {
       <div className="pb-4 flex justify-between items-start">
         <Snackbar
           open={isSnackbarOpen}
-          autoHideDuration={6000}
+          autoHideDuration={isDuplicatingProduct ? null : 6000}
           onClose={handleCloseSnackbar}
           message={snackbarMessage}
           anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
@@ -252,6 +253,7 @@ function Products({ userAccount }) {
                 userAccount={userAccount}
                 accountId={accountId}
                 categories={categories}
+                setIsDuplicatingProduct={setIsDuplicatingProduct}
                 handleOpenSnackbar={handleOpenSnackbar}
                 filterDeletedProducts={filterDeletedProducts}
                 updateProductList={updateProductList}
