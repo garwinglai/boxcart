@@ -1,7 +1,7 @@
 import React from "react";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import AppLayout from "@/components/layouts/AppLayout";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 
 function CommSettings() {

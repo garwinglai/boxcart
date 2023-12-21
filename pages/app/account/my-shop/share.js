@@ -3,7 +3,7 @@ import AppLayout from "@/components/layouts/AppLayout";
 import ShareIcon from "@mui/icons-material/Share";
 import prisma from "@/lib/prisma";
 import QRCode from "react-qr-code";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { CircularProgress, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -96,7 +96,7 @@ function ShareShop({ userAccount }) {
 
   const handleEditURL = () => {
     setIsLoading(true);
-    push("/account/my-shop/profile");
+    push("/app/account/my-shop/profile");
   };
 
   const handleViewShop = () => {
@@ -184,6 +184,18 @@ export async function getServerSideProps(context) {
           email,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

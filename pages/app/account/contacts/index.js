@@ -1,7 +1,7 @@
 import React from "react";
 import ContactEmergencyIcon from "@mui/icons-material/ContactEmergency";
 import AppLayout from "@/components/layouts/AppLayout";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 
 function Contacts() {
   return (

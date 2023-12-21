@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/checklist.module.css";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -12,7 +12,7 @@ import Modal from "@mui/material/Modal";
 import paper_plan_icon from "@/public/images/icons/paper_plane.png";
 import Image from "next/image";
 import { updateAccountFirstLoginClient } from "@/helper/client/api/account/account-schema";
-import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
+import { sendBusinessVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
@@ -76,6 +76,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
 
   // UseEffects
   useEffect(() => {
+    console.log("isChecklistComplete", isChecklistComplete);
     setChecklistStore(checklist);
     setChecklistStore({ isChecklistComplete });
     setChecklistStore({ isNonMandatoryChecklistComplete });
@@ -98,7 +99,11 @@ function Checklist({ userSession, userAccount, pageTitle }) {
     const userId = user.id;
     const accountId = id;
 
-    const resSendEmail = await sendVerificationEmail(userId, accountId, email);
+    const resSendEmail = await sendBusinessVerificationEmail(
+      userId,
+      accountId,
+      email
+    );
     const { success, error } = resSendEmail;
 
     if (success) {
@@ -196,7 +201,10 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {isProductsUploaded ? (
                   <p className="text-sm font-light">Done</p>
                 ) : (
-                  <Link href="/account/inventory/products" className="mt-4 h-8">
+                  <Link
+                    href="/app/account/inventory/products"
+                    className="mt-4 h-8"
+                  >
                     <ButtonPrimary name="Go" />
                   </Link>
                 )}
@@ -223,7 +231,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   <p className="text-sm font-light">Done</p>
                 ) : (
                   <Link
-                    href="/account/my-shop/fulfillment"
+                    href="/app/account/my-shop/fulfillment"
                     className="mt-4 h-8"
                   >
                     <ButtonPrimary name="Go" />
@@ -253,7 +261,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                     <p className="text-sm font-light">Done</p>
                   ) : (
                     <Link
-                      href="/account/my-shop/availability"
+                      href="/app/account/my-shop/availability"
                       className="mt-4 h-8"
                     >
                       <ButtonPrimary name="Go" />
@@ -282,7 +290,10 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {isPaymentsSet ? (
                   <p className="text-sm font-light">Done</p>
                 ) : (
-                  <Link href="/account/my-shop/payments" className="mt-4 h-8">
+                  <Link
+                    href="/app/account/my-shop/payments"
+                    className="mt-4 h-8"
+                  >
                     <ButtonPrimary name="Go" />
                   </Link>
                 )}
@@ -307,7 +318,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {hasViewedSupportChannels ? (
                   <p className="text-sm font-light">Done</p>
                 ) : (
-                  <Link href="/account/support" className="mt-4 h-8">
+                  <Link href="/app/account/support" className="mt-4 h-8">
                     <ButtonPrimary name="Go" />
                   </Link>
                 )}
@@ -338,7 +349,10 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {hasLogo && hasBanner ? (
                   <p className="text-sm font-light">Done</p>
                 ) : (
-                  <Link href="/account/my-shop/profile" className="mt-4 h-8">
+                  <Link
+                    href="/app/account/my-shop/profile"
+                    className="mt-4 h-8"
+                  >
                     <ButtonSecondary name="Go" />
                   </Link>
                 )}
@@ -363,7 +377,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {hasViewedShareStore ? (
                   <p className="text-sm font-light">Done</p>
                 ) : (
-                  <Link href="/account/my-shop/share" className="mt-4 h-8">
+                  <Link href="/app/account/my-shop/share" className="mt-4 h-8">
                     <ButtonSecondary name="Go" />
                   </Link>
                 )}
@@ -395,6 +409,18 @@ export async function getServerSideProps(context) {
           availability: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serisalizedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

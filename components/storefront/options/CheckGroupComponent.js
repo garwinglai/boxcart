@@ -206,12 +206,20 @@ function CheckGroupComponent({
                     {`${optionName}  +${priceStr}`}
                   </p>
                   {!hasUnlimitedQuantity &&
-                    !setQuantityByProduct &&
-                    quantity && (
+                  !setQuantityByProduct &&
+                  quantity ? (
+                    quantity > 0 ? (
                       <p className="text-xs font-extralight -mr-1">
                         ({quantity} left)
                       </p>
-                    )}
+                    ) : (
+                      <p className="text-xs font-extralight -mr-1">
+                        ({quantity} left)
+                      </p>
+                    )
+                  ) : (
+                    <p></p>
+                  )}
                 </div>
               }
               labelPlacement="start"

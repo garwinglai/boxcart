@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import { useRouter } from "next/router";
 import OrderReview from "@/components/storefront/cart/OrderReview";
 import OrderSubtotal from "@/components/storefront/cart/OrderSubtotal";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useShopperStore } from "@/lib/store";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useHasHydrated } from "@/utils/useHasHydrated";
@@ -19,7 +19,12 @@ import {
   sendOrderInvoiceToCustomer,
   sendOrderToBusinessEmail,
 } from "@/helper/client/api/sendgrid/email";
-import { saveContact } from "@/helper/client/api/contacts";
+import CredentialsModal from "@/components/user/auth/CredentialsModal";
+import SignupPrompt from "@/components/user/auth/checkout/SignupPrompt";
+import { checkIfUserEmailInUse } from "@/helper/client/api/user";
+
+// * This form is only for all physical products.
+// * Digital products are handled by CheckoutFormStripe.
 
 function CheckoutForm({
   handleOpenSnackbar,
@@ -29,12 +34,14 @@ function CheckoutForm({
   selectedPayment,
   selectedPaymentDetails,
   siteData,
+  shopper,
 }) {
   const { businessName, fullDomain, email, logoImage } = siteData;
 
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const cart = useCartStore((state) => state.cart);
+  const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const hydrated = useHasHydrated();
 
   const {
@@ -45,15 +52,31 @@ function CheckoutForm({
     customerPhone,
     deliveryAddress,
     paymentMethod,
+    applyFivePercentDiscount,
+    totalPenny,
   } = cartDetails;
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
 
   const router = useRouter();
   const { query, push } = router;
-  const subdomain = query.site + ".boxcart.shop";
+  const { site } = query;
+  const subdomain = site + ".boxcart.shop";
 
   useEffect(() => {
+    if (!shopperAccount) return;
+
+    setCartDetails({
+      customerFName: shopperAccount.firstName,
+      customerLName: shopperAccount.lastName,
+      customerEmail: shopperAccount.email,
+    });
+  }, [shopperAccount]);
+
+  useEffect(() => {
+    if (shopperAccount) return;
     // Initialize cart details in store
     if (!customerFName) {
       setCartDetails({ customerFName: "" });
@@ -72,6 +95,14 @@ function CheckoutForm({
     }
   }, []);
 
+  const handleGuestCheckoutTrue = () => {
+    setIsGuestCheckout(true);
+  };
+
+  const handleGuestCheckoutFalse = () => {
+    setIsGuestCheckout(false);
+  };
+
   const handleCustomerInfoChange = (e) => {
     const { name, value } = e.target;
     setCartDetails({ [name]: value });
@@ -81,10 +112,19 @@ function CheckoutForm({
     setCartDetails({ customerPhone: formattedValue });
   };
 
+  const handleOpenSignupModal = () => setIsModalOpen(true);
+  const handleCloseSignupModal = () => setIsModalOpen(false);
+
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
+
+    if (!shopper && !isGuestCheckout) {
+      handleOpenSignupModal();
+      setIsLoading(false);
+      return;
+    }
 
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
@@ -96,16 +136,23 @@ function CheckoutForm({
       return;
     }
 
-    // saveContact();
     createOrderNotification(orderData);
     sendEmailToBusiness(orderData, id);
     createAndSendInvoiceToCustomer(orderData);
     setCartDetails({ id });
-    push(`/order-submitted/${id}`);
+    push(`/${site}/order-submitted/${id}`);
+  };
+
+  const calculateFirstTimeShopperCredit = (totalPenny) => {
+    // Convert dollars to pennies and calculate 5%
+    var fivePercentInPennies = Math.round(totalPenny * 0.05);
+
+    // Return the result in pennies
+    return fivePercentInPennies;
   };
 
   const sendEmailToBusiness = async (orderData) => {
-    const orderLink = `app.boxcart.shop/account/orders/live`;
+    const orderLink = `boxcart.shop/app/account/orders/live`;
 
     const emailData = {
       ...orderData,
@@ -137,7 +184,7 @@ function CheckoutForm({
   };
 
   const buildNotifdata = (orderData) => {
-    const { id, totalDisplay } = orderData;
+    const { id, totalDisplay, orderStatus } = orderData;
     const subdomain = query.site;
     const now = new Date();
 
@@ -165,6 +212,7 @@ function CheckoutForm({
       notificationMessage: `${totalDisplay} - order from ${customerFName}.`,
       createdAt: Timestamp.fromDate(new Date()),
       dateTimeString,
+      orderStatus,
     };
 
     return notifData;
@@ -182,12 +230,70 @@ function CheckoutForm({
     return allProductIds;
   };
 
+  const updateShopperAccountCredit = async (
+    shopperCreditData,
+    customerEmail
+  ) => {
+    const apiRoute = "/api/public/user/shopper/update-credit";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ shopperCreditData, email: customerEmail }),
+    });
+
+    if (!response.ok) {
+      // todo: error log
+      return;
+    }
+
+    return await response.json();
+  };
+
   const createOrder = async () => {
     const orderDetailsData = buildOrderData();
-    const customerData = buildCustomerData();
     const allProductIds = getAllProductIds();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
+    const emailToUse = shopper
+      ? shopper.email
+        ? shopper.email
+        : customerEmail
+      : customerEmail;
+
+    const { user, success, error } = await checkIfUserEmailInUse(emailToUse);
+    let shopperAccountId;
+
+    if (!success || error) {
+      // todo: log error - guest checkout and error locating user email
+    }
+
+    if (user && user.shopperAccount) {
+      const { shopperAccount } = user;
+
+      const { id, email: shopperAccountEmail } = shopperAccount;
+      shopperAccountId = parseInt(id);
+
+      if (applyFivePercentDiscount) {
+        const creditInPennies = calculateFirstTimeShopperCredit(totalPenny);
+        const shopperCreditData = {
+          credit: {
+            increment: creditInPennies,
+          },
+          totalSaved: {
+            increment: creditInPennies,
+          },
+        };
+
+        const updateShopperCredit = await updateShopperAccountCredit(
+          shopperCreditData,
+          shopperAccountEmail
+        );
+      }
+    }
+
+    const customerData = buildCustomerData(shopperAccountId, emailToUse);
 
     const {
       orderItems,
@@ -219,6 +325,11 @@ function CheckoutForm({
       products: {
         connect: allProductIds,
       },
+      shopperAccount: shopperAccountId && {
+        connect: {
+          id: shopperAccountId,
+        },
+      },
     };
 
     const orderResponse = await fetch("/api/public/orders/create", {
@@ -243,7 +354,7 @@ function CheckoutForm({
     return orderResponseData;
   };
 
-  const buildCustomerData = () => {
+  const buildCustomerData = (shopperAccountId, emailToUse) => {
     const customerName = `${customerFName} ${customerLName}`;
 
     const customerData = {
@@ -256,6 +367,11 @@ function CheckoutForm({
       account: {
         connect: {
           id: parseInt(accountId),
+        },
+      },
+      shopperAccount: shopperAccountId && {
+        connect: {
+          id: shopperAccountId,
         },
       },
     };
@@ -284,6 +400,7 @@ function CheckoutForm({
       totalPenny,
       totalDisplay,
       pickupNote,
+      applyFivePercentDiscount,
     } = cartDetails;
 
     // const orderStatus = "pending";
@@ -505,116 +622,126 @@ function CheckoutForm({
   if (!hydrated) return null;
 
   return (
-    <form
-      onSubmit={handleSubmitOrder}
-      className="flex flex-col gap-1 pb-28 lg:flex-row lg:mt-8 lg:mx-[7rem] lg:gap-4 xl:mx-[14rem]"
-    >
-      {hydrated && (
-        <div className="lg:w-2/3">
-          <div className="px-4 py-6 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0 lg:mt-0">
-            <h3 className="font-medium">Your information:</h3>
-            <div className="lg:px-12">
-              <div className="flex w-full gap-2">
+    <React.Fragment>
+      <SignupPrompt
+        isModalOpen={isModalOpen}
+        handleClose={handleCloseSignupModal}
+        handleGuestCheckoutTrue={handleGuestCheckoutTrue}
+        handleGuestCheckoutFalse={handleGuestCheckoutFalse}
+        isGuestCheckout={isGuestCheckout}
+        cartDetails={cartDetails}
+      />
+      <form
+        onSubmit={handleSubmitOrder}
+        className="flex flex-col gap-1 pb-28 lg:flex-row lg:mt-8 lg:mx-[7rem] lg:gap-4 xl:mx-[14rem]"
+      >
+        {hydrated && (
+          <div className="lg:w-2/3">
+            <div className="px-4 py-6 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0 lg:mt-0">
+              <h3 className="font-medium">Your information:</h3>
+              <div className="lg:px-12">
+                <div className="flex w-full gap-2">
+                  <TextField
+                    id="first-name"
+                    label="First name"
+                    size="small"
+                    fullWidth
+                    required
+                    color="warning"
+                    value={customerFName}
+                    name="customerFName"
+                    onChange={handleCustomerInfoChange}
+                  />
+                  <TextField
+                    id="last-name"
+                    label="Last name"
+                    size="small"
+                    required
+                    fullWidth
+                    color="warning"
+                    value={customerLName}
+                    name="customerLName"
+                    onChange={handleCustomerInfoChange}
+                  />
+                </div>
                 <TextField
-                  id="first-name"
-                  label="First name"
+                  id="customerEmail"
+                  label="Email"
                   size="small"
-                  fullWidth
                   required
+                  type="email"
+                  fullWidth
+                  value={customerEmail}
+                  name="customerEmail"
                   color="warning"
-                  value={customerFName}
-                  name="customerFName"
+                  sx={{ marginTop: "1rem" }}
                   onChange={handleCustomerInfoChange}
                 />
-                <TextField
-                  id="last-name"
-                  label="Last name"
-                  size="small"
-                  required
-                  fullWidth
-                  color="warning"
-                  value={customerLName}
-                  name="customerLName"
-                  onChange={handleCustomerInfoChange}
+                <PhoneInput
+                  id="phone-input"
+                  country={"us"}
+                  value={customerPhone}
+                  name="customerPhone"
+                  onChange={handleCustomerPhoneChange}
+                  className="mt-4 w-full focus:ring-1"
+                  inputClass="p-5"
+                  inputStyle={{ width: "100%" }}
                 />
+                <label htmlFor="phone-input" className="text-xs">
+                  Recommended | Optional
+                </label>
               </div>
-              <TextField
-                id="email"
-                label="Email"
-                size="small"
-                required
-                type="email"
-                fullWidth
-                value={customerEmail}
-                name="customerEmail"
-                color="warning"
-                sx={{ marginTop: "1rem" }}
-                onChange={handleCustomerInfoChange}
-              />
-              <PhoneInput
-                id="phone-input"
-                country={"us"}
-                value={customerPhone}
-                name="customerPhone"
-                onChange={handleCustomerPhoneChange}
-                className="mt-4 w-full focus:ring-1"
-                inputClass="p-5"
-                inputStyle={{ width: "100%" }}
-              />
-              <label htmlFor="phone-input" className="text-xs">
-                Recommended | Optional
-              </label>
+            </div>
+            <div className="flex gap-4 mb-4 px-4 flex-wrap md:px-16 lg:p-0">
+              {availablePayments.map((payment) => {
+                const { charged_enabled, paymentMethod } = payment;
+
+                if (paymentMethod === "stripe" && !charged_enabled) return null;
+
+                return (
+                  <PaymentOption
+                    payment={payment}
+                    key={payment.id}
+                    handleSelectPaymentMethod={handleSelectPaymentMethod}
+                    selectedPayment={selectedPayment}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
+              <PaymentNotes selectedPaymentDetails={selectedPaymentDetails} />
             </div>
           </div>
-          <div className="flex gap-4 mb-4 px-4 flex-wrap md:px-16 lg:p-0">
-            {availablePayments.map((payment) => {
-              const { charged_enabled, paymentMethod } = payment;
+        )}
 
-              if (paymentMethod === "stripe" && !charged_enabled) return null;
-
-              return (
-                <PaymentOption
-                  payment={payment}
-                  key={payment.id}
-                  handleSelectPaymentMethod={handleSelectPaymentMethod}
-                  selectedPayment={selectedPayment}
-                />
-              );
-            })}
+        <div className="relative lg:flex-grow">
+          <div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
+            <OrderReview />
           </div>
 
-          <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
-            <PaymentNotes selectedPaymentDetails={selectedPaymentDetails} />
+          <div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
+            <OrderSubtotal isInCart={false} />
+          </div>
+          <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
+            >
+              {isLoading ? (
+                <div className="flex justify-center gap-4 items-center">
+                  <CircularProgress sx={{ color: "white" }} size="1rem" />
+                  Submitting order...
+                </div>
+              ) : (
+                "Submit Order"
+              )}
+            </button>
           </div>
         </div>
-      )}
-
-      <div className="relative lg:flex-grow">
-        <div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
-          <OrderReview />
-        </div>
-
-        <div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
-          <OrderSubtotal isInCart={false} />
-        </div>
-        <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
-          >
-            {isLoading ? (
-              <div className="flex justify-center gap-4 items-center">
-                <CircularProgress sx={{ color: "white" }} size="1rem" />
-                Submitting order...
-              </div>
-            ) : (
-              "Submit Order"
-            )}
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 }
 

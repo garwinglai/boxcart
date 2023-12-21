@@ -107,7 +107,7 @@ function ForgotPassword() {
         action={action}
       />
       <Link
-        href="https://boxcart.shop/auth/signin"
+        href="https://boxcart.shop/app/auth/signin"
         className="absolute left-0 flex item-center gap-2 m-4"
       >
         <ChevronLeft />

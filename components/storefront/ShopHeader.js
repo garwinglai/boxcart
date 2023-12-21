@@ -58,11 +58,11 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
 
   // Is Owner
   const handleEditProfile = () => {
-    push("/account/my-shop/profile");
+    push("/app/account/my-shop/profile");
   };
 
   const handleShareStore = () => {
-    push("/account/my-shop/share");
+    push("/app/account/my-shop/share");
   };
 
   // Is Customer

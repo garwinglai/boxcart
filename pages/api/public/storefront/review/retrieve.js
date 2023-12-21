@@ -12,10 +12,20 @@ export default async function handler(req, res) {
     try {
       const reviews = await prisma.review.findMany({
         where: {
-          product: {
-            id: prodId,
-            accountId: accId,
-          },
+          OR: [
+            {
+              product: {
+                id: prodId,
+                accountId: accId,
+              },
+            },
+            {
+              digitalProduct: {
+                id: prodId,
+                accountId: accId,
+              },
+            },
+          ],
         },
         orderBy: {
           createdAt: "desc",

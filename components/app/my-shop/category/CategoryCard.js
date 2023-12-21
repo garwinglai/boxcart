@@ -28,17 +28,24 @@ const style = {
 };
 
 function CategoryCard({
-  handleEditCategory,
   category,
   handleOpenSnackbar,
   filterDeletedCategories,
   accountId,
   products,
   updateCategoryList,
+  digitalProducts,
 }) {
   // Props
-  const { categoryName, products: categoryProducts, id } = category;
-  const productsAddedLength = categoryProducts ? categoryProducts.length : 0;
+  const {
+    categoryName,
+    products: categoryProducts,
+    digitalProducts: categoryDigitalProducts,
+    id,
+  } = category;
+  const productsAddedLength =
+    (categoryProducts ? categoryProducts.length : 0) +
+    (categoryDigitalProducts ? categoryDigitalProducts.length : 0);
 
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -114,18 +121,8 @@ function CategoryCard({
             </p>
           )}
         </div>
-        <button
-          onClick={handleViewCardClick}
-          className="flex items-center gap-1 active text-sm lg:hidden"
-        >
-          {isViewWholeCard ? (
-            <KeyboardArrowUpOutlinedIcon fontSize="small" />
-          ) : (
-            <KeyboardArrowDownOutlinedIcon fontSize="small" />
-          )}
-          View Products
-        </button>
-        <div className="hidden lg:block">
+
+        <div className="">
           <button
             onClick={handleOpenViewProductModal}
             className="flex items-center gap-2 active text-sm"
@@ -137,6 +134,7 @@ function CategoryCard({
             isViewProductsModalOpen={isViewProductsModalOpen}
             handleOpenViewProductModal={handleOpenViewProductModal}
             categoryProducts={categoryProducts}
+            categoryDigitalProducts={categoryDigitalProducts}
             categoryName={categoryName}
             handleEditCategoryClick={handleEditCategoryClick}
             category={category}
@@ -204,30 +202,12 @@ function CategoryCard({
           isEditCategory={true}
           editCategory={editCategory}
           products={products}
+          digitalProducts={digitalProducts}
           accountId={accountId}
           updateCategoryList={updateCategoryList}
           handleOpenSnackbar={handleOpenSnackbar}
         />
       </div>
-      {isViewWholeCard && (
-        <div className="border-t border-[color:var(--gray-light-med)] pt-4 mt-2">
-          <h5 className="text-sm">Products added</h5>
-          <ul className="px-8 pt-2">
-            {categoryProducts && categoryProducts.length === 0 ? (
-              <p className="font-extralight text-xs text-center">None</p>
-            ) : (
-              categoryProducts.map((product) => {
-                const { productName, id } = product;
-                return (
-                  <li key={id} className="text-sm font-light list-disc">
-                    {productName}
-                  </li>
-                );
-              })
-            )}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

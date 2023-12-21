@@ -17,7 +17,34 @@ export async function sendEmailReferUsed(referrer, referred) {
   });
 }
 
-export async function sendVerificationEmail(userId, accountId, email) {
+export async function sendShopperVerificationEmail(
+  userId,
+  shopperAccountId,
+  email
+) {
+  const verificationEmailUrl = "/api/public/sendgrid/user/verify-email";
+  const data = {
+    userId,
+    shopperAccountId,
+    email,
+  };
+
+  const result = await fetch(verificationEmailUrl, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  const resultJson = await result.json();
+  const { success, error } = resultJson;
+
+  if (result.status == 200) {
+    return { success, error };
+  } else {
+    return { success, error };
+  }
+}
+
+export async function sendBusinessVerificationEmail(userId, accountId, email) {
   const verificationEmailUrl = "/api/public/sendgrid/verify-email";
   const data = {
     userId,
@@ -42,6 +69,24 @@ export async function sendVerificationEmail(userId, accountId, email) {
 
 export async function sendOrderInvoiceToCustomer(data) {
   const customerInvoice = "/api/public/sendgrid/send-invoice";
+
+  const result = await fetch(customerInvoice, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  const resultJson = await result.json();
+  const { success, error } = resultJson;
+
+  if (result.status == 200) {
+    return { success, error };
+  } else {
+    return { success, error };
+  }
+}
+
+export async function sendDigitalProductLinkToCustomer(data) {
+  const customerInvoice = "/api/public/sendgrid/send-digital-products";
 
   const result = await fetch(customerInvoice, {
     method: "POST",

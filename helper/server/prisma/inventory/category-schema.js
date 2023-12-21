@@ -2,7 +2,8 @@ import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export async function createCategoryServer(category) {
-  const { accountId, categoryName, products } = JSON.parse(category);
+  const { accountId, categoryName, products, digitalProducts } =
+    JSON.parse(category);
 
   try {
     const createCategory = await prisma.category.create({
@@ -20,9 +21,17 @@ export async function createCategoryServer(category) {
             };
           }),
         },
+        digitalProducts: {
+          connect: digitalProducts.map((product) => {
+            return {
+              id: product.productId,
+            };
+          }),
+        },
       },
       include: {
         products: true,
+        digitalProducts: true,
       },
     });
 
@@ -48,8 +57,15 @@ export async function createCategoryServer(category) {
 }
 
 export async function updateCategoryServer(category) {
-  const { accountId, categoryName, products, categoryId, removedProducts } =
-    JSON.parse(category);
+  const {
+    accountId,
+    categoryName,
+    products,
+    digitalProducts,
+    categoryId,
+    removedProducts,
+    removedDigitalProducts,
+  } = JSON.parse(category);
 
   try {
     const updateCategory = await prisma.category.update({
@@ -70,9 +86,22 @@ export async function updateCategoryServer(category) {
             };
           }),
         },
+        digitalProducts: {
+          disconnect: removedDigitalProducts.map((product) => {
+            return {
+              id: product.id,
+            };
+          }),
+          connect: digitalProducts.map((product) => {
+            return {
+              id: product.productId,
+            };
+          }),
+        },
       },
       include: {
         products: true,
+        digitalProducts: true,
       },
     });
 
@@ -89,6 +118,7 @@ export async function updateCategoryServer(category) {
 
       return { success: false, value: null, error: error.code };
     } else {
+      console.log("error updating category, server:", error);
       return { success: false, value: null, error };
     }
   }
@@ -102,6 +132,7 @@ export async function getCategoryServer(accountId) {
       },
       include: {
         products: true,
+        digitalProducts: true,
       },
     });
 
@@ -136,6 +167,14 @@ export async function getProductsByCategoryIdServer(categoryId) {
         id: categoryId,
       },
       include: {
+        digitalProducts: {
+          include: {
+            images: true,
+            reviews: true,
+            digitalFiles: true,
+            relatedCategories: true,
+          },
+        },
         products: {
           include: {
             optionGroups: {
@@ -146,6 +185,7 @@ export async function getProductsByCategoryIdServer(categoryId) {
             questions: true,
             relatedCategories: true,
             images: true,
+            reviews: true,
           },
         },
       },

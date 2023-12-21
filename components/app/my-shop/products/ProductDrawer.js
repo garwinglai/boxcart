@@ -59,6 +59,9 @@ function ProductDrawer({
   updateProductList,
   handleOpenSnackbarGlobal,
   getAllProducts,
+  getProductsByCategory,
+  currCategoryId,
+  currCategory,
 }) {
   const account = useAccountStore((state) => state.account);
   const { subdomain } = account;
@@ -116,6 +119,7 @@ function ProductDrawer({
     quantity: product ? (!product.quantity ? 0 : product.quantity) : 1,
     setQuantityByProduct: product ? product.setQuantityByProduct : true,
     id: product ? product.id : "",
+    productId: product ? (product.id ? product.id : nanoid()) : nanoid(),
     isSampleProduct: product ? product.isSampleProduct : false,
     relatedCategories: product ? product.relatedCategories : [],
     enableCustomNote: product
@@ -157,6 +161,7 @@ function ProductDrawer({
     quantity,
     setQuantityByProduct,
     id,
+    productId,
     isSampleProduct,
     relatedCategories,
     enableCustomNote,
@@ -1332,7 +1337,15 @@ function ProductDrawer({
       updateProductList(updatedProduct);
     }
     setIsSaveProductLoading(false);
-    getAllProducts(accountId);
+    if (currCategory) {
+      if (currCategory === "All Products") {
+        getAllProducts(accountId);
+      } else {
+        getProductsByCategory(currCategoryId, currCategory);
+      }
+    } else {
+      getAllProducts(accountId);
+    }
     updateChecklist();
     toggleDrawer("right", false)(e);
   };
@@ -1353,6 +1366,7 @@ function ProductDrawer({
       console.log("error deleting images from firebase:", error);
     }
   };
+
   const saveProductImagesToFirebase = async (
     productPhotos,
     fireStorageId,
@@ -1640,6 +1654,7 @@ function ProductDrawer({
 
     const productSchema = {
       id,
+      productId,
       accountId,
       isSampleProduct: false,
       productName,
@@ -1664,21 +1679,6 @@ function ProductDrawer({
     };
 
     return productSchema;
-  };
-
-  const structureImageSchema = (images) => {
-    const photoDatatArr = [];
-
-    for (let i = 0; i < productPhotos.length; i++) {
-      const currPhoto = productPhotos[i];
-
-      const { fileName, imageFile, isDefault } = currPhoto;
-      const newPhotoData = { fileName, imageFile, isDefault };
-
-      photoDatatArr.push(newPhotoData);
-    }
-
-    return photoDatatArr;
   };
 
   const structureOptionGroupSchema = () => {
@@ -1981,7 +1981,7 @@ function ProductDrawer({
               </div>
               <div>
                 <p className="text-xs text-right text-[color:var(--gray)] font-light">
-                  * png or jpeg files only
+                  * .png, .jpeg, or .jpg
                 </p>
                 <p className="text-xs text-right text-[color:var(--gray)] font-light">
                   For clear photos - 800px x 800px
@@ -2050,6 +2050,7 @@ function ProductDrawer({
                       id="productImageInput"
                       className="hidden"
                       multiple
+                      accept=".png, .jpg, .jpeg"
                     />
                   </span>
                 </div>

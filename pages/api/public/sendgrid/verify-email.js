@@ -8,13 +8,15 @@ export default async function handler(req, res) {
     const bodyParsed = JSON.parse(body);
     const { userId, accountId, email } = bodyParsed;
 
+    const templateId = "d-3d14c29ed81b4bd395748a4e7e96d739";
+
     const mailOptions = {
       to: email,
       from: {
         email: "hello@boxcart.shop",
         name: "BoxCart",
       },
-      templateId: "d-3d14c29ed81b4bd395748a4e7e96d739",
+      templateId,
       dynamic_template_data: {
         userId,
         accountId,

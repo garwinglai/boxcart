@@ -10,7 +10,7 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -600,7 +600,7 @@ function Profile({ userAccount }) {
       }
     }
 
-    const fullDomain = subdomain + ".boxcart.shop";
+    const fullDomain = "boxcart.shop/" + subdomain;
 
     const updatedSettings = {
       businessName,
@@ -934,10 +934,11 @@ function Profile({ userAccount }) {
               />
             </div>
             <div>
-              <label htmlFor="email" className="font-light text-sm">
+              <label htmlFor="subdomain" className="font-light text-sm">
                 URL: *
               </label>
-              <div className="flex items-center">
+              <div className="flex items-center gap-1">
+                <p>boxcart.shop/</p>
                 <TextField
                   fullWidth
                   required
@@ -950,7 +951,6 @@ function Profile({ userAccount }) {
                   onChange={handleChangeSubdomain}
                   color="warning"
                 />
-                <p>.boxcart.shop</p>
               </div>
             </div>
             <div>
@@ -1215,6 +1215,18 @@ export async function getServerSideProps(context) {
           socials: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

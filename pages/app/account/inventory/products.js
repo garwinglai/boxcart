@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import ProductCard from "@/components/app/my-shop/products/ProductCard";
 import ProductDrawer from "@/components/app/my-shop/products/ProductDrawer";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,16 +15,24 @@ import { IconButton } from "@mui/material";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
 import prisma from "@/lib/prisma";
-import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
-import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
-import ButtonThird from "@/components/global/buttons/ButtonThird";
-import Link from "next/link";
+import {
+  getDigitalProductsClient,
+  getProductsClient,
+} from "@/helper/client/api/inventory/product-schema";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import DigitalProductDrawer from "@/components/app/my-shop/products/DigitalProductDrawer";
+import DigitalProductCard from "@/components/app/my-shop/products/DigitalProductCard";
 
 function Products({ userAccount }) {
   // Props
-  const { products, categories, logoImgStr, id: accountId } = userAccount || {};
+  const {
+    products,
+    digitalProducts,
+    categories,
+    logoImgStr,
+    id: accountId,
+  } = userAccount || {};
 
   // States
   const [isDuplicatingProduct, setIsDuplicatingProduct] = useState(false);
@@ -33,8 +41,14 @@ function Products({ userAccount }) {
     isSnackbarOpen: false,
     snackbarMessage: "",
   });
+  const [currDigitalProducts, setCurrDigitalProducts] = useState(
+    digitalProducts ? digitalProducts : []
+  );
   const [currProducts, setCurrProducts] = useState(products ? products : []);
   const [state, setState] = useState({
+    right: false,
+  });
+  const [digialProductDrawerOpen, setDigialProductDrawerOpen] = useState({
     right: false,
   });
   const [openSnackbarGlobal, setOpenSnackbarGlobal] = useState({
@@ -58,13 +72,24 @@ function Products({ userAccount }) {
   const { push, pathname } = useRouter();
 
   // Functions
-
   const getAllProducts = async (accountId) => {
     const { success, value } = await getProductsClient(accountId);
 
     if (success) {
       const { products } = value;
       setCurrProducts(products);
+      return;
+    }
+
+    return;
+  };
+
+  const getAllDigitalProducts = async (accountId) => {
+    const { success, value } = await getDigitalProductsClient(accountId);
+
+    if (success) {
+      const { digitalProducts } = value;
+      setCurrDigitalProducts(digitalProducts);
       return;
     }
 
@@ -91,19 +116,19 @@ function Products({ userAccount }) {
 
   const handleProductRoute = () => {
     if (pathname !== "/app/account/inventory/products")
-      push("/account/inventory/products");
+      push("/app/account/inventory/products");
 
     return;
   };
 
   const handleCategoryRoute = () => {
     if (pathname !== "/app/account/inventory/categories")
-      push("/account/inventory/categories");
+      push("/app/account/inventory/categories");
 
     return;
   };
 
-  const toggleDrawer = (anchor, open) => (event) => {
+  const toggleDrawerProductCreate = (anchor, open) => (event) => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
@@ -112,6 +137,17 @@ function Products({ userAccount }) {
     }
 
     setState({ ...state, [anchor]: open });
+  };
+
+  const toggleDrawerDigitalProductCreate = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setDigialProductDrawerOpen({ ...digialProductDrawerOpen, [anchor]: open });
   };
 
   const handleOpenSnackbar = (message) => {
@@ -134,24 +170,50 @@ function Products({ userAccount }) {
     );
   };
 
-  const updateProductList = (updatedProduct) => {
-    setCurrProducts((prev) =>
-      prev.map((product) => {
-        if (product.id === updatedProduct.id) {
-          return updatedProduct;
-        }
-        return product;
-      })
+  const filterDeletedDigitalProducts = (productId) => {
+    setCurrDigitalProducts((prev) =>
+      prev.filter((product) => product.id !== productId)
     );
   };
 
+  const updateProductList = (updatedProduct) => {
+    const { productType } = updatedProduct;
+
+    if (productType === 0) {
+      setCurrProducts((prev) =>
+        prev.map((product) => {
+          if (product.id === updatedProduct.id) {
+            return updatedProduct;
+          }
+          return product;
+        })
+      );
+    }
+
+    if (productType === 1) {
+      setCurrDigitalProducts((prev) =>
+        prev.map((product) => {
+          if (product.id === updatedProduct.id) {
+            return updatedProduct;
+          }
+          return product;
+        })
+      );
+    }
+  };
+
   const handleCreateProduct = (e) => {
-    toggleDrawer("right", true)(e);
+    toggleDrawerProductCreate("right", true)(e);
     handleCloseProductCreate();
   };
 
   const handleCreateBatchProduct = (e) => {
-    push("/account/inventory/batch-products");
+    push("/app/account/inventory/batch-products");
+    handleCloseProductCreate();
+  };
+
+  const handleCreateDigitalProduct = (e) => {
+    toggleDrawerDigitalProductCreate("right", true)(e);
     handleCloseProductCreate();
   };
 
@@ -214,56 +276,101 @@ function Products({ userAccount }) {
               "aria-labelledby": "basic-button",
             }}
           >
-            <MenuItem onClick={handleCreateProduct}>Create Product</MenuItem>
+            <MenuItem onClick={handleCreateProduct}>Product</MenuItem>
             <MenuItem onClick={handleCreateBatchProduct}>
-              Batch Upload Product
+              Batch product
+            </MenuItem>
+            <MenuItem onClick={handleCreateDigitalProduct}>
+              Digital product
             </MenuItem>
           </Menu>
 
           <ProductDrawer
             state={state}
-            toggleDrawer={toggleDrawer}
+            toggleDrawer={toggleDrawerProductCreate}
             categories={categories}
             isCreateProduct={true}
             accountId={accountId}
             handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
             getAllProducts={getAllProducts}
           />
+          <DigitalProductDrawer
+            state={digialProductDrawerOpen}
+            toggleDrawer={toggleDrawerDigitalProductCreate}
+            categories={categories}
+            isCreateProduct={true}
+            accountId={accountId}
+            handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+            getAllDigitalProducts={getAllDigitalProducts}
+          />
         </div>
       </div>
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
-        {currProducts.length === 0 ? (
-          <div className="flex flex-col justify-center items-center gap-4 mt-16 lg:col-span-2 xl:col-span-3">
-            <Image
-              src={boxes_icon}
-              alt="boxes icon"
-              className="w-24 h-24 opacity-50"
-            />
-            <p className="text-center font-extralight">
-              You have no products yet.
-            </p>
-          </div>
-        ) : (
-          currProducts.map((product) => {
-            const { id, category, accountId } = product;
-            return (
-              <ProductCard
-                key={id}
-                product={product}
-                userAccount={userAccount}
-                accountId={accountId}
-                categories={categories}
-                setIsDuplicatingProduct={setIsDuplicatingProduct}
-                handleOpenSnackbar={handleOpenSnackbar}
-                filterDeletedProducts={filterDeletedProducts}
-                updateProductList={updateProductList}
-                handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
-                getAllProducts={getAllProducts}
-              />
-            );
-          })
-        )}
-      </div>
+
+      {currDigitalProducts.length === 0 && currProducts.length === 0 ? (
+        <div className="flex flex-col justify-center items-center gap-4 mt-16 lg:col-span-2 xl:col-span-3">
+          <Image
+            src={boxes_icon}
+            alt="boxes icon"
+            className="w-24 h-24 opacity-50"
+          />
+          <p className="text-center font-extralight">
+            You have no products yet.
+          </p>
+        </div>
+      ) : (
+        <React.Fragment>
+          {currProducts.length > 0 && (
+            <div className="mb-8">
+              <h3 className="mb-2">Products</h3>
+              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
+                {currProducts.map((product) => {
+                  const { id, category, accountId } = product;
+                  return (
+                    <ProductCard
+                      key={id}
+                      product={product}
+                      userAccount={userAccount}
+                      accountId={accountId}
+                      categories={categories}
+                      setIsDuplicatingProduct={setIsDuplicatingProduct}
+                      handleOpenSnackbar={handleOpenSnackbar}
+                      filterDeletedProducts={filterDeletedProducts}
+                      updateProductList={updateProductList}
+                      handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+                      getAllProducts={getAllProducts}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {currDigitalProducts.length > 0 && (
+            <div className="mb-8">
+              <h3 className="mb-2">Digital products</h3>
+              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3 mb-4">
+                {currDigitalProducts.map((product) => {
+                  const { id, category, accountId } = product;
+                  return (
+                    <DigitalProductCard
+                      key={id}
+                      product={product}
+                      userAccount={userAccount}
+                      accountId={accountId}
+                      categories={categories}
+                      setIsDuplicatingProduct={setIsDuplicatingProduct}
+                      handleOpenSnackbar={handleOpenSnackbar}
+                      filterDeletedProducts={filterDeletedDigitalProducts}
+                      updateProductList={updateProductList}
+                      handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
+                      getAllDigitalProducts={getAllDigitalProducts}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </React.Fragment>
+      )}
     </div>
   );
 }
@@ -283,6 +390,17 @@ export async function getServerSideProps(context) {
         },
         include: {
           categories: true,
+          digitalProducts: {
+            include: {
+              digitalFiles: true,
+              reviews: true,
+              relatedCategories: true,
+              images: true,
+            },
+            orderBy: {
+              productName: "asc",
+            },
+          },
           products: {
             include: {
               reviews: {
@@ -305,6 +423,18 @@ export async function getServerSideProps(context) {
           },
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

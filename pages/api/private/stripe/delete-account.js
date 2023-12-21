@@ -18,10 +18,8 @@ export default async function handler(req, res) {
 
   if (method === "POST") {
     const { body } = req;
-    console.log("body", body);
+
     const { stripeAccountId } = JSON.parse(body);
-    console.log(stripeAccountId);
-    console.log(typeof stripeAccountId);
 
     try {
       const deleted = await stripe.accounts.del(stripeAccountId);

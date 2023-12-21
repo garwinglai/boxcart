@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import AppLayout from "@/components/layouts/AppLayout";
 import MembershipPage from "@/components/membership/MembershipPage";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 
 function MemberShip({ userAccount, stripePrices, stripeProducts }) {
@@ -105,6 +105,18 @@ export async function getServerSideProps(context) {
 
     try {
       const [account, products, prices] = await Promise.all(promises);
+
+      if (!account) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(account));
       stripeProducts = products.data.filter((product) => product.active);

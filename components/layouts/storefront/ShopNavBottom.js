@@ -52,7 +52,7 @@ function ShopNavBottom({ mobilePageRoute }) {
 
   return (
     <nav className="px-4 pb-1 flex w-full justify-between fixed bottom-0 bg-[color:var(--white)] border-t border-[color:var(--gray-light)] md:hidden z-10">
-      <Link href="/account/chat">
+      <Link href="/app/account/chat">
         <div className="flex flex-col items-center">
           <IconButton>
             <Badge
@@ -83,7 +83,7 @@ function ShopNavBottom({ mobilePageRoute }) {
         </div>
       </Link>
 
-      <Link href="/account/inventory/products">
+      <Link href="/app/account/inventory/products">
         <div className="flex flex-col items-center">
           <IconButton>
             <Badge

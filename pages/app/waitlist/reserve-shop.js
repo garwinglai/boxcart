@@ -180,14 +180,14 @@ function ReserveShop() {
           <p>Already an early member?</p>
           <div className="flex gap-2">
             <Link
-              href="/auth/signup"
+              href="/app/auth/signup"
               className="text-[color:var(--primary)] active:underline hover:underline text-sm"
             >
               Signup
             </Link>
 
             <Link
-              href="/auth/signin"
+              href="/app/auth/signin"
               className="text-[color:var(--primary)] active:underline hover:underline text-sm"
             >
               Signin

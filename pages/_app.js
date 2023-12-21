@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Roboto_Flex, Archivo } from "next/font/google";
-import Script from "next/script";
 
 const robotoFlex = Roboto_Flex({ subsets: ["latin"] });
 const archivo = Archivo({ subsets: ["latin"] });
@@ -34,6 +33,7 @@ export default function App({
           }
         `}
       </style>
+
       <SessionProvider session={session}>
         {pageLayoutWithTitle(
           <Component {...pageProps} />,

@@ -28,6 +28,7 @@ function NotificationCard({
     notificationMessage,
     notificationTitle,
     notificationType,
+    orderStatus,
   } = notif;
 
   const { push, reload } = useRouter();
@@ -35,24 +36,36 @@ function NotificationCard({
   const handleViewNotif = () => {
     handleCloseNotif();
 
-    if (notificationType == 0) { //orders
+    if (notificationType == 0) {
+      //orders
       handleClearNotif();
 
-      if (pageTitle == "Live Orders") {
-        reload();
-        return;
+      if (orderStatus && orderStatus === "pending") {
+        if (pageTitle == "Live Orders") {
+          reload();
+          return;
+        }
+        push("/app/account/orders/live");
       }
-      push("/account/orders/live");
+
+      if (orderStatus && orderStatus === "completed") {
+        if (pageTitle == "Order History") {
+          reload();
+          return;
+        }
+        push("/app/account/orders/history");
+      }
     }
 
-    if (notificationType == 1) { // reviews
+    if (notificationType == 1) {
+      // reviews
       handleClearNotif();
 
       if (pageTitle == "Products") {
         reload();
         return;
       }
-      push("/account/inventory/products");
+      push("/app/account/inventory/products");
     }
   };
 

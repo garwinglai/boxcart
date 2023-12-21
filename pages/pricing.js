@@ -38,7 +38,7 @@ function Pricing({ stripePrices, stripeProducts }) {
         />
       </div>
       <Link
-        href="https://app.boxcart.shop/auth/signin"
+        href="https://boxcart.shop/app/auth/signin"
         className="absolute right-4 top-4 md:top-5 md:right-10"
       >
         <ButtonPrimary name="Sign in" />

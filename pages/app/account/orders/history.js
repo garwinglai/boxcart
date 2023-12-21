@@ -8,7 +8,7 @@ import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGridHistory from "@/components/app/orders/OrderGridHistory";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -188,6 +188,18 @@ export async function getServerSideProps(context) {
           customer: true,
         },
       });
+
+      if (!orders) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedData = JSON.parse(JSON.stringify(orders));
     } catch (error) {

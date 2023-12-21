@@ -17,28 +17,24 @@ import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import { IconButton } from "@mui/material";
 
 function ShopSearchBar({
-  isOwner,
   categories,
   getProductsByCategory,
   getAllProducts,
-  allProducts,
   handleSortSearchResults,
+  sortByMethod,
+  handleChangeSort,
+  allInitialProducts,
 }) {
   const [state, setState] = React.useState({
     bottom: false,
   });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const [sortByMethod, setSortByMethod] = useState("Newest");
-
-  const handleChangeSort = (event) => {
-    const { value } = event.target;
-    setSortByMethod(value);
-  };
 
   const handleOpenSortMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleCloseSortMenu = () => {
     setAnchorEl(null);
   };
@@ -86,12 +82,12 @@ function ShopSearchBar({
 
         <FilterCategoryDrawer
           getAllProducts={getAllProducts}
-          allProducts={allProducts}
           getProductsByCategory={getProductsByCategory}
           categories={categories}
           toggleDrawer={toggleDrawer}
           anchor="bottom"
           state={state}
+          allInitialProducts={allInitialProducts}
         />
       </div>
       <div className="lg:hidden">
@@ -107,7 +103,7 @@ function ShopSearchBar({
           onClick={handleOpenSortMenu}
           className="flex gap-2 items-center bg-[color:var(--gray-light)] text-black text-xs rounded font-extralight px-4 py-2"
         >
-          <p>Sort by Newest</p>
+          <p>Sort by {sortByMethod}</p>
           <KeyboardArrowDownIcon fontSize="small" />
         </button>
         <Menu

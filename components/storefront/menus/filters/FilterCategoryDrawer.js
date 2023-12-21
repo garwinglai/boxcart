@@ -11,10 +11,9 @@ function FilterCategoryDrawer({
   categories,
   getProductsByCategory,
   getAllProducts,
-  allProducts,
-}) {
-  const allProductsLength = allProducts.length;
 
+  allInitialProducts,
+}) {
   const handleCategoryClick = (categoryId, categoryName) => (e) => {
     getProductsByCategory(categoryId, categoryName);
     toggleDrawer("bottom", false)(e);
@@ -43,14 +42,13 @@ function FilterCategoryDrawer({
         >
           <span className="flex items-center gap-4 justify-between">
             <p className="font-light text-left">All Products</p>
-            <p className="font-extralight">{allProductsLength}</p>
+            <p className="font-extralight">{allInitialProducts.length}</p>
           </span>
         </button>
-        {/* <Divider /> */}
-        {/* {categories &&
+        {categories &&
           categories.map((category, idx) => {
-            const { categoryName, id, products } = category;
-            const productCount = products.length;
+            const { categoryName, id, products, digitalProducts } = category;
+            const productCount = products.length + digitalProducts.length;
 
             return (
               <button
@@ -64,7 +62,7 @@ function FilterCategoryDrawer({
                 </span>
               </button>
             );
-          })} */}
+          })}
       </div>
     </Drawer>
   );

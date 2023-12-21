@@ -28,21 +28,95 @@ model Waitlist {
   @@index([userId])
 }
 
+enum Role {
+  // BoxCart Admin
+  SUPERADMIN
+  // BoxCart Staff
+  SUPERSTAFF
+  // BoxCart Partner
+  PARTNER
+  // Business owners - boxcart users
+  OWNER
+  // Businesses' staff
+  STAFF
+  // Shopper
+  SHOPPER
+}
+
 model User {
-  id              Int       @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   name            String
   firstName       String
   lastName        String
-  email           String    @unique
-  isEmailVerified Boolean   @default(false)
+  email           String          @unique
+  isEmailVerified Boolean         @default(false)
   password        String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  loginProvider   String          @default("credentials")
   referredFrom    String?
   accounts        Account[]
-  role            Role      @default(OWNER)
   Waitlist        Waitlist?
   waitlistId      Int?
+  shopperAccount  ShopperAccount?
+}
+
+model ShopperAccount {
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  role            Role            @default(SHOPPER)
+  name            String
+  firstName       String
+  lastName        String
+  email           String          @unique
+  isEmailVerified Boolean         @default(false)
+  profileImage    String?         @db.Text
+  referredFrom    String?
+  credit          Int             @default(0) //in penny 
+  totalSaved      Int             @default(0) //in penny
+  likes           Like[]
+  reviews         Review[]
+  wishlist        Wishlist[]
+  subscribes      Subscriber[]
+  orders          CustomerOrder[]
+  User            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int             @unique
+  Customer        Customer?
+
+  @@index([userId])
+}
+
+model Like {
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId        Int?
+  digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)
+  digitalProductId Int?
+  shopperAccount   ShopperAccount  @relation(fields: [shopperAccountId], references: [id], onDelete: Cascade)
+  shopperAccountId Int
+
+  @@index([shopperAccountId])
+  @@index([productId])
+  @@index([digitalProductId])
+}
+
+model Wishlist {
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  shopperAccount   ShopperAccount  @relation(fields: [shopperAccountId], references: [id], onDelete: Cascade)
+  shopperAccountId Int
+  product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId        Int?
+  digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)
+  digitalProductId Int?
+
+  @@index([shopperAccountId])
+  @@index([productId])
+  @@index([digitalProductId])
 }
 
 model Account {
@@ -51,6 +125,7 @@ model Account {
   updatedAt                       DateTime             @updatedAt
   version                         String               @default("1.0.0")
   referredFrom                    String?
+  role                            Role                 @default(OWNER)
   isActive                        Boolean              @default(true) // free accounts that aren't free
   hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
   isFreePeriodActive              Boolean              @default(true)
@@ -107,6 +182,7 @@ model Account {
   premiumPlan                     PremiumPlan?
   checklist                       Checklist?
   products                        Product[]
+  digitalProducts                 DigitalProduct[]
   categories                      Category[]
   availability                    Availability?
   orders                          CustomerOrder[]
@@ -155,20 +231,23 @@ model Payout {
 }
 
 model Customer {
-  id              Int             @id @default(autoincrement())
-  name            String
-  fName           String
-  lName           String
-  phoneNum        String?
-  email           String          @unique
-  stripeId        String?
-  deliveryAddress String?
-  orders          CustomerOrder[]
-  account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId       Int
-  reviews         Review[]
+  id               Int             @id @default(autoincrement())
+  name             String
+  fName            String
+  lName            String
+  phoneNum         String?
+  email            String          @unique
+  stripeId         String?
+  deliveryAddress  String?
+  orders           CustomerOrder[]
+  account          Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int
+  reviews          Review[]
+  shopperAccount   ShopperAccount? @relation(fields: [shopperAccountId], references: [id], onDelete: Cascade)
+  shopperAccountId Int?            @unique
 
   @@index([accountId])
+  @@index([shopperAccountId])
 }
 
 model Tax {
@@ -183,29 +262,28 @@ model Tax {
 }
 
 model CustomerOrder {
-  id                          Int         @id @default(autoincrement())
-  createdAt                   DateTime    @default(now())
-  updatedAt                   DateTime    @updatedAt
-  orderId                     String      @unique
+  id                          Int              @id @default(autoincrement())
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
+  orderId                     String           @unique
   stripeOrderId               String?
   stripeErrorType             String? //validation_error, unknown_error, card_error
   stripeErrorMessage          String?
-  orderItems                  OrderItem[]
   deliveryAddress             String?
   pickupAddress               String?
-  requireOrderTime            Boolean     @default(false)
-  requireOrderDate            Boolean     @default(false)
+  requireOrderTime            Boolean          @default(false)
+  requireOrderDate            Boolean          @default(false)
   orderForDate                String? //epoch in milliseconds
   orderForDateDisplay         String?
   orderForTime                String? //epoch in milliseconds
   orderForTimeDisplay         String?
-  fulfillmentType             Int // 0: delivery, 1: pickup
-  fulfillmentDisplay          String //"delivery", "pickup"
+  fulfillmentType             Int // 0: delivery, 1: pickup, 2: download
+  fulfillmentDisplay          String //"delivery", "pickup", "download"
   subtotalPenny               Int
   subtotalDisplay             String
   taxRate                     Float?
   taxRateDisplay              String?
-  orderStatus                 String      @default("pending") // "pending", "cmpleted", "canceled"
+  orderStatus                 String           @default("pending") // "pending", "cmpleted", "canceled"
   paymentStatus               String // if cc: "processing", "paid", "failed", "refunded", "canceled", "unpaid", "error" 
   paymentMethod               String? // "card", "venmo", "cash" .. etc.
   paymentAccount              String? // account for venmo, paypal, zelle, etc.
@@ -226,14 +304,19 @@ model CustomerOrder {
   totalAfterStripeFeesPenny   Int?
   totalAfterStripeFeesDisplay String?
   totalItemsOrdered           Int
-  account                     Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  account                     Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId                   Int
-  customer                    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer                    Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId                  Int
   products                    Product[]
+  digitalProduct              DigitalProduct[]
+  orderItems                  OrderItem[]
+  shopperAccount              ShopperAccount?  @relation(fields: [shopperAccountId], references: [id])
+  shopperAccountId            Int?
 
   @@index([accountId])
   @@index([customerId])
+  @@index([shopperAccountId])
 }
 
 model OrderItem {
@@ -246,6 +329,7 @@ model OrderItem {
   pricePenny            Int
   priceDisplay          String
   productImage          String?               @db.Text
+  productType           Int                   @default(0) // 0: physical, 1: digital
   hasUnlimitedQuantity  Boolean               @default(true)
   setQuantityByProduct  Boolean               @default(true)
   orderOptionGroups     OrderOptionGroup[]
@@ -255,9 +339,12 @@ model OrderItem {
   orderId               Int
   product               Product?              @relation(fields: [productId], references: [id])
   productId             Int?
+  digitalProduct        DigitalProduct?       @relation(fields: [digitalProductId], references: [id])
+  digitalProductId      Int?
 
   @@index([productId])
   @@index([orderId])
+  @@index([digitalProductId])
 }
 
 model OrderQuestionAnswer {
@@ -316,12 +403,15 @@ model Contact {
 }
 
 model Subscriber {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId Int
+  id               Int            @id @default(autoincrement())
+  email            String         @unique
+  account          Account        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int
+  shopperAccount   ShopperAccount @relation(fields: [shopperAccountId], references: [id], onDelete: Cascade)
+  shopperAccountId Int
 
   @@index([accountId])
+  @@index([shopperAccountId])
 }
 
 model AcceptedPayment {
@@ -433,30 +523,91 @@ model DaysOfWeekAvailability {
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  name       String
-  rating     String   @default("0.00")
-  review     String   @db.Text
-  title      String
-  email      String
-  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId  Int
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId  Int
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId Int
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  name             String
+  rating           String          @default("0.00")
+  review           String          @db.Text
+  title            String
+  email            String
+  account          Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int
+  product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId        Int?
+  customer         Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId       Int
+  digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id])
+  digitalProductId Int?
+  shopperAccount   ShopperAccount  @relation(fields: [shopperAccountId], references: [id])
+  shopperAccountId Int
 
   @@index([accountId])
   @@index([productId])
   @@index([customerId])
+  @@index([digitalProductId])
+  @@index([shopperAccountId])
+}
+
+model DigitalProduct {
+  id                 Int             @id @default(autoincrement())
+  digitalProductId   String?         @unique
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  isEnabled          Boolean         @default(true)
+  productTypeDisplay String          @default("digital")
+  productType        Int             @default(1)
+  productName        String
+  description        String
+  salePricePenny     Int?
+  salePriceStr       String?
+  priceIntPenny      Int
+  priceStr           String
+  rating             String          @default("0.00")
+  reviewCount        Int             @default(0)
+  fiveStarCount      Int             @default(0)
+  fourStarCount      Int             @default(0)
+  threeStarCount     Int             @default(0)
+  twoStarCount       Int             @default(0)
+  oneStarCount       Int             @default(0)
+  fireStorageId      String?         @unique //id to find  file in firebase storage.
+  account            Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId          Int
+  defaultImage       String?         @db.Text
+  images             Image[]
+  relatedCategories  Category[]
+  reviews            Review[]
+  digitalFiles       DigitalFile[]
+  orders             OrderItem[]
+  customerOrder      CustomerOrder[]
+  Wishlist           Wishlist[]
+  wishlistCount      Int             @default(0)
+  Like               Like[]
+  likesCount         Int             @default(0)
+
+  @@index([accountId])
+}
+
+model DigitalFile {
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  name             String
+  uploadedFile     String          @db.Text
+  fireStorageId    String //id to find image file in firebase storage.
+  digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)
+  digitalProductId Int?
+
+  @@index([digitalProductId])
 }
 
 model Product {
   id                         Int             @id @default(autoincrement())
+  productId                  String?         @unique
   createdAt                  DateTime        @default(now())
   updatedAt                  DateTime        @updatedAt
+  productTypeDisplay         String          @default("physical")
+  productType                Int             @default(0)
   isSampleProduct            Boolean         @default(false)
   isEnabled                  Boolean         @default(true)
   productName                String
@@ -490,32 +641,40 @@ model Product {
   orders                     OrderItem[]
   customerOrder              CustomerOrder[]
   customerOrderId            Int?
+  likes                      Like[]
+  likesCount                 Int             @default(0)
+  Wishlist                   Wishlist[]
+  wishlistCount              Int             @default(0)
 
   @@index([accountId])
 }
 
 model Image {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  isDefault     Boolean  @default(false)
-  imgFileName   String?
-  image         String?  @db.Text
-  fireStorageId String? //id to find image file in firebase storage.
-  product       Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId     Int?
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  isDefault        Boolean         @default(false)
+  imgFileName      String?
+  image            String?         @db.Text
+  fireStorageId    String? //id to find image file in firebase storage.
+  product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId        Int?
+  digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)
+  digitalProductId Int?
 
   @@index([productId])
+  @@index([digitalProductId])
 }
 
 model Category {
-  id           Int       @id @default(autoincrement())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  categoryName String
-  account      Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId    Int
-  products     Product[]
+  id              Int              @id @default(autoincrement())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  categoryName    String
+  account         Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId       Int
+  products        Product[]
+  digitalProducts DigitalProduct[]
 
   @@unique(fields: [accountId, categoryName], name: "category_identifier")
   @@index([accountId])
@@ -688,21 +847,4 @@ model Tips {
   tipThreePercent  Float?
   type             String
   enabled          Boolean  @default(true)
-}
-
-enum Role {
-  // BoxCart Admin
-  SUPERADMIN
-  // BoxCart Staff
-  SUPERSTAFF
-  // BoxCart Partner
-  PARTNER
-  // Business owners - boxcart users
-  OWNER
-  // User's staff
-  STAFF
-  // Customers - of Users
-  CUSTOMER
-  // Regular user
-  USER
 }

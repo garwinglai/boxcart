@@ -56,7 +56,7 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
       />
       <div className="flex flex-col p-4 gap-2">
         <Link
-          href="/account/my-shop"
+          href="/app/account/my-shop"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "my-shop" &&
@@ -69,7 +69,7 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
           </span>
         </Link>
         <Link
-          href="/account/my-shop/availability"
+          href="/app/account/my-shop/availability"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "availability" &&
@@ -82,7 +82,7 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
           </span>
         </Link>
         <Link
-          href="/account/my-shop/fulfillment"
+          href="/app/account/my-shop/fulfillment"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "fulfillment" &&
@@ -95,7 +95,7 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
           </span>
         </Link>
         <Link
-          href="/account/my-shop/payments"
+          href="/app/account/my-shop/payments"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "payments" &&

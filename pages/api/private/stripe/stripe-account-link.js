@@ -25,13 +25,13 @@ export default async function handler(req, res) {
 
   const refresh_url =
     process.env.NODE_ENV === "development"
-      ? "http://app.localhost:3000/account/my-shop/payments"
-      : "https://app.boxcart.shop/account/my-shop/payments";
+      ? "http://localhost:3000/app/account/my-shop/payments"
+      : "https://boxcart.shop/app/account/my-shop/payments";
 
   const return_url =
     process.env.NODE_ENV === "development"
-      ? "http://app.localhost:3000/account/my-shop/payments"
-      : "https://app.boxcart.shop/account/my-shop/payments";
+      ? "http://localhost:3000/app/account/my-shop/payments"
+      : "https://boxcart.shop/app/account/my-shop/payments";
 
   const accountLink = await stripe.accountLinks.create({
     account: stripeId,

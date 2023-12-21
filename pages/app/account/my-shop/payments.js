@@ -4,7 +4,7 @@ import AppLayout from "@/components/layouts/AppLayout";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import Link from "next/link";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import CurrencyInput from "react-currency-input-field";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
@@ -1502,14 +1502,13 @@ function Payments({ userAccount }) {
         type="button"
         onClick={async () => {
           const deleteAPI = "/api/private/stripe/delete-account";
-          console.log("stripeAccountId", stripeAccountId);
 
           const deleteRes = await fetch(deleteAPI, {
             method: "POST",
             body: JSON.stringify({ stripeAccountId }),
           });
           const deleteData = await deleteRes.json();
-          console.log("deleteData", deleteData);
+
           const { success } = deleteData;
           if (success) {
             const deletePaymentAPI =
@@ -1519,7 +1518,6 @@ function Payments({ userAccount }) {
               body: JSON.stringify({ stripeAccountId }),
             });
             const deletePaymentData = await deletePaymentRes.json();
-            console.log("deletePaymentData", deletePaymentData);
           }
         }}
       >
@@ -1548,6 +1546,18 @@ export async function getServerSideProps(context) {
           acceptedPayments: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

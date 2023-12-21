@@ -35,7 +35,7 @@ function NextBackButtons({
         Skip
       </button>
       {isLoading ? (
-        <CircularProgress color="inherit" />
+        <CircularProgress color="secondary" size="2rem" />
       ) : (
         <div>
           <ButtonPrimary

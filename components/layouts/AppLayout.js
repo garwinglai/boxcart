@@ -25,7 +25,7 @@ function AppLayout({
       };
 
       logout();
-      push("/auth/signin");
+      push("/app/auth/signin");
     }
   }, [accountStore]);
 

@@ -24,6 +24,7 @@ function CartItem({
   handleOpenSnackBar,
   notEnoughStockItems,
   notEnoughStockOptionItems,
+  query,
 }) {
   const productsStore = useProductQuantityStore((state) => state.products);
   const addProductQuantity = useProductQuantityStore(
@@ -83,7 +84,10 @@ function CartItem({
       )
   );
 
-  const { push } = useRouter();
+  const {
+    push,
+    query: { site },
+  } = useRouter();
 
   const {
     priceDisplay,
@@ -100,6 +104,7 @@ function CartItem({
     addToCartTempItemId,
     hasUnlimitedQuantity,
     setQuantityByProduct,
+    productType,
   } = cartItem;
 
   useEffect(() => {
@@ -125,6 +130,11 @@ function CartItem({
   // TODO: old store new store?
 
   const handleAddItemQuantity = (addToCartTempItemId) => (e) => {
+    const { productInCartId } = query;
+    if (productInCartId) {
+      toggleDrawer();
+      return;
+    }
     const priceToAddPenny = pricePenny / quantity;
     const quantityToReduceFromProductStore = 1;
 
@@ -270,6 +280,11 @@ function CartItem({
   };
 
   const handleSubtractItemQuantity = (addToCartTempItemId) => (e) => {
+    const { productInCartId } = query;
+    if (productInCartId) {
+      toggleDrawer();
+      return;
+    }
     const priceToSubtractPenny = pricePenny / quantity;
     const findAllRelatedCartItmes = cart.filter(
       (item) => item.productId === productId
@@ -380,14 +395,19 @@ function CartItem({
   };
 
   const handleEditCartItem = (e) => {
-    push(`/product/${productId}/edit/${addToCartTempItemId}`);
+    if (productType === 0) {
+      push(`/${site}/product/${productId}/edit/${addToCartTempItemId}`);
+    } else {
+      push(`/${site}/digital-product/${productId}/edit/${addToCartTempItemId}`);
+    }
     if (!isDesktop) {
       toggleDrawer();
     }
   };
+
   return (
     <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
-      <div className={`${styles.flex} ${styles.cart_item_top_box}`}>
+      <div className={`flex gap-1`}>
         {productImage || defaultImage ? (
           <div className="min-w-[5rem] h-[5rem] relative">
             <Image
@@ -415,7 +435,7 @@ function CartItem({
             />
           </div>
         )}
-        <div className={`${styles.flexCol} ${styles.item_info_box}`}>
+        <div className="flex flex-col pl-1 flex-grow">
           {showNotEnoughStock && (
             <p className="text-sm font-light text-[color:var(--error)] -mb-2">
               Not enough stock.
@@ -426,9 +446,26 @@ function CartItem({
               Not enough stock.
             </p>
           )}
-          <h4 className="font-medium">{productName}</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium mb-1">{productName}</h4>
+            {!isBusiness && !orderSubmitted && productType === 0 && (
+              <button
+                onClick={handleEditCartItem}
+                className="text-blue-600 text-xs font-light"
+              >
+                edit
+              </button>
+            )}
+          </div>
+          {productType === 1 && (
+            <div className="flex gap-2">
+              <p className="font-bold text-sm">Type:</p>
+              <p className="font-light text-sm">digital</p>
+            </div>
+          )}
 
-          {orderOptionGroups.length > 0 &&
+          {orderOptionGroups &&
+            orderOptionGroups.length > 0 &&
             orderOptionGroups.map((optionGroup, idx) => {
               const { optionGroupName, options, optionsDisplay } = optionGroup;
               if (!optionGroupName) return;
@@ -439,7 +476,8 @@ function CartItem({
                 </div>
               );
             })}
-          {orderQuestionsAnswers.length > 0 &&
+          {orderQuestionsAnswers &&
+            orderQuestionsAnswers.length > 0 &&
             orderQuestionsAnswers.map((questionItem, idx) => {
               const { question, answer } = questionItem;
 
@@ -460,12 +498,11 @@ function CartItem({
           <div className="flex justify-between items-center">
             {isBusiness || orderSubmitted ? (
               <div className="flex gap-2 items-center  ">
-                <div className="">
-                  <p className="text-sm font-bold">Qty: {quantity}</p>
-                </div>
+                <p className="text-sm font-bold">Qty:</p>
+                <p className="text-sm font-light">{quantity}</p>
               </div>
             ) : (
-              <div className="flex gap-2 items-center  ">
+              <div className="flex gap-1 items-center  ">
                 {quantity > 1 ? (
                   <IconButton
                     onClick={handleSubtractItemQuantity(addToCartTempItemId)}
@@ -480,7 +517,7 @@ function CartItem({
                   </IconButton>
                 )}
 
-                <div className="w-fit border border-[color:var(--gray-light-med)] px-3 py-1">
+                <div className="w-fit border text-sm border-[color:var(--gray-light-med)] px-2">
                   <p>{quantity}</p>
                 </div>
                 <IconButton
@@ -494,45 +531,45 @@ function CartItem({
           </div>
         </div>
       </div>
-      <div className={`${styles.flexCol} ${styles.cart_item_uploads_box}`}>
-        <div className="flex justify-between">
-          {isBusiness ? (
-            <h5 className="font-light text-sm">Customer Uploads:</h5>
-          ) : (
-            <h5 className="font-light text-sm">Sample uploads:</h5>
-          )}
-          {!isBusiness && !orderSubmitted && (
-            <button
-              onClick={handleEditCartItem}
-              className="text-blue-600 text-sm font-light"
-            >
-              edit
-            </button>
-          )}
-        </div>
+      {productType === 0 &&
+        orderExampleImages &&
+        orderExampleImages.length > 0 && (
+          <div className={`flex flex-col gap-2 border-t`}>
+            <div className="flex justify-between">
+              {isBusiness ? (
+                <h5 className="font-light text-sm">Customer Uploads:</h5>
+              ) : (
+                <h5 className="font-light text-sm">Sample uploads:</h5>
+              )}
+              {!isBusiness && !orderSubmitted && (
+                <button
+                  onClick={handleEditCartItem}
+                  className="text-blue-600 text-sm font-light"
+                >
+                  edit
+                </button>
+              )}
+            </div>
 
-        <div className={`${styles.flex} ${styles.example_images_box}`}>
-          {orderExampleImages.length < 0 ? (
-            orderExampleImages.map((imageData, idx) => {
-              const { imageFile, fileName, imgUrl, image } = imageData;
+            <div className={`${styles.flex} ${styles.example_images_box}`}>
+              {orderExampleImages.map((imageData, idx) => {
+                const { imageFile, fileName, imgUrl, image } = imageData;
 
-              return (
-                <div key={idx} className="w-[5rem] h-[5rem] relative">
-                  <Image
-                    src={isBusiness || orderSubmitted ? image : imgUrl}
-                    fill
-                    alt="customer uploaded images"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="rounded object-cover w-full h-full"
-                  />
-                </div>
-              );
-            })
-          ) : (
-            <p className="font-extralight text-xs">* No images uploaded</p>
-          )}
-        </div>
-      </div>
+                return (
+                  <div key={idx} className="w-[5rem] h-[5rem] relative">
+                    <Image
+                      src={isBusiness || orderSubmitted ? image : imgUrl}
+                      fill
+                      alt="customer uploaded images"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="rounded object-cover w-full h-full"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

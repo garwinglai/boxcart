@@ -33,10 +33,6 @@ import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import SavingsIcon from "@mui/icons-material/Savings";
-import { ContactEmergency } from "@mui/icons-material";
-import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
-import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
-import DiscountIcon from "@mui/icons-material/Discount";
 
 function DesktopNavBar({ pageRoute }) {
   const hydrated = useHasHydrated();
@@ -110,7 +106,7 @@ function DesktopNavBar({ pageRoute }) {
     removeAccount();
     deleteLocalStorage("checklist");
     deleteLocalStorage("isChecklistComplete");
-    push("/auth/signin");
+    push("/app/auth/signin");
   };
 
   return (
@@ -134,7 +130,7 @@ function DesktopNavBar({ pageRoute }) {
         )}
         <h4>{hydrated && businessName}</h4>
 
-        <Link href="/account/my-shop">
+        <Link href="/app/account/my-shop">
           <ButtonPrimary
             icon={<StorefrontIcon fontSize="small" />}
             name="My Shop"
@@ -191,7 +187,7 @@ function DesktopNavBar({ pageRoute }) {
         <Collapse in={openStoreList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/my-shop/availability"
+              href="/app/account/my-shop/availability"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -228,7 +224,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
             <Link
-              href="/account/my-shop/fulfillment"
+              href="/app/account/my-shop/fulfillment"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -265,7 +261,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
             <Link
-              href="/account/my-shop/payments"
+              href="/app/account/my-shop/payments"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -341,7 +337,7 @@ function DesktopNavBar({ pageRoute }) {
         <Collapse in={openOrderList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/orders/live"
+              href="/app/account/orders/live"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -374,7 +370,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
             <Link
-              href="/account/orders/history"
+              href="/app/account/orders/history"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -410,7 +406,7 @@ function DesktopNavBar({ pageRoute }) {
         </Collapse>
 
         <Link
-          href="/account/inventory/products"
+          href="/app/account/inventory/products"
           className={`${styles.menu_link_group}`}
         >
           <MenuItem
@@ -419,8 +415,9 @@ function DesktopNavBar({ pageRoute }) {
                 (pageRoute === "products" || pageRoute === "category") &&
                 "var(--primary-light)"
               }`,
-
-              borderRadius: `${pageRoute === "chat" && "4px"}`,
+              borderRadius: `${
+                (pageRoute === "products" || pageRoute === "category") && "4px"
+              }`,
             }}
           >
             <ListItemIcon>
@@ -447,7 +444,7 @@ function DesktopNavBar({ pageRoute }) {
           </MenuItem>
         </Link>
 
-        <Link href="/account/chat" className={`${styles.menu_link_group}`}>
+        <Link href="/app/account/chat" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -476,7 +473,7 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-        <Link href="/account/revenue" className={`${styles.menu_link_group}`}>
+        <Link href="/app/account/revenue" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -506,7 +503,7 @@ function DesktopNavBar({ pageRoute }) {
           </MenuItem>
         </Link>
 
-        {/* <Link href="/account/contacts" className={`${styles.menu_link_group}`}>
+        {/* <Link href="/app/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -574,7 +571,7 @@ function DesktopNavBar({ pageRoute }) {
         <Collapse in={openPromoList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/promotion/gift-card"
+              href="/app/account/promotion/gift-card"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -609,7 +606,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
             <Link
-              href="/account/promotion/email-marketing"
+              href="/app/account/promotion/email-marketing"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -691,7 +688,7 @@ function DesktopNavBar({ pageRoute }) {
         <Collapse in={openPremiumList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/premium/membership"
+              href="/app/account/premium/membership"
               className={`${styles.menu_link_group}`}
             >
               <MenuItem
@@ -719,7 +716,7 @@ function DesktopNavBar({ pageRoute }) {
               </MenuItem>
             </Link>
             {/* <Link
-							href="/account/premium/add-ons"
+							href="/app/account/premium/add-ons"
 							className={`${styles.menu_link_group}`}
 						>
 							<MenuItem
@@ -747,7 +744,7 @@ function DesktopNavBar({ pageRoute }) {
           </List>
         </Collapse>
 
-        <Link href="/account/settings" className={`${styles.menu_link_group}`}>
+        <Link href="/app/account/settings" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -780,7 +777,7 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-        <Link href="/account/newsroom" className={`${styles.menu_link_group}`}>
+        <Link href="/app/account/newsroom" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -811,7 +808,7 @@ function DesktopNavBar({ pageRoute }) {
         </Link>
       </List>
       <div className={`${styles.navbar_footer_group}`}>
-        <Link href="/account/my-shop/share">
+        <Link href="/app/account/my-shop/share">
           <MenuItem
             sx={{
               backgroundColor: `${

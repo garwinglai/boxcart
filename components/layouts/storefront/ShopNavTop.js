@@ -6,16 +6,37 @@ import { styled } from "@mui/material/styles";
 import CartDrawer from "@/components/storefront/cart/CartDrawer";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useShopperStore } from "@/lib/store";
 import { getLocalStorage } from "@/utils/clientStorage";
+import PermIdentityIcon from "@mui/icons-material/PermIdentity";
+import Avatar from "@mui/material/Avatar";
+import { useHasHydrated } from "@/utils/useHasHydrated";
+import CredentialsModal from "@/components/user/auth/CredentialsModal";
+import { useSession } from "next-auth/react";
+import AccountPopup from "@/components/user/account/AccountPopup";
+import { blue } from "@mui/material/colors";
+
+function stringAvatar(name) {
+  return {
+    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+  };
+}
 
 function ShopNavTop() {
+  const { data: session, status } = useSession();
+  const hydrated = useHasHydrated();
   const cart = useCartStore((state) => state.cart);
+  const shopper = useShopperStore((state) => state.shopperAccount);
 
   const [anchor, setAnchor] = useState("right");
   const [isCartOpenRight, setIsCartOpenRight] = useState(false);
   const [cartLength, setCartLength] = useState(0);
   const [businessName, setBusinessName] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [popupAnchorElement, setPopupAnchorElement] = useState(null);
+
+  const popupOpen = Boolean(popupAnchorElement);
+  const anchorId = popupOpen ? "simple-popover" : undefined;
 
   const { push, pathname, query, asPath } = useRouter();
   const { site } = query;
@@ -26,58 +47,85 @@ function ShopNavTop() {
     setBusinessName(businessName);
   }, [cart, pathname]);
 
+  const handleOpenAccountModal = (e) => setPopupAnchorElement(e.currentTarget);
+  const handleCloseAccountModal = () => setPopupAnchorElement(null);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   function toggleDrawerRight() {
     setIsCartOpenRight((prev) => !prev);
     setAnchor("right");
   }
 
-  const handleDesktopCartClick = (e) => {
-    if (asPath === "/") return;
-
-    push("/");
-  };
-
   return (
-    <nav className="flex justify-between py-2 px-4 items-center sticky top-0 bg-[color:var(--white)] border-b border-[color:var(--gray-light)] z-20 shadow-md">
-      <Link href="/" className="text-[color:var(--black-design)] font-medium">
+    <nav className="flex justify-between py-2 px-4 items-center sticky top-0 bg-[color:var(--white)] border-b border-[color:var(--gray-light)] z-20 shadow-md lg:px-28">
+      <Link
+        href={`/${site}`}
+        className="text-[color:var(--black-design)] font-medium"
+      >
         {businessName ? businessName : "Home"}
       </Link>
-      <div className="">
-        <IconButton onClick={toggleDrawerRight}>
-          <StyledBadge
-            badgeContent={cartLength}
-            color="secondary"
-            fontSize="small"
-          >
-            <ShoppingCartOutlinedIcon
-              sx={{ color: "var(--black-design-extralight)" }}
-              fontSize="small"
+      <div className="flex gap-1 items-center">
+        {hydrated && !shopper ? (
+          <div>
+            <IconButton onClick={handleOpenModal}>
+              <PermIdentityIcon />
+            </IconButton>
+            <CredentialsModal
+              isModalOpen={isModalOpen}
+              handleClose={handleCloseModal}
+              handleOpenAccountModal={handleOpenAccountModal}
             />
-          </StyledBadge>
-        </IconButton>
-        <CartDrawer
-          toggleDrawer={toggleDrawerRight}
-          anchor={anchor}
-          isCartOpenRight={isCartOpenRight}
-        />
+          </div>
+        ) : (
+          <div>
+            <IconButton
+              aria-describedby={anchorId}
+              onClick={handleOpenAccountModal}
+            >
+              {hydrated && (
+                <Avatar
+                  {...stringAvatar(shopper.name)}
+                  sx={{
+                    bgcolor: blue[500],
+                    width: 24,
+                    height: 24,
+                    fontSize: 12,
+                  }}
+                />
+              )}
+            </IconButton>
+            <AccountPopup
+              isModalOpen={popupOpen}
+              anchorEl={popupAnchorElement}
+              anchorId={anchorId}
+              handleClose={handleCloseAccountModal}
+            />
+          </div>
+        )}
+
+        <div className="">
+          <IconButton onClick={toggleDrawerRight}>
+            <StyledBadge
+              badgeContent={cartLength}
+              color="secondary"
+              fontSize="small"
+            >
+              <ShoppingCartOutlinedIcon
+                sx={{ color: "var(--black-design-extralight)" }}
+                fontSize="small"
+              />
+            </StyledBadge>
+          </IconButton>
+          <CartDrawer
+            toggleDrawer={toggleDrawerRight}
+            anchor={anchor}
+            isCartOpenRight={isCartOpenRight}
+            query={query}
+          />
+        </div>
       </div>
-      {/* <div className="hidden lg:block">
-        <IconButton
-          onClick={handleDesktopCartClick}
-          // sx={{ marginRight: "1rem" }}
-        >
-          <StyledBadge
-            badgeContent={cartLength}
-            color="secondary"
-            fontSize="small"
-          >
-            <ShoppingCartOutlinedIcon
-              sx={{ color: "var(--black-design-extralight)" }}
-              fontSize="small"
-            />
-          </StyledBadge>
-        </IconButton>
-      </div> */}
     </nav>
   );
 }

@@ -119,7 +119,7 @@ function ResetPassword() {
   };
 
   const handleGoLogin = () => {
-    push("/auth/signin");
+    push("/app/auth/signin");
   };
 
   // * Display

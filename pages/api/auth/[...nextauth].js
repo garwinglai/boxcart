@@ -13,7 +13,7 @@ const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
   });
 };
 
-export const options = {
+export const getOptions = (req, res) => ({
   cookie: {
     secure: process.env.NODE_ENV && process.env.NODE_ENV === "production",
   },
@@ -81,6 +81,7 @@ export const options = {
     async jwt({ token, user }) {
       // user only passes through the first time user logs in.
       // Add any data to token. Token gets called in session callback to use.
+
       if (user) {
         token.id = user.userId;
         return token;
@@ -97,10 +98,10 @@ export const options = {
   pages: {
     signIn:
       process.env.NODE_ENV && process.env.NODE_ENV === "production"
-        ? "/auth/signin"
-        : "http://app.localhost:3000/auth/signin",
-    error: "http://app.localhost:3000/auth/signin",
+        ? "/app/auth/signin"
+        : "http://localhost:3000/app/auth/signin",
+    error: "http://localhost:3000/app/auth/signin",
   },
-};
+});
 
-export default NextAuth(options);
+export default (req, res) => NextAuth(req, res, getOptions(req, res));

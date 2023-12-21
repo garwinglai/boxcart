@@ -5,7 +5,7 @@ import styles from "@/styles/app/account/account-settings.module.css";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TextField from "@mui/material/TextField";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 import ButtonThird from "@/components/global/buttons/ButtonThird";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
@@ -372,6 +372,18 @@ export async function getServerSideProps(context) {
           savedPaymentMethods: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

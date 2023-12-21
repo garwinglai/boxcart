@@ -11,23 +11,25 @@ import Image from "next/image";
 import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIsChecklistCompleteClient } from "@/helper/client/api/account/account-schema";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
-import { useAccountStore, useChecklistStore } from "@/lib/store";
+import { useAccountStore, useConnectAccountStore } from "@/lib/store";
 import { ChevronLeft } from "@mui/icons-material";
+import { checkIfUserEmailInUse } from "@/helper/client/api/user";
 
-const adminLoginTemp = {
-  // email: "garwingl@usc.edu",
-  // password: "asdfghjkl",
-};
-
-const Signin = () => {
+function Signin() {
   const setAccount = useAccountStore((state) => state.setAccount);
-  const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+  const setConnectAccount = useConnectAccountStore(
+    (state) => state.setConnectAccount
+  );
+  const connectAccount = useConnectAccountStore(
+    (state) => state.connectAccount
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [hasShopperAccount, setHasShopperAccount] = useState(false);
 
   const { push } = useRouter();
 
@@ -50,20 +52,36 @@ const Signin = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const emailInUse = await checkEmailAvailableAccount(email);
-    const { value, error } = emailInUse;
+    const isEmailInUse = await checkIfUserEmailInUse(email);
 
-    if (error) {
+    if (!isEmailInUse.success || isEmailInUse.error) {
       setOpenError(true);
-      setErrorMessage("Something went wrong. Please try again.");
+      setErrorMessage("Error checking email. Please try again.");
       setIsLoading(false);
       return;
     }
 
-    if (!value) {
+    if (isEmailInUse.success && !isEmailInUse.user) {
       setOpenError(true);
       setErrorMessage("Email not found.");
       setIsLoading(false);
+      return;
+    }
+
+    const { user } = isEmailInUse;
+    const { accounts, shopperAccount } = user;
+
+    if (!accounts || accounts.length < 1) {
+      setConnectAccount({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        id: user.id,
+        name: user.name,
+      });
+      setHasShopperAccount(true);
+      setIsLoading(false);
+      setPassword("");
       return;
     }
 
@@ -94,11 +112,11 @@ const Signin = () => {
         const signedInRoute =
           process.env.NODE_ENV && process.env.NODE_ENV === "production"
             ? isChecklistComplete
-              ? "https://app.boxcart.shop/account/my-shop"
-              : "https://app.boxcart.shop/account/checklist"
+              ? "https://boxcart.shop/app/account/my-shop"
+              : "https://boxcart.shop/app/account/checklist"
             : isChecklistComplete
-            ? "http://app.localhost:3000/account/my-shop"
-            : "http://app.localhost:3000/account/checklist";
+            ? "http://localhost:3000/app/account/my-shop"
+            : "http://localhost:3000/app/account/checklist";
         push(signedInRoute);
         return;
       }
@@ -170,18 +188,36 @@ const Signin = () => {
         <ChevronLeft />
         Home
       </Link>
-      <div className={`${styles.outerContainer} md:shadow p-12`}>
+      <div className={`${styles.outerContainer} pt-12 px-2 md:shadow md:p-12`}>
         <div className="relative">
-          <button onClick={() => push("https://www.home.boxcart.shop")}>
+          {/* <button className="ml-8" onClick={() => push("https://www.home.boxcart.shop")}>
             <Image
               src={logo}
               alt="boxcart logo"
-              className=" aspect-video w-40 h-40 object-cover absolute -top-24 -left-14 "
+              className=" aspect-video w-40 h-40 object-cover absolute -top-24 -left-8 "
             />
-          </button>
+          </button> */}
+          {hasShopperAccount && (
+            <p className="text-xs font-medium mb-4 p-2 rounded bg-red-100">
+              We detected that you have a shopper account with this email. To
+              create and connect a business account,{" "}
+              <Link href="/app/auth/signup" className="text-blue-500 underline">
+                sign up
+              </Link>{" "}
+              with the same email.
+            </p>
+          )}
           <div className="mx-auto text-center pb-4">
-            <Image src={login_icon} alt="login icon" className="mx-auto" />
-            <h2 className="">Sign in</h2>
+            <div className="w-16 h-16 aspect-square relative mx-auto">
+              <Image
+                src={login_icon}
+                fill
+                alt="login icon"
+                className="mx-auto"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+            <h2 className="">Business Sign In</h2>
           </div>
           <form onSubmit={handleLogin} className={`${styles.flexCol}`}>
             <input
@@ -208,7 +244,9 @@ const Signin = () => {
               Forgot password
             </Link>
             {isLoading ? (
-              <CircularProgress color="inherit" />
+              <div className="text-center">
+                <CircularProgress color="secondary" size="2rem" />
+              </div>
             ) : (
               <button type="submit" className={`${styles.btn}`}>
                 Log In
@@ -216,33 +254,41 @@ const Signin = () => {
             )}
           </form>
 
-          <div className="flex flex-col gap-x-4 flex-wrap my-8 md:flex-row md:items-end md:justify-between">
-            <p className="text-sm">New to BoxCart?</p>
-            <Link
-              href="/auth/signup"
-              className={`${styles.link} underline text-xs`}
-            >
-              Get started for free
+          <div className="flex justify-between items-center gap-x-4 flex-wrap my-8">
+            <p className="text-sm">Need an account?</p>
+            <Link href="/app/auth/signup" className="text-sm text-blue-500">
+              Sign up
             </Link>
           </div>
         </div>
-        <footer className={`${styles.termsContainer} ${styles.flexRow}`}>
-          <Link
-            href="https://www.home.boxcart.shop/privacy-policy"
-            className={`${styles.link} mt-4 underline font-light text-sm`}
-          >
-            Privacy
-          </Link>
-          <Link
-            href="https://www.home.boxcart.shop/terms-conditions"
-            className={`${styles.link} mt-4 underline font-light text-sm`}
-          >
-            Terms
-          </Link>
+        <footer>
+          <div className={`${styles.termsContainer} ${styles.flexRow}`}>
+            <Link
+              href="https://www.home.boxcart.shop/privacy-policy"
+              className={`${styles.link} mt-4 underline font-light text-sm`}
+            >
+              Privacy
+            </Link>
+            <Link
+              href="https://www.home.boxcart.shop/terms-conditions"
+              className={`${styles.link} mt-4 underline font-light text-sm`}
+            >
+              Terms
+            </Link>
+          </div>
+          <div className="text-center md:text-right">
+            <p className="text-sm">Are you a shopper?</p>
+            <Link
+              href="https://boxcart.shop/user/auth/signin"
+              className="text-sm underlin text-blue-500"
+            >
+              Shopper sign in
+            </Link>
+          </div>
         </footer>
       </div>
     </div>
   );
-};
+}
 
 export default Signin;

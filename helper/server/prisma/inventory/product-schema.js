@@ -115,6 +115,7 @@ const createProduct = (product) => {
     accountId,
     isSampleProduct,
     productName,
+    productId,
     description,
     priceIntPenny: productPricePenny,
     priceStr: productPriceStr,
@@ -160,6 +161,7 @@ const createProduct = (product) => {
         }),
       },
       defaultImageFileName,
+      productId,
       defaultImage,
       fireStorageId,
       images: {
@@ -255,6 +257,118 @@ const createProduct = (product) => {
     },
   });
 };
+
+const createDigitalProduct = (product) => {
+  const { productSchema, fileSchema, imageSchema } = product;
+
+  const {
+    accountId,
+    productName,
+    digitalProductId,
+    description,
+    priceIntPenny: productPricePenny,
+    priceStr: productPriceStr,
+    salePricePenny,
+    salePriceStr,
+    relatedCategories,
+    fireStorageId,
+    defaultImage,
+  } = productSchema;
+
+  return prisma.digitalProduct.create({
+    data: {
+      account: {
+        connect: {
+          id: accountId,
+        },
+      },
+      relatedCategories: {
+        connectOrCreate: relatedCategories.map((category) => {
+          const { id, categoryName } = category;
+          return {
+            where: {
+              category_identifier: {
+                accountId,
+                categoryName,
+              },
+            },
+            create: {
+              categoryName,
+              account: {
+                connect: {
+                  id: accountId,
+                },
+              },
+            },
+          };
+        }),
+      },
+      fireStorageId,
+      digitalProductId,
+      defaultImage,
+      images: {
+        create: [
+          {
+            imgFileName: imageSchema.imgFileName,
+            image: imageSchema.image,
+            fireStorageId: imageSchema.fireStorageId,
+          },
+        ],
+      },
+      digitalFiles: {
+        create: fileSchema.map((file) => {
+          const { name, uploadedFile } = file;
+          return {
+            name,
+            uploadedFile,
+            fireStorageId: fireStorageId,
+          };
+        }),
+      },
+      productName,
+      description,
+      salePricePenny,
+      salePriceStr,
+      priceIntPenny: productPricePenny,
+      priceStr: productPriceStr,
+    },
+    include: {
+      relatedCategories: true,
+      reviews: true,
+      digitalFiles: true,
+    },
+  });
+};
+
+export async function createDigitalProductsServer(product) {
+  const { productSchema } = product;
+  const { newCategories, accountId } = productSchema;
+
+  try {
+    let data = {};
+    if (newCategories && newCategories.length > 0) {
+      const [createdProduct, createdCategories] = await prisma.$transaction([
+        createDigitalProduct(product),
+        createCategories(newCategories, accountId),
+      ]);
+
+      data = {
+        createdProduct,
+        createdCategories,
+      };
+    } else {
+      const createdProduct = await createDigitalProduct(product);
+      data = {
+        createdProduct,
+      };
+    }
+
+    return { success: true, value: data };
+  } catch (error) {
+    console.log("create product server error:", error);
+    return { success: false, error };
+  }
+}
 
 export async function updateProductServer(product) {
   const { productSchema, questionSchema } = product;
@@ -621,6 +735,148 @@ const updateProduct = (product) => {
   });
 };
 
+export async function updateDigitalProductServer(product) {
+  const { productSchema, questionSchema } = product;
+  const { accountId, newCategories, removedQuestions } = productSchema;
+
+  try {
+    let data = {};
+    if (newCategories && newCategories.length > 0) {
+      const [updatedProduct, createdCategories] = await prisma.$transaction([
+        updateDigitalProduct(product),
+        createCategories(newCategories, accountId),
+      ]);
+
+      data = {
+        updatedProduct,
+        createdCategories,
+      };
+    } else {
+      const updatedProduct = await updateDigitalProduct(product);
+      data = {
+        updatedProduct,
+      };
+    }
+
+    return { success: true, value: data };
+  } catch (error) {
+    console.log("update product server error:", error);
+    return { success: false, error };
+  }
+}
+
+const updateDigitalProduct = (product) => {
+  const {
+    productSchema,
+    fileSchema,
+    imageSchema,
+    removedFiles,
+    removedImages,
+  } = product;
+
+  const {
+    accountId,
+    id,
+    productName,
+    description,
+    priceIntPenny,
+    priceStr,
+    salePricePenny,
+    salePriceStr,
+    fireStorageId,
+    defaultImage,
+    relatedCategories,
+    removedCategories,
+  } = productSchema;
+
+  return prisma.digitalProduct.update({
+    where: {
+      id,
+    },
+    data: {
+      productName,
+      description,
+      priceIntPenny,
+      priceStr,
+      salePricePenny,
+      salePriceStr,
+      defaultImage,
+      fireStorageId,
+      images: {
+        create:
+          imageSchema &&
+          imageSchema
+            .map((imageItem) => {
+              const { imgFileName, image, fireStorageId } = imageItem;
+              return {
+                imgFileName,
+                image,
+                fireStorageId,
+              };
+            })
+            .filter((item) => item),
+        deleteMany: removedImages.map((images) => {
+          const { id } = images;
+          return {
+            id,
+          };
+        }),
+      },
+      digitalFiles: {
+        create:
+          fileSchema &&
+          fileSchema
+            .map((imageItem) => {
+              const { uploadedFile, name, fireStorageId } = imageItem;
+              return {
+                name,
+                uploadedFile,
+                fireStorageId,
+              };
+            })
+            .filter((item) => item),
+        deleteMany: removedFiles.map((files) => {
+          const { id } = files;
+          return {
+            id,
+          };
+        }),
+      },
+      relatedCategories: {
+        disconnect: removedCategories.map((id) => {
+          return {
+            id,
+          };
+        }),
+        connectOrCreate: relatedCategories.map((category) => {
+          const { id, categoryName } = category;
+          return {
+            where: {
+              category_identifier: {
+                accountId,
+                categoryName,
+              },
+            },
+            create: {
+              categoryName,
+              account: {
+                connect: {
+                  id: accountId,
+                },
+              },
+            },
+          };
+        }),
+      },
+    },
+    include: {
+      relatedCategories: true,
+      digitalFiles: true,
+      images: true,
+    },
+  });
+};
+
 export async function getProductsServer(accountId) {
   try {
     const account = await prisma.account.findUnique({
@@ -628,6 +884,23 @@ export async function getProductsServer(accountId) {
         id: accountId,
       },
       include: {
+        categories: {
+          include: {
+            products: true,
+            digitalProducts: true,
+          },
+        },
+        digitalProducts: {
+          include: {
+            relatedCategories: true,
+            digitalFiles: true,
+            reviews: true,
+            images: true,
+          },
+          orderBy: {
+            productName: "asc",
+          },
+        },
         products: {
           include: {
             optionGroups: {
@@ -639,6 +912,34 @@ export async function getProductsServer(accountId) {
             relatedCategories: true,
             images: true,
             reviews: true,
+          },
+          orderBy: {
+            productName: "asc",
+          },
+        },
+      },
+    });
+
+    return { success: true, value: account };
+  } catch (error) {
+    console.log("get products server error:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getDigitalProductsServer(accountId) {
+  try {
+    const account = await prisma.account.findUnique({
+      where: {
+        id: accountId,
+      },
+      include: {
+        digitalProducts: {
+          include: {
+            relatedCategories: true,
+            digitalFiles: true,
+            reviews: true,
+            images: true,
           },
           orderBy: {
             productName: "asc",
@@ -669,9 +970,42 @@ export async function deleteProductServer(productId) {
   }
 }
 
+export async function deleteDigitalProductServer(productId) {
+  try {
+    const deleteProduct = await prisma.digitalProduct.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    return { success: true, value: deleteProduct };
+  } catch (error) {
+    console.log("delete product server error:", error);
+    return { success: false, error };
+  }
+}
+
 export async function updateProductVisibility(id, visibility) {
   try {
     const product = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        isEnabled: visibility,
+      },
+    });
+
+    return { success: true, value: product };
+  } catch (error) {
+    console.log("update product visibility error:", error);
+    return { success: false, error };
+  }
+}
+
+export async function updateDigitalProductVisibility(id, visibility) {
+  try {
+    const product = await prisma.digitalProduct.update({
       where: {
         id,
       },

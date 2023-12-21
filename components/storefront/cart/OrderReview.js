@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../../../styles/components/storefront/cart/review.module.css";
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
@@ -11,8 +11,12 @@ function OrderReview({
   order,
   isBusiness,
 }) {
+  const cart = useCartStore((state) => state.cart);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const hydrated = useHasHydrated();
+
+  const isDigitalProduct = (product) => product.productType === 1;
+  const hideForDate = cart.every(isDigitalProduct);
 
   const {
     orderForDateDisplay,
@@ -24,12 +28,16 @@ function OrderReview({
     requireOrderTime,
     requireOrderDate,
     pickupNote,
+    applyFivePercentDiscount,
   } = cartDetails;
 
-  const { push } = useRouter();
+  const {
+    push,
+    query: { site },
+  } = useRouter();
 
   const handleAddDateTime = () => {
-    push("/");
+    push(`/${site}`);
     closeDrawer();
   };
 
@@ -50,7 +58,7 @@ function OrderReview({
       <div className="pb-4 mx-4 border-b">
         <h3 className="font-medium mt-4 mb-2">Order Details:</h3>
         <div className="flex flex-col gap-2 px-2">
-          {requireOrderDate && (
+          {!hideForDate && requireOrderDate && (
             <div className={`${styles.flex} ${styles.review_context}`}>
               <p>
                 <b>For date:</b>
@@ -103,7 +111,7 @@ function OrderReview({
     <div className="py-6 mx-4 border-b">
       <h3 className="font-medium mb-2">Order Details:</h3>
       <div className="flex flex-col gap-2 px-2">
-        {hydrated && requireOrderDate && (
+        {hydrated && !hideForDate && requireOrderDate && (
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p className="text-sm">For date:</p>
             <div className="flex items-center gap-2">
@@ -126,9 +134,11 @@ function OrderReview({
         )}
         <div className={`${styles.flex} ${styles.review_context}`}>
           <p className="text-sm">Fulfillment:</p>
-          <p className="text-xs font-light">{hydrated && fulfillmentDisplay}</p>
+          <p className="text-xs font-light">
+            {hydrated && hideForDate ? "download" : fulfillmentDisplay}
+          </p>
         </div>
-        {fulfillmentType === 0 && (
+        {!hideForDate && fulfillmentType === 0 && (
           <div className={`${styles.flex} ${styles.review_context}`}>
             <p className="text-sm">Delivery address:</p>
             {hydrated && deliveryAddress ? (
@@ -145,7 +155,7 @@ function OrderReview({
             )}
           </div>
         )}
-        {hydrated && fulfillmentType === 1 && (
+        {hydrated && !hideForDate && fulfillmentType === 1 && (
           <div>
             <div className={`${styles.flex} ${styles.review_context}`}>
               <p className="text-sm">Pickup address:</p>

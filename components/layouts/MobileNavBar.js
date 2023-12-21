@@ -97,7 +97,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
     removeAccount();
     deleteLocalStorage("checklist");
     deleteLocalStorage("isChecklistComplete");
-    push("/auth/signin");
+    push("/app/auth/signin");
   };
 
   return (
@@ -121,7 +121,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         )}
         <h3>{hydrated && businessName}</h3>
 
-        <Link href="/account/my-shop" className="mt-2">
+        <Link href="/app/account/my-shop" className="mt-2">
           <ButtonPrimary
             handleClick={toggleDrawer("right", false)}
             icon={<StorefrontIcon fontSize="small" />}
@@ -136,7 +136,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         sx={{ padding: "1rem" }}
       >
         <Link
-          href="/account/revenue"
+          href="/app/account/revenue"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
         >
@@ -171,7 +171,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           </MenuItem>
         </Link>
         {/* <Link
-          href="/account/contacts"
+          href="/app/account/contacts"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
         >
@@ -249,7 +249,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         <Collapse in={openPromoList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/promotion/gift-card"
+              href="/app/account/promotion/gift-card"
               className={`${styles.menu_link_group}`}
               onClick={toggleDrawer("right", false)}
             >
@@ -287,7 +287,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               </MenuItem>
             </Link>
             <Link
-              href="/account/promotion/email-marketing"
+              href="/app/account/promotion/email-marketing"
               className={`${styles.menu_link_group}`}
               onClick={toggleDrawer("right", false)}
             >
@@ -376,7 +376,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         <Collapse in={openPremiumList} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: "16px" }}>
             <Link
-              href="/account/premium/membership"
+              href="/app/account/premium/membership"
               className={`${styles.menu_link_group}`}
               onClick={toggleDrawer("right", false)}
             >
@@ -414,7 +414,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               </MenuItem>
             </Link>
             {/* <Link
-							href="/account/premium/add-ons"
+							href="/app/account/premium/add-ons"
 							className={`${styles.menu_link_group}`}
 							onClick={toggleDrawer("right", false)}
 						>
@@ -455,7 +455,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
         </Collapse>
 
         <Link
-          href="/account/settings"
+          href="/app/account/settings"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
         >
@@ -494,7 +494,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
           </MenuItem>
         </Link>
         <Link
-          href="/account/newsroom"
+          href="/app/account/newsroom"
           className={`${styles.menu_link_group}`}
           onClick={toggleDrawer("right", false)}
         >
@@ -533,7 +533,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
       </List>
       <div className={`${styles.navbar_footer_group}`}>
         <Link
-          href="/account/my-shop/share"
+          href="/app/account/my-shop/share"
           onClick={toggleDrawer("right", false)}
         >
           <MenuItem

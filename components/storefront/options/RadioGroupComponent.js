@@ -24,6 +24,7 @@ function RadioGroupComponent({
     selectionDisplay,
     isRequiredDisplay,
     options,
+    isRequired,
   } = currOption;
 
   const optionQuantityStore = useOptionsQuantityStore((state) => state.options);
@@ -99,25 +100,11 @@ function RadioGroupComponent({
         onChange={handleOptionRadioGroupChange}
         required
       >
-        <FormControlLabel
-          defaultValue={`none-$0-${groupId}`}
-          value={`none-$0-${groupId}`}
-          control={<Radio color="warning" />}
-          label={
-            <p className="font-light text-xs text-[color:var(--black-design-extralight)] ">
-              none
-            </p>
-          }
-          labelPlacement="start"
-          className=" justify-between"
-        />
         {options.map((option) => {
           const { id, optionName, priceStr } = option;
 
           let quantity = 0;
-          {
-            /* console.log("optionQuantities", optionQuantities); */
-          }
+
           // looping through state to ensure quantities are in real time, and updated.
           for (let i = 0; i < optionQuantities.length; i++) {
             const curr = optionQuantities[i];
@@ -176,12 +163,20 @@ function RadioGroupComponent({
                     {`${optionName} +${priceStr}`}
                   </p>
                   {!hasUnlimitedQuantity &&
-                    !setQuantityByProduct &&
-                    quantity && (
+                  !setQuantityByProduct &&
+                  quantity ? (
+                    quantity > 0 ? (
                       <p className="text-xs font-extralight -mr-1">
                         ({quantity} left)
                       </p>
-                    )}
+                    ) : (
+                      <p className="text-xs font-extralight -mr-1">
+                        ({quantity} left)
+                      </p>
+                    )
+                  ) : (
+                    <p></p>
+                  )}
                 </div>
               }
               labelPlacement="start"

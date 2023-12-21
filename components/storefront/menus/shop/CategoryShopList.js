@@ -1,15 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import Divider from "@mui/material/Divider";
 
 function CategoryShopList({
-  isOwner,
   categories,
-  allProducts,
   getProductsByCategory,
   getAllProducts,
+  currCategory,
+  allInitialProducts,
 }) {
-  const allProductsLength = allProducts.length;
-
   const handleCategoryClick = (categoryId, categoryName) => (e) => {
     getProductsByCategory(categoryId, categoryName);
   };
@@ -24,22 +22,28 @@ function CategoryShopList({
       <div className="flex flex-col justify-between items-between pt-4 pr-4 gap-2">
         <button
           onClick={handleGetAllProductsClick}
-          className="text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] active:bg-[color:var(--third-light)]"
+          className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+            currCategory == "All Products" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
         >
           <span className="flex items-center gap-4 justify-between">
             <p className="font-light text-left">All Products</p>
-            <p className="font-extralight">{allProductsLength}</p>
+            <p className="font-extralight">{allInitialProducts.length}</p>
           </span>
         </button>
         {categories.map((category, idx) => {
-          const { categoryName, id, products } = category;
-          const productCount = products.length;
+          const { categoryName, id, products, digitalProducts } = category;
+          const productCount = products.length + digitalProducts.length;
 
           return (
             <button
               key={id}
               onClick={handleCategoryClick(id, categoryName)}
-              className="text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] active:bg-[color:var(--third-light)]"
+              className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+                currCategory == categoryName &&
+                "bg-[color:var(--third-light-soft)]"
+              }`}
             >
               <span className="flex items-center gap-12 justify-between">
                 <p className="font-light text-left">{categoryName}</p>

@@ -36,15 +36,15 @@ function SubscriptionPackage({
     } else {
       setMembershipPriceStore(otherPrice);
     }
-    push(`/account/premium/checkout/`);
+    push(`/app/account/premium/checkout/`);
   };
 
   const handleSelectCurrentPlan = () => {
-    push(`/account/settings`);
+    push(`/app/account/settings`);
   };
 
   const handleSignup = () => {
-    push(`https://app.boxcart.shop/auth/signup`);
+    push(`https://boxcart.shop/app/auth/signup`);
   };
 
   return (

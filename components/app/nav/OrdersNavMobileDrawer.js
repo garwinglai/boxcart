@@ -21,7 +21,7 @@ function OrdersNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
       />
       <div className="flex flex-col p-4 gap-2">
         <Link
-          href="/account/orders/live"
+          href="/app/account/orders/live"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "live" && "bg-[color:var(--primary-light)]"
@@ -33,7 +33,7 @@ function OrdersNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
           </span>
         </Link>
         <Link
-          href="/account/orders/history"
+          href="/app/account/orders/history"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
             mobilePageRoute === "history" && "bg-[color:var(--primary-light)]"

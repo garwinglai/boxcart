@@ -301,7 +301,9 @@ function OrderGridRow({
           open={state["right"]}
           onClose={toggleDrawer("right", false)}
         >
-          <div className={`${styles.drawer_box}`}>
+          <div
+            className={`${styles.drawer_box} md:w-[60vw] lg:w-[45vw] xl:w-[35vw]`}
+          >
             <div className={`${styles.flex} ${styles.order_drawer_title_box}`}>
               <div
                 className={`${styles.flex} ${styles.order_drawer_title_group}`}

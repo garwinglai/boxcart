@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         phone: "+1 555 341 9393",
         email: "shippotle@shippo.com",
       });
-      console.log("address", address);
+
       res.status(200).json({ success: true, address });
     } catch (error) {
       console.log(error);

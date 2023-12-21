@@ -26,6 +26,7 @@ function CategoryModal({
   isViewProductsModalOpen,
   handleOpenViewProductModal,
   categoryProducts,
+  categoryDigitalProducts,
   categoryName,
   handleEditCategoryClick,
   category,
@@ -52,21 +53,54 @@ function CategoryModal({
             <p className="font-medium">{categoryName}</p>
           </div>
 
-          <h4 className="text-sm mt-4">Added Products:</h4>
-          <ul className="px-8 pt-4 pb-6">
-            {categoryProducts && categoryProducts.length === 0 ? (
-              <p className="font-extralight text-xs text-center">None</p>
-            ) : (
-              categoryProducts.map((product) => {
-                const { productName, id } = product;
-                return (
-                  <li key={id} className="font-light text-sm list-disc">
-                    {productName}
-                  </li>
-                );
-              })
-            )}
-          </ul>
+          <h4 className="text-sm mt-4 underline">Added:</h4>
+          {categoryProducts &&
+          categoryProducts.length === 0 &&
+          categoryDigitalProducts &&
+          categoryDigitalProducts.length === 0 ? (
+            <p className="font-extralight text-xs text-center my-8">
+              No products
+            </p>
+          ) : (
+            <div className="mb-4 mt-4">
+              {categoryDigitalProducts &&
+                categoryDigitalProducts.length > 0 && (
+                  <div>
+                    <h3 className="text-sm">Digital products</h3>
+                    <ul className="px-8 pb-6">
+                      {categoryDigitalProducts.map((product) => {
+                        const { productName, id } = product;
+                        return (
+                          <li key={id} className="font-light text-sm list-disc break-words">
+                            {productName} -{" "}
+                            {product.digitalProductId
+                              ? product.digitalProductId
+                              : product.id}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              {categoryProducts && categoryProducts.length > 0 && (
+                <div>
+                  <h3 className="text-sm">Products</h3>
+                  <ul className="px-8 pb-6">
+                    {categoryProducts.map((product) => {
+                      const { productName, id } = product;
+                      return (
+                        <li key={id} className="font-light text-sm list-disc break-words">
+                          {productName} -{" "}
+                          {product.productId ? product.productId : product.id}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex gap-4">
             <ButtonFilter
               name="Close"

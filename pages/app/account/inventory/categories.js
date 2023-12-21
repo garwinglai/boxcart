@@ -8,7 +8,7 @@ import CategoryCard from "@/components/app/my-shop/category/CategoryCard";
 import CategoryDrawer from "@/components/app/my-shop/category/CategoryDrawer";
 import Image from "next/image";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
@@ -18,17 +18,19 @@ import open_folder from "@/public/images/icons/open_folder.png";
 
 function Categories({ userAccount }) {
   // Props
-  const { products, categories, id: accountId } = userAccount;
+  const {
+    products,
+    digitalProducts,
+    categories,
+    id: accountId,
+  } = userAccount || {};
 
   // States
-  const [isLoading, setIsLoading] = useState(false);
+
   const [snackbar, setSnackbar] = useState({
     isSnackbarOpen: false,
     snackbarMessage: "",
   });
-  const [showCreateCategory, setShowCreateCategory] = useState(false);
-  const [showEditCategory, setShowEditCategory] = useState(false);
-  const [editCategory, setEditCategory] = useState({});
   const [state, setState] = useState({
     right: false,
   });
@@ -44,14 +46,14 @@ function Categories({ userAccount }) {
 
   const handleProductRoute = () => {
     if (pathname !== "/app/account/inventory/products")
-      push("/account/inventory/products");
+      push("/app/account/inventory/products");
 
     return;
   };
 
   const handleCategoryRoute = () => {
     if (pathname !== "/app/account/inventory/categories")
-      push("/account/inventory/categories");
+      push("/app/account/inventory/categories");
 
     return;
   };
@@ -85,6 +87,7 @@ function Categories({ userAccount }) {
       if (fetchedCategory.id === category.id) {
         fetchedCategory.products = category.products;
         fetchedCategory.categoryName = category.categoryName;
+        fetchedCategory.digitalProducts = category.digitalProducts;
       }
       return fetchedCategory;
     });
@@ -120,15 +123,6 @@ function Categories({ userAccount }) {
     </React.Fragment>
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center mt-[50%] gap-8 md:mt-[25%]">
-        <BoxLoader />
-        <p>One sec, getting your categories ...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="py-4 px-4 pb-24 ">
       <div className="pb-4 flex justify-between items-center">
@@ -156,6 +150,7 @@ function Categories({ userAccount }) {
             toggleDrawer={toggleDrawer}
             isCreateCategory={true}
             products={products}
+            digitalProducts={digitalProducts}
             categories={categories}
             accountId={accountId}
             addToCategoryList={addToCategoryList}
@@ -173,6 +168,7 @@ function Categories({ userAccount }) {
               filterDeletedCategories={filterDeletedCategories}
               accountId={accountId}
               products={products}
+              digitalProducts={digitalProducts}
               updateCategoryList={updateCategoryList}
             />
           ))}
@@ -212,14 +208,32 @@ export async function getServerSideProps(context) {
                   productName: "asc",
                 },
               },
+              digitalProducts: {
+                orderBy: {
+                  productName: "asc",
+                },
+              },
             },
             orderBy: {
               categoryName: "asc",
             },
           },
           products: true,
+          digitalProducts: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

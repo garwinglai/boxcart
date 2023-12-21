@@ -31,18 +31,22 @@ function CategoryDrawerComponent({
   isEditCategory,
   editCategory,
   products,
+  digitalProducts,
   categories,
   accountId,
   addToCategoryList,
   updateCategoryList,
-
   handleOpenSnackbar,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [addedProducts, setAddedProducts] = useState(
     isEditCategory ? editCategory.products : []
   );
+  const [addedDigitalProducts, setAddedDigitalProducts] = useState(
+    isEditCategory ? editCategory.digitalProducts : []
+  );
   const [removedProducts, setRemovedProducts] = useState([]);
+  const [removedDigitalProducts, setRemovedDigitalProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState({
     productName: "",
     productId: "",
@@ -66,15 +70,15 @@ function CategoryDrawerComponent({
       return;
     }
     const productObject = JSON.parse(value);
-    const { productName, id } = productObject;
+    const { productName, id, productType } = productObject;
 
-    const newProductObject = { productName, productId: id };
+    const newProductObject = { productName, productId: id, productType };
 
     setSelectedProduct(newProductObject);
   };
 
   const handleAddProductsClick = (selectedProduct) => (e) => {
-    const { productName, productId } = selectedProduct;
+    const { productName, productId, productType } = selectedProduct;
 
     if (!productId || productId === "") {
       setSelectedProduct("");
@@ -85,16 +89,27 @@ function CategoryDrawerComponent({
       (item) => item.productId === productId || item.id === productId
     );
 
-    if (productAlreadyAdded) {
+    const digitalProductAlreadyAdded = addedDigitalProducts.find(
+      (item) => item.productId === productId || item.id === productId
+    );
+
+    if (productAlreadyAdded || digitalProductAlreadyAdded) {
       setSelectedProduct("");
       return;
     }
 
-    setAddedProducts((prev) => [...prev, selectedProduct]);
+    if (productType === 0) {
+      setAddedProducts((prev) => [...prev, selectedProduct]);
+    }
+
+    if (productType === 1) {
+      setAddedDigitalProducts((prev) => [...prev, selectedProduct]);
+    }
   };
 
   const deleteAddedProduct = (product) => (e) => {
     setAddedProducts((prev) => prev.filter((item) => item !== product));
+    setAddedDigitalProducts((prev) => prev.filter((item) => item !== product));
 
     if (isEditCategory) {
       const { products } = editCategory;
@@ -102,13 +117,25 @@ function CategoryDrawerComponent({
       const removeItem = products.find(
         (item) => item.id === product.id || item.id === product.productId
       );
-      setRemovedProducts((prev) => [...prev, removeItem]);
+
+      const removeDigitalItem = digitalProducts.find(
+        (item) => item.id === product.id || item.id === product.productId
+      );
+
+      const { productType } = product;
+      if (productType === 0) {
+        setRemovedProducts((prev) => [...prev, removeItem]);
+      }
+      if (productType === 1) {
+        setRemovedDigitalProducts((prev) => [...prev, removeDigitalItem]);
+      }
     }
   };
 
   const handleCancelCategoryCreate = (e) => {
     setCategoryName("");
     setAddedProducts([]);
+    setAddedDigitalProducts([]);
     setSelectedProduct("");
 
     toggleDrawer("right", false)(e);
@@ -149,6 +176,7 @@ function CategoryDrawerComponent({
 
     setCategoryName("");
     setAddedProducts([]);
+    setAddedDigitalProducts([]);
     // setSelectedProduct("");
     handleOpenSnackbar(completeMessage);
     setIsLoading(false);
@@ -176,6 +204,7 @@ function CategoryDrawerComponent({
     const categoryObject = {
       categoryName,
       products: addedProducts,
+      digitalProducts: addedDigitalProducts,
       accountId,
     };
 
@@ -186,8 +215,8 @@ function CategoryDrawerComponent({
     const categoryObject = structureEditedCategory(categoryId);
 
     const res = await updateCategoryClient(categoryObject);
-    const { success, value } = res;
-    let message = "Failed to create category.";
+    const { success, value, error } = res;
+    let message = "Failed to update category.";
 
     // Prisma code for non-unique prisma error
     if (value == "P2002") {
@@ -205,13 +234,22 @@ function CategoryDrawerComponent({
       if (id) product.productId = id;
       return product;
     });
+    const updateKeysAddedDigitalProducts = addedDigitalProducts.map(
+      (product) => {
+        const { id } = product;
+        if (id) product.productId = id;
+        return product;
+      }
+    );
 
     const categoryObject = {
       categoryName,
       products: updateKeysAddedProducts,
+      digitalProducts: updateKeysAddedDigitalProducts,
       accountId,
       categoryId,
       removedProducts,
+      removedDigitalProducts,
     };
 
     return categoryObject;
@@ -283,12 +321,21 @@ function CategoryDrawerComponent({
             // value={selectedProduct}
             className={`transition-colors duration-300 border border-[color:var(--primary)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
           >
-            {products && products.length !== 0 ? (
+            {products.length !== 0 || digitalProducts.length !== 0 ? (
               <React.Fragment>
                 <option value="n/a">n/a</option>
                 {products.map((product) => (
                   <option key={product.id} value={JSON.stringify(product)}>
-                    {product.productName}
+                    {product.productName} -{" "}
+                    {product.productId ? product.productId : product.id}
+                  </option>
+                ))}
+                {digitalProducts.map((product) => (
+                  <option key={product.id} value={JSON.stringify(product)}>
+                    {product.productName} -{" "}
+                    {product.digitalProductId
+                      ? product.digitalProductId
+                      : product.id}
                   </option>
                 ))}
               </React.Fragment>
@@ -308,34 +355,69 @@ function CategoryDrawerComponent({
       <div className="rounded p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
         <h4>Added Products:</h4>
         <ul className="pt-2">
-          {addedProducts.length === 0 ? (
+          {addedProducts.length === 0 && addedDigitalProducts.length === 0 ? (
             <li className="font-light text-sm text-center py-2">
               No added products.
             </li>
           ) : (
-            addedProducts.map((product, idx) => {
-              const { productName, productId, id } = product;
+            <div>
+              {addedDigitalProducts.length > 0 && (
+                <div>
+                  <h3 className="text-sm">Digital products</h3>
+                  {addedDigitalProducts.map((product, idx) => {
+                    const { productName, productId, id } = product;
 
-              return (
-                <div
-                  key={productId ? productId : id ? id : idx}
-                  className="flex justify-between items-center w-full mb-2"
-                >
-                  <li key={idx} className="text-sm font-light">
-                    {productName}
-                  </li>
-                  <IconButton
-                    onClick={deleteAddedProduct(product)}
-                    sx={{ backgroundColor: "var(--gray-light)" }}
-                  >
-                    <DeleteOutlineOutlinedIcon
-                      fontSize="small"
-                      // sx={{ color: "var(--black)" }}
-                    />
-                  </IconButton>
+                    return (
+                      <div
+                        key={productId ? productId : id ? id : idx}
+                        className="flex justify-between items-center w-full mb-2"
+                      >
+                        <li key={idx} className="text-sm font-light">
+                          {productName} - {productId ? productId : id ? id : ""}
+                        </li>
+                        <IconButton
+                          onClick={deleteAddedProduct(product)}
+                          sx={{ backgroundColor: "var(--gray-light)" }}
+                        >
+                          <DeleteOutlineOutlinedIcon
+                            fontSize="small"
+                            // sx={{ color: "var(--black)" }}
+                          />
+                        </IconButton>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })
+              )}
+              {addedProducts.length > 0 && (
+                <div>
+                  <h3 className="text-sm">Products</h3>
+                  {addedProducts.map((product, idx) => {
+                    const { productName, productId, id } = product;
+
+                    return (
+                      <div
+                        key={productId ? productId : id ? id : idx}
+                        className="flex justify-between items-center w-full mb-2"
+                      >
+                        <li key={idx} className="text-sm font-light">
+                          {productName} - {productId ? productId : id ? id : ""}
+                        </li>
+                        <IconButton
+                          onClick={deleteAddedProduct(product)}
+                          sx={{ backgroundColor: "var(--gray-light)" }}
+                        >
+                          <DeleteOutlineOutlinedIcon
+                            fontSize="small"
+                            // sx={{ color: "var(--black)" }}
+                          />
+                        </IconButton>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </ul>
       </div>

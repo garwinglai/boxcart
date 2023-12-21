@@ -92,6 +92,7 @@ function ProductCard({
   //Props
   const {
     id,
+    productId,
     isEnabled,
     productName,
     rating,
@@ -307,7 +308,7 @@ function ProductCard({
   const handleDuplicateProduct = async () => {
     handleClose();
     setIsDuplicatingProduct(true);
-    handleOpenSnackbar("Duplicating product...");
+    handleOpenSnackbar("Duplicating, one second..");
 
     const productSchema = structureProductSchema(product);
     const questionSchema = structureQuestionSchema(product);
@@ -565,10 +566,15 @@ function ProductCard({
             </div>
           </div>
         )}
-        <div className="flex-grow flex flex-col p-2">
-          <h2 className="text-sm font-medium sm:text-base md:text-lg ">
-            {productName}
-          </h2>
+        <div className="flex-grow flex flex-col py-2 pl-2">
+          <div className="flex item-center justify-between gap-2">
+            <h2 className="text-sm font-medium sm:text-base md:text-lg ">
+              {productName}
+            </h2>
+          </div>
+          <p className="text-xs font-light min-w-fit">
+            id: {productId ? productId : id}
+          </p>
           <div className="flex items-center gap-1">
             <Rating
               name="read-only"

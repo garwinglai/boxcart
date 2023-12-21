@@ -7,7 +7,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CircularProgress from "@mui/material/CircularProgress";
 import CheckoutFormStripe from "@/components/membership/CheckoutFormStripe";
 import { useMembershipStore } from "@/lib/store";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import CheckmarkGif from "@/public/videos/checkmark.gif";
@@ -44,12 +44,12 @@ function Checkout({ premiumPlan }) {
       Object.keys(membershipProductStore).length === 0 ||
       Object.keys(membershipPriceStore).length === 0
     ) {
-      push("/account/premium/membership");
+      push("/app/account/premium/membership");
     }
   }, []);
 
   const handleViewMembership = () => {
-    push("/account/premium/membership");
+    push("/app/account/premium/membership");
   };
 
   const options = {
@@ -109,6 +109,7 @@ export async function getServerSideProps(context) {
   return isAuth(context, async (userSession) => {
     const { user, expires } = userSession;
     const { name, email, id } = user;
+
     let serializedPlan;
     let accountId = parseInt(id);
 
@@ -119,10 +120,22 @@ export async function getServerSideProps(context) {
         },
       });
 
+      if (!plan) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
+
       serializedPlan = JSON.parse(JSON.stringify(plan));
     } catch (error) {
       console.log("serversideprops membership error:", error);
-      serializedAccount = null;
+      serializedPlan = null;
     }
 
     return {

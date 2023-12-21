@@ -24,9 +24,9 @@ import { useAccountStore } from "@/lib/store";
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
 import Badge from "@mui/material/Badge";
+import { useRouter } from "next/router";
 
 function ShopCard({
-  subdomain,
   product,
   isOwner,
   categories,
@@ -37,27 +37,25 @@ function ShopCard({
   userAccount,
   setIsDuplicatingProduct,
   numProductInCart,
+  getProductsByCategory,
+  currCategoryId,
+  currCategory,
+  handleRemoveProductFromInitialProduct,
+  handleAddProductToInitialProduct,
 }) {
   const { account } = useAccountStore((state) => state.account);
 
   const {
     id,
-    isSampleProduct,
-    isEnabled,
     productName,
-    description,
-    priceIntPenny,
     priceStr,
     salePriceStr,
-    defaultImageFileName,
     defaultImage,
     images,
     hasUnlimitedQuantity,
     setQuantityByProduct,
     quantity,
     optionGroups,
-    questions,
-    relatedCategories,
   } = product;
 
   const [state, setState] = useState({
@@ -68,6 +66,10 @@ function ShopCard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSoldOut, setIsSoldOut] = useState(false);
   const open = Boolean(anchorEl);
+
+  const {
+    query: { site },
+  } = useRouter();
 
   useEffect(() => {
     if (product) {
@@ -197,7 +199,12 @@ function ShopCard({
 
     handleClose();
     handleCloseDeleteModal();
-    getAllProducts(accountId);
+    if (currCategory == "All Products") {
+      getAllProducts();
+    } else {
+      getProductsByCategory(currCategoryId, currCategory);
+      handleRemoveProductFromInitialProduct(productId);
+    }
     handleOpenSnackbar("Product deleted.");
     setIsLoading(false);
   };
@@ -243,8 +250,9 @@ function ShopCard({
 
   const handleDuplicateProduct = async () => {
     handleClose();
+
     setIsDuplicatingProduct(true);
-    handleOpenSnackbar("Duplicating product...");
+    handleOpenSnackbar("Duplicating, one second...");
 
     const productSchema = structureProductSchema(product);
     const questionSchema = structureQuestionSchema(product);
@@ -301,7 +309,12 @@ function ShopCard({
 
     setIsDuplicatingProduct(false);
     handleOpenSnackbar("Duplicated.");
-    getAllProducts(accountId);
+    if (currCategory == "All Products") {
+      getAllProducts();
+    } else {
+      getProductsByCategory(currCategoryId, currCategory);
+      handleAddProductToInitialProduct(createdProduct);
+    }
   };
 
   const copyImageFile = async (images, subdomain, fireStorageId) => {
@@ -439,7 +452,7 @@ function ShopCard({
   };
 
   return (
-    <div className={`${styles.card_box}`}>
+    <div className={`${styles.card_box} rounded`}>
       {isOwner ? (
         <div className="w-full">
           {defaultImage ? (
@@ -465,7 +478,7 @@ function ShopCard({
               />
             </div>
           )}
-          <div className="flex flex-col pt-1">
+          <div className="flex flex-col pt-1 pl-2">
             <div className="">
               <h4 className="text-sm font-medium">{productName}</h4>
               <div className="flex items-center gap-2 mb-1">
@@ -600,6 +613,9 @@ function ShopCard({
                     updateProductList={updateProductList}
                     handleOpenSnackbarGlobal={handleOpenSnackbar}
                     getAllProducts={getAllProducts}
+                    getProductsByCategory={getProductsByCategory}
+                    currCategory={currCategory}
+                    currCategoryId={currCategoryId}
                   />
                 </React.Fragment>
               </div>
@@ -608,7 +624,7 @@ function ShopCard({
         </div>
       ) : (
         <div className="">
-          <Link href={`/product/${id}`} className="w-full">
+          <Link href={`/${site}/product/${id}`} className="w-full">
             {defaultImage ? (
               <div className="relative w-full aspect-square">
                 <Image

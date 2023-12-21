@@ -1,8 +1,5 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ShopSwitch } from "../global/switches/ShopSwitch";
-import DeliveryDiningOutlinedIcon from "@mui/icons-material/DeliveryDiningOutlined";
-import TakeoutDiningOutlinedIcon from "@mui/icons-material/TakeoutDiningOutlined";
-// import Accordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import { styled } from "@mui/material/styles";
@@ -23,8 +20,6 @@ import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import MuiAccordion from "@mui/material/Accordion";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
-import ButtonFourth from "../global/buttons/ButtonFourth";
-import ButtonFilter from "../global/buttons/ButtonFilter";
 
 const styledDeliveryModal = {
   position: "absolute",
@@ -177,13 +172,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     }
   }, [fulfillmentMethods]);
 
-  // useEffect(() => {
-  //   const { fulfillmentTypeDisplay } = cartDetails;
-  //   setFulfillmentType(fulfillmentTypeDisplay);
-  // }, [cartDetails]);
-
   const handleOpenAvailabilityModalOwner = () => {
-    console.log("here");
     let date = dayjs();
 
     if (orderForDateDisplay !== "") {
@@ -900,11 +889,11 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   };
 
   const handleChangeDeliveryClick = () => {
-    push("/account/my-shop/fulfillment");
+    push("/app/account/my-shop/fulfillment");
   };
 
   const handleChangeAvailabilityClick = () => {
-    push("/account/my-shop/availability");
+    push("/app/account/my-shop/availability");
   };
 
   const getDistance = (lat1, lng1, lat2, lng2) => {
@@ -1024,7 +1013,9 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               type="button"
               className=" rounded w-full h-full py-2 text-sm font-normal text-white bg-[color:var(--gray-light)] bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--secondary)] lg:flex-grow-0"
             >
-              {hydrated && fulfillmentType === 1 ? "Set Pickup" : "Set Delivery"}
+              {hydrated && fulfillmentType === 1
+                ? "Set Pickup"
+                : "Set Delivery"}
             </button>
             <Modal
               open={openDeliveryPickupModal}

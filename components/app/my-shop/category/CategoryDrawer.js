@@ -8,6 +8,7 @@ function CategoryDrawer({
   toggleDrawer,
   isCreateCategory,
   products,
+  digitalProducts,
   categories,
   accountId,
   addToCategoryList,
@@ -28,6 +29,7 @@ function CategoryDrawer({
         isEditCategory={isEditCategory}
         editCategory={editCategory}
         products={products}
+        digitalProducts={digitalProducts}
         categories={categories}
         accountId={accountId}
         addToCategoryList={addToCategoryList}

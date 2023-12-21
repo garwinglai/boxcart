@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import { useRouter } from "next/router";
 import OrderReview from "@/components/storefront/cart/OrderReview";
 import OrderSubtotal from "@/components/storefront/cart/OrderSubtotal";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useShopperStore } from "@/lib/store";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useHasHydrated } from "@/utils/useHasHydrated";
@@ -23,17 +23,26 @@ import PaymentOption from "./PaymentOption";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
 import {
+  sendDigitalProductLinkToCustomer,
   sendOrderInvoiceToCustomer,
   sendOrderToBusinessEmail,
 } from "@/helper/client/api/sendgrid/email";
+import SignupPrompt from "@/components/user/auth/checkout/SignupPrompt";
+import { checkIfUserEmailInUse } from "@/helper/client/api/user";
+
+// * This form is for credit card payments.
+// * If there are Digital Products in cart, only credit card payment is allowed.
+// * Therefore, all digital products will be passed through this checkout form.
 
 function CheckoutFormStripe({
   handleOpenSnackbar,
   accountId,
   availablePayments,
+  hasDigitalProducts,
   handleSelectPaymentMethod,
   selectedPayment,
   siteData,
+  shopper,
 }) {
   const { businessName, fullDomain, email, logoImage } = siteData;
 
@@ -43,6 +52,7 @@ function CheckoutFormStripe({
   const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartDetails = useCartStore((state) => state.cartDetails);
   const cart = useCartStore((state) => state.cart);
+  const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const hydrated = useHasHydrated();
 
   const {
@@ -52,14 +62,19 @@ function CheckoutFormStripe({
     customerEmail,
     customerPhone,
     deliveryAddress,
+    applyFivePercentDiscount,
+    totalPenny,
   } = cartDetails;
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [isGuestCheckout, setIsGuestCheckout] = useState(false);
 
   const router = useRouter();
   const { query, push } = router;
-  const subdomain = query.site + ".boxcart.shop";
+  const { site } = query;
+  const subdomain = site + ".boxcart.shop";
 
   useEffect(() => {
     if (!stripe) {
@@ -116,6 +131,17 @@ function CheckoutFormStripe({
   }, [stripe]);
 
   useEffect(() => {
+    if (!shopperAccount) return;
+
+    setCartDetails({
+      customerFName: shopperAccount.firstName,
+      customerLName: shopperAccount.lastName,
+      customerEmail: shopperAccount.email,
+    });
+  }, [shopperAccount]);
+
+  useEffect(() => {
+    if (shopperAccount) return;
     // Initialize cart details in store
     if (!customerFName) {
       setCartDetails({ customerFName: "" });
@@ -148,6 +174,14 @@ function CheckoutFormStripe({
     // TODO: if there's an error here, it means that the order was paid for, but paymentStatus could not update. Get interns to code out errorLogs in order to handle this failed update.
   };
 
+  const handleGuestCheckoutTrue = () => {
+    setIsGuestCheckout(true);
+  };
+
+  const handleGuestCheckoutFalse = () => {
+    setIsGuestCheckout(false);
+  };
+
   const handleCustomerInfoChange = (e) => {
     const { name, value } = e.target;
     setCartDetails({ [name]: value });
@@ -156,6 +190,9 @@ function CheckoutFormStripe({
   const handleCustomerPhoneChange = (value, country, event, formattedValue) => {
     setCartDetails({ customerPhone: formattedValue });
   };
+
+  const handleOpenSignupModal = () => setIsModalOpen(true);
+  const handleCloseSignupModal = () => setIsModalOpen(false);
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
@@ -167,6 +204,13 @@ function CheckoutFormStripe({
       return;
     }
 
+    if (!shopper && !isGuestCheckout) {
+      handleOpenSignupModal();
+      setIsLoading(false);
+      return;
+    }
+
+    const { allProductIds, allDigitalProductIds } = getAllProductIds();
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
 
@@ -182,11 +226,15 @@ function CheckoutFormStripe({
     createOrderNotification(orderData);
     sendEmailToBusiness(orderData, id);
     createAndSendInvoiceToCustomer(orderData);
+
+    if (allDigitalProductIds && allDigitalProductIds.length > 0) {
+      createAndSendDigitalProduct(orderData);
+    }
     setCartDetails({ id });
   };
 
   const sendEmailToBusiness = async (orderData) => {
-    const orderLink = `app.boxcart.shop/account/orders/live`;
+    const orderLink = `boxcart.shop/app/account/orders/live`;
 
     const emailData = {
       email,
@@ -202,6 +250,23 @@ function CheckoutFormStripe({
     };
 
     sendOrderToBusinessEmail(emailData);
+  };
+
+  const createAndSendDigitalProduct = async (orderData) => {
+    const data = {
+      customerName: customerFName,
+      businessName,
+      businessEmail: email,
+      email: customerEmail,
+      shopperEmail: shopper
+        ? shopper.email
+          ? shopper.email
+          : customerEmail
+        : customerEmail,
+      businessLogo: logoImage,
+    };
+
+    sendDigitalProductLinkToCustomer(data);
   };
 
   const createAndSendInvoiceToCustomer = async (orderData) => {
@@ -223,7 +288,7 @@ function CheckoutFormStripe({
   };
 
   const buildNotifdata = (orderData) => {
-    const { id, totalDisplay } = orderData;
+    const { id, totalDisplay, orderStatus } = orderData;
     const subdomain = query.site;
     const now = new Date();
 
@@ -251,6 +316,7 @@ function CheckoutFormStripe({
       notificationMessage: `${totalDisplay} - order from ${customerFName}.`,
       createdAt: Timestamp.fromDate(new Date()),
       dateTimeString,
+      orderStatus,
     };
 
     return notifData;
@@ -332,7 +398,7 @@ function CheckoutFormStripe({
       switch (status) {
         case "succeeded":
           await updateOrderPaymentStatus(orderData);
-          push(`${window.location.origin}/order-submitted/${id}`);
+          push(`${window.location.origin}/${site}/order-submitted/${id}`);
 
           break;
         case "processing":
@@ -397,22 +463,95 @@ function CheckoutFormStripe({
 
   const getAllProductIds = () => {
     const allProductIds = [];
+    const allDigitalProductIds = [];
     cart.forEach((product) => {
-      const id = parseInt(product.productId);
+      const { productId, productType } = product;
+      const id = parseInt(productId);
 
-      if (!allProductIds.includes(id)) {
+      if (productType === 0 && !allProductIds.includes(id)) {
         allProductIds.push({ id });
       }
+
+      if (productType === 1 && !allDigitalProductIds.includes(id)) {
+        allDigitalProductIds.push({ id });
+      }
     });
-    return allProductIds;
+    return { allProductIds, allDigitalProductIds };
+  };
+
+  const calculateFirstTimeShopperCredit = (totalPenny) => {
+    // Convert dollars to pennies and calculate 5%
+    var fivePercentInPennies = Math.round(totalPenny * 0.05);
+
+    // Return the result in pennies
+    return fivePercentInPennies;
+  };
+
+  const updateShopperAccountCredit = async (
+    shopperCreditData,
+    customerEmail
+  ) => {
+    const apiRoute = "/api/public/user/shopper/update-credit";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ shopperCreditData, email: customerEmail }),
+    });
+
+    if (!response.ok) {
+      // todo: error log
+      return;
+    }
+
+    return await response.json();
   };
 
   const createOrder = async () => {
     const orderDetailsData = buildOrderData();
-    const customerData = buildCustomerData();
-    const allProductIds = getAllProductIds();
+    const { allProductIds, allDigitalProductIds } = getAllProductIds();
     const { orderId } = orderDetailsData;
     const structuredOrderData = await buildOrderItems(orderId); //returns array of items
+    const emailToUse = shopper
+      ? shopper.email
+        ? shopper.email
+        : customerEmail
+      : customerEmail;
+
+    const { user, success, error } = await checkIfUserEmailInUse(emailToUse);
+    let shopperAccountId;
+
+    if (!success || error) {
+      // todo: log error - guest checkout and error locating user email
+    }
+
+    if (user && user.shopperAccount) {
+      const { shopperAccount } = user;
+
+      const { id, email: shopperAccountEmail } = shopperAccount;
+      shopperAccountId = parseInt(id);
+
+      if (applyFivePercentDiscount) {
+        const creditInPennies = calculateFirstTimeShopperCredit(totalPenny);
+        const shopperCreditData = {
+          credit: {
+            increment: creditInPennies,
+          },
+          totalSaved: {
+            increment: creditInPennies,
+          },
+        };
+
+        const updateShopperCredit = await updateShopperAccountCredit(
+          shopperCreditData,
+          shopperAccountEmail
+        );
+      }
+    }
+
+    const customerData = buildCustomerData(shopperAccountId, emailToUse);
+
     const {
       orderItems,
       totalItemsOrdered,
@@ -443,6 +582,14 @@ function CheckoutFormStripe({
       products: {
         connect: allProductIds,
       },
+      digitalProduct: {
+        connect: allDigitalProductIds,
+      },
+      shopperAccount: shopperAccountId && {
+        connect: {
+          id: shopperAccountId,
+        },
+      },
     };
 
     const orderResponse = await fetch("/api/public/orders/create", {
@@ -467,19 +614,24 @@ function CheckoutFormStripe({
     return orderResponseData;
   };
 
-  const buildCustomerData = () => {
+  const buildCustomerData = (shopperAccountId, emailToUse) => {
     const customerName = `${customerFName} ${customerLName}`;
 
     const customerData = {
       name: customerName,
       fName: customerFName,
       lName: customerLName,
-      email: customerEmail,
+      email: emailToUse,
       phoneNum: customerPhone,
       deliveryAddress,
       account: {
         connect: {
           id: parseInt(accountId),
+        },
+      },
+      shopperAccount: shopperAccountId && {
+        connect: {
+          id: shopperAccountId,
         },
       },
     };
@@ -488,6 +640,9 @@ function CheckoutFormStripe({
   };
 
   const buildOrderData = () => {
+    const isDigitalProduct = (product) => product.productType === 1;
+    const allDigitalProducts = cart.every(isDigitalProduct);
+
     const {
       deliveryAddress,
       pickupAddress,
@@ -537,8 +692,8 @@ function CheckoutFormStripe({
       orderForTimeDisplay,
       requireOrderTime,
       requireOrderDate,
-      fulfillmentType,
-      fulfillmentDisplay,
+      fulfillmentType: allDigitalProducts ? 2 : fulfillmentType,
+      fulfillmentDisplay: allDigitalProducts ? "download" : fulfillmentDisplay,
       subtotalPenny,
       subtotalDisplay,
       taxRate,
@@ -554,6 +709,7 @@ function CheckoutFormStripe({
       totalAfterStripeFeesPenny,
       totalAfterStripeFeesDisplay,
       paymentMethod,
+      orderStatus: allDigitalProducts ? "completed" : "pending",
       paymentStatus,
       pickupNote,
     };
@@ -582,147 +738,170 @@ function CheckoutFormStripe({
         defaultImage,
         hasUnlimitedQuantity,
         setQuantityByProduct,
+        productType,
       } = cartItem;
-
-      if (!hasUnlimitedQuantity && setQuantityByProduct) {
-        const data = {
-          quantity,
-          productId,
-        };
-
-        productQuantitiesToUpdate.push(data);
-      }
-
-      if (!hasUnlimitedQuantity && !setQuantityByProduct) {
-        for (let j = 0; j < orderOptionGroups.length; j++) {
-          const currOptionGroup = orderOptionGroups[j];
-          const { options } = currOptionGroup;
-
-          for (let k = 0; k < options.length; k++) {
-            const currOption = options[k];
-            const { optionId } = currOption;
-            if (!optionId) continue;
-
-            const parseIntOptionId = parseInt(optionId);
-            const data = {
-              quantity,
-              optionId: parseIntOptionId,
-            };
-
-            optionQuantitiesToUpdate.push(data);
-          }
-        }
-      }
 
       totalItemsOrdered += quantity;
 
-      const exampleImages = [];
-      const fireStorageId = nanoid();
-      let errorUploadingImages = false;
+      if (productType === 0) {
+        if (!hasUnlimitedQuantity && setQuantityByProduct) {
+          const data = {
+            quantity,
+            productId,
+          };
 
-      for (let j = 0; j < orderExampleImages.length; j++) {
-        const imageObj = orderExampleImages[j];
-        const { imgUrl, imageFile, fileName } = imageObj;
-        let image = null;
-
-        const photoStorageRef = ref(
-          storage,
-          `account/${subdomain}/orders/${orderId}/orderItems/exampleImages/${fireStorageId}/${fileName}`
-        );
-
-        try {
-          await uploadBytes(photoStorageRef, imageFile);
-        } catch (error) {
-          console.log("error", error);
-          errorUploadingImages = true;
-          return;
+          productQuantitiesToUpdate.push(data);
         }
 
-        try {
-          image = await getDownloadURL(photoStorageRef);
-        } catch (error) {
-          console.log("error", error);
-          errorUploadingImages = true;
-          return;
+        if (!hasUnlimitedQuantity && !setQuantityByProduct) {
+          for (let j = 0; j < orderOptionGroups.length; j++) {
+            const currOptionGroup = orderOptionGroups[j];
+            const { options } = currOptionGroup;
+
+            for (let k = 0; k < options.length; k++) {
+              const currOption = options[k];
+              const { optionId } = currOption;
+              if (!optionId) continue;
+
+              const parseIntOptionId = parseInt(optionId);
+              const data = {
+                quantity,
+                optionId: parseIntOptionId,
+              };
+
+              optionQuantitiesToUpdate.push(data);
+            }
+          }
         }
 
-        if (!image) return;
+        const exampleImages = [];
+        const fireStorageId = nanoid();
+        let errorUploadingImages = false;
 
-        const data = {
-          image,
-          fireStorageId,
-          fileName,
+        for (let j = 0; j < orderExampleImages.length; j++) {
+          const imageObj = orderExampleImages[j];
+          const { imgUrl, imageFile, fileName } = imageObj;
+          let image = null;
+
+          const photoStorageRef = ref(
+            storage,
+            `account/${subdomain}/orders/${orderId}/orderItems/exampleImages/${fireStorageId}/${fileName}`
+          );
+
+          try {
+            await uploadBytes(photoStorageRef, imageFile);
+          } catch (error) {
+            console.log("error", error);
+            errorUploadingImages = true;
+            return;
+          }
+
+          try {
+            image = await getDownloadURL(photoStorageRef);
+          } catch (error) {
+            console.log("error", error);
+            errorUploadingImages = true;
+            return;
+          }
+
+          if (!image) return;
+
+          const data = {
+            image,
+            fireStorageId,
+            fileName,
+          };
+
+          exampleImages.push(data);
+        }
+
+        if (errorUploadingImages) {
+          return null;
+        }
+
+        const cartData = {
+          customNote,
+          pricePenny,
+          priceDisplay,
+          productName,
+          quantity,
+          productImage: defaultImage,
+          hasUnlimitedQuantity,
+          setQuantityByProduct,
+          product: {
+            connect: {
+              id: productId,
+            },
+          },
+          orderExampleImages: {
+            create: exampleImages.map((item) => item),
+          },
+          orderOptionGroups: {
+            create: orderOptionGroups.map((item) => {
+              const { optionsDisplay, options, optionGroupName } = item;
+
+              const optionGroupData = {
+                optionsDisplay,
+                optionGroupName,
+                orderOptions: {
+                  create: options.map((optionItem) => {
+                    const { optionName, optionQuantity, price, pricePenny } =
+                      optionItem;
+
+                    const quantity = optionQuantity
+                      ? parseInt(optionQuantity)
+                      : null;
+
+                    const optionData = {
+                      optionName,
+                      optionPrice: pricePenny,
+                      optionPriceDisplay: price,
+                      optionQuantity: quantity,
+                    };
+
+                    return optionData;
+                  }),
+                },
+              };
+
+              return optionGroupData;
+            }),
+          },
+          orderQuestionsAnswers: {
+            create: orderQuestionsAnswers.map((item) => {
+              const { question, answer } = item;
+              const data = {
+                question,
+                answer,
+              };
+
+              return data;
+            }),
+          },
         };
 
-        exampleImages.push(data);
+        orderItems.push(cartData);
       }
 
-      if (errorUploadingImages) {
-        return null;
-      }
-
-      const cartData = {
-        customNote,
-        pricePenny,
-        priceDisplay,
-        productName,
-        quantity,
-        productImage: defaultImage,
-        hasUnlimitedQuantity,
-        setQuantityByProduct,
-        product: {
-          connect: {
-            id: productId,
+      if (productType === 1) {
+        //digital products
+        const data = {
+          pricePenny,
+          priceDisplay,
+          productName,
+          quantity,
+          productType,
+          productImage: defaultImage,
+          hasUnlimitedQuantity: true,
+          digitalProduct: {
+            connect: {
+              id: productId,
+            },
           },
-        },
-        orderExampleImages: {
-          create: exampleImages.map((item) => item),
-        },
-        orderOptionGroups: {
-          create: orderOptionGroups.map((item) => {
-            const { optionsDisplay, options, optionGroupName } = item;
+        };
 
-            const optionGroupData = {
-              optionsDisplay,
-              optionGroupName,
-              orderOptions: {
-                create: options.map((optionItem) => {
-                  const { optionName, optionQuantity, price, pricePenny } =
-                    optionItem;
-
-                  const quantity = optionQuantity
-                    ? parseInt(optionQuantity)
-                    : null;
-
-                  const optionData = {
-                    optionName,
-                    optionPrice: pricePenny,
-                    optionPriceDisplay: price,
-                    optionQuantity: quantity,
-                  };
-
-                  return optionData;
-                }),
-              },
-            };
-
-            return optionGroupData;
-          }),
-        },
-        orderQuestionsAnswers: {
-          create: orderQuestionsAnswers.map((item) => {
-            const { question, answer } = item;
-            const data = {
-              question,
-              answer,
-            };
-
-            return data;
-          }),
-        },
-      };
-
-      orderItems.push(cartData);
+        orderItems.push(data);
+      }
     }
 
     return {
@@ -746,99 +925,119 @@ function CheckoutFormStripe({
     );
 
   return (
-    <form
-      onSubmit={handleSubmitOrder}
-      className="flex flex-col gap-1 pb-28 lg:flex-row lg:mt-8 lg:mx-[7rem] lg:gap-4 xl:mx-[14rem]"
-    >
-      {hydrated && (
-        <div className="lg:w-2/3">
-          <div className="px-4 py-6 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0 lg:mt-0">
-            <h3 className="font-medium">Your information:</h3>
-            <div className="lg:px-12">
-              <div className="flex w-full gap-2">
+    <React.Fragment>
+      <SignupPrompt
+        isModalOpen={isModalOpen}
+        handleClose={handleCloseSignupModal}
+        handleGuestCheckoutTrue={handleGuestCheckoutTrue}
+        handleGuestCheckoutFalse={handleGuestCheckoutFalse}
+        isGuestCheckout={isGuestCheckout}
+        cartDetails={cartDetails}
+      />
+      <form
+        onSubmit={handleSubmitOrder}
+        className="flex flex-col gap-1 pb-28 lg:flex-row lg:mt-8 lg:mx-[7rem] lg:gap-4 xl:mx-[14rem]"
+      >
+        {hydrated && (
+          <div className="lg:w-2/3">
+            <div className="px-4 py-6 gap-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0 lg:mt-0">
+              <h3 className="font-medium">Your information:</h3>
+              <div className="lg:px-12">
+                <div className="flex w-full gap-2">
+                  <TextField
+                    id="first-name"
+                    label="First name"
+                    size="small"
+                    fullWidth
+                    required
+                    color="warning"
+                    value={customerFName}
+                    name="customerFName"
+                    onChange={handleCustomerInfoChange}
+                  />
+                  <TextField
+                    id="last-name"
+                    label="Last name"
+                    size="small"
+                    required
+                    fullWidth
+                    color="warning"
+                    value={customerLName}
+                    name="customerLName"
+                    onChange={handleCustomerInfoChange}
+                  />
+                </div>
                 <TextField
-                  id="first-name"
-                  label="First name"
+                  id="email"
+                  label="Email"
                   size="small"
-                  fullWidth
                   required
+                  type="email"
+                  fullWidth
+                  value={customerEmail}
+                  name="customerEmail"
                   color="warning"
-                  value={customerFName}
-                  name="customerFName"
+                  sx={{ marginTop: "1rem" }}
                   onChange={handleCustomerInfoChange}
                 />
-                <TextField
-                  id="last-name"
-                  label="Last name"
-                  size="small"
-                  required
-                  fullWidth
-                  color="warning"
-                  value={customerLName}
-                  name="customerLName"
-                  onChange={handleCustomerInfoChange}
+                <PhoneInput
+                  id="phone-input"
+                  country={"us"}
+                  value={customerPhone}
+                  name="customerPhone"
+                  onChange={handleCustomerPhoneChange}
+                  className="mt-4 w-full focus:ring-1"
+                  inputClass="p-5"
+                  inputStyle={{ width: "100%" }}
+                />
+                <label htmlFor="phone-input" className="text-xs">
+                  Recommended | Optional
+                </label>
+              </div>
+            </div>
+            <div className="flex gap-4 mb-4 px-4 flex-wrap md:px-16 lg:p-0">
+              {availablePayments.map((payment) => {
+                if (!hasDigitalProducts)
+                  return (
+                    <PaymentOption
+                      payment={payment}
+                      key={payment.id}
+                      handleSelectPaymentMethod={handleSelectPaymentMethod}
+                      selectedPayment={selectedPayment}
+                    />
+                  );
+
+                if (payment.id === "card")
+                  return (
+                    <PaymentOption
+                      payment={payment}
+                      key={payment.id}
+                      handleSelectPaymentMethod={handleSelectPaymentMethod}
+                      selectedPayment={selectedPayment}
+                    />
+                  );
+              })}
+            </div>
+
+            <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
+              <h3 className="font-medium">Payment:</h3>
+              <div className="lg:px-12">
+                <PaymentElement
+                  id="payment-element"
+                  options={paymentElementOptions}
                 />
               </div>
-              <TextField
-                id="email"
-                label="Email"
-                size="small"
-                required
-                type="email"
-                fullWidth
-                value={customerEmail}
-                name="customerEmail"
-                color="warning"
-                sx={{ marginTop: "1rem" }}
-                onChange={handleCustomerInfoChange}
-              />
-              <PhoneInput
-                id="phone-input"
-                country={"us"}
-                value={customerPhone}
-                name="customerPhone"
-                onChange={handleCustomerPhoneChange}
-                className="mt-4 w-full focus:ring-1"
-                inputClass="p-5"
-                inputStyle={{ width: "100%" }}
-              />
-              <label htmlFor="phone-input" className="text-xs">
-                Recommended | Optional
-              </label>
             </div>
-          </div>
-          <div className="flex gap-4 mb-4 px-4 flex-wrap md:px-16 lg:p-0">
-            {availablePayments.map((payment) => {
-              return (
-                <PaymentOption
-                  payment={payment}
-                  key={payment.id}
-                  handleSelectPaymentMethod={handleSelectPaymentMethod}
-                  selectedPayment={selectedPayment}
+            <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
+              <h3 className="font-medium">Billing information:</h3>
+              <div className="lg:px-12">
+                <AddressElement
+                  id="address-element"
+                  options={{ mode: "shipping" }}
                 />
-              );
-            })}
-          </div>
-
-          <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
-            <h3 className="font-medium">Payment:</h3>
-            <div className="lg:px-12">
-              <PaymentElement
-                id="payment-element"
-                options={paymentElementOptions}
-              />
+              </div>
             </div>
-          </div>
-          <div className="px-4 py-6 gap-2 flex border-t-2 flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
-            <h3 className="font-medium">Billing information:</h3>
-            <div className="lg:px-12">
-              <AddressElement
-                id="address-element"
-                options={{ mode: "shipping" }}
-              />
-            </div>
-          </div>
-          {/* <div className="px-4 py-6 gap-2 border-t-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
+            {/* <div className="px-4 py-6 gap-2 border-t-2 flex flex-col bg-white md:border md:round md:my-4 md:mx-16 lg:mx-0  lg:mt-0">
             <BillingAddress
               billingAddressValues={billingAddressValues}
               handleCustomerBillingAddressChange={
@@ -846,37 +1045,38 @@ function CheckoutFormStripe({
               }
             />
           </div> */}
-        </div>
-      )}
+          </div>
+        )}
 
-      <div className="relative lg:flex-grow">
-        <div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
-          <OrderReview />
-        </div>
+        <div className="relative lg:flex-grow">
+          <div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
+            <OrderReview />
+          </div>
 
-        <div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
-          <OrderSubtotal isInCart={false} />
+          <div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
+            <OrderSubtotal isInCart={false} />
+          </div>
+          <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
+            <button
+              type="submit"
+              disabled={isLoading || !stripe || !elements}
+              className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
+            >
+              {isLoading ? (
+                <div className="flex justify-center gap-4 items-center">
+                  <CircularProgress sx={{ color: "white" }} size="1rem" />
+                  Submitting order...
+                </div>
+              ) : !stripe || !elements ? (
+                "Please wait..."
+              ) : (
+                "Submit Order"
+              )}
+            </button>
+          </div>
         </div>
-        <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
-          <button
-            type="submit"
-            disabled={isLoading || !stripe || !elements}
-            className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
-          >
-            {isLoading ? (
-              <div className="flex justify-center gap-4 items-center">
-                <CircularProgress sx={{ color: "white" }} size="1rem" />
-                Submitting order...
-              </div>
-            ) : !stripe || !elements ? (
-              "Please wait..."
-            ) : (
-              "Submit Order"
-            )}
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 }
 

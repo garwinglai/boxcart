@@ -15,7 +15,7 @@ import {
   updateEmailIsVerifiedUser,
   updateEmailIsVerifiedAccount,
   updateEmailIsVerifiedChecklist,
-} from "@/helper/client/api/user";
+} from "@/helper/server/prisma/user";
 
 function VerifyEmail({ serializedSession }) {
   const checklistStore = useChecklistStore((state) => state.checklist);
@@ -46,6 +46,7 @@ function VerifyEmail({ serializedSession }) {
     setChecklistStore({ isEmailVerified: true });
 
     if (
+      checklistStore &&
       isProductsUploaded &&
       isDeliverySet &&
       isPaymentsSet &&
@@ -83,7 +84,6 @@ function VerifyEmail({ serializedSession }) {
         redirect: false,
       });
       const { status, error, ok, url } = signinResult;
-      // console.log(status, error, ok, url);
 
       if (status == 200 && ok) {
         reload();
@@ -161,8 +161,8 @@ function VerifyEmail({ serializedSession }) {
   function handleClick() {
     const signedInRoute =
       process.env.NODE_ENV && process.env.NODE_ENV === "production"
-        ? "https://app.boxcart.shop/account/checklist"
-        : "http://app.localhost:3000/account/checklist";
+        ? "https://boxcart.shop/app/account/checklist"
+        : "http://localhost:3000/app/account/checklist";
 
     push(signedInRoute);
   }

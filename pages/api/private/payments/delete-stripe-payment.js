@@ -14,10 +14,6 @@ export default async function handler(req, res) {
   if (method === "POST") {
     const { stripeAccountId } = JSON.parse(body);
 
-    // console.log("body", body);
-    // console.log("stripeAccountId", stripeAccountId);
-    // console.log("id", id);
-
     try {
       const deleted = await prisma.acceptedPayment.delete({
         where: {

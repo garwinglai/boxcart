@@ -2,6 +2,7 @@ import React, { use, useEffect } from "react";
 import styles from "../../../styles/components/storefront/cart/subtotal.module.css";
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
+import Link from "next/link";
 
 function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
   const cartDetails = useCartStore((state) => state.cartDetails);
@@ -20,7 +21,10 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
     deliveryFeePenny,
     deliveryFeeDisplay,
     totalDisplay,
+    applyFivePercentDiscount,
   } = cartDetails;
+
+  const cashBackAmt = applyFivePercentDiscount ? subtotalPenny * 0.05 : 0;
 
   useEffect(() => {
     const taxAndFeesPenny = Math.round(
@@ -82,7 +86,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
   }
 
   return (
-    <div className="px-6 pt-8 pb-16">
+    <div className="px-6 pt-8 pb-8">
       {!isInCart && <h3 className="font-medium">Subtotal:</h3>}
       <div className={`${styles.subtotal_box} ${styles.flex}`}>
         <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
@@ -116,6 +120,15 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
           </div>
         )}
       </div>
+      {applyFivePercentDiscount && (
+        <p className="text-xs mt-4 bg-red-100 rounded p-2 ">
+          View 5% cash back in{" "}
+          <Link href="/user/account/dashboard" target="_blank">
+            <u>account</u>
+          </Link>{" "}
+          after purchase.
+        </p>
+      )}
     </div>
   );
 }

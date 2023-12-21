@@ -6,12 +6,25 @@ export default async function handler(req, res) {
 
   if (method === "POST") {
     const bodyParsed = JSON.parse(body);
-    const { email, fourDigitCode } = bodyParsed;
+    const { email, fourDigitCode, isShopper, site } = bodyParsed;
 
     const signInLink =
       process.env.NODE_ENV === "production"
-        ? "https://app.boxcart.shop/auth/signin"
-        : "http://app.localhost:3000/auth/signin";
+        ? isShopper
+          ? `https://boxcart.shop/user/auth/signin?site=${site}`
+          : "https://boxcart.shop/app/auth/signin"
+        : isShopper
+        ? `http://localhost:3000/user/auth/signin?site=${site}`
+        : "http://localhost:3000/app/auth/signin";
+
+    const btnUrl =
+      process.env.NODE_ENV === "production"
+        ? isShopper
+          ? `https://boxcart.shop/user/auth/reset-password/${fourDigitCode}?email=${email}&site=${site}`
+          : `https://boxcart.shop/app/auth/reset-password/${fourDigitCode}?email=${email}&site=${site}`
+        : isShopper
+        ? `http://localhost:3000/user/auth/reset-password/${fourDigitCode}?email=${email}&site=${site}`
+        : `http://localhost:3000/app/auth/reset-password/${fourDigitCode}?email=${email}&site=${site}`;
 
     const mailOptions = {
       to: email,
@@ -24,6 +37,7 @@ export default async function handler(req, res) {
         signInLink,
         token: fourDigitCode,
         email,
+        btnUrl,
       },
     };
 

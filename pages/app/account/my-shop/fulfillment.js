@@ -12,7 +12,7 @@ import Image from "next/image";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import FormGroup from "@mui/material/FormGroup";
 import SaveCancelButtons from "@/components/app/design/SaveCancelButtons";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import CurrencyInput from "react-currency-input-field";
 import SignupFormDistance from "@/components/auth/signup/SignupFormDistance";
 import Snackbar from "@mui/material/Snackbar";
@@ -814,7 +814,7 @@ function Fulfillment({ userSession, userAccount }) {
       return;
     }
 
-    push("/account/my-shop/profile");
+    push("/app/account/my-shop/profile");
   };
 
   // Displays
@@ -1194,7 +1194,7 @@ function Fulfillment({ userSession, userAccount }) {
           <div className="w-full">
             <h2>Set availability</h2>
             <p className="mt-4 mb-6 text-sm">{availabilityModalMessage}</p>
-            <Link href="/account/my-shop/availability">
+            <Link href="/app/account/my-shop/availability">
               <ButtonThird name="Set store hours" type="button" />
             </Link>
           </div>
@@ -1228,6 +1228,18 @@ export async function getServerSideProps(context) {
           },
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

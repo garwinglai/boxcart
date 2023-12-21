@@ -480,23 +480,3 @@ function OrderCard({
 }
 
 export default OrderCard;
-
-// * Accept Decline Buttons on Mobile
-// {!isOrderHistory && (
-//   <div className={`${styles.action_btn_group_expanded} ${styles.flex}`}>
-//     {expanded && (
-//       <div className={`${styles.group_three}`}>
-//         <IconButton onClick={(e) => handleFooterCloseCard(e, "panel1")}>
-//           <ExpandLessOutlinedIcon />
-//         </IconButton>
-//       </div>
-//     )}
-//     <div className={`${styles.action_btn_group} ${styles.flex}`}>
-//       {status === "pending" && <ButtonSecondary name="Decline" />}
-//       {status === "pending" && <ButtonPrimary name="Accept" />}
-//       {/* Split */}
-//       {status === "accepted" && <ButtonFourth name="Cancel" />}
-//       {status === "accepted" && <ButtonThird name="Complete" />}
-//     </div>
-//   </div>
-// )}

@@ -25,11 +25,10 @@ import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { newUserSignup } from "@/helper/client/api/auth/registration";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { sendVerificationEmail } from "@/helper/client/api/sendgrid/email";
+import { sendBusinessVerificationEmail } from "@/helper/client/api/sendgrid/email";
 import Link from "next/link";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useAccountStore } from "@/lib/store";
-import prisma from "@/lib/prisma";
+import { useAccountStore, useConnectAccountStore } from "@/lib/store";
 import { storage, createGeoHash } from "@/firebase/fireConfig";
 import Geocode from "react-geocode";
 import {
@@ -37,6 +36,7 @@ import {
   checkAccessCodeUsed,
 } from "@/helper/client/api/account/early-bird-code";
 import logo from "@/public/images/logos/boxcart_logo_full.png";
+import { checkIfUserEmailInUse } from "@/helper/client/api/user";
 
 // steps:
 // 0: accessCode
@@ -57,9 +57,18 @@ import logo from "@/public/images/logos/boxcart_logo_full.png";
 Geocode.setApiKey(process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY);
 Geocode.setLanguage("en");
 
-function Signup({ nextAccountId }) {
+function Signup() {
   const setAccount = useAccountStore((state) => state.setAccount);
+  const connectAccount = useConnectAccountStore(
+    (state) => state.connectAccount
+  );
+  const removeConnectAccount = useConnectAccountStore(
+    (state) => state.removeConnectAccount
+  );
 
+  const [hasShopperAccount, setHasShopperAccount] = useState(
+    connectAccount.id ? true : false
+  );
   const [waitlistId, setWaitlistId] = useState("");
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -72,9 +81,9 @@ function Signup({ nextAccountId }) {
   const [displayLogo, setDisplayLogo] = useState("");
   const [logoFile, setLogoFile] = useState("");
   const [signupValues, setSignupValues] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: connectAccount ? connectAccount.firstName : "",
+    lastName: connectAccount ? connectAccount.lastName : "",
+    email: connectAccount ? connectAccount.email : "",
     password: "",
     accessCode: "",
     businessName: "",
@@ -119,8 +128,8 @@ function Signup({ nextAccountId }) {
         tipInt: "",
       },
     },
-    email: "",
-    password: "",
+    // email: "",
+    // password: "",
   });
 
   const {
@@ -445,7 +454,7 @@ function Signup({ nextAccountId }) {
 
         if (value) {
           setOpenError(true);
-          setErrorMessage("This subdomain has been claimed.");
+          setErrorMessage("This domain has already been claimed.");
           setIsLoading(false);
           return;
         }
@@ -599,10 +608,6 @@ function Signup({ nextAccountId }) {
 
   // * Form management
 
-  const onChangeTipValues = (value, name) => {
-    setCorrectTipValues(name, value);
-  };
-
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
 
@@ -713,115 +718,9 @@ function Signup({ nextAccountId }) {
     setSignupValues((prev) => ({ ...prev, [name]: value }));
   }
 
-  function setCorrectTipValues(name, value) {
-    if (!value) {
-      setSignupValues((prev) => ({
-        ...prev,
-        tipValues: {
-          ...prev.tipValues,
-          [name]: { tipInt: "", tipStr: "" },
-        },
-      }));
-      return;
-    }
-
-    // const tipInt = value
-    //   ? typeOfTip === "percentage"
-    //     ? parseFloat(value)
-    //     : parseFloat(value)
-    //   : null;
-    let tipStr;
-
-    if (typeOfTip === "percentage") {
-      const [numBeforeDecimal, numAfterDecimal] = value.split(".");
-
-      if (numAfterDecimal === "00") {
-        tipStr = numBeforeDecimal + "%";
-      } else {
-        tipStr = value + "%";
-      }
-    } else {
-      tipStr = "$" + value;
-    }
-
-    // const tipStr =
-    //   typeOfTip === "percentage"
-    //     ? value + "%"
-    //     : "$" + parseFloat(value).toString();
-
-    // console.log("tipStr", tipStr);
-
-    setSignupValues((prev) => ({
-      ...prev,
-      tipValues: {
-        ...prev.tipValues,
-        [name]: { tipInt: value, tipStr: tipStr },
-      },
-    }));
-  }
-
   function handleAddressChange(e) {
     const { name, value } = e.target;
     setSignupValues((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function handleEnableTipsChange(e) {
-    const { name, checked } = e.target;
-
-    if (name === "yesTips") {
-      if (checked) setSignupValues((prev) => ({ ...prev, enableTips: true }));
-      if (!checked) setSignupValues((prev) => ({ ...prev, enableTips: false }));
-    }
-
-    if (name === "noTips" && checked) {
-      setSignupValues((prev) => ({ ...prev, enableTips: false }));
-    }
-  }
-
-  function handleChangeSetTips(e) {
-    const { name, checked } = e.target;
-    // check if tip1, tip2, and tip3 has tipInt values
-
-    if (tip1.tipInt !== "" && tip2.tipInt !== "" && tip3.tipInt !== "") {
-      if (typeOfTip !== name) {
-        const tip1Str =
-          name === "percentage" ? tip1.tipInt + "%" : "$" + tip1.tipInt;
-        const tip2Str =
-          name === "percentage" ? tip2.tipInt + "%" : "$" + tip2.tipInt;
-        const tip3Str =
-          name === "percentage" ? tip3.tipInt + "%" : "$" + tip3.tipInt;
-
-        setSignupValues((prev) => ({
-          ...prev,
-          typeOfTip: name,
-          tipValues: {
-            tip1: { tipInt: tip1.tipInt, tipStr: tip1Str },
-            tip2: { tipInt: tip2.tipInt, tipStr: tip2Str },
-            tip3: { tipInt: tip3.tipInt, tipStr: tip3Str },
-          },
-        }));
-        return;
-      }
-    }
-
-    if (checked) setSignupValues((prev) => ({ ...prev, typeOfTip: name }));
-  }
-
-  function isTipTypeChecked(name) {
-    if (name === typeOfTip) return true;
-    return false;
-  }
-
-  function isTipsChecked(name) {
-    if (name === "yesTips") {
-      if (enableTips) return true;
-      if (!enableTips) return false;
-    }
-
-    if (name === "noTips") {
-      if (enableTips) return false;
-      if (!enableTips) return true;
-    }
   }
 
   function isBusinessTypeChecked(name) {
@@ -902,11 +801,17 @@ function Signup({ nextAccountId }) {
     }
 
     const isEmailValid = checkEmailRegex(email);
-    if (!isEmailValid) return;
 
-    const emailAvailable = await checkEmailAvailableAccount(email);
+    if (!isEmailValid) {
+      setOpenError(true);
+      setErrorMessage("Invalid email format.");
+      setIsLoading(false);
+      return;
+    }
 
-    if (!emailAvailable.success) {
+    const isEmailInUse = await checkIfUserEmailInUse(email);
+
+    if (!isEmailInUse.success || isEmailInUse.error) {
       setOpenError(true);
       setErrorMessage(
         "Error checking if email is available. Please contact hello@boxcart.shop"
@@ -915,13 +820,17 @@ function Signup({ nextAccountId }) {
       return;
     }
 
-    if (emailAvailable.success) {
-      if (emailAvailable.value) {
-        setOpenError(true);
-        setErrorMessage("Email already exists.");
-        setIsLoading(false);
-        return;
-      }
+    const { account, shopperAccount } = isEmailInUse.user
+      ? isEmailInUse.user
+      : {};
+
+    if (account && account.length > 0) {
+      setOpenError(true);
+      setErrorMessage(
+        "Email already exists. Please use a different email or sign in."
+      );
+      setIsLoading(false);
+      return;
     }
 
     const { url: logoImg, error: logoErr } = await storeLogoImageFirebase(
@@ -934,81 +843,151 @@ function Signup({ nextAccountId }) {
     }
 
     const newUserData = await structureUserData(logoImg);
-    const signupResponse = await newUserSignup(newUserData);
-    const { success, user, error } = signupResponse;
+    let accounts = [];
+    let user;
 
-    const { accounts } = user;
+    if (shopperAccount) {
+      const { id } = isEmailInUse.user;
 
-    if (success) {
-      if (user) {
-        try {
-          const signinResult = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-          });
-          const { status, error, ok } = signinResult;
+      const connectedAccount = await handleSubmitConnectAccounts(
+        newUserData,
+        email,
+        password,
+        id
+      );
 
-          if (status == 200 && ok) {
-            const userId = user.id;
-            const accountId = accounts[0].id;
-            const account = accounts[0];
-            const checklist = {
-              accountId,
-              hasViewedShareStore: false,
-              hasViewedSupportChannels: false,
-              id: newUserData.id,
-              isDeliverySet: false,
-              isEmailVerified: true,
-              isPaymentsSet: false,
-              isProductsUploaded: false,
-            };
+      if (!connectedAccount) {
+        setHasShopperAccount(true);
+        setIsLoading(false);
+        return;
+      }
 
-            sendVerificationEmail(userId, accountId, email);
-            setAccountStore(account, logoImg);
+      accounts = connectedAccount.user.accounts;
+      user = connectedAccount.user;
+    } else {
+      setHasShopperAccount(false);
+      const signupResponse = await newUserSignup(newUserData);
 
-            const signedInRoute =
-              process.env.NODE_ENV && process.env.NODE_ENV === "production"
-                ? "https://app.boxcart.shop/account/checklist"
-                : "http://app.localhost:3000/account/checklist";
+      const { success, user: createdUser, error } = signupResponse;
+      if (!success || error || (success && !createdUser)) {
+        setOpenError(true);
+        setErrorMessage(
+          "Failed to create account. Reach out to hello@boxcart.shop for more assistance."
+        );
+      }
 
-            push(signedInRoute);
-            return;
-          }
+      if (success && createdUser) {
+        const signInResult = await userSignIn(email, password);
 
-          if (status == 401) {
-            setOpenError(true);
-            setErrorMessage("Incorrect email/password.");
-          }
-
-          if (status == 403) {
-            setOpenError(true);
-            setErrorMessage("Access denied.");
-          }
-
-          if (status == 500) {
-            setOpenError(true);
-            setErrorMessage("Network error.");
-          }
-        } catch (error) {
-          console.log("error", error);
-          setOpenError(true);
-          setErrorMessage("Unknown error. Please contact hello@boxcart.shop");
+        if (!signInResult) {
+          setIsLoading(false);
+          return;
         }
+
+        accounts = createdUser.accounts;
+        user = createdUser;
       }
     }
 
-    if (!success || (success && !user)) {
-      setOpenError(true);
-      setErrorMessage(
-        "Failed to create account. Reach out to hello@boxcart.shop for more assistance."
-      );
-    }
+    const userId = user.id;
+    const accountId = accounts[0].id;
+    const accountOne = accounts[0];
+    const checklist = {
+      accountId,
+      hasViewedShareStore: false,
+      hasViewedSupportChannels: false,
+      id: newUserData.id,
+      isDeliverySet: false,
+      isEmailVerified: true,
+      isPaymentsSet: false,
+      isProductsUploaded: false,
+    };
 
-    setIsLoading(false);
+    sendBusinessVerificationEmail(userId, accountId, email);
+    setAccountStore(accountOne, logoImg);
+    removeConnectAccount();
+
+    const signedInRoute =
+      process.env.NODE_ENV && process.env.NODE_ENV === "production"
+        ? "https://boxcart.shop/app/account/checklist"
+        : "http://localhost:3000/app/account/checklist";
+
+    push(signedInRoute);
   }
 
-  const setAccountStore = async (account, logoImg) => {
+  const handleSubmitConnectAccounts = async (
+    newUserData,
+    email,
+    password,
+    id
+  ) => {
+    const signInResult = await userSignIn(email, password);
+
+    if (!signInResult) {
+      return null;
+    }
+
+    const connectedBizAccount = await connectAccounts(newUserData, id);
+    if (!connectedBizAccount.success || connectedBizAccount.error) {
+      setOpenError(true);
+      setErrorMessage("Error connecting account. Please try again.");
+      return null;
+    }
+
+    return connectedBizAccount;
+  };
+
+  const connectAccounts = async (newUserData, id) => {
+    const apiRoute = "/api/auth/connect-business-to-user";
+
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newUserData, id }),
+    });
+    return await response.json();
+  };
+
+  const userSignIn = async (email, password) => {
+    try {
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      const { status, error, ok, url } = signInResult;
+
+      if (status == 200 && ok) {
+        return true;
+      }
+
+      if (status == 401) {
+        setOpenError(true);
+        setErrorMessage("Incorrect password.");
+      }
+
+      if (status == 403) {
+        setOpenError(true);
+        setErrorMessage("Access denied.");
+      }
+
+      if (status == 500) {
+        setOpenError(true);
+        setErrorMessage("Network error.");
+      }
+
+      return false;
+    } catch (error) {
+      setOpenError(true);
+      setErrorMessage("Unknown error. Please contact hello@boxcart.shop.");
+      return false;
+    }
+  };
+
+  const setAccountStore = async (accountOne, logoImg) => {
     const {
       id: accountId,
       businessName,
@@ -1018,7 +997,7 @@ function Signup({ nextAccountId }) {
       lastName,
       subdomain,
       fullDomain,
-    } = account;
+    } = accountOne;
 
     const storedAccount = {
       accountId,
@@ -1109,7 +1088,7 @@ function Signup({ nextAccountId }) {
     const freePeriodDate = new Date(endToday);
     const freePeriodEndDateStr = freePeriodDate.toLocaleDateString();
     const freePeriodEndDateEpoch = Date.parse(freePeriodDate);
-    const fullDomain = subdomain + ".boxcart.shop";
+    const fullDomain = "boxcart.shop/" + subdomain;
 
     const userData = {
       firstName,
@@ -1439,7 +1418,7 @@ function Signup({ nextAccountId }) {
           <div className="flex flex-col md:flex-row md:gap-2 items-end mb-4">
             <p className="text-sm">Have an account?</p>
             <Link
-              href="/auth/signin"
+              href="/app/auth/signin"
               className="text-sm underlin text-blue-500"
             >
               Sign in
@@ -1531,10 +1510,13 @@ function Signup({ nextAccountId }) {
                 htmlFor="subdomain"
                 className="font-medium text-black mb-4"
               >
-                Enter your business subdomain. *
+                Enter your business domain. *
               </label>
-              <div className={`${styles.input_pair}`}>
-                <div className={`${styles.input_group}`}>
+              <div className="flex items-center gap-2">
+                <div onClick={handleInputFocus}>
+                  <p>boxcart.shop/</p>
+                </div>
+                <div className={`${styles.input_pair} flex-grow`}>
                   <input
                     // autoFocus
                     onKeyDown={(e) => {
@@ -1544,7 +1526,7 @@ function Signup({ nextAccountId }) {
                         handleNextStep();
                       }
                     }}
-                    className={`${styles.input_editable}`}
+                    className={`${styles.input_editable} w-full flex-grow`}
                     type="text"
                     id="subdomain"
                     name="subdomain"
@@ -1557,23 +1539,7 @@ function Signup({ nextAccountId }) {
                     onChange={handleChange}
                   />
                 </div>
-                <div
-                  className={`${styles.input_group}`}
-                  onClick={handleInputFocus}
-                >
-                  <input
-                    id="domain"
-                    className={`${styles.input_readable}`}
-                    type="text"
-                    readOnly
-                    placeholder=".boxcart.shop"
-                  />
-                </div>
               </div>
-              <p className="text-sm font-light mt-4">
-                We recommend to use your business name. (Only hyphens are
-                allowed as special characters.)
-              </p>
             </div>
           )}
 
@@ -1945,6 +1911,7 @@ function Signup({ nextAccountId }) {
               <CredentialsForm
                 signupValues={signupValues}
                 handleChange={handleChange}
+                hasShopperAccount={hasShopperAccount}
               />
             </div>
           )}
@@ -1978,21 +1945,3 @@ function Signup({ nextAccountId }) {
 }
 
 export default Signup;
-
-export async function getServerSideProps(context) {
-  const lastInsertedId = await prisma.account.findFirst({
-    select: { id: true },
-    orderBy: { id: "desc" },
-  });
-
-  let nextAccountId = 0;
-
-  if (lastInsertedId) {
-    const lastAccountid = lastInsertedId.id;
-    nextAccountId = lastAccountid + 1;
-  }
-
-  return {
-    props: { nextAccountId },
-  };
-}

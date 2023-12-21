@@ -32,9 +32,11 @@ function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
     <div className="mt-10 px-4 md:mt-14 lg:mb-4">
       <div className="flex items-center justify-between gap-2">
         <h4 className="">{businessName}</h4>
-        <IconButton onClick={handleCopyUrlToClipboard(fullDomain)}>
-          <ShareIcon fontSize="small" />
-        </IconButton>
+        {!isOwner && (
+          <IconButton onClick={handleCopyUrlToClipboard(fullDomain)}>
+            <ShareIcon fontSize="small" />
+          </IconButton>
+        )}
       </div>
       <div className="flex items-center gap-1 mb-1">
         <p className="text-[color:var(--gray)] font-light text-sm">

@@ -15,7 +15,7 @@ import {
 import Snackbar from "@mui/material/Snackbar";
 import Link from "next/link";
 
-function CartComponent({ toggleDrawer, isDesktop }) {
+function CartComponent({ toggleDrawer, isDesktop, query }) {
   const setProductsStore = useProductQuantityStore(
     (state) => state.setProducts
   );
@@ -52,7 +52,14 @@ function CartComponent({ toggleDrawer, isDesktop }) {
     []
   ); // [addToCartTempItemId]
 
-  const { push, back } = useRouter();
+  const isDigitalProduct = (product) => product.productType === 1;
+  const allDigitalProducts = cart.every(isDigitalProduct);
+
+  const {
+    push,
+    back,
+    query: { site },
+  } = useRouter();
 
   useEffect(() => {
     setCartLength(cart.length);
@@ -81,37 +88,37 @@ function CartComponent({ toggleDrawer, isDesktop }) {
   const handleCheckout = async (e) => {
     if (isLoading) return;
     setIsLoading(true);
-    if (fulfillmentType === 0 && !deliveryAddress) {
-      handleOpenSnackBar("Missing delivery address");
-      setIsLoading(false);
-      return;
-    }
 
-    if (requireOrderDate && orderForDateDisplay === "") {
-      handleOpenSnackBar("Please select a date for your order.");
-      setIsLoading(false);
-      return;
-    }
+    if (!allDigitalProducts) {
+      if (fulfillmentType === 0 && !deliveryAddress) {
+        handleOpenSnackBar("Missing delivery address");
+        setIsLoading(false);
+        return;
+      }
 
-    if (requireOrderTime && orderForTimeDisplay === "") {
-      handleOpenSnackBar("Please select a time for your order.");
-      setIsLoading(false);
-      return;
+      if (requireOrderDate && orderForDateDisplay === "") {
+        handleOpenSnackBar("Please select a date for your order.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (requireOrderTime && orderForTimeDisplay === "") {
+        handleOpenSnackBar("Please select a time for your order.");
+        setIsLoading(false);
+        return;
+      }
+      const isThereEnoughStock = await checkIfEnoughStockPerProductInCart(cart);
+      const isThereEnoughStockOptions =
+        await checkIfEnoughStockPerOptionsInCart(cart);
+      if (!isThereEnoughStock || !isThereEnoughStockOptions) {
+        setIsLoading(false);
+        return;
+      }
     }
 
     // * if there are any cart items that are not added to productStore, check cart quantities against db
-
-    const isThereEnoughStock = await checkIfEnoughStockPerProductInCart(cart);
-    const isThereEnoughStockOptions = await checkIfEnoughStockPerOptionsInCart(
-      cart
-    );
-
-    if (!isThereEnoughStock || !isThereEnoughStockOptions) {
-      setIsLoading(false);
-      return;
-    } else {
-      push("/checkout");
-    }
+    toggleDrawer();
+    push(`/${site}/checkout`);
   };
 
   const checkIfEnoughStockPerOptionsInCart = async (cart) => {
@@ -390,6 +397,7 @@ function CartComponent({ toggleDrawer, isDesktop }) {
                   handleOpenSnackBar={handleOpenSnackBar}
                   notEnoughStockItems={notEnoughStockItems}
                   notEnoughStockOptionItems={notEnoughStockOptionItems}
+                  query={query}
                 />
               );
             })}

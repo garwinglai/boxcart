@@ -1,6 +1,6 @@
 import React from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
 
 function EmailMarketing() {

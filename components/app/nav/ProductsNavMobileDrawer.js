@@ -26,7 +26,7 @@ function ProductsNavMobileDrawer({ state, toggleDrawer }) {
 
 			<div className="flex flex-col p-4 gap-2">
 				<Link
-					href="/account/inventory/products"
+					href="/app/account/inventory/products"
 					onClick={toggleDrawer("bottom", false)}
 					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
 				>
@@ -36,7 +36,7 @@ function ProductsNavMobileDrawer({ state, toggleDrawer }) {
 					</span>
 				</Link>
 				<Link
-					href="/account/inventory/category"
+					href="/app/account/inventory/category"
 					onClick={toggleDrawer("bottom", false)}
 					className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
 				>

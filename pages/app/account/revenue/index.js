@@ -13,7 +13,7 @@ import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import { Divider } from "@mui/material";
 import prisma from "@/lib/prisma";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import PaymentCard from "@/components/app/income/PaymentCard";
 import { useRouter } from "next/router";
 import Snackbar from "@mui/material/Snackbar";
@@ -258,7 +258,7 @@ function Revenue({ userAccount }) {
   };
 
   const handleViewOrders = () => {
-    push("/account/orders/live");
+    push("/app/account/orders/live");
   };
 
   const handleWithdraw = async () => {
@@ -319,8 +319,6 @@ function Revenue({ userAccount }) {
 
     // Create payout
     const stripePayout = await createStripePayout(stripePayoutData);
-
-    console.log("stripePayou", stripePayout);
 
     if (stripePayout.error || !stripePayout.success) {
       handleOpenAlert("Payout error.");
@@ -726,6 +724,18 @@ export async function getServerSideProps(context) {
           payout: true,
         },
       });
+
+      if (!userAccount) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {

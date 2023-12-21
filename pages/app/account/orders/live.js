@@ -8,7 +8,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import OrderCard from "@/components/app/orders/OrderCard";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import OrderGrid from "@/components/app/orders/OrderGrid";
-import { isAuth } from "@/helper/client/auth/isAuth";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import prisma from "@/lib/prisma";
 import Snackbar from "@mui/material/Snackbar";
@@ -241,6 +241,18 @@ export async function getServerSideProps(context) {
           customer: true,
         },
       });
+
+      if (!orders) {
+        return {
+          redirect: {
+            destination:
+              process.env.NODE_ENV && process.env.NODE_ENV === "production"
+                ? "/app/auth/signin"
+                : "http://localhost:3000/app/auth/signin",
+            permanent: false,
+          },
+        };
+      }
 
       serializedData = JSON.parse(JSON.stringify(orders));
     } catch (error) {

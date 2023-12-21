@@ -52,7 +52,6 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   const [isMobileView, setIsMobileView] = useState(false);
 
   const { push } = useRouter();
-
   useEffect(() => {
     const { accountId, subdomain } = accountStore;
 
@@ -110,7 +109,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
   };
 
   const handleGoChecklist = () => {
-    push("/account/checklist");
+    push("/app/account/checklist");
   };
 
   const handleOpenNotificationMenu = () => {
@@ -209,7 +208,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
         </SwipeableDrawer>
       </div>
       {hydrate && isChecklistAlertOpen && (
-        <Link href="/account/checklist">
+        <Link href="/app/account/checklist">
           <Alert
             // severity="error"
             // color="success"
