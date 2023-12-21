@@ -539,8 +539,8 @@ model Review {
   customerId       Int
   digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id])
   digitalProductId Int?
-  shopperAccount   ShopperAccount  @relation(fields: [shopperAccountId], references: [id])
-  shopperAccountId Int
+  shopperAccount   ShopperAccount? @relation(fields: [shopperAccountId], references: [id])
+  shopperAccountId Int?
 
   @@index([accountId])
   @@index([productId])
