@@ -463,8 +463,6 @@ export async function getServerSideProps(context) {
         site = siteData;
       }
 
-      console.log("site", site);
-
       if (!site) {
         return {
           redirect: {
