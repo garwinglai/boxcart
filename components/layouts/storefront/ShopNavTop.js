@@ -67,7 +67,7 @@ function ShopNavTop() {
         {businessName ? businessName : "Home"}
       </Link>
       <div className="flex gap-1 items-center">
-        {hydrated && !shopper ? (
+        {/* {hydrated && !shopper ? (
           <div>
             <IconButton onClick={handleOpenModal}>
               <PermIdentityIcon />
@@ -103,7 +103,7 @@ function ShopNavTop() {
               handleClose={handleCloseAccountModal}
             />
           </div>
-        )}
+        )} */}
 
         <div className="">
           <IconButton onClick={toggleDrawerRight}>

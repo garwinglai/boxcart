@@ -204,11 +204,11 @@ function CheckoutFormStripe({
       return;
     }
 
-    if (!shopper && !isGuestCheckout) {
-      handleOpenSignupModal();
-      setIsLoading(false);
-      return;
-    }
+    // if (!shopper && !isGuestCheckout) {
+    //   handleOpenSignupModal();
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const { allProductIds, allDigitalProductIds } = getAllProductIds();
     const createdOrder = await createOrder();

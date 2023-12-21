@@ -120,11 +120,11 @@ function CheckoutForm({
     if (isLoading) return;
     setIsLoading(true);
 
-    if (!shopper && !isGuestCheckout) {
-      handleOpenSignupModal();
-      setIsLoading(false);
-      return;
-    }
+    // if (!shopper && !isGuestCheckout) {
+    //   handleOpenSignupModal();
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const createdOrder = await createOrder();
     const { value: orderData, error } = createdOrder;
