@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/orders/live-orders.module.css";
 import Calendar from "@/components/global/designs/Calendar";
@@ -14,6 +13,8 @@ import prisma from "@/lib/prisma";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import orders_icon from "@/public/images/icons/account/orders_icon.png";
+import Image from "next/image";
 
 function LiveOrders({ orders }) {
   const [snackbarValues, setSnackbarValues] = useState({
@@ -290,6 +291,17 @@ LiveOrders.getLayout = function getLayout(
 };
 
 LiveOrders.pageTitle = "Live Orders";
-LiveOrders.pageIcon = <ShoppingCartCheckoutIcon />;
+LiveOrders.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={orders_icon}
+      alt="orders icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 LiveOrders.pageRoute = "live";
 LiveOrders.mobilePageRoute = "live";

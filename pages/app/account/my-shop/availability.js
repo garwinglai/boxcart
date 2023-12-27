@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import EditCalendarRoundedIcon from "@mui/icons-material/EditCalendarRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import calendar_icon from "@/public/images/icons/calendar_icon.png";
 import Image from "next/image";
@@ -41,7 +40,6 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import HelpIcon from "@mui/icons-material/Help";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import Link from "next/link";
 import TimeAdvanceDrawer from "@/components/app/my-shop/availability/TimeAdvanceDrawer";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import { useChecklistStore } from "@/lib/store";
@@ -49,6 +47,7 @@ import {
   updateAvailabilityChecklistClient,
   updateIsChecklistComplete,
 } from "@/helper/client/api/checklist";
+import availability_icon from "@/public/images/icons/account/availability_icon.png";
 
 const styleMobile = {
   position: "absolute",
@@ -1506,6 +1505,17 @@ Availability.getLayout = function getLayout(
 };
 
 Availability.pageTitle = "Availability";
-Availability.pageIcon = <EditCalendarRoundedIcon />;
+Availability.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={availability_icon}
+      alt="availability icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Availability.pageRoute = "availability";
 Availability.mobilePageRoute = "availability";

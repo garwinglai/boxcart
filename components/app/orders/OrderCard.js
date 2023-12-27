@@ -439,11 +439,11 @@ function OrderCard({
           </React.Fragment>
         </div>
         <div
-          className={`${styles.card_details_group} ${
+          className={`${styles.card_details_group}  p-4 ${
             (expanded || isDesktop) && styles.card_details_expanded
           }`}
         >
-          <h3>Items:</h3>
+          <h3 className="text-base">Items:</h3>
           {orderItems.map((item, idx) => {
             const { id } = item;
             return (
@@ -452,12 +452,17 @@ function OrderCard({
                 cartItem={item}
                 isDesktop={isDesktop}
                 isBusiness={isBusiness}
+                idx={idx}
               />
             );
           })}
-          {/* <CartItem isDesktop={isDesktop} isBusiness={isBusiness} /> */}
-          <OrderReview isBusiness={true} order={order} />
-          <OrderSubtotal isBusiness={true} order={order} />
+
+          <div className="border-y">
+            <OrderReview isBusiness={true} order={order} />
+          </div>
+          <div className="py-4">
+            <OrderSubtotal isBusiness={true} order={order} />
+          </div>
           {!isDesktop && (
             <div className="text-right pr-4 pb-2">
               <IconButton

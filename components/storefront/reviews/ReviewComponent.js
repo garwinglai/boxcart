@@ -10,6 +10,7 @@ import ButtonPrimaryStorefront from "@/components/global/buttons/ButtonPrimarySt
 import { styled } from "@mui/material/styles";
 import { Timestamp } from "firebase/firestore";
 import { createNotification } from "@/helper/client/api/notifications";
+import { checkIfUserEmailInUse } from "@/helper/client/api/user";
 
 const style = {
   position: "absolute",
@@ -42,6 +43,7 @@ function ReviewComponent({
   handleOpenSnackbar,
   getReviews,
   isOwner,
+  shopperAccount,
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [productState, setProductState] = useState(product);
@@ -50,8 +52,8 @@ function ReviewComponent({
     rating: 0,
     title: "",
     review: "",
-    email: "",
-    name: "",
+    email: shopperAccount ? shopperAccount.email : "",
+    name: shopperAccount ? shopperAccount.name : "",
   });
 
   const { rating, title, review, email, name } = reviewValues;
@@ -61,11 +63,13 @@ function ReviewComponent({
     setOpenCreateReview(false);
     setReviewValues({
       rating: 0,
-      title: "Fab",
+      title: "",
       review: "",
-      email: "garwinglai@gmail.com",
-      name: "garwing",
+      email: "",
+      name: "",
     });
+
+    setIsLoading(false);
   };
 
   const handleReviewValueChange = (e) => {
@@ -109,11 +113,26 @@ function ReviewComponent({
       );
     }
 
+    let shopper = null;
+
+    // Connect to shopperAccount
+    if (shopperAccount) {
+      // if shopper is logged in, connect to shopperAccount
+      shopper = shopperAccount;
+    } else {
+      // if not logged in, check if there is shopper with email.
+      const { user } = await checkIfUserEmailInUse(email);
+      if (user && user.shopperAccount) {
+        shopper = user.shopperAccount;
+      }
+    }
+
     const data = buildReviewData(
       reviewValues,
       accountId,
       productId,
-      customerId
+      customerId,
+      shopper
     );
 
     const { success, error, updatedReview } = await createReview(data);
@@ -165,7 +184,13 @@ function ReviewComponent({
     createNotification(notifData);
   };
 
-  const buildReviewData = (reviewValues, accountId, productId, customerId) => {
+  const buildReviewData = (
+    reviewValues,
+    accountId,
+    productId,
+    customerId,
+    shopper
+  ) => {
     // destructure reviewValues;
     const { rating, title, review, email, name } = reviewValues;
 
@@ -233,13 +258,21 @@ function ReviewComponent({
       rating: newAccountAvgRatings,
     };
 
+    const shopperId = shopperAccount
+      ? shopper.shopperId
+      : shopper
+      ? shopper.id
+      : null;
+
     return {
       reviewData,
       accountId,
       productId,
+      isProductDigital: product.productType == 0 ? false : true,
       customerId,
       productData,
       accountData,
+      shopperId,
     };
   };
 
@@ -255,12 +288,15 @@ function ReviewComponent({
   };
 
   const checkProductBought = async (accountId, customerId, productId) => {
-    const api = `/api/public/storefront/customer/retrieve-order?accountId=${accountId}&customerId=${customerId}&productId=${productId}`;
+    const api =
+      product.productType == 0
+        ? `/api/public/storefront/customer/retrieve-order?accountId=${accountId}&customerId=${customerId}&productId=${productId}`
+        : `/api/public/storefront/customer/retrieve-digital-order?accountId=${accountId}&customerId=${customerId}&productId=${productId}`;
     const res = await fetch(api, { method: "GET" });
     const data = await res.json();
     const { success, order, error } = data;
 
-    if (!success || error || order.customerOrder.length < 1) {
+    if (!success || error || !order || order.customerOrder.length < 1) {
       return false;
     }
 

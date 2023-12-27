@@ -128,7 +128,7 @@ function OrderSubmitted({ order }) {
   );
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 p-4">
       <Snackbar
         open={isSnackbarOpen}
         autoHideDuration={6000}
@@ -169,19 +169,26 @@ function OrderSubmitted({ order }) {
           <OrderSubtotal orderSubmitted={true} order={order} />
         </div>
       </div>
-      <div className="lg:w-1/2 lg:mx-auto">
-        <div className="flex justify-between items-center px-4 pt-4">
+      <div className="md:w-1/2 md:mx-auto">
+        <div className="flex justify-between items-center pt-4">
           <h3 className="">Order Receipt</h3>
           <button
             onClick={handleDownloadAsPDF}
-            className="text-blue-600 font-light text-lg underline"
+            className="text-blue-600 font-light text-sm underline"
           >
             save receipt
           </button>
         </div>
-        {orderItems.map((item) => {
+        {orderItems.map((item, idx) => {
           const { id } = item;
-          return <CartItem key={id} cartItem={item} orderSubmitted={true} />;
+          return (
+            <CartItem
+              key={id}
+              idx={idx}
+              cartItem={item}
+              orderSubmitted={true}
+            />
+          );
         })}
       </div>
     </div>

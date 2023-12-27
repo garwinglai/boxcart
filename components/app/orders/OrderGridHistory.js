@@ -7,7 +7,7 @@ function OrderGridHistory({ orders, getAllHistoryOrders, handleOpenSnackbar }) {
     <table className={`${styles.order_grid_box} ${styles.grid}`}>
       <thead className={`${styles.table_head}`}>
         <tr className={`${styles.table_row}`}>
-          <th className={`${styles.table_title}`}>No.</th>
+          <th className={`${styles.table_title}`}>Id.</th>
           <th className={`${styles.table_title}`}>Date</th>
           <th className={`${styles.table_title}`}>For</th>
           <th className={`${styles.table_title}`}>Customer</th>

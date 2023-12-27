@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import CategoryIcon from "@mui/icons-material/Category";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
@@ -11,7 +10,7 @@ import { isAuth } from "@/helper/server/auth/isAuth";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
-import { IconButton } from "@mui/material";
+import { Divider, IconButton } from "@mui/material";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
 import prisma from "@/lib/prisma";
@@ -23,6 +22,11 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import DigitalProductDrawer from "@/components/app/my-shop/products/DigitalProductDrawer";
 import DigitalProductCard from "@/components/app/my-shop/products/DigitalProductCard";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import SdCardOutlinedIcon from "@mui/icons-material/SdCardOutlined";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+import LocalGroceryStoreOutlinedIcon from "@mui/icons-material/LocalGroceryStoreOutlined";
+import product_icon from "@/public/images/icons/account/product_icon.png";
 
 function Products({ userAccount }) {
   // Props
@@ -212,6 +216,16 @@ function Products({ userAccount }) {
     handleCloseProductCreate();
   };
 
+  const handleImportShopifyProducts = (e) => {
+    push("/app/account/inventory/import-shopify");
+    handleCloseProductCreate();
+  };
+
+  const handleImportEtsyProducts = (e) => {
+    push("/app/account/inventory/import-etsy");
+    handleCloseProductCreate();
+  };
+
   const handleCreateDigitalProduct = (e) => {
     toggleDrawerDigitalProductCreate("right", true)(e);
     handleCloseProductCreate();
@@ -259,14 +273,20 @@ function Products({ userAccount }) {
           action={action}
         />
         <div className="flex gap-2">
-          <ButtonFilter handleClick={handleProductRoute} name="Products" />
-          <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
+          <div className="h-8">
+            <ButtonFilter handleClick={handleProductRoute} name="Products" />
+          </div>
+          <div className="h-8">
+            <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
+          </div>
         </div>
         <div className="flex flex-col gap-2 justify-end items-end sm:flex-row">
-          <ButtonPrimary
-            handleClick={handleOpenProductCreate}
-            name="+ Create"
-          />
+          <div className="h-8">
+            <ButtonPrimary
+              handleClick={handleOpenProductCreate}
+              name="+ Create"
+            />
+          </div>
           <Menu
             id="basic-menu"
             anchorEl={anchorEl}
@@ -276,12 +296,33 @@ function Products({ userAccount }) {
               "aria-labelledby": "basic-button",
             }}
           >
-            <MenuItem onClick={handleCreateProduct}>Product</MenuItem>
-            <MenuItem onClick={handleCreateBatchProduct}>
-              Batch product
+            <MenuItem onClick={handleCreateProduct}>
+              <div className="flex gap-2">
+                <CategoryOutlinedIcon fontSize="small" />
+                <p className="text-sm md:text-base">Product</p>
+              </div>
             </MenuItem>
+            {/* <MenuItem onClick={handleCreateBatchProduct}>
+              + Batch product
+            </MenuItem> */}
             <MenuItem onClick={handleCreateDigitalProduct}>
-              Digital product
+              <div className="flex gap-2">
+                <SdCardOutlinedIcon fontSize="small" />
+                <p className="text-sm md:text-base">Digital product</p>
+              </div>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleImportShopifyProducts}>
+              <div className="flex gap-2">
+                <LocalGroceryStoreOutlinedIcon fontSize="small" />
+                <p className="text-sm md:text-base">Import Shopify</p>
+              </div>
+            </MenuItem>
+            <MenuItem onClick={handleImportEtsyProducts}>
+              <div className="flex gap-2">
+                <StorefrontOutlinedIcon fontSize="small" />
+                <p className="text-sm md:text-base">Import Etsy</p>
+              </div>
             </MenuItem>
           </Menu>
 
@@ -471,6 +512,17 @@ Products.getLayout = function getLayout(
 };
 
 Products.pageTitle = "Products";
-Products.pageIcon = <CategoryIcon />;
+Products.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={product_icon}
+      alt="product icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Products.pageRoute = "products";
 Products.mobilePageRoute = "products";

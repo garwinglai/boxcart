@@ -17,6 +17,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
+import { Divider } from "@mui/material";
 
 const style = {
   position: "absolute",
@@ -151,56 +152,65 @@ function Checklist({ userSession, userAccount, pageTitle }) {
           </div>
         </Box>
       </Modal>
-      <p className=" mt-4 mb-8 text-center md:text-base">
-        Complete the following tasks to launch your store!
-      </p>
-      <div className="px-4 md:bg-white md:p-8 md:mx-8 md:rounded md:shadow lg:mx-52">
-        <h3 className="mb-4">Mandatory</h3>
-        <div className="flex flex-col gap-2">
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+      <div className="px-4 mt-4">
+        <h3 className="mb-6">Required steps to launch your shop.</h3>
+        <div className="px-6">
+          <ol className="relative border-s border-gray-200 dark:border-gray-700">
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  isEmailVerified ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>1</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   isEmailVerified && "line-through"
                 }`}
               >
-                {isEmailVerified ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">Verify your email.</p>
+                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Verify email
+                </h3>
               </div>
-              <div>
-                {isEmailVerified ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                A verification email has been sent. Please check your inbox or
+                spam to verify your email, or resend the verification email.
+              </p>
+              <div className="w-fit mt-2">
+                {!isEmailVerified && (
                   <ButtonPrimary
                     handleClick={handleSendVerifyEmail}
                     name="Send"
                   />
                 )}
               </div>
-            </div>
-          </div>
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+            </li>
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  isProductsUploaded ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>2</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   isProductsUploaded && "line-through"
-                } `}
+                }`}
               >
-                {isProductsUploaded ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">Upload your products.</p>
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Upload products
+                </h3>
               </div>
-              <div>
-                {isProductsUploaded ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Create products or import products from your Etsy or Shopify
+                store.
+              </p>
+              <div className="w-fit mt-2">
+                {!isProductsUploaded && (
                   <Link
                     href="/app/account/inventory/products"
                     className="mt-4 h-8"
@@ -209,27 +219,30 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   </Link>
                 )}
               </div>
-            </div>
-          </div>
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+            </li>
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  isDeliverySet ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>3</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   isDeliverySet && "line-through"
                 }`}
               >
-                {isDeliverySet ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">Set up your delivery details.</p>
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Set up delivery details
+                </h3>
               </div>
-              <div>
-                {/* //create a link to set delivery details */}
-                {isDeliverySet ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Offer delivery, pickup, or both? Set up your delivery settings.
+              </p>
+              <div className="w-fit mt-2">
+                {!isDeliverySet && (
                   <Link
                     href="/app/account/my-shop/fulfillment"
                     className="mt-4 h-8"
@@ -238,58 +251,30 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   </Link>
                 )}
               </div>
-            </div>
-          </div>
-          {requireAvailability && (
-            <div className={`${styles.checklist}`}>
-              <div className={`${styles.task_group} ${styles.flex}`}>
-                <div
-                  className={`${styles.task} ${styles.flex} ${
-                    isAvailabilitySet && "line-through"
-                  }`}
-                >
-                  {isAvailabilitySet ? (
-                    <CheckCircleOutlineIcon fontSize="small" color="success" />
-                  ) : (
-                    <ClearIcon fontSize="small" color="disabled" />
-                  )}
-                  <p className="text-sm">Set your availabilites.</p>
-                </div>
-                <div>
-                  {/* //create a link to set delivery details */}
-                  {isAvailabilitySet ? (
-                    <p className="text-sm font-light">Done</p>
-                  ) : (
-                    <Link
-                      href="/app/account/my-shop/availability"
-                      className="mt-4 h-8"
-                    >
-                      <ButtonPrimary name="Go" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+            </li>
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  isPaymentsSet ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>4</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   isPaymentsSet && "line-through"
                 }`}
               >
-                {isPaymentsSet ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">Set up your payments.</p>
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Set up payments
+                </h3>
               </div>
-              <div>
-                {/* //create a link to set payment details */}
-                {isPaymentsSet ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Credit, cash, venmo, zelle, afterpay, etc. Set up your payment.
+              </p>
+              <div className="w-fit mt-2">
+                {!isPaymentsSet && (
                   <Link
                     href="/app/account/my-shop/payments"
                     className="mt-4 h-8"
@@ -298,57 +283,75 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   </Link>
                 )}
               </div>
-            </div>
-          </div>
-          {/* <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
-              <div
-                className={`${styles.task} ${styles.flex} ${
-                  hasViewedSupportChannels && "line-through"
-                }`}
-              >
-                {hasViewedSupportChannels ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">See how to get support.</p>
-              </div>
-              <div>
-                {hasViewedSupportChannels ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
-                  <Link href="/app/account/support" className="mt-4 h-8">
-                    <ButtonPrimary name="Go" />
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div> */}
+            </li>
+            {requireAvailability && (
+              <li className="mb-10 ms-6">
+                <span
+                  className={`absolute flex items-center justify-center w-6 h-6 ${
+                    isAvailabilitySet ? "bg-gray-300" : "bg-purple-300"
+                  } rounded-full -start-3 ring-2 ring-gray-900`}
+                >
+                  <p>5</p>
+                </span>
+                <div
+                  className={`${styles.task} ${styles.flex} ${
+                    isAvailabilitySet && "line-through"
+                  }`}
+                >
+                  <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                    Set your availabilities
+                  </h3>
+                </div>
+
+                <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                  Set your availabilities to allow customers to select a pickup
+                  date or delivery date. Specific times can also be set.
+                </p>
+
+                <div className="w-fit mt-2">
+                  {!isAvailabilitySet && (
+                    <Link
+                      href="/app/account/my-shop/availability"
+                      className="mt-4 h-8"
+                    >
+                      <ButtonPrimary name="Go" />
+                    </Link>
+                  )}
+                </div>
+              </li>
+            )}
+          </ol>
         </div>
       </div>
 
-      <div className="px-4 mt-8 md:bg-white md:p-8 md:mx-8 md:rounded md:shadow lg:mx-52">
-        <h3 className="mb-4">Suggested</h3>
-        <div className="flex flex-col gap-2">
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+      <Divider />
+      <div className="px-4 mt-8 pb-20">
+        <h3 className="mb-6">Suggested steps</h3>
+        <div className="px-6">
+          <ol className="relative border-s border-gray-200 dark:border-gray-700">
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  hasLogo && hasBanner ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>1</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   hasLogo && hasBanner && "line-through"
                 }`}
               >
-                {hasLogo && hasBanner ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">Update profile banner &amp; logo.</p>
+                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Update profile banner &amp; logo
+                </h3>
               </div>
-              <div>
-                {hasLogo && hasBanner ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Upload a banner and logo image to your shop.
+              </p>
+              <div className="w-fit">
+                {!hasLogo && !hasBanner && (
                   <Link
                     href="/app/account/my-shop/profile"
                     className="mt-4 h-8"
@@ -357,33 +360,37 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   </Link>
                 )}
               </div>
-            </div>
-          </div>
-          <div className={`${styles.checklist}`}>
-            <div className={`${styles.task_group} ${styles.flex}`}>
+            </li>
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  hasViewedShareStore ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>2</p>
+              </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
                   hasViewedShareStore && "line-through"
                 }`}
               >
-                {hasViewedShareStore ? (
-                  <CheckCircleOutlineIcon fontSize="small" color="success" />
-                ) : (
-                  <ClearIcon fontSize="small" color="disabled" />
-                )}
-                <p className="text-sm">View live shop & share store.</p>
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  View &amp; share shop
+                </h3>
               </div>
-              <div>
-                {hasViewedShareStore ? (
-                  <p className="text-sm font-light">Done</p>
-                ) : (
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Share your shop link or QR code to your customers.
+              </p>
+              <div className="w-fit">
+                {!hasViewedShareStore && (
                   <Link href="/app/account/my-shop/share" className="mt-4 h-8">
                     <ButtonSecondary name="Go" />
                   </Link>
                 )}
               </div>
-            </div>
-          </div>
+            </li>
+          </ol>
         </div>
       </div>
     </div>

@@ -271,7 +271,7 @@ function MyShop({ userAccount }) {
         <div className="lg:w-1/2">
           <ShopBio isOwner={true} userAccount={userAccount} />
         </div>
-        <div className=" lg:mt-12 lg:w-1/2">
+        <div className="mt-4 lg:mt-12 lg:w-1/2">
           <ShopFulfillment isOwner={true} userAccount={userAccount} />
         </div>
       </div>

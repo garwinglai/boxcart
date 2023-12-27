@@ -55,12 +55,12 @@ function OrderReview({
     } = order;
 
     return (
-      <div className="pb-4 mx-4 border-b">
-        <h3 className="font-medium mt-4 mb-2">Order Details:</h3>
-        <div className="flex flex-col gap-2 px-2">
+      <div className="pb-4">
+        <h3 className="font-medium mt-4 mb-2 text-base">Order Details:</h3>
+        <div className="flex flex-col gap-2">
           {!hideForDate && requireOrderDate && (
-            <div className={`${styles.flex} ${styles.review_context}`}>
-              <p>
+            <div className="flex justify-between items-center">
+              <p className="text-sm">
                 <b>For date:</b>
               </p>
               <p className="text-sm font-light">
@@ -69,15 +69,15 @@ function OrderReview({
               </p>
             </div>
           )}
-          <div className={`${styles.flex} ${styles.review_context}`}>
-            <p>
+          <div className="flex justify-between items-center">
+            <p className="text-sm">
               <b>Fulfillment:</b>
             </p>
             <p className="text-sm font-light">{fulfillmentDisplay}</p>
           </div>
           {fulfillmentType === 0 && (
-            <div className={`${styles.flex} ${styles.review_context}`}>
-              <p>
+            <div className="flex justify-between items-center">
+              <p className="text-sm">
                 <b>Delivery address:</b>
               </p>
               <p className="text-sm font-light">{deliveryAddress}</p>
@@ -85,8 +85,8 @@ function OrderReview({
           )}
 
           {fulfillmentType === 1 && (
-            <div className={`${styles.flex} ${styles.review_context}`}>
-              <p className="pr-4">
+            <div className="flex justify-between gap-4 items-center">
+              <p className="pr-4 text-sm">
                 <b>Pickup address:</b>
               </p>
               <p className="text-sm font-light text-right">{pickupAddress}</p>
@@ -94,8 +94,8 @@ function OrderReview({
           )}
           {fulfillmentType === 1 && pickupNote && (
             <div>
-              <div className={`${styles.flex} ${styles.review_context}`}>
-                <p className="pr-4">
+              <div className="flex justify-between items-center">
+                <p className="pr-4 text-sm">
                   <b>Note:</b>
                 </p>
                 <p className="text-sm font-light text-right">{pickupNote}</p>
@@ -108,11 +108,11 @@ function OrderReview({
   }
 
   return (
-    <div className="py-6 mx-4 border-b">
-      <h3 className="font-medium mb-2">Order Details:</h3>
-      <div className="flex flex-col gap-2 px-2">
+    <div className="py-6">
+      <h3 className="font-medium mb-2 text-base">Order Details:</h3>
+      <div className="flex flex-col gap-2">
         {hydrated && !hideForDate && requireOrderDate && (
-          <div className={`${styles.flex} ${styles.review_context}`}>
+          <div className="flex justify-between items-center">
             <p className="text-sm">For date:</p>
             <div className="flex items-center gap-2">
               <p className="text-xs font-light">
@@ -132,7 +132,7 @@ function OrderReview({
             </div>
           </div>
         )}
-        <div className={`${styles.flex} ${styles.review_context}`}>
+        <div className="flex justify-between items-center">
           <p className="text-sm">Fulfillment:</p>
           <p className="text-xs font-light">
             {hydrated && hideForDate ? "download" : fulfillmentDisplay}
@@ -157,7 +157,7 @@ function OrderReview({
         )}
         {hydrated && !hideForDate && fulfillmentType === 1 && (
           <div>
-            <div className={`${styles.flex} ${styles.review_context}`}>
+            <div className="flex justify-between gap-2 items-center">
               <p className="text-sm">Pickup address:</p>
               <p className="text-xs font-light text-right">{pickupAddress}</p>
             </div>
@@ -165,7 +165,7 @@ function OrderReview({
         )}
         {hydrated && fulfillmentType === 1 && pickupNote && (
           <div>
-            <div className={`${styles.flex} ${styles.review_context}`}>
+            <div className="flex justify-between items-center">
               <p className="text-sm">Note:</p>
               <p className="text-xs font-light text-right">{pickupNote}</p>
             </div>

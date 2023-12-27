@@ -9,13 +9,18 @@ export default async function handler(req, res) {
       reviewData,
       accountId,
       productId,
+      isProductDigital,
       customerId,
       productData,
       accountData,
+      shopperId,
     } = body;
     const accId = parseInt(accountId);
     const prodId = parseInt(productId);
     const custId = parseInt(customerId);
+    const shopId = shopperId ? parseInt(shopperId) : null;
+
+    console.log("isProductDigital", isProductDigital);
 
     const promises = [];
 
@@ -27,27 +32,53 @@ export default async function handler(req, res) {
             id: accId,
           },
         },
-        product: {
-          connect: {
-            id: prodId,
-          },
-        },
+        product: !isProductDigital
+          ? {
+              connect: {
+                id: prodId,
+              },
+            }
+          : undefined,
+        digitalProduct: isProductDigital
+          ? {
+              connect: {
+                id: prodId,
+              },
+            }
+          : undefined,
         customer: {
           connect: {
             id: custId,
           },
         },
+        shopperAccount: shopId
+          ? {
+              connect: {
+                id: shopId,
+              },
+            }
+          : undefined,
       },
     });
     promises.push(review);
 
-    const product = prisma.product.update({
-      where: {
-        id: prodId,
-      },
-      data: productData,
-    });
-    promises.push(product);
+    if (isProductDigital) {
+      const product = prisma.digitalProduct.update({
+        where: {
+          id: prodId,
+        },
+        data: productData,
+      });
+      promises.push(product);
+    } else {
+      const product = prisma.product.update({
+        where: {
+          id: prodId,
+        },
+        data: productData,
+      });
+      promises.push(product);
+    }
 
     const account = prisma.account.update({
       where: {
@@ -68,6 +99,7 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true, updatedReview });
     } catch (error) {
+      console.log("error", error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         const prismaError = {
           code: error.code,
@@ -80,7 +112,6 @@ export default async function handler(req, res) {
         res.status(500).json({ success: false, error: prismaError.code });
         return;
       }
-      console.log("error", error);
 
       res.status(500).json({ success: false, error: "error" });
     }

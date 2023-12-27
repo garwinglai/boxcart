@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Box from "@mui/material/Box";
@@ -6,8 +6,11 @@ import Modal from "@mui/material/Modal";
 import ButtonPrimaryStorefront from "../global/buttons/ButtonPrimaryStorefront";
 import Drawer from "@mui/material/Drawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { useAccountStore } from "@/lib/store";
+import { useAccountStore, useShopperStore } from "@/lib/store";
 import { saveContact } from "@/helper/client/api/contacts";
+import ButtonSecondaryStorefront from "../global/buttons/ButtonSecondaryStorefront";
+import CredentialsModal from "../user/auth/CredentialsModal";
+import { useSession } from "next-auth/react";
 
 const style = {
   position: "absolute",
@@ -15,8 +18,11 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "95%",
-  "@media (min-width: 769px)": {
+  "@media (min-width: 426px)": {
     width: "50%",
+  },
+  "@media (min-width: 769px)": {
+    width: "40%",
   },
   "@media (min-width: 1025px)": {
     width: "30%",
@@ -27,7 +33,16 @@ const style = {
   p: 4,
 };
 
-function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
+function ShopHeader({
+  isOwner,
+  handleOpenSnackbar,
+  userAccount,
+  handleOpenSignupModal,
+  handleCloseSignupModal,
+  isSignUpModalOpen,
+}) {
+  const { data: session, status } = useSession();
+
   const {
     id: accountId,
     logoImage,
@@ -36,6 +51,7 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
   } = userAccount ? userAccount : {};
 
   const account = useAccountStore((state) => state.account);
+  const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const { subdomain } = account;
 
   const [openMessage, setOpenMessage] = useState({
@@ -55,6 +71,14 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
   const { fName, lName, email, message } = messageValues;
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated" || !session) return;
+
+    const { email } = session.user;
+
+    setCustomerEmail(email);
+  }, [status]);
 
   // Is Owner
   const handleEditProfile = () => {
@@ -122,6 +146,10 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     const payload = {
       customerEmail,
       accountId,
+      shopperId:
+        shopperAccount && shopperAccount.shopperId
+          ? shopperAccount.shopperId
+          : null,
     };
 
     const subscribed = await fetch(apiUrl, {
@@ -140,7 +168,6 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     }
 
     setIsLoading(false);
-    setCustomerEmail("");
     setCustomerEmailSubmitted(true);
     // TODO: send email to customer
   };
@@ -191,6 +218,25 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
     } else {
       handleOpenSnackbar("Message failed");
     }
+  };
+
+  const connectSubscriberToShopperAccount = async (shopperAccountId) => {
+    console.log("customerEmail", customerEmail);
+    const apiRoute = "/api/public/storefront/connect-sub-to-shopper";
+    const payload = {
+      customerEmail,
+      shopperId: shopperAccountId,
+    };
+
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const { errorCode, message } = await response.json();
   };
 
   return (
@@ -291,25 +337,50 @@ function ShopHeader({ isOwner, handleOpenSnackbar, userAccount }) {
                   </>
                 ) : (
                   <>
-                    <h4 className="font-light text-center">
-                      Thank&apos;s for the sub!
-                    </h4>
-                    <p className="text-center font-light mt-1">
+                    <h3 className="font-medium text-center">
+                      Thank&apos;s for the sub! 😊
+                    </h3>
+                    {!session && status === "unauthenticated" && (
+                      <p className="text-center my-2 text-sm border-b pb-4">
+                        Create an account to keep track of your subs, orders,
+                        deals, and more!
+                      </p>
+                    )}
+                    <p className="text-xs text-center font-light mt-2">
                       Look out for updates &amp; deals in your email.
                     </p>
-                    <div className="mt-4 h-10">
-                      <ButtonPrimaryStorefront
-                        handleClick={handleSubscriptionSubmitted}
-                        type="button"
-                        name="OK 😊"
-                      />
+                    <div className="flex gap-4 mt-4">
+                      {!session && status === "unauthenticated" && (
+                        <div className="h-10 flex-grow">
+                          <ButtonPrimaryStorefront
+                            handleClick={handleOpenSignupModal}
+                            type="button"
+                            name="Signup"
+                          />
+                        </div>
+                      )}
+                      <div className="h-10 flex-grow">
+                        <ButtonSecondaryStorefront
+                          handleClick={handleSubscriptionSubmitted}
+                          type="button"
+                          name="Close"
+                        />
+                      </div>
                     </div>
                   </>
                 )}
               </form>
             </Box>
           </Modal>
-
+          <CredentialsModal
+            isModalOpen={isSignUpModalOpen}
+            handleClose={handleCloseSignupModal}
+            isSubscribing={true}
+            customerEmail={customerEmail}
+            connectSubscriberToShopperAccount={
+              connectSubscriberToShopperAccount
+            }
+          />
           <Drawer
             anchor={"right"}
             open={openMessage["right"]}

@@ -59,8 +59,8 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
     } = order;
 
     return (
-      <div className="p-6">
-        <h3 className="font-medium">Subtotal:</h3>
+      <div className="">
+        <h3 className="font-medium text-base">Subtotal:</h3>
         <div className={`${styles.subtotal_box} ${styles.flex}`}>
           <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
             <React.Fragment>
@@ -86,8 +86,8 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
   }
 
   return (
-    <div className="px-6 pt-8 pb-8">
-      {!isInCart && <h3 className="font-medium">Subtotal:</h3>}
+    <div className="pt-4">
+      {!isInCart && <h3 className="font-medium text-base">Subtotal:</h3>}
       <div className={`${styles.subtotal_box} ${styles.flex}`}>
         <div className={`${styles.flexCol} ${styles.subtotal_keys}`}>
           {!isInCart ? (

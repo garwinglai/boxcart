@@ -35,6 +35,9 @@ export default function CredentialsModal({
   atCheckout,
   applyFivePercentDiscount,
   cartDetails,
+  isSubscribing,
+  customerEmail,
+  connectSubscriberToShopperAccount,
 }) {
   const { data: session, status } = useSession();
   const setShopperAccount = useShopperStore((state) => state.setShopperAccount);
@@ -64,37 +67,45 @@ export default function CredentialsModal({
   const { firstName, lastName, email, password } = formValues;
   const { openSnackbar, snackMessage } = snackbar;
 
+  // Populating this modal when a user is subscribing to store and wants to create an account
   useEffect(() => {
-    if (!cartDetails) return;
-
-    setFormValues((prev) => ({
-      ...prev,
-      firstName: cartDetails.customerFName ? cartDetails.customerFName : "",
-      lastName: cartDetails.customerLName ? cartDetails.customerLName : "",
-      email: cartDetails.customerEmail ? cartDetails.customerEmail : "",
-    }));
-  }, [cartDetails]);
-
-  useEffect(() => {
-    if (cartDetails) return;
-    if (session) {
+    if (isSubscribing) {
       setFormValues((prev) => ({
         ...prev,
-        email: session.user.email,
-        name: session.user.name,
-        id: session.user.id,
+        email: customerEmail,
       }));
-      setHasBizAccont(true);
-    } else {
-      setFormValues((prev) => ({
-        ...prev,
-        email: "",
-        name: "",
-        id: "",
-      }));
-      setHasBizAccont(false);
+
+      setIsSignIn(false);
+      setIsSignUp(true);
     }
-  }, [session]);
+
+    if (!isSubscribing && cartDetails) {
+      setFormValues((prev) => ({
+        ...prev,
+        firstName: cartDetails.customerFName ? cartDetails.customerFName : "",
+        lastName: cartDetails.customerLName ? cartDetails.customerLName : "",
+        email: cartDetails.customerEmail ? cartDetails.customerEmail : "",
+      }));
+    }
+
+    // if (session) {
+    //   setFormValues((prev) => ({
+    //     ...prev,
+    //     email: session.user.email,
+    //     name: session.user.name,
+    //     id: session.user.id,
+    //   }));
+    //   setHasBizAccont(true);
+    // } else {
+    //   setFormValues((prev) => ({
+    //     ...prev,
+    //     email: "",
+    //     name: "",
+    //     id: "",
+    //   }));
+    //   setHasBizAccont(false);
+    // }
+  }, [cartDetails, isSubscribing, customerEmail]);
 
   const handleChangeAuth = () => {
     setIsSignIn((prev) => !prev);
@@ -102,18 +113,17 @@ export default function CredentialsModal({
 
     if (isSignIn) {
       setHasBizAccont(false);
-
       if (atCheckout) return;
-
       setFormValues((prev) => ({
         ...prev,
-        email: "",
-        name: "",
         id: "",
-        firstName: "",
-        lastName: "",
       }));
     }
+
+    setFormValues((prev) => ({
+      ...prev,
+      password: "",
+    }));
   };
 
   const handleFormChange = (e) => {
@@ -172,6 +182,11 @@ export default function CredentialsModal({
     }
 
     const { user } = connectedShopperAccount;
+
+    if (isSubscribing) {
+      connectSubscriberToShopperAccount(user.shopperAccount.id);
+    }
+
     setShopperAccount({
       userId: user.id,
       shopperId: user.shopperAccount.id,
@@ -181,8 +196,8 @@ export default function CredentialsModal({
       name: user.name,
     });
 
-    if (!atCheckout) {
-      handleOpenAccountModal();
+    if (!atCheckout && !isSubscribing) {
+      handleOpenAccountModal(e);
     }
 
     if (atCheckout && applyFivePercentDiscount) {
@@ -192,8 +207,18 @@ export default function CredentialsModal({
       });
     }
 
+    setFormValues((prev) => ({
+      ...prev,
+      email: "",
+      name: "",
+      id: "",
+      password: "",
+    }));
+    setHasBizAccont(false);
+    setIsSignIn(true);
+    setIsSignUp(false);
     handleClose();
-
+    setIsLoading(false);
     // TODO: display signed in user - jacyk's design
   };
 
@@ -305,12 +330,16 @@ export default function CredentialsModal({
         }
 
         // If signing in not during checkout
-        if (!atCheckout) {
-          handleOpenAccountModal();
+        if (!atCheckout && !isSubscribing) {
+          handleOpenAccountModal(e);
         } else {
           setCartDetails({
             customerEmail: user.email,
           });
+        }
+
+        if (isSubscribing) {
+          connectSubscriberToShopperAccount(shopperAccount.id);
         }
 
         setShopperAccount({
@@ -321,6 +350,16 @@ export default function CredentialsModal({
           email: user.email,
           name: user.name,
         });
+        setFormValues((prev) => ({
+          ...prev,
+          email: "",
+          name: "",
+          id: "",
+          password: "",
+        }));
+        setHasBizAccont(false);
+        setIsSignIn(true);
+        setIsSignUp(false);
         // setHasBizAccont(true);
         handleClose();
         setIsLoading(false);
@@ -404,8 +443,12 @@ export default function CredentialsModal({
         name: user.name,
       });
 
-      if (!atCheckout) {
-        handleOpenAccountModal();
+      if (!atCheckout && !isSubscribing) {
+        handleOpenAccountModal(e);
+      }
+
+      if (isSubscribing) {
+        connectSubscriberToShopperAccount(shopperAccountId);
       }
 
       if (atCheckout && applyFivePercentDiscount) {
@@ -415,6 +458,16 @@ export default function CredentialsModal({
         });
       }
 
+      setFormValues((prev) => ({
+        ...prev,
+        email: "",
+        name: "",
+        id: "",
+        password: "",
+      }));
+      setHasBizAccont(false);
+      setIsSignIn(true);
+      setIsSignUp(false);
       // setHasBizAccont(true);
       handleClose();
       setIsLoading(false);
@@ -508,6 +561,7 @@ export default function CredentialsModal({
                 Log in to create and connect a shopper account. To sign in with
                 another account, click{" "}
                 <button
+                  type="button"
                   onClick={() => {
                     setIsSignIn(true);
                     setIsSignUp(false);
@@ -519,6 +573,7 @@ export default function CredentialsModal({
                 </button>
                 . To sign up with another account, click{" "}
                 <button
+                  type="button"
                   onClick={() => {
                     setHasBizAccont(false);
                     setIsSignIn(false);

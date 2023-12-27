@@ -1,18 +1,16 @@
 import React, { useState } from "react";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/orders/order-history.module.css";
 import Calendar from "@/components/global/designs/Calendar";
-import SearchBar from "@/components/global/designs/SearchBar";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import OrderGridHistory from "@/components/app/orders/OrderGridHistory";
-import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import prisma from "@/lib/prisma";
+import Image from "next/image";
+import orders_icon from "@/public/images/icons/user/orders_icon.png";
 
 function AllOrders({ orders }) {
   const [snackbarValues, setSnackbarValues] = useState({
@@ -235,6 +233,17 @@ AllOrders.getLayout = function getLayout(
 };
 
 AllOrders.pageTitle = "Order History";
-AllOrders.pageIcon = <FormatListBulletedIcon />;
+AllOrders.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={orders_icon}
+      alt="orders icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 AllOrders.pageRoute = "history";
 AllOrders.mobilePageRoute = "history";

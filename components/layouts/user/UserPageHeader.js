@@ -30,12 +30,12 @@ function UserPageHeader({ pageTitle, pageIcon, pageRoute }) {
   };
 
   return (
-    <div className="px-4 py-2 flex justify-between items-center w-full border-b">
+    <div className="sticky top-0 bg-white z-10 px-4 py-2 flex justify-between items-center w-full border-b">
       <div className="flex items-center gap-2">
         {pageIcon}
         <h1 className="text-base md:text-lg">{pageTitle}</h1>
       </div>
-      <p className="hidden text-gray-400 text-sm md:block">Powered by Beavr</p>
+      <p className="hidden text-gray-400 text-sm md:block">Powered by BoxCart</p>
       <div className="lg:hidden">
         <IconButton onClick={handleOpenMenu}>
           <AccountCircleIcon />

@@ -376,7 +376,7 @@ function UserMenu({ pageRoute, isMobileView, handleCloseMenu }) {
       </div>
       {isMobileView && (
         <p className="absolute bottom-0 right-0 p-2 text-xs text-gray-500">
-          Powered by Beavr
+          Powered by BoxCart
         </p>
       )}
     </div>

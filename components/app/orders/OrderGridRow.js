@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import styles from "@/styles/components/orders/order-grid-row.module.css";
-import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
-import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import { IconButton } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
@@ -9,10 +7,6 @@ import OrderCard from "./OrderCard";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import order_icon from "@/public/images/icons/order_icon.png";
 import Image from "next/image";
-import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
-import ButtonFourth from "@/components/global/buttons/ButtonFourth";
-import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import ButtonThird from "@/components/global/buttons/ButtonThird";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
@@ -24,18 +18,9 @@ function OrderGridRow({
   handleOpenSnackbar,
 }) {
   const {
-    customerEmail,
-    customerPhone,
-    fulfillmentDisplay,
-    deliveryAddress,
     totalItemsOrdered,
     totalDisplay,
     totalPenny,
-    fulfillmentType,
-    requireOrderDate,
-    requireOrderTime,
-    orderForDateDisplay,
-    orderForTimeDisplay,
     orderId,
     createdAt,
     id,
@@ -162,19 +147,15 @@ function OrderGridRow({
     setState({ ...state, [anchor]: open });
   };
 
-  const handleRowClick = () => {
-    toggleDrawer("right", true);
-  };
-
-  const handleAction = () => {};
-
   return (
     <tr className={`${styles.table_row}`}>
       <td
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">{id}</p>
+        <p className="text-xs text-ellipsis w-2/3 overflow-hidden whitespace-nowrap">
+          {orderId}
+        </p>
       </td>
       <td
         className={`${styles.table_data}`}
@@ -301,9 +282,7 @@ function OrderGridRow({
           open={state["right"]}
           onClose={toggleDrawer("right", false)}
         >
-          <div
-            className={`${styles.drawer_box} md:w-[60vw] lg:w-[45vw] xl:w-[35vw]`}
-          >
+          <div className="pb-4 overflow-scroll h-full w-screen md:w-[60vw] lg:w-[45vw] xl:w-[35vw] bg-gray-50 ">
             <div className={`${styles.flex} ${styles.order_drawer_title_box}`}>
               <div
                 className={`${styles.flex} ${styles.order_drawer_title_group}`}

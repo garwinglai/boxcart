@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import DeliveryDiningRoundedIcon from "@mui/icons-material/DeliveryDiningRounded";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -31,6 +30,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useChecklistStore } from "@/lib/store";
+import shipping_icon from "@/public/images/icons/account/shipping_icon.png";
 
 const styleMobile = {
   position: "absolute",
@@ -1276,6 +1276,17 @@ Fulfillment.getLayout = function getLayout(
 };
 
 Fulfillment.pageTitle = "Fulfillment";
-Fulfillment.pageIcon = <DeliveryDiningRoundedIcon />;
+Fulfillment.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={shipping_icon}
+      alt="shipping icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Fulfillment.pageRoute = "fulfillment";
 Fulfillment.mobilePageRoute = "fulfillment";

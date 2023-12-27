@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import money_bag from "@/public/images/icons/money-bag.png";
 import cash_out from "@/public/images/icons/cash-out.png";
 import venmo from "@/public/images/icons/venmo.png";
@@ -25,18 +24,9 @@ import { styled } from "@mui/material/styles";
 import HelpIcon from "@mui/icons-material/Help";
 import money_withdraw from "@/public/images/icons/money-withdraw.png";
 import PayoutGrid from "@/components/app/income/PayoutGrid";
-import { calculateStripePayoutFee } from "@/utils/stripe-fees";
-import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Button from "@mui/material/Button";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import PayoutDetails from "@/components/app/revenue/PayoutDetails";
+import revenue_icon from "@/public/images/icons/account/revenue_icon.png";
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -772,6 +762,17 @@ Revenue.getLayout = function getLayout(
 };
 
 Revenue.pageTitle = "Revenue";
-Revenue.pageIcon = <SavingsOutlinedIcon />;
+Revenue.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={revenue_icon}
+      alt="orders icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Revenue.pageRoute = "revenue";
 Revenue.mobilePageRoute = "revenue";

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import CategoryIcon from "@mui/icons-material/Category";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import ButtonFilter from "@/components/global/buttons/ButtonFilter";
@@ -10,11 +9,11 @@ import Image from "next/image";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
-import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import open_folder from "@/public/images/icons/open_folder.png";
+import category_icon from "@/public/images/icons/account/category_icon_8.png";
 
 function Categories({ userAccount }) {
   // Props
@@ -270,6 +269,17 @@ Categories.getLayout = function getLayout(
 };
 
 Categories.pageTitle = "Category";
-Categories.pageIcon = <CategoryIcon />;
+Categories.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={category_icon}
+      alt="category icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Categories.pageRoute = "category";
 Categories.mobilePageRoute = "category";

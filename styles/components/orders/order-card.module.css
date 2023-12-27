@@ -151,7 +151,3 @@
   opacity: 100;
   transition: all 0.2s ease-in;
 }
-
-.card_details_expanded > h3 {
-  padding: 1rem 0 0 1.5rem;
-}

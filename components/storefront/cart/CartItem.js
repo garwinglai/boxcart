@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "../../../styles/components/storefront/cart/cartitem.module.css";
 import Image from "next/image";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import candle_2 from "@/public/images/temp/candle_2.jpeg";
 import AddIcon from "@mui/icons-material/Add";
-import candle_4 from "@/public/images/temp/candle_4.jpeg";
 import { IconButton } from "@mui/material";
 import {
   useCartStore,
@@ -12,8 +10,32 @@ import {
   useOptionsQuantityStore,
 } from "@/lib/store";
 import RemoveIcon from "@mui/icons-material/Remove";
-import Link from "next/link";
 import { useRouter } from "next/router";
+import ButtonSecondaryStorefront from "@/components/global/buttons/ButtonSecondaryStorefront";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import ButtonPrimaryStorefront from "@/components/global/buttons/ButtonPrimaryStorefront";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "95%",
+  "@media (min-width: 426px)": {
+    width: "50%",
+  },
+  "@media (min-width: 769px)": {
+    width: "40%",
+  },
+  "@media (min-width: 1025px)": {
+    width: "30%",
+  },
+  bgcolor: "background.paper",
+  borderRadius: "8px",
+  boxShadow: 24,
+  p: 4,
+};
 
 function CartItem({
   isDesktop,
@@ -25,6 +47,8 @@ function CartItem({
   notEnoughStockItems,
   notEnoughStockOptionItems,
   query,
+  idx,
+  isShopper,
 }) {
   const productsStore = useProductQuantityStore((state) => state.products);
   const addProductQuantity = useProductQuantityStore(
@@ -83,6 +107,9 @@ function CartItem({
           outOfStockOptionId == cartItem.addToCartTempItemId
       )
   );
+  const [openDownloadModal, setOpenDownloadModal] = useState(false);
+  const handleOpenDownloadModal = () => setOpenDownloadModal(true);
+  const handleCloseDownloadModal = () => setOpenDownloadModal(false);
 
   const {
     push,
@@ -405,8 +432,22 @@ function CartItem({
     }
   };
 
+  const handleDownloadDigitalProduct = (e) => {
+    const {
+      digitalProduct: { digitalFiles },
+    } = cartItem;
+    const { uploadedFile } = digitalFiles[0];
+
+    // Open the PDF URL in a new window
+    window.open(uploadedFile, "_blank");
+  };
+
   return (
-    <div className="bg-white px-6 py-4 flex flex-col gap-2 border-b">
+    <div
+      className={`bg-white py-4 flex flex-col gap-2 ${
+        idx === 0 ? "" : "border-t"
+      }`}
+    >
       <div className={`flex gap-1`}>
         {productImage || defaultImage ? (
           <div className="min-w-[5rem] h-[5rem] relative">
@@ -435,7 +476,7 @@ function CartItem({
             />
           </div>
         )}
-        <div className="flex flex-col pl-1 flex-grow">
+        <div className="flex flex-col pl-1 flex-grow ">
           {showNotEnoughStock && (
             <p className="text-sm font-light text-[color:var(--error)] -mb-2">
               Not enough stock.
@@ -446,8 +487,8 @@ function CartItem({
               Not enough stock.
             </p>
           )}
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium mb-1">{productName}</h4>
+          <div className="flex justify-between items-center gap-4">
+            <h4 className="text-base font-medium mb-1">{productName}</h4>
             {!isBusiness && !orderSubmitted && productType === 0 && (
               <button
                 onClick={handleEditCartItem}
@@ -457,49 +498,11 @@ function CartItem({
               </button>
             )}
           </div>
-          {productType === 1 && (
-            <div className="flex gap-2">
-              <p className="font-bold text-sm">Type:</p>
-              <p className="font-light text-sm">digital</p>
-            </div>
-          )}
-
-          {orderOptionGroups &&
-            orderOptionGroups.length > 0 &&
-            orderOptionGroups.map((optionGroup, idx) => {
-              const { optionGroupName, options, optionsDisplay } = optionGroup;
-              if (!optionGroupName) return;
-              return (
-                <div key={idx} className="flex gap-2">
-                  <p className="font-medium text-sm">{optionGroupName}:</p>
-                  <p className="font-light text-sm">{optionsDisplay}</p>
-                </div>
-              );
-            })}
-          {orderQuestionsAnswers &&
-            orderQuestionsAnswers.length > 0 &&
-            orderQuestionsAnswers.map((questionItem, idx) => {
-              const { question, answer } = questionItem;
-
-              return (
-                <div key={idx} className="gap-2">
-                  <p className="font-medium text-sm">{question}</p>
-                  <p className="font-light text-sm">{answer}</p>
-                </div>
-              );
-            })}
-          {customNote && (
-            <div className="flex gap-2">
-              <p className="font-medium text-sm">Note:</p>
-              <p className="font-light text-sm">{customNote}</p>
-            </div>
-          )}
-
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center w-full">
             {isBusiness || orderSubmitted ? (
               <div className="flex gap-2 items-center  ">
-                <p className="text-sm font-bold">Qty:</p>
-                <p className="text-sm font-light">{quantity}</p>
+                <p className="text-xs">Qty:</p>
+                <p className="text-xs">{quantity}</p>
               </div>
             ) : (
               <div className="flex gap-1 items-center  ">
@@ -527,9 +530,86 @@ function CartItem({
                 </IconButton>
               </div>
             )}
-            <h5 className="font-medium">{priceDisplay}</h5>
+            <h5 className="text-sm font-medium text-right">{priceDisplay}</h5>
           </div>
+          {isShopper && isBusiness && productType === 1 && (
+            <div className="mt-2 ml-auto w-[7rem]">
+              <ButtonSecondaryStorefront
+                handleClick={handleOpenDownloadModal}
+                name="Download"
+                type="button"
+              />
+              <Modal
+                open={openDownloadModal}
+                onClose={handleCloseDownloadModal}
+                aria-labelledby="Download product"
+                aria-describedby="Please ensure to download product."
+              >
+                <Box sx={style}>
+                  <div>
+                    <h3 className="text-base">Product download</h3>
+                    <p className="text-sm my-4">
+                      Please download the product and save to your computer. If
+                      you do not download the product, you may no longer be able
+                      to view it in the future if the business decides to remove
+                      it from their store.
+                    </p>
+                    <div className="h-8">
+                      <ButtonPrimaryStorefront
+                        name="View download"
+                        handleClick={handleDownloadDigitalProduct}
+                      />
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+            </div>
+          )}
         </div>
+      </div>
+      <div>
+        {(productType === 1 ||
+          (orderOptionGroups && orderOptionGroups.length > 0) ||
+          (orderQuestionsAnswers && orderQuestionsAnswers.length > 0) ||
+          customNote) && <p className="text-sm font-medium">Options:</p>}
+
+        {productType === 1 && (
+          <div className="flex gap-2">
+            <p className="text-xs">Type:</p>
+            <p className="text-xs">download</p>
+          </div>
+        )}
+
+        {orderOptionGroups &&
+          orderOptionGroups.length > 0 &&
+          orderOptionGroups.map((optionGroup, idx) => {
+            const { optionGroupName, options, optionsDisplay } = optionGroup;
+            if (!optionGroupName) return;
+            return (
+              <div key={idx} className="flex gap-2">
+                <p className=" text-xs">{optionGroupName}:</p>
+                <p className=" text-xs">{optionsDisplay}</p>
+              </div>
+            );
+          })}
+        {orderQuestionsAnswers &&
+          orderQuestionsAnswers.length > 0 &&
+          orderQuestionsAnswers.map((questionItem, idx) => {
+            const { question, answer } = questionItem;
+
+            return (
+              <div key={idx} className="flex gap-2">
+                <p className="text-xs">{question}</p>
+                <p className="text-xs">{answer}</p>
+              </div>
+            );
+          })}
+        {customNote && (
+          <div className="flex gap-2">
+            <p className="text-xs">Note:</p>
+            <p className="text-xs">{customNote}</p>
+          </div>
+        )}
       </div>
       {productType === 0 &&
         orderExampleImages &&

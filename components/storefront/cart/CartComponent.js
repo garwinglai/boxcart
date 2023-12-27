@@ -373,7 +373,7 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
           </IconButton>
         </div>
       </div>
-      <div className="pb-8 overflow-y-scroll">
+      <div className="pb-8 p-2 overflow-y-scroll">
         {cartLength === 0 ? (
           <div className="mt-28 flex flex-col items-center gap-2 justify-center lg:w-full">
             <Image
@@ -385,24 +385,32 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
           </div>
         ) : (
           <React.Fragment>
-            <h3 className="font-medium pt-4 px-4">Items:</h3>
-            {cart.map((item, idx) => {
-              const { addToCartTempItemId } = item;
-              return (
-                <CartItem
-                  key={addToCartTempItemId}
-                  cartItem={item}
-                  isDesktop={isDesktop}
-                  toggleDrawer={toggleDrawer}
-                  handleOpenSnackBar={handleOpenSnackBar}
-                  notEnoughStockItems={notEnoughStockItems}
-                  notEnoughStockOptionItems={notEnoughStockOptionItems}
-                  query={query}
-                />
-              );
-            })}
-            <OrderReview closeDrawer={toggleDrawer} isMobile={true} />
-            <OrderSubtotal isInCart={true} />
+            <div className="p-2">
+              <h3 className="font-medium text-base">Items:</h3>
+              {cart.map((item, idx) => {
+                const { addToCartTempItemId } = item;
+                return (
+                  <CartItem
+                    key={addToCartTempItemId}
+                    cartItem={item}
+                    isDesktop={isDesktop}
+                    toggleDrawer={toggleDrawer}
+                    handleOpenSnackBar={handleOpenSnackBar}
+                    notEnoughStockItems={notEnoughStockItems}
+                    notEnoughStockOptionItems={notEnoughStockOptionItems}
+                    query={query}
+                    idx={idx}
+                  />
+                );
+              })}
+            </div>
+            <div className="border-y px-2">
+              <OrderReview closeDrawer={toggleDrawer} isMobile={true} />
+            </div>
+
+            <div className="px-2">
+              <OrderSubtotal isInCart={true} />
+            </div>
           </React.Fragment>
         )}
       </div>

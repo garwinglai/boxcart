@@ -51,6 +51,7 @@ function Sites({ siteData, shopper }) {
     id: accountId,
   } = siteData || {};
 
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [allInitialProducts, setAllInitialProducts] = useState(
     products && digitalProducts ? [...products, ...digitalProducts] : []
   );
@@ -143,6 +144,9 @@ function Sites({ siteData, shopper }) {
       pickupNote,
     });
   }, []);
+
+  const handleOpenSignupModal = () => setIsSignUpModalOpen(true);
+  const handleCloseSignupModal = () => setIsSignUpModalOpen(false);
 
   const getProductsByCategory = async (categoryId, categoryName) => {
     setIsLoading(true);
@@ -298,6 +302,9 @@ function Sites({ siteData, shopper }) {
           isOwner={false}
           handleOpenSnackbar={handleOpenSnackbar}
           userAccount={siteData}
+          handleOpenSignupModal={handleOpenSignupModal}
+          handleCloseSignupModal={handleCloseSignupModal}
+          isSignUpModalOpen={isSignUpModalOpen}
         />
 
         <div className="md:flex md:justify-between md:items-end lg:px-28">

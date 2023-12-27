@@ -12,7 +12,6 @@ import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import Avatar from "@mui/material/Avatar";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import CredentialsModal from "@/components/user/auth/CredentialsModal";
-import { useSession } from "next-auth/react";
 import AccountPopup from "@/components/user/account/AccountPopup";
 import { blue } from "@mui/material/colors";
 
@@ -23,7 +22,6 @@ function stringAvatar(name) {
 }
 
 function ShopNavTop() {
-  const { data: session, status } = useSession();
   const hydrated = useHasHydrated();
   const cart = useCartStore((state) => state.cart);
   const shopper = useShopperStore((state) => state.shopperAccount);
@@ -38,7 +36,7 @@ function ShopNavTop() {
   const popupOpen = Boolean(popupAnchorElement);
   const anchorId = popupOpen ? "simple-popover" : undefined;
 
-  const { push, pathname, query, asPath } = useRouter();
+  const { pathname, query } = useRouter();
   const { site } = query;
 
   useEffect(() => {

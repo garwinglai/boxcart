@@ -1939,7 +1939,7 @@ function ProductDrawer({
   );
 
   return (
-    <Drawer anchor={"right"} open={state["right"]} onClose={handleCloseDrawer}>
+    <Drawer anchor={"right"} open={state["right"]}>
       <Snackbar
         open={isSnackbarOpen}
         autoHideDuration={6000}

@@ -17,6 +17,7 @@ import {
   useCartStore,
   useProductQuantityStore,
   useOptionsQuantityStore,
+  useShopperStore,
 } from "@/lib/store";
 import { nanoid } from "nanoid";
 import Link from "next/link";
@@ -30,6 +31,7 @@ function EditAddToCartProduct({ product }) {
   const { account, id: productId } = product || {};
   const { id: accountId } = account || {};
 
+  const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const cart = useCartStore((state) => state.cart);
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
@@ -445,7 +447,7 @@ function EditAddToCartProduct({ product }) {
   };
 
   function handleBack() {
-    push("/");
+    push(`/${site}`);
   }
 
   function handleShare() {
@@ -1295,8 +1297,8 @@ function EditAddToCartProduct({ product }) {
           Have something to add? Let us know here!
         </label>
         <textarea
-          name="customNote"
-          id="customNote"
+          name="customerNote"
+          id="customerNote"
           value={customerNote}
           onChange={handleCustomerNoteChange}
           rows={5}
@@ -1319,8 +1321,8 @@ function EditAddToCartProduct({ product }) {
             </p>
           </div>
           <textarea
-            name="customNote"
-            id="customNote"
+            name="questions"
+            id="questions"
             required={isRequired}
             value={answer}
             onChange={handleCustomerQuestionChange(id, isRequired)}
@@ -1680,6 +1682,7 @@ function EditAddToCartProduct({ product }) {
             account={account}
             reviews={reviews}
             handleOpenSnackbar={handleOpenSnackbar}
+            shopperAccount={shopperAccount}
           />
         </div>
         <div className="sticky bottom-0 p-4 mt-20 flex flex-col gap-2 bg-white border-t border-[color:var(--gray-light-med)] md:border-none md:mt-8">
@@ -1705,6 +1708,7 @@ function EditAddToCartProduct({ product }) {
             account={account}
             reviews={reviews}
             handleOpenSnackbar={handleOpenSnackbar}
+            shopperAccount={shopperAccount}
           />
         </div>
       </div>

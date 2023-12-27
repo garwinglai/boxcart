@@ -140,7 +140,9 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
       <div className="flex justify-between bg-[color:var(--white)] items-center py-2 px-4 border-b border-[color:var(--gray-light)] shadow-md">
         <div className="flex gap-2 items-center">
           {pageIcon}
-          <h3 className="text-[color:var(--black-design)] ">{pageTitle}</h3>
+          <h3 className="text-[color:var(--black-design)] text-sm md:text-base">
+            {pageTitle}
+          </h3>
         </div>
 
         <div className="flex items-center">

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AddCardRoundedIcon from "@mui/icons-material/AddCardRounded";
 import AppLayout from "@/components/layouts/AppLayout";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
 import Link from "next/link";
@@ -31,6 +30,7 @@ import zelle from "@/public/images/icons/zelle.png";
 import cash from "@/public/images/icons/cash.png";
 import credit_card from "@/public/images/icons/credit-card.png";
 import Image from "next/image";
+import payments_icon from "@/public/images/icons/account/payments_icon.png";
 
 const styleMobile = {
   position: "absolute",
@@ -1532,9 +1532,9 @@ export default Payments;
 export async function getServerSideProps(context) {
   return isAuth(context, async (userSession) => {
     const { user, expires } = userSession;
-    const { name, email, id } = user;
+    // const { name, email, id } = user;
     let serializedAccount = {};
-
+    const email = "Nuffs1990@gmail.com";
     try {
       const userAccount = await prisma.account.findUnique({
         where: {
@@ -1560,6 +1560,7 @@ export async function getServerSideProps(context) {
       }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
+      console.log("serializedAccount", serializedAccount);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
     }
@@ -1593,6 +1594,17 @@ Payments.getLayout = function getLayout(
 };
 
 Payments.pageTitle = "Payments";
-Payments.pageIcon = <AddCardRoundedIcon />;
+Payments.pageIcon = (
+  <div className="relative w-8 h-8">
+    <Image
+      src={payments_icon}
+      alt="payment icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
+);
 Payments.pageRoute = "payments";
 Payments.mobilePageRoute = "payments";

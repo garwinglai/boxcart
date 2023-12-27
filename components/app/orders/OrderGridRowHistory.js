@@ -198,7 +198,9 @@ function OrderGridRowHistory({
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">{id}</p>
+        <p className="text-xs text-ellipsis w-2/3 whitespace-nowrap overflow-hidden">
+          {orderId}
+        </p>
       </td>
       <td
         className={`${styles.table_data}`}
@@ -327,9 +329,7 @@ function OrderGridRowHistory({
           open={state["right"]}
           onClose={toggleDrawer("right", false)}
         >
-          <div
-            className={`${styles.drawer_box} md:w-[60vw] lg:w-[45vw] xl:w-[35vw]`}
-          >
+          <div className="pb-4 overflow-scroll h-full w-screen md:w-[60vw] lg:w-[45vw] xl:w-[35vw] bg-gray-50 ">
             <div className={`${styles.flex} ${styles.order_drawer_title_box}`}>
               <div
                 className={`${styles.flex} ${styles.order_drawer_title_group}`}
