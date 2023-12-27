@@ -80,7 +80,8 @@ function Etsy() {
               </p>
               <p class="text-sm font-light">
                 <b>Download CSV </b>
-                under "Currently for Sale Listings".
+                under
+                <b>Currently for Sale Listings</b>.
               </p>
             </li>
             <li class="mb-4 ms-6">

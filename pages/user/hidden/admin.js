@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import prisma from "@/lib/prisma";
+
 import { useRouter } from "next/router";
 
-function admin() {
+function Admin() {
   const { push } = useRouter();
   useEffect(() => {
     push("https://home.boxcart.shop");
@@ -11,7 +12,7 @@ function admin() {
   return <div>admin</div>;
 }
 
-export default admin;
+export default Admin;
 
 // export async function getServerSideProps(context) {
 //   const accounts = await prisma.account.findMany();

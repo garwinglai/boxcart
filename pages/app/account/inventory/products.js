@@ -311,8 +311,8 @@ function Products({ userAccount }) {
                 <p className="text-sm md:text-base">Digital product</p>
               </div>
             </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleImportShopifyProducts}>
+            {/* <Divider /> */}
+            {/* <MenuItem onClick={handleImportShopifyProducts}>
               <div className="flex gap-2">
                 <LocalGroceryStoreOutlinedIcon fontSize="small" />
                 <p className="text-sm md:text-base">Import Shopify</p>
@@ -323,7 +323,7 @@ function Products({ userAccount }) {
                 <StorefrontOutlinedIcon fontSize="small" />
                 <p className="text-sm md:text-base">Import Etsy</p>
               </div>
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
 
           <ProductDrawer
