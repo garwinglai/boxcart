@@ -1497,7 +1497,7 @@ function Payments({ userAccount }) {
           </Modal>
         </div>
       )}
-      <button
+      {/* <button
         className="hover:border w-fit text-xs text-white"
         type="button"
         onClick={async () => {
@@ -1522,7 +1522,7 @@ function Payments({ userAccount }) {
         }}
       >
         delete
-      </button>
+      </button> */}
     </form>
   );
 }
@@ -1532,9 +1532,9 @@ export default Payments;
 export async function getServerSideProps(context) {
   return isAuth(context, async (userSession) => {
     const { user, expires } = userSession;
-    // const { name, email, id } = user;
+    const { name, email, id } = user;
     let serializedAccount = {};
-    const email = "vivianmding@gmail.com";
+
     try {
       const userAccount = await prisma.account.findUnique({
         where: {
