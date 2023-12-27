@@ -1560,7 +1560,6 @@ export async function getServerSideProps(context) {
       }
 
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
-      console.log("serializedAccount", serializedAccount);
     } catch (error) {
       console.log("serversideprops checklist error:", error);
     }

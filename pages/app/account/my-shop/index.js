@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
-import StorefrontIcon from "@mui/icons-material/Storefront";
 import { useRouter } from "next/router";
 import ShopHeader from "@/components/storefront/ShopHeader";
 import ShopBio from "@/components/storefront/ShopBio";
@@ -10,19 +9,14 @@ import ShopSearchBar from "@/components/storefront/ShopSearchBar";
 import ShopMenu from "@/components/storefront/menus/shop/ShopMenu";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import CategoryShopList from "@/components/storefront/menus/shop/CategoryShopList";
-import {
-  getCategoriesClient,
-  getProductsByCategoryIdClient,
-} from "@/helper/client/api/inventory/category-schema";
+import { getProductsByCategoryIdClient } from "@/helper/client/api/inventory/category-schema";
 import Snackbar from "@mui/material/Snackbar";
-import {
-  getDigitalProductsClient,
-  getProductsClient,
-} from "@/helper/client/api/inventory/product-schema";
+import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
-import { redirect } from "next/dist/server/api-utils";
+import shop_icon from "@/public/images/icons/account/shop_icon.png";
+import Image from "next/image";
 
 function MyShop({ userAccount }) {
   const checklistStore = useChecklistStore((state) => state.checklist);
@@ -444,7 +438,16 @@ MyShop.getLayout = function getLayout(
 
 MyShop.pageTitle = "My Shop";
 MyShop.pageIcon = (
-  <StorefrontIcon sx={{ color: "var(--black-design-extralight)" }} />
+  <div className="relative w-8 h-8">
+    <Image
+      src={shop_icon}
+      alt="store icon"
+      fill
+      className=""
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+  </div>
 );
 MyShop.pageRoute = "my-shop";
 MyShop.mobilePageRoute = "my-shop";
