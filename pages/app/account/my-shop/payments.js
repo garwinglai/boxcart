@@ -1534,7 +1534,7 @@ export async function getServerSideProps(context) {
     const { user, expires } = userSession;
     // const { name, email, id } = user;
     let serializedAccount = {};
-    const email = "Nuffs1990@gmail.com";
+    const email = "vivianmding@gmail.com";
     try {
       const userAccount = await prisma.account.findUnique({
         where: {

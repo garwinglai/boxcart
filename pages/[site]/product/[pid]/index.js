@@ -313,7 +313,7 @@ function Product({ product }) {
     setReviews(reviews);
   };
 
-  function handleBack() {
+  function handleGoHome() {
     router.push(`/${site}`);
   }
 
@@ -1314,15 +1314,21 @@ function Product({ product }) {
       />
       <div className="md:w-[65%] md:overflow-y-scroll">
         <div className="flex justify-between items-center my-1 mx-2 md:ml-0 md:my-4">
-          <IconButton onClick={handleBack} className="flex items-center">
-            <ChevronLeftIcon
-              fontSize="medium"
-              sx={{ color: "var(--black-design-extralight)" }}
-            />
-            <p className="font-light text-sm text-[color:var(--black-design-extralight)]">
+          <div className="flex items-center">
+            <IconButton onClick={handleGoHome} className="flex items-center">
+              <ChevronLeftIcon
+                fontSize="medium"
+                sx={{ color: "var(--black-design-extralight)" }}
+              />
+            </IconButton>
+            <button
+              type="button"
+              onClick={handleGoHome}
+              className="font-light text-sm text-[color:var(--black-design-extralight)]"
+            >
               Home
-            </p>
-          </IconButton>
+            </button>
+          </div>
           <div className="rounded-full">
             <IconButton onClick={handleShare}>
               <ShareIcon
