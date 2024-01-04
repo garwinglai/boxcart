@@ -333,7 +333,7 @@ function DesktopNavBar({ pageRoute }) {
                 />
               </MenuItem>
             </Link>
-            <Link
+            {/* <Link
               href="/app/account/inventory/digital-products"
               className={`${styles.menu_link_group}`}
             >
@@ -371,7 +371,7 @@ function DesktopNavBar({ pageRoute }) {
                   }}
                 />
               </MenuItem>
-            </Link>
+            </Link> */}
             <Link
               href="/app/account/inventory/categories"
               className={`${styles.menu_link_group}`}
@@ -409,7 +409,7 @@ function DesktopNavBar({ pageRoute }) {
                 />
               </MenuItem>
             </Link>
-            <Link
+            {/* <Link
               href="/app/account/inventory/tags"
               className={`${styles.menu_link_group}`}
             >
@@ -441,7 +441,7 @@ function DesktopNavBar({ pageRoute }) {
                   }}
                 />
               </MenuItem>
-            </Link>
+            </Link> */}
           </List>
         </Collapse>
 

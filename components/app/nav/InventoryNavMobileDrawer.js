@@ -38,7 +38,7 @@ function InventoryNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
             Products
           </span>
         </Link>
-        <Link
+        {/* <Link
           href="/app/account/inventory/digital-products"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
@@ -50,7 +50,7 @@ function InventoryNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
             <SdStorageIcon fontSize="small" />
             Digital products
           </span>
-        </Link>
+        </Link> */}
         <Link
           href="/app/account/inventory/categories"
           onClick={toggleDrawer("bottom", false)}
@@ -64,7 +64,7 @@ function InventoryNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
             Categories
           </span>
         </Link>
-        <Link
+        {/* <Link
           href="/app/account/inventory/tags"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
@@ -75,7 +75,7 @@ function InventoryNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
             <ClassIcon fontSize="small" />
             Tags
           </span>
-        </Link>
+        </Link> */}
       </div>
     </Drawer>
   );
