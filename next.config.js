@@ -33,21 +33,29 @@ const nextConfig = {
   },
   reactStrictMode: true,
   webpack: (config, { isServer }) => {
-    // Copy public folder to .next folder during build
+    // Copy extension files to .next folder during build
     if (!isServer) {
-      config.plugins.push(
-        new CopyPlugin({
-          patterns: [
-            {
-              from: "public",
-              to: ".next/public",
-              globOptions: {
-                ignore: ["**/_*.{js,json}", "**/_*/**"],
-              },
-            },
-          ],
-        })
-      );
+      config.plugins.push({
+        apply: (compiler) => {
+          compiler.hooks.afterEmit.tap("CopyExtensionFiles", () => {
+            const filesToCopy = [
+              "public/manifest.json",
+              // Add other extension files or folders as needed
+            ];
+
+            filesToCopy.forEach((file) => {
+              const sourcePath = path.resolve(__dirname, file);
+              const destinationPath = path.resolve(
+                __dirname,
+                ".next",
+                file.replace("public/", "")
+              );
+
+              require("fs").copyFileSync(sourcePath, destinationPath);
+            });
+          });
+        },
+      });
     }
 
     return config;
