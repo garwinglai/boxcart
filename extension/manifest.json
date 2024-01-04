@@ -4,13 +4,7 @@
   "version": "0.0.1",
   "description": "Get the main insight from an article using GPT",
   "permissions": ["activeTab"],
-  "content_scripts": [
-    {
-      "matches": ["https://*/*", "http://*/*"],
-      "js": ["popup.js"]
-    }
-  ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "extension.html"
   }
 }
