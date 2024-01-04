@@ -1,6 +1,6 @@
 // pages/background/background.js
-console.log("Background page loaded.");
+// console.log("Background page loaded.");
 
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("Extension installed.");
-});
+// chrome.runtime.onInstalled.addListener(() => {
+//   console.log("Extension installed.");
+// });

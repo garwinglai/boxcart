@@ -13,7 +13,7 @@ const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
   });
 };
 
-export const getOptions = (req, res) => ({
+export const options = (req, res) => ({
   cookie: {
     secure: process.env.NODE_ENV && process.env.NODE_ENV === "production",
   },
@@ -104,4 +104,4 @@ export const getOptions = (req, res) => ({
   },
 });
 
-export default (req, res) => NextAuth(req, res, getOptions(req, res));
+export default (req, res) => NextAuth(req, res, options(req, res));
