@@ -1,5 +1,7 @@
+const withCopyWebpackPlugin = require("next-copy-webpack-plugin");
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withCopyWebpackPlugin({
   images: {
     remotePatterns: [
       {
@@ -30,6 +32,6 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-};
+});
 
 module.exports = nextConfig;
