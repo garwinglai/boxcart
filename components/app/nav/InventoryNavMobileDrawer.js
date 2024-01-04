@@ -7,8 +7,13 @@ import LocalMallIcon from "@mui/icons-material/LocalMall";
 import EventIcon from "@mui/icons-material/Event";
 import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
 import PaymentIcon from "@mui/icons-material/Payment";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import CategoryIcon from "@mui/icons-material/Category";
+import SdStorageIcon from "@mui/icons-material/SdStorage";
+import StyleIcon from "@mui/icons-material/Style";
+import ClassIcon from "@mui/icons-material/Class";
 
-function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
+function InventoryNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
   return (
     <Drawer
       anchor={"bottom"}
@@ -16,59 +21,59 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
       onClose={toggleDrawer("bottom", false)}
     >
       <DrawerHeader
-        title={"Store Menu"}
-        icon={<StorefrontOutlinedIcon />}
+        title={"Inventory Menu"}
+        icon={<Inventory2OutlinedIcon />}
         toggleDrawer={toggleDrawer}
       />
       <div className="flex flex-col p-4 gap-2">
         <Link
-          href="/app/account/my-shop"
+          href="/app/account/inventory/products"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
-            mobilePageRoute === "my-shop" && "bg-[color:var(--primary-light)]"
+            mobilePageRoute === "products" && "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
-            <LocalMallIcon fontSize="small" />
-            My shop
+            <CategoryIcon fontSize="small" />
+            Products
           </span>
         </Link>
         <Link
-          href="/app/account/my-shop/availability"
+          href="/app/account/inventory/digital-products"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
-            mobilePageRoute === "availability" &&
+            mobilePageRoute === "digital-products" &&
             "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
-            <EventIcon fontSize="small" />
-            Availability
+            <SdStorageIcon fontSize="small" />
+            Digital products
           </span>
         </Link>
         <Link
-          href="/app/account/my-shop/fulfillment"
+          href="/app/account/inventory/categories"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
-            mobilePageRoute === "fulfillment" &&
+            mobilePageRoute === "categories" &&
             "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
-            <DeliveryDiningIcon fontSize="small" />
-            Fulfillment
+            <StyleIcon fontSize="small" />
+            Categories
           </span>
         </Link>
         <Link
-          href="/app/account/my-shop/payments"
+          href="/app/account/inventory/tags"
           onClick={toggleDrawer("bottom", false)}
           className={`text-sm py-2 px-4 rounded hover:bg-[color:var(--primary-light)] active:bg-[color:var(--primary-light)] ${
-            mobilePageRoute === "payments" && "bg-[color:var(--primary-light)]"
+            mobilePageRoute === "tags" && "bg-[color:var(--primary-light)]"
           }`}
         >
           <span className="flex items-center gap-4 justify-start">
-            <PaymentIcon fontSize="small" />
-            Payments
+            <ClassIcon fontSize="small" />
+            Tags
           </span>
         </Link>
       </div>
@@ -76,4 +81,4 @@ function StoreNavMobileDrawer({ state, toggleDrawer, mobilePageRoute }) {
   );
 }
 
-export default StoreNavMobileDrawer;
+export default InventoryNavMobileDrawer;

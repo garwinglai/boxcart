@@ -1,7 +1,7 @@
 import { createBatchProductsInternal } from "@/helper/server/prisma/inventory/product-schema";
 
 export default async function handler(req, res) {
-  const { method, query, body } = req;
+  const { method, body } = req;
 
   // const parsedBody = JSON.parse(body);
 
@@ -9,7 +9,6 @@ export default async function handler(req, res) {
     // Handle POST request
     const batchData = body;
 
-    // Create batch logic here
     try {
       const { savedCount, errorCount, savedProducts, productWithErrors } =
         await createBatchProductsInternal(batchData);

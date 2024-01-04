@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
-import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import Badge from "@mui/material/Badge";
 import { IconButton } from "@mui/material";
 import Link from "next/link";
-import ProductsNavMobileDrawer from "@/components/app/nav/ProductsNavMobileDrawer";
 import OrdersNavMobileDrawer from "@/components/app/nav/OrdersNavMobileDrawer";
 import StoreNavMobileDrawer from "@/components/app/nav/StoreNavMobileDrawer";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import { brown } from "@mui/material/colors";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+
+import InventoryNavMobileDrawer from "@/components/app/nav/InventoryNavMobileDrawer";
 
 function ShopNavBottom({ mobilePageRoute }) {
   const [inventoryDrawer, setInventoryDrawer] = useState({ bottom: false });
@@ -83,43 +82,52 @@ function ShopNavBottom({ mobilePageRoute }) {
         </div>
       </Link>
 
-      <Link href="/app/account/inventory/products">
-        <div className="flex flex-col items-center">
-          <IconButton>
-            <Badge
-              color="secondary"
-              variant="dot"
-              overlap="circular"
-              invisible={
-                mobilePageRoute === "products"
-                  ? false
-                  : mobilePageRoute === "category"
-                  ? false
-                  : true
-              }
-            >
-              <Inventory2OutlinedIcon
-                sx={{
-                  color:
-                    mobilePageRoute === "products" ||
-                    mobilePageRoute === "category"
-                      ? "var(--black-design-extralight)}"
-                      : "var(--gray)",
-                }}
-              />
-            </Badge>
-          </IconButton>
-          <p
-            className={`${
-              mobilePageRoute === "products" || mobilePageRoute === "category"
-                ? "text-[color:var(--black-design-extralight)] font-normal"
-                : "text-[color:var(--gray)] font-extralight"
-            } text-xs  -mt-2`}
+      <div className="flex flex-col items-center">
+        <IconButton onClick={toggleDrawerInventory("bottom", true)}>
+          <Badge
+            color="secondary"
+            variant="dot"
+            overlap="circular"
+            invisible={
+              mobilePageRoute === "products" ||
+              mobilePageRoute === "categories" ||
+              mobilePageRoute === "digital-products" ||
+              mobilePageRoute === "tags"
+                ? false
+                : true
+            }
           >
-            Inventory
-          </p>
-        </div>
-      </Link>
+            <Inventory2OutlinedIcon
+              sx={{
+                color:
+                  mobilePageRoute === "products" ||
+                  mobilePageRoute === "categories" ||
+                  mobilePageRoute === "digital-products" ||
+                  mobilePageRoute === "tags"
+                    ? "var(--black-design-extralight)}"
+                    : "var(--gray)",
+              }}
+            />
+          </Badge>
+        </IconButton>
+        <p
+          className={`${
+            mobilePageRoute === "products" ||
+            mobilePageRoute === "categories" ||
+            mobilePageRoute === "digital-products" ||
+            mobilePageRoute === "tags"
+              ? "text-[color:var(--black-design-extralight)] font-normal"
+              : "text-[color:var(--gray)] font-extralight"
+          } text-xs  -mt-2`}
+        >
+          Inventory
+        </p>
+        <InventoryNavMobileDrawer
+          state={inventoryDrawer}
+          toggleDrawer={toggleDrawerInventory}
+          mobilePageRoute={mobilePageRoute}
+        />
+      </div>
 
       <div className="flex flex-col items-center">
         <IconButton onClick={toggleDrawerOrders("bottom", true)}>
@@ -178,7 +186,7 @@ function ShopNavBottom({ mobilePageRoute }) {
                 : true
             }
           >
-            <StorefrontOutlinedIcon
+            <SettingsOutlinedIcon
               sx={{
                 color:
                   mobilePageRoute === "my-shop" ||

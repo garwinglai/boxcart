@@ -48,6 +48,7 @@ function ProductModal({
     images,
     imgArrJson,
     description,
+    productId,
     quantity,
     isQuantityByProduct,
     questions,
@@ -84,7 +85,8 @@ function ProductModal({
             <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
               {images && images.length !== 0 ? (
                 images.map((photo, idx) => {
-                  const { image, imgFileName, isDefault } = photo;
+                  const { image, imgFileName, isDefault, imageAltText } = photo;
+
                   return (
                     <div
                       key={idx}
@@ -92,7 +94,13 @@ function ProductModal({
                     >
                       <Image
                         src={image}
-                        alt={imgFileName}
+                        alt={
+                          imageAltText
+                            ? imageAltText
+                            : imgFileName
+                            ? imgFileName
+                            : "product image"
+                        }
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover rounded inline-block"
@@ -119,6 +127,10 @@ function ProductModal({
           <div className="flex justify-between items-start relative w-full">
             <div className="flex flex-col gap-2 pt-2 pb-4 px-4">
               <h4 className="font-medium lg:text-base">{productName}</h4>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Id: </b>
+                {productId}
+              </p>
               <div className="flex gap-2 items-end text-xs font-light lg:text-sm ">
                 <p className="font-medium">Price:</p>
                 {salePriceStr && salePriceStr !== "" ? (
@@ -157,7 +169,7 @@ function ProductModal({
           </div>
           <div className="border-t border-[color:var(--gray-light)]">
             <div className="p-4 border-b border-[color:var(--gray-light)] ">
-              <h4 className="text-sm font-medium">Product options</h4>
+              <h4 className="text-sm font-medium">Options:</h4>
               {optionGroups.length === 0 ? (
                 <p className="text-xs font-extralight text-[color:var(--gray-text)] text-center mt-4 md:text-sm">
                   No options available
@@ -173,12 +185,12 @@ function ProductModal({
                   } = group;
 
                   return (
-                    <div className="px-8 pt-2" key={groupId}>
-                      <div className="flex justify-between items-center  mb-2">
-                        <span className="flex items-center gap-2">
+                    <div className="px-2 pt-2" key={groupId}>
+                      <div className="flex justify-between gap-2 items-center  mb-2">
+                        <span className="flex items-center gap-2 text-sm">
                           <h5 className="text-sm">{optionGroupName}:</h5>
                         </span>
-                        <p className="text-xs font-extralight">
+                        <p className="text-xs font-extralight text-right">
                           {isRequiredDisplay} - ({selectionDisplay})
                         </p>
                       </div>
@@ -199,13 +211,6 @@ function ProductModal({
                               className="flex justify-between items-center pl-2 font-light text-xs mb-1 md:text-sm"
                             >
                               <div className="flex items-center gap-2">
-                                {imgStr && (
-                                  <Image
-                                    src={candle_2}
-                                    alt="image"
-                                    className="rounded object-cover w-10 h-10"
-                                  />
-                                )}
                                 <p className="font-extralight">{optionName}</p>
                                 {quantity && (
                                   <p className="font-extralight">
@@ -213,7 +218,7 @@ function ProductModal({
                                   </p>
                                 )}
                               </div>
-                              <p className="font-extralight">{priceStr}</p>
+                              <p className="font-extralight">+{priceStr}</p>
                             </div>
                           );
                         }
@@ -259,8 +264,15 @@ function ProductModal({
           </div>
         </div>
         <div className="flex sticky z-10 p-4 bg-white bottom-0 gap-4 py-4 border-t">
-          <ButtonFilter name="Close" handleClick={handleClickListenerExpand} />
-          <ButtonPrimary name="Edit" handleClick={handleEditClick} />
+          <div className="h-8 w-full">
+            <ButtonFilter
+              name="Close"
+              handleClick={handleClickListenerExpand}
+            />
+          </div>
+          <div className="h-8 w-full">
+            <ButtonPrimary name="Edit" handleClick={handleEditClick} />
+          </div>
         </div>
       </Box>
     </Modal>

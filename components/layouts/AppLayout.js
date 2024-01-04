@@ -30,7 +30,7 @@ function AppLayout({
   }, [accountStore]);
 
   return (
-    <div className="flex overflow-hidden h-screen relative">
+    <div className="flex overflow-hidden h-screen relative max-w-screen ">
       <DesktopNavBar pageRoute={pageRoute} />
       <div className="overflow-y-scroll w-full">
         <PageHeader

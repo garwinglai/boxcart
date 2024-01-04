@@ -1,42 +1,27 @@
 import React, { useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { useRouter } from "next/router";
 import ProductCard from "@/components/app/my-shop/products/ProductCard";
 import ProductDrawer from "@/components/app/my-shop/products/ProductDrawer";
-import ButtonFourth from "@/components/global/buttons/ButtonFourth";
-import { isAuth } from "@/helper/server/auth/isAuth";
-import BoxLoader from "@/components/global/loaders/BoxLoader";
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import { Divider, IconButton } from "@mui/material";
 import Image from "next/image";
 import boxes_icon from "@/public/images/icons/boxes_icon.png";
+import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
-import {
-  getDigitalProductsClient,
-  getProductsClient,
-} from "@/helper/client/api/inventory/product-schema";
+import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import DigitalProductDrawer from "@/components/app/my-shop/products/DigitalProductDrawer";
-import DigitalProductCard from "@/components/app/my-shop/products/DigitalProductCard";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
-import SdCardOutlinedIcon from "@mui/icons-material/SdCardOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import LocalGroceryStoreOutlinedIcon from "@mui/icons-material/LocalGroceryStoreOutlined";
 import product_icon from "@/public/images/icons/account/product_icon.png";
 
 function Products({ userAccount }) {
   // Props
-  const {
-    products,
-    digitalProducts,
-    categories,
-    logoImgStr,
-    id: accountId,
-  } = userAccount || {};
+  const { products, categories, id: accountId } = userAccount || {};
 
   // States
   const [isDuplicatingProduct, setIsDuplicatingProduct] = useState(false);
@@ -45,16 +30,11 @@ function Products({ userAccount }) {
     isSnackbarOpen: false,
     snackbarMessage: "",
   });
-  const [currDigitalProducts, setCurrDigitalProducts] = useState(
-    digitalProducts ? digitalProducts : []
-  );
   const [currProducts, setCurrProducts] = useState(products ? products : []);
   const [state, setState] = useState({
     right: false,
   });
-  const [digialProductDrawerOpen, setDigialProductDrawerOpen] = useState({
-    right: false,
-  });
+
   const [openSnackbarGlobal, setOpenSnackbarGlobal] = useState({
     snackbarOpenGlobal: false,
     snackbarMessageGlobal: "",
@@ -88,18 +68,6 @@ function Products({ userAccount }) {
     return;
   };
 
-  const getAllDigitalProducts = async (accountId) => {
-    const { success, value } = await getDigitalProductsClient(accountId);
-
-    if (success) {
-      const { digitalProducts } = value;
-      setCurrDigitalProducts(digitalProducts);
-      return;
-    }
-
-    return;
-  };
-
   const handleOpenSnackbarGlobal = (message) => {
     setOpenSnackbarGlobal({
       snackbarOpenGlobal: true,
@@ -118,20 +86,6 @@ function Products({ userAccount }) {
     });
   };
 
-  const handleProductRoute = () => {
-    if (pathname !== "/app/account/inventory/products")
-      push("/app/account/inventory/products");
-
-    return;
-  };
-
-  const handleCategoryRoute = () => {
-    if (pathname !== "/app/account/inventory/categories")
-      push("/app/account/inventory/categories");
-
-    return;
-  };
-
   const toggleDrawerProductCreate = (anchor, open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -141,17 +95,6 @@ function Products({ userAccount }) {
     }
 
     setState({ ...state, [anchor]: open });
-  };
-
-  const toggleDrawerDigitalProductCreate = (anchor, open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-
-    setDigialProductDrawerOpen({ ...digialProductDrawerOpen, [anchor]: open });
   };
 
   const handleOpenSnackbar = (message) => {
@@ -174,28 +117,11 @@ function Products({ userAccount }) {
     );
   };
 
-  const filterDeletedDigitalProducts = (productId) => {
-    setCurrDigitalProducts((prev) =>
-      prev.filter((product) => product.id !== productId)
-    );
-  };
-
   const updateProductList = (updatedProduct) => {
     const { productType } = updatedProduct;
 
     if (productType === 0) {
       setCurrProducts((prev) =>
-        prev.map((product) => {
-          if (product.id === updatedProduct.id) {
-            return updatedProduct;
-          }
-          return product;
-        })
-      );
-    }
-
-    if (productType === 1) {
-      setCurrDigitalProducts((prev) =>
         prev.map((product) => {
           if (product.id === updatedProduct.id) {
             return updatedProduct;
@@ -217,28 +143,14 @@ function Products({ userAccount }) {
   };
 
   const handleImportShopifyProducts = (e) => {
-    push("/app/account/inventory/import-shopify");
+    push("/app/account/inventory/products/import-shopify");
     handleCloseProductCreate();
   };
 
   const handleImportEtsyProducts = (e) => {
-    push("/app/account/inventory/import-etsy");
+    push("/app/account/inventory/products/import-etsy");
     handleCloseProductCreate();
   };
-
-  const handleCreateDigitalProduct = (e) => {
-    toggleDrawerDigitalProductCreate("right", true)(e);
-    handleCloseProductCreate();
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center mt-[50%] gap-8 md:mt-[25%]">
-        <BoxLoader />
-        <p>One sec, getting your products ...</p>
-      </div>
-    );
-  }
 
   // Displays
   const action = (
@@ -255,7 +167,7 @@ function Products({ userAccount }) {
   );
 
   return (
-    <div className="py-4 px-4 pb-24 ">
+    <div className="px-4 pb-28 md:pb-16">
       <div className="pb-4 flex justify-between items-start">
         <Snackbar
           open={isSnackbarOpen}
@@ -272,19 +184,17 @@ function Products({ userAccount }) {
           message={snackbarMessageGlobal}
           action={action}
         />
-        <div className="flex gap-2">
-          <div className="h-8">
-            <ButtonFilter handleClick={handleProductRoute} name="Products" />
-          </div>
-          <div className="h-8">
-            <ButtonFourth handleClick={handleCategoryRoute} name="Categories" />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 justify-end items-end sm:flex-row">
-          <div className="h-8">
+
+        <div className="flex flex-col gap-2 justify-end items-end ml-auto sm:flex-row">
+          <div className="h-12 w-12 rounded-full fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
             <ButtonPrimary
               handleClick={handleOpenProductCreate}
-              name="+ Create"
+              name={
+                <div className="flex items-center gap-2">
+                  <p className="text-lg md:text-sm">+</p>
+                  <p className="hidden md:block md:text-sm">Create</p>
+                </div>
+              }
             />
           </div>
           <Menu
@@ -294,6 +204,14 @@ function Products({ userAccount }) {
             onClose={handleCloseProductCreate}
             MenuListProps={{
               "aria-labelledby": "basic-button",
+            }}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
             }}
           >
             <MenuItem onClick={handleCreateProduct}>
@@ -305,14 +223,9 @@ function Products({ userAccount }) {
             {/* <MenuItem onClick={handleCreateBatchProduct}>
               + Batch product
             </MenuItem> */}
-            <MenuItem onClick={handleCreateDigitalProduct}>
-              <div className="flex gap-2">
-                <SdCardOutlinedIcon fontSize="small" />
-                <p className="text-sm md:text-base">Digital product</p>
-              </div>
-            </MenuItem>
-            {/* <Divider /> */}
-            {/* <MenuItem onClick={handleImportShopifyProducts}>
+
+            <Divider />
+            <MenuItem onClick={handleImportShopifyProducts}>
               <div className="flex gap-2">
                 <LocalGroceryStoreOutlinedIcon fontSize="small" />
                 <p className="text-sm md:text-base">Import Shopify</p>
@@ -323,7 +236,7 @@ function Products({ userAccount }) {
                 <StorefrontOutlinedIcon fontSize="small" />
                 <p className="text-sm md:text-base">Import Etsy</p>
               </div>
-            </MenuItem> */}
+            </MenuItem>
           </Menu>
 
           <ProductDrawer
@@ -335,19 +248,10 @@ function Products({ userAccount }) {
             handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
             getAllProducts={getAllProducts}
           />
-          <DigitalProductDrawer
-            state={digialProductDrawerOpen}
-            toggleDrawer={toggleDrawerDigitalProductCreate}
-            categories={categories}
-            isCreateProduct={true}
-            accountId={accountId}
-            handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
-            getAllDigitalProducts={getAllDigitalProducts}
-          />
         </div>
       </div>
 
-      {currDigitalProducts.length === 0 && currProducts.length === 0 ? (
+      {currProducts.length === 0 ? (
         <div className="flex flex-col justify-center items-center gap-4 mt-16 lg:col-span-2 xl:col-span-3">
           <Image
             src={boxes_icon}
@@ -362,8 +266,7 @@ function Products({ userAccount }) {
         <React.Fragment>
           {currProducts.length > 0 && (
             <div className="mb-8">
-              <h3 className="mb-2">Products</h3>
-              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3">
+              <div className="flex flex-col gap-4 min-[640px]:grid min-[640px]:grid-cols-2 xl:grid-cols-4">
                 {currProducts.map((product) => {
                   const { id, category, accountId } = product;
                   return (
@@ -379,31 +282,6 @@ function Products({ userAccount }) {
                       updateProductList={updateProductList}
                       handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
                       getAllProducts={getAllProducts}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          {currDigitalProducts.length > 0 && (
-            <div className="mb-8">
-              <h3 className="mb-2">Digital products</h3>
-              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-3 mb-4">
-                {currDigitalProducts.map((product) => {
-                  const { id, category, accountId } = product;
-                  return (
-                    <DigitalProductCard
-                      key={id}
-                      product={product}
-                      userAccount={userAccount}
-                      accountId={accountId}
-                      categories={categories}
-                      setIsDuplicatingProduct={setIsDuplicatingProduct}
-                      handleOpenSnackbar={handleOpenSnackbar}
-                      filterDeletedProducts={filterDeletedDigitalProducts}
-                      updateProductList={updateProductList}
-                      handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
-                      getAllDigitalProducts={getAllDigitalProducts}
                     />
                   );
                 })}
@@ -431,17 +309,6 @@ export async function getServerSideProps(context) {
         },
         include: {
           categories: true,
-          digitalProducts: {
-            include: {
-              digitalFiles: true,
-              reviews: true,
-              relatedCategories: true,
-              images: true,
-            },
-            orderBy: {
-              productName: "asc",
-            },
-          },
           products: {
             include: {
               reviews: {

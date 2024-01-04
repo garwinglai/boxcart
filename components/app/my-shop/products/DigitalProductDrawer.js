@@ -432,8 +432,12 @@ function DigitalProductDrawer({
         return;
       }
 
+      const imageData = images[0];
+      const { imgFileName } = imageData;
+
       productObject.imageSchema = resImage.photoData;
       productObject.productSchema.defaultImage = resImage.photoUrl;
+      productObject.productSchema.defaultImageFileName = imgFileName;
 
       const resProductCreate = await createDigitalProductClient(productObject);
       const { success, value } = resProductCreate;
@@ -497,7 +501,7 @@ function DigitalProductDrawer({
       });
 
       const newImages = images.filter((item) => {
-        if (!item.fireStorageId) return item;
+        if (!item.fireStorageId && !item.imported) return item;
       });
 
       let uploadFileError = false;
@@ -533,9 +537,13 @@ function DigitalProductDrawer({
           // TODO: log error
         }
 
+        const imageData = images[0];
+        const { imgFileName } = imageData;
+
         productObject.imageSchema = [resImage.photoData];
         productObject.productSchema.fireStorageId = fireStorageId;
         productObject.productSchema.defaultImage = resImage.photoUrl;
+        productObject.productSchema.defaultImageFileName = imgFileName;
       }
 
       if (uploadFileError) {
@@ -945,14 +953,14 @@ function DigitalProductDrawer({
         onSubmit={handleSave}
         className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-56 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
-        <div className="flex justify-between items-center">
-          <span className="flex gap-4 items-center">
+        <div className="flex justify-between items-center sticky top-0 z-10">
+          <span className="flex gap-2 items-center">
             <Image
               src={pdf_icon}
               alt="bardcode icon"
-              className="w-[3rem] h-[3rem]"
+              className="w-[2rem] h-[2rem]"
             />
-            <h2>Product details:</h2>
+            <h2 className="text-base">Product details:</h2>
           </span>
           <button
             className="flex text-[color:var(--third-dark)] "
@@ -1149,11 +1157,10 @@ function DigitalProductDrawer({
                 Description:
               </label>
               <span>
-                <p className="font-extralight text-xs">(required)</p>
+                <p className="font-extralight text-xs">(optional)</p>
               </span>
             </div>
             <textarea
-              required
               type="text"
               id="description"
               value={description}

@@ -257,7 +257,7 @@ function ShopHeader({
           banner.img
         </div>
       )}
-      <div className={`relative ${isOwner ? "" : "lg:mx-28"}`}>
+      <div className={`relative ${isOwner ? "" : "lg:mx-16 xl:mx-28"}`}>
         {logoImage ? (
           <div className="w-20 h-20 absolute -top-10 md:-top-12  left-4 md:w-24 md:h-24 lg:left-4">
             <Image

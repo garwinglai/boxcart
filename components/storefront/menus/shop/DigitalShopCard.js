@@ -539,16 +539,29 @@ function DigitalShopCard({
     <div className={`${styles.card_box}`}>
       {isOwner ? (
         <div className="w-full rounded ">
-          <div className="relative w-full aspect-square ">
-            <Image
-              src={defaultImage}
-              alt="pdf cover image"
-              fill
-              priority={true}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="rounded-ss object-cover w-full h-full"
-            />
-          </div>
+          {defaultImage ? (
+            <div className="relative w-full aspect-square ">
+              <Image
+                src={defaultImage}
+                alt="pdf cover image"
+                fill
+                priority={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="rounded-ss object-cover w-full h-full"
+              />
+            </div>
+          ) : (
+            <div className="relative w-full aspect-square">
+              <Image
+                priority={true}
+                src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                alt="default product image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                fill
+                className="object-cover rounded-t"
+              />
+            </div>
+          )}
           <div className="flex flex-col pt-1 pl-2">
             <div className="">
               <h4 className="text-sm font-medium">{productName}</h4>

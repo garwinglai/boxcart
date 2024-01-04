@@ -548,40 +548,44 @@ model Review {
 }
 
 model DigitalProduct {
-  id                 Int             @id @default(autoincrement())
-  digitalProductId   String?         @unique
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  isEnabled          Boolean         @default(true)
-  productTypeDisplay String          @default("digital")
-  productType        Int             @default(1)
-  productName        String
-  description        String
-  salePricePenny     Int?
-  salePriceStr       String?
-  priceIntPenny      Int
-  priceStr           String
-  rating             String          @default("0.00")
-  reviewCount        Int             @default(0)
-  fiveStarCount      Int             @default(0)
-  fourStarCount      Int             @default(0)
-  threeStarCount     Int             @default(0)
-  twoStarCount       Int             @default(0)
-  oneStarCount       Int             @default(0)
-  fireStorageId      String?         @unique //id to find  file in firebase storage.
-  account            Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId          Int
-  defaultImage       String?         @db.Text
-  images             Image[]
-  relatedCategories  Category[]
-  reviews            Review[]
-  digitalFiles       DigitalFile[]
-  orders             OrderItem[]
-  customerOrder      CustomerOrder[]
-  Wishlist           Wishlist[]
-  wishlistCount      Int             @default(0)
-  Like               Like[]
-  likesCount         Int             @default(0)
+  id                   Int             @id @default(autoincrement())
+  digitalProductId     String?         @unique
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  isEnabled            Boolean         @default(true)
+  productTypeDisplay   String          @default("digital")
+  productType          Int             @default(1)
+  productName          String
+  description          String
+  hasUnlimitedQuantity Boolean         @default(true)
+  setQuantityByProduct Boolean         @default(true)
+  salePricePenny       Int?
+  salePriceStr         String?
+  priceIntPenny        Int
+  priceStr             String
+  rating               String          @default("0.00")
+  reviewCount          Int             @default(0)
+  fiveStarCount        Int             @default(0)
+  fourStarCount        Int             @default(0)
+  threeStarCount       Int             @default(0)
+  twoStarCount         Int             @default(0)
+  oneStarCount         Int             @default(0)
+  fireStorageId        String?         @unique //id to find  file in firebase storage.
+  defaultImageFileName String?
+  defaultImage         String?         @db.Text
+  defaultImageAlt      String?         @db.Text
+  images               Image[]
+  relatedCategories    Category[]
+  reviews              Review[]
+  digitalFiles         DigitalFile[]
+  orders               OrderItem[]
+  customerOrder        CustomerOrder[]
+  Wishlist             Wishlist[]
+  wishlistCount        Int             @default(0)
+  Like                 Like[]
+  likesCount           Int             @default(0)
+  account              Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId            Int
 
   @@index([accountId])
 }
@@ -604,18 +608,19 @@ model Product {
   productId                  String?         @unique
   createdAt                  DateTime        @default(now())
   updatedAt                  DateTime        @updatedAt
-  productTypeDisplay         String          @default("physical")
-  productType                Int             @default(0)
+  productTypeDisplay         String          @default("physical") // "physical", "digital"
+  productType                Int             @default(0) // 0: physical, 1: digital
   isSampleProduct            Boolean         @default(false)
   isEnabled                  Boolean         @default(true)
   productName                String
-  description                String          @db.Text
+  description                String?         @db.Text
   salePricePenny             Int?
   salePriceStr               String?
   priceIntPenny              Int
   priceStr                   String
   defaultImageFileName       String?
   defaultImage               String?         @db.Text
+  defaultImageAlt            String?         @db.Text
   images                     Image[]
   fireStorageId              String?         @unique //id to find image file in firebase storage.
   hasUnlimitedQuantity       Boolean         @default(true)
@@ -653,8 +658,11 @@ model Image {
   updatedAt        DateTime        @updatedAt
   isDefault        Boolean         @default(false)
   imgFileName      String?
+  imagePosition    String?
   image            String?         @db.Text
+  imageAltText     String?         @db.Text
   fireStorageId    String? //id to find image file in firebase storage.
+  imported         Boolean         @default(false)
   product          Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId        Int?
   digitalProduct   DigitalProduct? @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)

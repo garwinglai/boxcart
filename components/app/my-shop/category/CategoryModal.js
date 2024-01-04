@@ -71,11 +71,11 @@ function CategoryModal({
                       {categoryDigitalProducts.map((product) => {
                         const { productName, id } = product;
                         return (
-                          <li key={id} className="font-light text-sm list-disc break-words">
-                            {productName} -{" "}
-                            {product.digitalProductId
-                              ? product.digitalProductId
-                              : product.id}
+                          <li
+                            key={id}
+                            className="font-light text-sm list-disc break-words"
+                          >
+                            {productName}
                           </li>
                         );
                       })}
@@ -89,9 +89,11 @@ function CategoryModal({
                     {categoryProducts.map((product) => {
                       const { productName, id } = product;
                       return (
-                        <li key={id} className="font-light text-sm list-disc break-words">
-                          {productName} -{" "}
-                          {product.productId ? product.productId : product.id}
+                        <li
+                          key={id}
+                          className="font-light text-sm list-disc break-words"
+                        >
+                          {productName}
                         </li>
                       );
                     })}

@@ -526,11 +526,11 @@ function ProductCard({
 
   return (
     <div
-      className={`rounded-lg w-full shadow-md border bg-white md:row-auto ${
+      className={`rounded-lg w-full shadow border bg-white md:row-auto ${
         isExpanded ? "md:grid-row-end-auto" : "md:h-fit"
       }`}
     >
-      <div className="flex justify-between items-start border-b border-[color:var(--gray-light-med)]">
+      <div className="flex justify-between items-start">
         {defaultImage ? (
           <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
             <div className="w-full h-full  relative aspect-square">
@@ -543,9 +543,9 @@ function ProductCard({
                 className="rounded-ss object-cover w-full h-full"
               />
             </div>
-            <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
+            {/* <button className="bg-black bg-opacity-50 border border-white rounded text-white absolute bottom-1 right-1 px-2 py-1 text-xs font-extralight ">
               {images && images.length} Photos
-            </button>
+            </button> */}
             {salePriceStr && salePriceStr !== "" && (
               <p className="bg-[color:var(--sale-bg)] text-[color:var(--sale-text)] absolute top-1 right-1 rounded-full text-xs px-4 py-1 mt-1">
                 Sale
@@ -566,27 +566,16 @@ function ProductCard({
             </div>
           </div>
         )}
-        <div className="flex-grow flex flex-col py-2 pl-2">
-          <div className="flex item-center justify-between gap-2">
-            <h2 className="text-sm font-medium sm:text-base md:text-lg ">
-              {productName}
-            </h2>
-          </div>
-          <p className="text-xs font-light min-w-fit">
+        <div className="flex-grow flex flex-col py-2 pl-2 w-2/4">
+          <h2 className="text-sm font-medium text-ellipsis whitespace-nowrap overflow-hidden ">
+            {productName}
+          </h2>
+
+          {/* <p className="text-xs font-light min-w-fit">
             id: {productId ? productId : id}
-          </p>
-          <div className="flex items-center gap-1">
-            <Rating
-              name="read-only"
-              value={parseInt(rating)}
-              readOnly
-              sx={{ fontSize: "0.75rem" }}
-            />
-            <p className="text-[color:var(--gray-text)] font-extralight text-xs md:text-sm">
-              ({reviewCount})
-            </p>
-          </div>
-          <p className="text-xs font-light md:text-sm">
+          </p> */}
+
+          {/* <p className="text-xs font-light md:text-sm">
             <b className="text-xs md:text-sm">Price: </b>
             {salePriceStr && salePriceStr !== "" ? (
               <span>
@@ -598,9 +587,9 @@ function ProductCard({
             ) : (
               <span>{priceStr}</span>
             )}
-          </p>
+          </p> */}
           {setQuantityByProduct ? (
-            <p className="text-xs font-light md:text-sm">
+            <p className="text-xs my-1 md:text-sm">
               <b className="text-xs md:text-sm">Qty: </b>
               {hasUnlimitedQuantity ? (
                 "Unlimited"
@@ -619,6 +608,17 @@ function ProductCard({
               </p>
             )
           )}
+          <div className="flex items-center gap-1">
+            <Rating
+              name="read-only"
+              value={parseInt(rating)}
+              readOnly
+              sx={{ fontSize: "0.75rem" }}
+            />
+            <p className="text-[color:var(--gray-text)] font-extralight text-xs md:text-sm">
+              ({reviewCount})
+            </p>
+          </div>
         </div>
         <div className="mr-2">
           <IconButton onClick={handleOpenMenu}>
@@ -709,23 +709,22 @@ function ProductCard({
           />
         </div>
       </div>
-      <div className="flex justify-between items-center p-2">
-        <span className="flex gap-4 items-center">
-          <p
-            className={`text-xs ${
-              isItemEnabled
-                ? "text-[color:var(--secondary-dark-med)] "
-                : "text-[color:var(--gray-text)] "
-            }`}
-          >
-            Enable
-          </p>
+      <div className="flex justify-between items-center px-2">
+        <span className="flex gap-2 items-center">
           <IOSSwitch
             checked={isItemEnabled}
             onChange={handleSwitchChange(id)}
           />
+          <p
+            className={`text-xs ${
+              isItemEnabled
+                ? "text-[color:var(--primary-dark-med)] "
+                : "text-[color:var(--gray-text)] "
+            }`}
+          >
+            {isItemEnabled ? "Active" : "Inactive"}
+          </p>
         </span>
-
         <div className="">
           <IconButton
             onClick={handleClickListenerExpand}

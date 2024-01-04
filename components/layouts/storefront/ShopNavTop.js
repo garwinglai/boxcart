@@ -86,10 +86,10 @@ function ShopNavTop() {
                 <Avatar
                   {...stringAvatar(shopper.name)}
                   sx={{
-                    bgcolor: blue[500],
+                    bgcolor: blue[300],
                     width: 24,
                     height: 24,
-                    fontSize: 12,
+                    fontSize: 10,
                   }}
                 />
               )}

@@ -1,13 +1,6 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
 import {
-  createDigitalProductsServer,
-  createProductServer,
-  deleteDigitalProductServer,
-  deleteProductServer,
-  getDigitalProductsServer,
-  getProductsServer,
-  updateDigitalProductServer,
-  updateProductServer,
+  createDigitalProductsServer, deleteDigitalProductServer, getDigitalProductsServer, updateDigitalProductServer
 } from "@/helper/server/prisma/inventory/product-schema";
 
 export default async function handler(req, res) {
@@ -24,7 +17,7 @@ export default async function handler(req, res) {
 
     if (crud === "create") {
       const { product } = JSON.parse(body);
-      console.log("product", product);
+
       const resProductCreate = await createDigitalProductsServer(product);
       const { success, value } = resProductCreate;
 

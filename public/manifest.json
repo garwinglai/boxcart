@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "BoxCart",
+  "description": "A way to shop small and local",
+  "version": "0.0.1",
+  "icons": {
+    "128": "/images/temp/boxcart_logo_temp.png"
+  },
+  "action": {
+    "default_popup": "extension.html",
+    "default_title": "SHop small and local"
+  }
+}

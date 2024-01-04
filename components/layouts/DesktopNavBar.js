@@ -20,9 +20,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
-import StoreIcon from "@mui/icons-material/Store";
 import StarIcon from "@mui/icons-material/Star";
-import SettingsIcon from "@mui/icons-material/Settings";
 import SmsIcon from "@mui/icons-material/Sms";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { signOut } from "next-auth/react";
@@ -33,6 +31,12 @@ import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
 import SavingsIcon from "@mui/icons-material/Savings";
+import PersonIcon from "@mui/icons-material/Person";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import SdStorageOutlinedIcon from "@mui/icons-material/SdStorageOutlined";
+import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
+import ClassOutlinedIcon from "@mui/icons-material/ClassOutlined";
 
 function DesktopNavBar({ pageRoute }) {
   const hydrated = useHasHydrated();
@@ -56,7 +60,7 @@ function DesktopNavBar({ pageRoute }) {
     pageRoute === "gift-card" || pageRoute === "email-marketing" ? true : false
   );
   const [openInventoryList, setOpenInventoryList] = useState(
-    pageRoute === "products" || pageRoute === "category" ? true : false
+    pageRoute === "products" || pageRoute === "categories" ? true : false
   );
   const [openCommList, setOpenCommList] = useState(
     pageRoute === "contacts" ||
@@ -86,8 +90,8 @@ function DesktopNavBar({ pageRoute }) {
     setOpenOrderList((prev) => !prev);
   };
 
-  const handleNestedPromoList = () => {
-    setOpenPromoList((prev) => !prev);
+  const handleNestedInventoryList = () => {
+    setOpenInventoryList((prev) => !prev);
   };
 
   const handleNestedCommList = () => {
@@ -143,9 +147,368 @@ function DesktopNavBar({ pageRoute }) {
         className={`${styles.menu_list_group}`}
         sx={{ padding: "1rem" }}
       >
+        <MenuItem onClick={handleNestedOrderList}>
+          <ListItemIcon>
+            <LocalGroceryStoreIcon
+              sx={{
+                color: `${
+                  pageRoute === "live" || pageRoute === "history"
+                    ? "var(--primary-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="Orders"
+            sx={{
+              color: `${
+                pageRoute === "live" || pageRoute === "history"
+                  ? "var(--primary-dark)"
+                  : "gray"
+              }  `,
+            }}
+          />
+          {openOrderList ? (
+            <ExpandLess
+              sx={{
+                color: "var(--primary-dark)",
+              }}
+            />
+          ) : (
+            <ExpandMore
+              sx={{
+                color: "gray",
+              }}
+            />
+          )}
+        </MenuItem>
+        <Collapse in={openOrderList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding sx={{ pl: "16px" }}>
+            <Link
+              href="/app/account/orders/live"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "live" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "live" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <LocalOfferOutlinedIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "live" ? "var(--primary-dark)" : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Live</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "live" ? "var(--primary-dark)" : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/app/account/orders/history"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "history" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "history" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <HistoryIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "history" ? "var(--primary-dark)" : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">History</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "history" ? "var(--primary-dark)" : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+          </List>
+        </Collapse>
+        <MenuItem onClick={handleNestedInventoryList}>
+          <ListItemIcon>
+            <InventoryIcon
+              sx={{
+                color: `${
+                  pageRoute === "products" ||
+                  pageRoute === "digital-product" ||
+                  pageRoute === "categories" ||
+                  pageRoute === "tags"
+                    ? "var(--primary-dark)"
+                    : "gray"
+                }  `,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="Inventory"
+            sx={{
+              color: `${
+                pageRoute === "products" ||
+                pageRoute === "digital-product" ||
+                pageRoute === "categories" ||
+                pageRoute === "tags"
+                  ? "var(--primary-dark)"
+                  : "gray"
+              }  `,
+            }}
+          />
+
+          {openStoreList ? (
+            <ExpandLess
+              sx={{
+                color: "var(--primary-dark)",
+              }}
+            />
+          ) : (
+            <ExpandMore
+              sx={{
+                color: "gray",
+              }}
+            />
+          )}
+        </MenuItem>
+        <Collapse in={openInventoryList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding sx={{ pl: "16px" }}>
+            <Link
+              href="/app/account/inventory/products"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "products" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "products" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <CategoryOutlinedIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "products"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Products</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "products" ? "var(--primary-dark)" : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/app/account/inventory/digital-products"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "digital-products" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "digital-products" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <SdStorageOutlinedIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "digital-products"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <p className="text-sm font-light">Digital products</p>
+                  }
+                  sx={{
+                    color: `${
+                      pageRoute === "digital-products"
+                        ? "var(--primary-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/app/account/inventory/categories"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "categories" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "categories" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <StyleOutlinedIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "categories"
+                          ? "var(--primary-dark)"
+                          : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Categories</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "categories"
+                        ? "var(--primary-dark)"
+                        : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+            <Link
+              href="/app/account/inventory/tags"
+              className={`${styles.menu_link_group}`}
+            >
+              <MenuItem
+                sx={{
+                  backgroundColor: `${
+                    pageRoute === "tags" && "var(--primary-light)"
+                  }`,
+
+                  borderRadius: `${pageRoute === "tags" && "4px"}`,
+                }}
+              >
+                <ListItemIcon>
+                  <ClassOutlinedIcon
+                    fontSize="small"
+                    sx={{
+                      color: `${
+                        pageRoute === "tags" ? "var(--primary-dark)" : "gray"
+                      }  `,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<p className="text-sm font-light">Tags</p>}
+                  sx={{
+                    color: `${
+                      pageRoute === "tags" ? "var(--primary-dark)" : "gray"
+                    }  `,
+                  }}
+                />
+              </MenuItem>
+            </Link>
+          </List>
+        </Collapse>
+
+        <Link href="/app/account/chat" className={`${styles.menu_link_group}`}>
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                pageRoute === "chat" && "var(--primary-light)"
+              }`,
+
+              borderRadius: `${pageRoute === "chat" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <SmsIcon
+                sx={{
+                  color: `${
+                    pageRoute === "chat" ? "var(--primary-dark)" : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Chat"
+              sx={{
+                color: `${
+                  pageRoute === "chat" ? "var(--primary-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link>
+        <Link
+          href="/app/account/revenue"
+          className={`${styles.menu_link_group}`}
+        >
+          <MenuItem
+            sx={{
+              backgroundColor: `${
+                pageRoute === "revenue" && "var(--primary-light)"
+              }`,
+
+              borderRadius: `${pageRoute === "revenue" && "4px"}`,
+            }}
+          >
+            <ListItemIcon>
+              <SavingsIcon
+                sx={{
+                  color: `${
+                    pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
+                  }  `,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Revenue"
+              sx={{
+                color: `${
+                  pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
+                }  `,
+              }}
+            />
+          </MenuItem>
+        </Link>
         <MenuItem onClick={handleNestedStoreList}>
           <ListItemIcon>
-            <StoreIcon
+            <SettingsOutlinedIcon
               sx={{
                 color: `${
                   pageRoute === "availability" ||
@@ -158,7 +521,7 @@ function DesktopNavBar({ pageRoute }) {
             />
           </ListItemIcon>
           <ListItemText
-            primary="Store"
+            primary="Settings"
             sx={{
               color: `${
                 pageRoute === "availability" ||
@@ -297,212 +660,6 @@ function DesktopNavBar({ pageRoute }) {
             </Link>
           </List>
         </Collapse>
-
-        <MenuItem onClick={handleNestedOrderList}>
-          <ListItemIcon>
-            <LocalGroceryStoreIcon
-              sx={{
-                color: `${
-                  pageRoute === "live" || pageRoute === "history"
-                    ? "var(--primary-dark)"
-                    : "gray"
-                }  `,
-              }}
-            />
-          </ListItemIcon>
-          <ListItemText
-            primary="Orders"
-            sx={{
-              color: `${
-                pageRoute === "live" || pageRoute === "history"
-                  ? "var(--primary-dark)"
-                  : "gray"
-              }  `,
-            }}
-          />
-          {openOrderList ? (
-            <ExpandLess
-              sx={{
-                color: "var(--primary-dark)",
-              }}
-            />
-          ) : (
-            <ExpandMore
-              sx={{
-                color: "gray",
-              }}
-            />
-          )}
-        </MenuItem>
-        <Collapse in={openOrderList} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding sx={{ pl: "16px" }}>
-            <Link
-              href="/app/account/orders/live"
-              className={`${styles.menu_link_group}`}
-            >
-              <MenuItem
-                sx={{
-                  backgroundColor: `${
-                    pageRoute === "live" && "var(--primary-light)"
-                  }`,
-
-                  borderRadius: `${pageRoute === "live" && "4px"}`,
-                }}
-              >
-                <ListItemIcon>
-                  <LocalOfferOutlinedIcon
-                    fontSize="small"
-                    sx={{
-                      color: `${
-                        pageRoute === "live" ? "var(--primary-dark)" : "gray"
-                      }  `,
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={<p className="text-sm font-light">Live</p>}
-                  sx={{
-                    color: `${
-                      pageRoute === "live" ? "var(--primary-dark)" : "gray"
-                    }  `,
-                  }}
-                />
-              </MenuItem>
-            </Link>
-            <Link
-              href="/app/account/orders/history"
-              className={`${styles.menu_link_group}`}
-            >
-              <MenuItem
-                sx={{
-                  backgroundColor: `${
-                    pageRoute === "history" && "var(--primary-light)"
-                  }`,
-
-                  borderRadius: `${pageRoute === "history" && "4px"}`,
-                }}
-              >
-                <ListItemIcon>
-                  <HistoryIcon
-                    fontSize="small"
-                    sx={{
-                      color: `${
-                        pageRoute === "history" ? "var(--primary-dark)" : "gray"
-                      }  `,
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={<p className="text-sm font-light">History</p>}
-                  sx={{
-                    color: `${
-                      pageRoute === "history" ? "var(--primary-dark)" : "gray"
-                    }  `,
-                  }}
-                />
-              </MenuItem>
-            </Link>
-          </List>
-        </Collapse>
-
-        <Link
-          href="/app/account/inventory/products"
-          className={`${styles.menu_link_group}`}
-        >
-          <MenuItem
-            sx={{
-              backgroundColor: `${
-                (pageRoute === "products" || pageRoute === "category") &&
-                "var(--primary-light)"
-              }`,
-              borderRadius: `${
-                (pageRoute === "products" || pageRoute === "category") && "4px"
-              }`,
-            }}
-          >
-            <ListItemIcon>
-              <InventoryIcon
-                sx={{
-                  color: `${
-                    pageRoute === "products" || pageRoute === "category"
-                      ? "var(--primary-dark)"
-                      : "gray"
-                  }  `,
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Inventory"
-              sx={{
-                color: `${
-                  pageRoute === "products" || pageRoute === "category"
-                    ? "var(--primary-dark)"
-                    : "gray"
-                }  `,
-              }}
-            />
-          </MenuItem>
-        </Link>
-
-        <Link href="/app/account/chat" className={`${styles.menu_link_group}`}>
-          <MenuItem
-            sx={{
-              backgroundColor: `${
-                pageRoute === "chat" && "var(--primary-light)"
-              }`,
-
-              borderRadius: `${pageRoute === "chat" && "4px"}`,
-            }}
-          >
-            <ListItemIcon>
-              <SmsIcon
-                sx={{
-                  color: `${
-                    pageRoute === "chat" ? "var(--primary-dark)" : "gray"
-                  }  `,
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Chat"
-              sx={{
-                color: `${
-                  pageRoute === "chat" ? "var(--primary-dark)" : "gray"
-                }  `,
-              }}
-            />
-          </MenuItem>
-        </Link>
-        <Link href="/app/account/revenue" className={`${styles.menu_link_group}`}>
-          <MenuItem
-            sx={{
-              backgroundColor: `${
-                pageRoute === "revenue" && "var(--primary-light)"
-              }`,
-
-              borderRadius: `${pageRoute === "revenue" && "4px"}`,
-            }}
-          >
-            <ListItemIcon>
-              <SavingsIcon
-                sx={{
-                  color: `${
-                    pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
-                  }  `,
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Revenue"
-              sx={{
-                color: `${
-                  pageRoute === "revenue" ? "var(--primary-dark)" : "gray"
-                }  `,
-              }}
-            />
-          </MenuItem>
-        </Link>
-
         {/* <Link href="/app/account/contacts" className={`${styles.menu_link_group}`}>
           <MenuItem
             sx={{
@@ -744,7 +901,10 @@ function DesktopNavBar({ pageRoute }) {
           </List>
         </Collapse>
 
-        <Link href="/app/account/settings" className={`${styles.menu_link_group}`}>
+        <Link
+          href="/app/account/settings"
+          className={`${styles.menu_link_group}`}
+        >
           <MenuItem
             sx={{
               backgroundColor: `${
@@ -755,7 +915,7 @@ function DesktopNavBar({ pageRoute }) {
             }}
           >
             <ListItemIcon>
-              <SettingsIcon
+              <PersonIcon
                 sx={{
                   color: `${
                     pageRoute === "account-settings"
@@ -766,7 +926,7 @@ function DesktopNavBar({ pageRoute }) {
               />
             </ListItemIcon>
             <ListItemText
-              primary="Settings"
+              primary="Account"
               sx={{
                 color: `${
                   pageRoute === "account-settings"
@@ -777,7 +937,10 @@ function DesktopNavBar({ pageRoute }) {
             />
           </MenuItem>
         </Link>
-        <Link href="/app/account/newsroom" className={`${styles.menu_link_group}`}>
+        <Link
+          href="/app/account/newsroom"
+          className={`${styles.menu_link_group}`}
+        >
           <MenuItem
             sx={{
               backgroundColor: `${

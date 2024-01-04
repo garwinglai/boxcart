@@ -134,15 +134,19 @@ function Categories({ userAccount }) {
           action={action}
         />
 
-        <div className="flex gap-2">
-          <ButtonFourth handleClick={handleProductRoute} name="Products" />
-          <ButtonFilter handleClick={handleCategoryRoute} name="Categories" />
-        </div>
-        <div>
-          <ButtonPrimary
-            name="+ Category"
-            handleClick={toggleDrawer("right", true)}
-          />
+        <div className="ml-auto">
+          <div className="h-12 w-12 rounded-full fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
+            <ButtonPrimary
+              handleClick={toggleDrawer("right", true)}
+              name={
+                <div className="flex items-center gap-2">
+                  <p className="text-lg md:text-sm">+</p>
+                  <p className="hidden md:block md:text-sm">Create</p>
+                </div>
+              }
+            />
+          </div>
+
           <CategoryDrawer
             isDesktopView={false}
             state={state}
@@ -268,7 +272,7 @@ Categories.getLayout = function getLayout(
   );
 };
 
-Categories.pageTitle = "Category";
+Categories.pageTitle = "Categories";
 Categories.pageIcon = (
   <div className="relative w-8 h-8">
     <Image
@@ -281,5 +285,5 @@ Categories.pageIcon = (
     />
   </div>
 );
-Categories.pageRoute = "category";
-Categories.mobilePageRoute = "category";
+Categories.pageRoute = "categories";
+Categories.mobilePageRoute = "categories";

@@ -1,6 +1,100 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+export async function createDigitalProductBatchFromThirdParty(batchData) {
+  const batchPromises = [];
+  console.log("batchData", batchData);
+
+  for (let i = 0; i < batchData.length; i++) {
+    const currentProduct = batchData[i];
+
+    const product = prisma.digitalProduct.create({
+      data: currentProduct,
+    });
+
+    batchPromises.push(product);
+  }
+
+  try {
+    const results = await Promise.all(batchPromises);
+    return { success: true, products: results };
+  } catch (error) {
+    console.log("error", error);
+    const errorData = {
+      errorCode: "",
+      errorMeta: "",
+      errorMessage: "",
+      clientVersion: "",
+      // product: currentProduct,
+    };
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const { code, meta, message, clientVersion } = error;
+      errorData.errorCode = code;
+      errorData.errorMeta = meta;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    } else if (error instanceof Prisma.PrismaClientValidationError) {
+      const { message, clientVersion } = error;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    } else {
+      const { message, clientVersion } = error;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    }
+
+    return { success: false, error: errorData };
+  }
+}
+
+export async function createProductBatchFromThirdParty(batchData) {
+  const batchPromises = [];
+  console.log("batchData", batchData);
+
+  for (let i = 0; i < batchData.length; i++) {
+    const currentProduct = batchData[i];
+
+    const product = prisma.product.create({
+      data: currentProduct,
+    });
+
+    batchPromises.push(product);
+  }
+
+  try {
+    const results = await Promise.all(batchPromises);
+    return { success: true, products: results };
+  } catch (error) {
+    console.log("error", error);
+    const errorData = {
+      errorCode: "",
+      errorMeta: "",
+      errorMessage: "",
+      clientVersion: "",
+      // product: currentProduct,
+    };
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const { code, meta, message, clientVersion } = error;
+      errorData.errorCode = code;
+      errorData.errorMeta = meta;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    } else if (error instanceof Prisma.PrismaClientValidationError) {
+      const { message, clientVersion } = error;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    } else {
+      const { message, clientVersion } = error;
+      errorData.errorMessage = message;
+      errorData.clientVersion = clientVersion;
+    }
+
+    return { success: false, error: errorData };
+  }
+}
+
 export async function createBatchProductsInternal(batchData) {
   const savedProducts = [];
   const productWithErrors = [];
@@ -273,6 +367,7 @@ const createDigitalProduct = (product) => {
     relatedCategories,
     fireStorageId,
     defaultImage,
+    defaultImageFileName,
   } = productSchema;
 
   return prisma.digitalProduct.create({
@@ -306,6 +401,7 @@ const createDigitalProduct = (product) => {
       fireStorageId,
       digitalProductId,
       defaultImage,
+      defaultImageFileName,
       images: {
         create: [
           {
@@ -785,6 +881,7 @@ const updateDigitalProduct = (product) => {
     salePriceStr,
     fireStorageId,
     defaultImage,
+    defaultImageFileName,
     relatedCategories,
     removedCategories,
   } = productSchema;
@@ -801,6 +898,7 @@ const updateDigitalProduct = (product) => {
       salePricePenny,
       salePriceStr,
       defaultImage,
+      defaultImageFileName,
       fireStorageId,
       images: {
         create:

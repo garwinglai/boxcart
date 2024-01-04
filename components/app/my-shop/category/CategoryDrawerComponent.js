@@ -326,16 +326,12 @@ function CategoryDrawerComponent({
                 <option value="n/a">n/a</option>
                 {products.map((product) => (
                   <option key={product.id} value={JSON.stringify(product)}>
-                    {product.productName} -{" "}
-                    {product.productId ? product.productId : product.id}
+                    {product.productName}
                   </option>
                 ))}
                 {digitalProducts.map((product) => (
                   <option key={product.id} value={JSON.stringify(product)}>
-                    {product.productName} -{" "}
-                    {product.digitalProductId
-                      ? product.digitalProductId
-                      : product.id}
+                    {product.productName}
                   </option>
                 ))}
               </React.Fragment>
@@ -363,17 +359,17 @@ function CategoryDrawerComponent({
             <div>
               {addedDigitalProducts.length > 0 && (
                 <div>
-                  <h3 className="text-sm">Digital products</h3>
+                  <h3 className="text-sm mt-2">Digital products</h3>
                   {addedDigitalProducts.map((product, idx) => {
                     const { productName, productId, id } = product;
 
                     return (
                       <div
                         key={productId ? productId : id ? id : idx}
-                        className="flex justify-between items-center w-full mb-2"
+                        className="flex justify-between items-center w-full"
                       >
                         <li key={idx} className="text-sm font-light">
-                          {productName} - {productId ? productId : id ? id : ""}
+                          {productName}
                         </li>
                         <IconButton
                           onClick={deleteAddedProduct(product)}
@@ -391,17 +387,17 @@ function CategoryDrawerComponent({
               )}
               {addedProducts.length > 0 && (
                 <div>
-                  <h3 className="text-sm">Products</h3>
+                  <h3 className="text-sm mt-4">Products</h3>
                   {addedProducts.map((product, idx) => {
                     const { productName, productId, id } = product;
 
                     return (
                       <div
                         key={productId ? productId : id ? id : idx}
-                        className="flex justify-between items-center w-full mb-2"
+                        className="flex justify-between items-center w-full"
                       >
                         <li key={idx} className="text-sm font-light">
-                          {productName} - {productId ? productId : id ? id : ""}
+                          {productName}
                         </li>
                         <IconButton
                           onClick={deleteAddedProduct(product)}

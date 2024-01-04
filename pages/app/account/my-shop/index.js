@@ -260,7 +260,11 @@ function MyShop({ userAccount }) {
         message={snackbarMessage}
         // action={action}
       />
-      <ShopHeader isOwner={true} userAccount={userAccount} />
+      <ShopHeader
+        isOwner={true}
+        userAccount={userAccount}
+        isSignUpModalOpen={false}
+      />
       <div className="lg:flex lg:justify-between lg:items-end">
         <div className="lg:w-1/2">
           <ShopBio isOwner={true} userAccount={userAccount} />

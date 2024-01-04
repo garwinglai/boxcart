@@ -7,7 +7,6 @@ import TextField from "@mui/material/TextField";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
-import ButtonThird from "@/components/global/buttons/ButtonThird";
 import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import Snackbar from "@mui/material/Snackbar";
@@ -169,6 +168,7 @@ function AccountSettings({ userAccount }) {
         message={alertMsg}
         action={action}
       />
+
       <form
         onSubmit={handleSaveUserValues}
         className={`${styles.section_box} ${styles.user_info_box} ${styles.flexCol}`}

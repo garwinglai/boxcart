@@ -3,8 +3,6 @@ import { useRouter } from "next/router";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import AppLayout from "@/components/layouts/AppLayout";
 import styles from "@/styles/app/account/checklist.module.css";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ClearIcon from "@mui/icons-material/Clear";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import Box from "@mui/material/Box";
@@ -77,7 +75,6 @@ function Checklist({ userSession, userAccount, pageTitle }) {
 
   // UseEffects
   useEffect(() => {
-    console.log("isChecklistComplete", isChecklistComplete);
     setChecklistStore(checklist);
     setChecklistStore({ isChecklistComplete });
     setChecklistStore({ isNonMandatoryChecklistComplete });

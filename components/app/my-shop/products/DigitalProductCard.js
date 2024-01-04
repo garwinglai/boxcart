@@ -522,18 +522,33 @@ function DigitalProductCard({
       }`}
     >
       <div className="flex justify-between items-start border-b border-[color:var(--gray-light-med)]">
-        <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
-          <div className="w-full h-full relative aspect-square">
-            <Image
-              src={defaultImage}
-              alt="pdf cover image"
-              fill
-              priority={true}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="rounded-ss object-cover w-full h-full"
-            />
+        {defaultImage ? (
+          <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+            <div className="w-full h-full relative aspect-square">
+              <Image
+                src={defaultImage}
+                alt="pdf cover image"
+                fill
+                priority={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="rounded-ss object-cover w-full h-full"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+            <div className="w-full h-full relative aspect-square">
+              <Image
+                src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                alt="default product image"
+                fill
+                priority={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="rounded-ss object-cover w-full h-full"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex-grow flex flex-col py-2 pl-2">
           <div className="flex item-center justify-between gap-2">

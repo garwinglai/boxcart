@@ -46,8 +46,10 @@ function ShopMenu({
               )}
               <div
                 className={`w-full grid grid-cols-2 gap-x-2 gap-y-6 ${
-                  isOwner ? "md:grid-cols-3" : "md:grid-cols-3"
-                } lg:grid-cols-4  3xl:grid-cols-5`}
+                  isOwner
+                    ? "min-[640px]:grid-cols-3"
+                    : "min-[640px]:grid-cols-3"
+                } lg:grid-cols-4  2xl:grid-cols-5`}
               >
                 {products.map((product, idx) => {
                   const { isEnabled } = product;
@@ -101,8 +103,10 @@ function ShopMenu({
               )}
               <div
                 className={`w-full grid grid-cols-2 gap-x-2 gap-y-6 ${
-                  isOwner ? "md:grid-cols-3" : "md:grid-cols-3"
-                } lg:grid-cols-4  3xl:grid-cols-5`}
+                  isOwner
+                    ? "min-[640px]:grid-cols-3"
+                    : "min-[640px]:grid-cols-3"
+                } lg:grid-cols-4  2xl:grid-cols-5`}
               >
                 {digitalProducts.map((product, idx) => {
                   const { isEnabled } = product;

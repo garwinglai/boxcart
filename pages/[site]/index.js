@@ -307,7 +307,7 @@ function Sites({ siteData, shopper }) {
           isSignUpModalOpen={isSignUpModalOpen}
         />
 
-        <div className="md:flex md:justify-between md:items-end lg:px-28">
+        <div className="md:flex md:justify-between md:items-end lg:px-16 xl:px-28">
           <div className="md:w-1/2">
             <ShopBio
               isOwner={false}
@@ -315,7 +315,7 @@ function Sites({ siteData, shopper }) {
               handleOpenSnackbar={handleOpenSnackbar}
             />
           </div>
-          <div className=" md:mt-12 md:w-1/2">
+          <div className="mt-2 md:mt-12 md:w-1/2">
             <ShopFulfillment
               isOwner={false}
               userAccount={siteData}
@@ -323,10 +323,10 @@ function Sites({ siteData, shopper }) {
             />
           </div>
         </div>
-        <div className="px-4 lg:px-28">
+        <div className="px-4 lg:px-16 xl:px-28 ">
           <Divider light />
         </div>
-        <div className="mt-2 lg:px-28">
+        <div className="mt-2 lg:px-16 xl:px-28 ">
           <ShopSearchBar
             allInitialProducts={allInitialProducts}
             isOwner={false}
@@ -339,7 +339,7 @@ function Sites({ siteData, shopper }) {
             handleChangeSort={handleChangeSort}
           />
         </div>
-        <div className="flex w-full lg:px-28 xl:mt-4">
+        <div className="flex w-full lg:px-16 xl:px-28  xl:mt-4">
           <div className="hidden lg:block min-w-fit">
             <CategoryShopList
               allInitialProducts={allInitialProducts}

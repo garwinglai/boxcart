@@ -1049,11 +1049,11 @@ function CheckoutFormStripe({
         )}
 
         <div className="relative lg:flex-grow">
-          <div className="bg-white border-t-2 md:border md:round md:mx-16 lg:mx-0">
+          <div className="bg-white border-t-2 px-4 md:border md:round md:mx-16 lg:mx-0">
             <OrderReview />
           </div>
 
-          <div className="bg-white border-t-2 md:border md:round md:my-4 md:mx-16 lg:mx-0">
+          <div className="bg-white border-t-2 px-4 md:border md:round md:my-4 md:mx-16 lg:mx-0">
             <OrderSubtotal isInCart={false} />
           </div>
           <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">

@@ -15,7 +15,6 @@ import {
   query,
   where,
   collection,
-  getDocs,
   orderBy,
 } from "firebase/firestore";
 import { useAccountStore } from "@/lib/store";
@@ -145,7 +144,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
           </h3>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-1 lg:gap-2">
           <IconButton
             onClick={handleOpenNotificationMenu}
             aria-label={notificationsLabel(notifications.length)}
@@ -163,6 +162,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
               />
             </Badge>
           </IconButton>
+
           <React.Fragment>
             <SwipeableDrawer
               anchor="top"

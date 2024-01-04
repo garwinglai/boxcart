@@ -4,7 +4,6 @@ import CardMembershipIcon from "@mui/icons-material/CardMembership";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import StarPurple500Icon from "@mui/icons-material/StarPurple500";
 import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
@@ -22,12 +21,9 @@ import { deleteLocalStorage } from "@/utils/clientStorage";
 import { useAccountStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import ButtonPrimary from "../global/buttons/ButtonPrimary";
-import { ContactEmergencyOutlined } from "@mui/icons-material";
-import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import { Divider } from "@mui/material";
-import DiscountIcon from "@mui/icons-material/Discount";
-import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
+import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 
 function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
   const hydrated = useHasHydrated();
@@ -39,7 +35,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
   const [openStoreList, setOpenStoreList] = useState(
     mobilePageRoute === "profile" ||
       mobilePageRoute === "products" ||
-      mobilePageRoute === "category" ||
+      mobilePageRoute === "categories" ||
       mobilePageRoute === "availability" ||
       mobilePageRoute === "fulfillment" ||
       mobilePageRoute === "payments"
@@ -471,7 +467,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
             }}
           >
             <ListItemIcon>
-              <SettingsOutlinedIcon
+              <PermIdentityOutlinedIcon
                 sx={{
                   color: `${
                     mobilePageRoute === "account-settings"
@@ -482,7 +478,7 @@ function MobileNavBar({ toggleDrawer, mobilePageRoute }) {
               />
             </ListItemIcon>
             <ListItemText
-              primary="Settings"
+              primary="Account"
               sx={{
                 color: `${
                   mobilePageRoute === "account-settings"

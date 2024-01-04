@@ -1,3 +1,5 @@
+const { withPlausibleProxy } = require("next-plausible");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -17,10 +19,19 @@ const nextConfig = {
         hostname: "static.gotprint.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "i.etsystatic.com",
+        port: "",
+      },
     ],
   },
   reactStrictMode: true,
-  // serverRuntimeConfig: ["@prisma/client, bcrypt"],
 };
 
 module.exports = nextConfig;

@@ -8,9 +8,7 @@ import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import login_icon from "@/public/images/icons/login_icon.png";
 import Image from "next/image";
-import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIsChecklistCompleteClient } from "@/helper/client/api/account/account-schema";
-import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { useAccountStore, useConnectAccountStore } from "@/lib/store";
 import { ChevronLeft } from "@mui/icons-material";
 import { checkIfUserEmailInUse } from "@/helper/client/api/user";
@@ -188,6 +186,7 @@ function Signin() {
         <ChevronLeft />
         Home
       </Link>
+
       <div className={`${styles.outerContainer} pt-12 px-2 md:shadow md:p-12`}>
         <div className="relative">
           {/* <button className="ml-8" onClick={() => push("https://www.home.boxcart.shop")}>
