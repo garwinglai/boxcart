@@ -36,11 +36,11 @@ const nextConfig = {
     // Copy public folder to .next folder during build
     if (!isServer) {
       config.plugins.push(
-        new CopyPlugin({
+        new CopyWebpackPlugin({
           patterns: [
             {
               from: "public",
-              to: ".next",
+              to: ".next/public",
               globOptions: {
                 ignore: ["**/_*.{js,json}", "**/_*/**"],
               },
