@@ -1,13 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "BoxCart",
-  "description": "A way to shop small and local",
-  "version": "0.0.1",
+  "name": "WhatIsPoint.xyz",
+  "short_name": "whatispoint",
+  "version": "0.1.2",
+  "description": "Get the main insight from an article using GPT",
   "icons": {
-    "128": "/images/temp/boxcart_logo_temp.png"
+    "16": "/icons/favicon-16x16.png",
+    "32": "/icons/favicon-32x32.png",
+    "48": "/icons/favicon-48x48.png",
+    "128": "/icons/128x128.png",
+    "192": "/icons/android-chrome-192x192.png"
   },
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["inject.js"]
+    }
+  ],
   "action": {
-    "default_popup": "extension.html",
-    "default_title": "SHop small and local"
+    "default_popup": "extension.html"
   }
 }

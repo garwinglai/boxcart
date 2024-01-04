@@ -1,9 +1,6 @@
-const CopyPlugin = require("copy-webpack-plugin");
-const fs = require("fs");
-const path = require("path");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
   images: {
     remotePatterns: [
       {
@@ -34,33 +31,26 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  webpack: (config, { isServer }) => {
-    // Copy extension files to .next folder during build
-    if (!isServer) {
-      config.plugins.push({
-        apply: (compiler) => {
-          compiler.hooks.afterEmit.tap("CopyExtensionFiles", () => {
-            const filesToCopy = [
-              "public/manifest.json",
-              // Add other extension files or folders as needed
-            ];
-
-            filesToCopy.forEach((file) => {
-              const sourcePath = path.resolve(__dirname, file);
-              const destinationPath = path.resolve(
-                __dirname,
-                ".next",
-                file.replace("public/", "")
-              );
-
-              require("fs").copyFileSync(sourcePath, destinationPath);
-            });
-          });
-        },
-      });
-    }
-
-    return config;
+  async headers() {
+    return [
+      {
+        // matching all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "OPTIONS,POST",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+          },
+        ],
+      },
+    ];
   },
 };
 
