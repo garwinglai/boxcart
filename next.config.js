@@ -1,7 +1,7 @@
-const withCopyWebpackPlugin = require("next-copy-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type {import('next').NextConfig} */
-const nextConfig = withCopyWebpackPlugin({
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -32,6 +32,26 @@ const nextConfig = withCopyWebpackPlugin({
     ],
   },
   reactStrictMode: true,
-});
+  webpack: (config, { isServer }) => {
+    // Copy public folder to .next folder during build
+    if (!isServer) {
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            {
+              from: "public",
+              to: ".next",
+              globOptions: {
+                ignore: ["**/_*.{js,json}", "**/_*/**"],
+              },
+            },
+          ],
+        })
+      );
+    }
+
+    return config;
+  },
+};
 
 module.exports = nextConfig;
