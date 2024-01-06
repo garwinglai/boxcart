@@ -18,6 +18,7 @@ function Extension() {
   useEffect(() => {
     document.addEventListener("DOMContentLoaded", function () {
       // Your popup script logic goes here
+      console.log("Popup loaded yessir!");
     });
     const fetchProducts = async () => {
       const route = "/api/public/extension/get-products";
