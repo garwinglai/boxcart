@@ -5,6 +5,6 @@
   "description": "Get the main insight from an article using GPT",
   "permissions": ["activeTab"],
   "action": {
-    "default_popup": "extension/index.js"
+    "default_popup": "popup.html"
   }
 }
