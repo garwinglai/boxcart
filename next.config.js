@@ -32,9 +32,16 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Resolve .jsx and .js files
-    config.resolve.extensions.push(".jsx");
+    // Copy the chrome-extension folder to the build directory
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        "process.env.ASSET_PREFIX": JSON.stringify(
+          isServer ? "" : "/chrome-extension/"
+        ),
+      })
+    );
 
     return config;
   },
