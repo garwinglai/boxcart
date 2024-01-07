@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "Discover local products in your area while searching on Google, Amazon, Etsy, and more! Support local businesses and explore unique alternatives to big box retailers with LocalShop Finder.",
   "permissions": ["tabs"],
-  "host_permissions": ["https://*.google.com/*"],
+  "host_permissions": ["https://*.google.com/*", "http://localhost:3000/api/*"],
   "action": {
     "default_popup": "popup/popup.html"
   },
