@@ -2,9 +2,25 @@
   "manifest_version": 3,
   "name": "BoxCart",
   "version": "0.0.1",
-  "description": "Get the main insight from an article using GPT",
-  "permissions": ["activeTab"],
+  "description": "Discover local products in your area while searching on Google, Amazon, Etsy, and more! Support local businesses and explore unique alternatives to big box retailers with LocalShop Finder.",
+  "permissions": ["tabs"],
+  "host_permissions": ["https://*.google.com/*"],
   "action": {
-    "default_popup": "popup.html"
-  }
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["https://*.google.com/*"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/user_icon.png"],
+      "matches": ["https://*.google.com/*"]
+    }
+  ]
 }
