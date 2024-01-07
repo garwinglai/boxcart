@@ -1,5 +1,5 @@
+import prisma from "@/lib/prisma";
 import Cors from "micro-cors";
-import prisma from "../../../lib/prisma";
 
 const cors = Cors({
   origin: "*", // Set to the appropriate origin(s) for better security
