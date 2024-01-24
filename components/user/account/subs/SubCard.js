@@ -47,7 +47,7 @@ function SubCard({ account, setAccountData, subEmail }) {
       </div>
       <div className="w-full">
         <p className="text-medium font-medium">{businessName}</p>
-        <p className="text-sm font-normal">{businessBio}</p>
+        {/* <p className="text-sm font-normal">{businessBio}</p> */}
         <p className="text-xs font-extralight">https://{fullDomain}</p>
         <div className="flex items-center gap-4 mt-4 justify-end">
           <div className="h-6">

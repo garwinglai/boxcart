@@ -30,6 +30,7 @@ import {
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
+import PillTab from "./PillTab";
 
 const style = {
   position: "absolute",
@@ -51,6 +52,7 @@ function DigitalProductDrawer({
   isCreateProduct,
   isEditProduct,
   accountId,
+  userAccount,
   updateProductList,
   handleOpenSnackbarGlobal,
   getAllProducts,
@@ -79,9 +81,11 @@ function DigitalProductDrawer({
       : []
   );
 
+  const [tagsInput, setTagsInput] = useState("");
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
+    tags: product ? (product.tags ? product.tags.split(", ") : []) : [],
     salePriceInt: product
       ? product.salePricePenny
         ? (product.salePricePenny / 100).toFixed(2)
@@ -120,6 +124,7 @@ function DigitalProductDrawer({
   const {
     productName,
     description,
+    tags,
     priceInt,
     salePriceInt,
     id,
@@ -134,9 +139,7 @@ function DigitalProductDrawer({
   const handleCategoryNameChange = (e) => {
     const { value } = e.target;
 
-    // Change value to have uppercase first letter
-    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
-    setNewCategoryInput(capitalizedValue);
+    setNewCategoryInput(value);
   };
 
   const handleOpenCategoryModal = () => setOpenCategoryModal(true);
@@ -145,6 +148,26 @@ function DigitalProductDrawer({
   const handleCancelNewCategory = () => {
     setNewCategoryInput("");
     setOpenCategoryModal(false);
+  };
+
+  const handleTagsInput = (e) => {
+    const { value } = e.target;
+
+    if (value.length > 40) {
+      handleOpenSnackbar("Max characters reached.");
+      return;
+    }
+
+    // check that tags cannot have symbols except for hypens "-"
+    const regex = /^[a-zA-Z0-9- ]*$/;
+    const isTagsFormat = regex.test(value);
+
+    if (!isTagsFormat) {
+      handleOpenSnackbar("Tags cannot have symbols except for hypens.");
+      return;
+    }
+
+    setTagsInput(value);
   };
 
   const handleAddNewCategory = () => {
@@ -161,7 +184,9 @@ function DigitalProductDrawer({
     // if the value is already in the allCategories array, return
     const allCategoriesArr = allCategories.map((item) => item.categoryName);
     if (allCategoriesArr.includes(newCategoryInput)) {
-      handleOpenSnackbar("Category already exists");
+      handleOpenSnackbar(
+        "Category already exists. Select from saved categories."
+      );
       return;
     }
 
@@ -170,7 +195,9 @@ function DigitalProductDrawer({
     );
 
     if (relatedCategoriesArr.includes(newCategoryInput)) {
-      handleOpenSnackbar("Category already exists");
+      handleOpenSnackbar(
+        "Category already exists. Select from saved categories."
+      );
       return;
     }
 
@@ -788,6 +815,7 @@ function DigitalProductDrawer({
         productName: "",
         description: "",
         priceInt: "",
+        tags: [],
         priceStr: "",
         salePriceInt: "",
         salePriceStr: "",
@@ -808,6 +836,7 @@ function DigitalProductDrawer({
         description,
         priceIntPenny,
         priceStr,
+        tags,
         salePricePenny,
         salePriceStr,
         digitalFiles,
@@ -820,6 +849,7 @@ function DigitalProductDrawer({
       setProductValues({
         productName,
         description,
+        tags: tags ? tags.split(", ") : [],
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
         salePriceInt:
@@ -894,10 +924,18 @@ function DigitalProductDrawer({
     }
 
     const convertToPriceStr = `$${priceValue}`;
+    const productTags = tags.join(", ");
+    const lat = userAccount.lat;
+    const lng = userAccount.lng;
+    const geohash = userAccount.geohash;
 
     const productSchema = {
       id,
       digitalProductId,
+      tags: productTags,
+      lat,
+      lng,
+      geohash,
       accountId,
       productName,
       description,
@@ -953,8 +991,8 @@ function DigitalProductDrawer({
         onSubmit={handleSave}
         className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-56 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
-        <div className="flex justify-between items-center sticky top-0 z-10">
-          <span className="flex gap-2 items-center">
+        <div className="flex justify-between items-center sticky top-0 z-10 bg-white rounded-full shadow-lg py-2 px-4">
+          <span className="flex gap-1 items-center">
             <Image
               src={pdf_icon}
               alt="bardcode icon"
@@ -973,8 +1011,8 @@ function DigitalProductDrawer({
         </div>
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
           <div className="w-full relative ">
-            <span className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <span className="flex items-start justify-between gap-1">
+              <div className="flex items-center gap-1">
                 <h4 className="text-black font-semibold text-sm ">Files:</h4>
               </div>
               <div>
@@ -984,7 +1022,7 @@ function DigitalProductDrawer({
               </div>
             </span>
 
-            <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
+            <div className="flex overflow-x-scroll w-full mt-4 gap-1 pb-4">
               {digitalFiles.length !== 0 ? (
                 digitalFiles.map((file, idx) => {
                   const { name: fileName } = file;
@@ -1058,8 +1096,8 @@ function DigitalProductDrawer({
             <Divider />
           </div>
           <div className="w-full relative mt-4">
-            <span className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <span className="flex items-start justify-between gap-1">
+              <div className="flex items-center gap-1">
                 <h4 className="text-black font-semibold text-sm ">
                   Cover image:
                 </h4>
@@ -1125,8 +1163,8 @@ function DigitalProductDrawer({
             </div>
           </div>
 
-          <span className="flex flex-col gap-2 mt-4">
-            <div className="flex items-center gap-2">
+          <span className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="title"
                 className="text-black font-medium text-base "
@@ -1148,8 +1186,8 @@ function DigitalProductDrawer({
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
             />
           </span>
-          <span className="flex flex-col gap-2 mt-4">
-            <div className="flex items-center gap-2">
+          <span className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="description"
                 className="text-black font-medium text-base "
@@ -1169,8 +1207,8 @@ function DigitalProductDrawer({
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
             />
           </span>
-          <span className="flex flex-col gap-2 mt-4 relative">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1 mt-4 relative">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="price"
                 className="text-black font-medium text-base "
@@ -1196,9 +1234,9 @@ function DigitalProductDrawer({
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-4 relative">
-            <div className="flex items-center gap-2">
+          </div>
+          <div className="flex flex-col gap-1 mt-4 relative">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="price"
                 className="text-black font-medium text-base "
@@ -1223,12 +1261,80 @@ function DigitalProductDrawer({
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-6 relative">
+          </div>
+          <div className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
+              <label
+                htmlFor="title"
+                className="text-black font-medium text-base "
+              >
+                Search gags:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(optional)</p>
+              </span>
+            </div>
+            <p className="text-xs">
+              Create <u>descriptive</u> tags to get found on search! Max: 28
+              tags (Don&apos;t repeat tags)
+            </p>
+            {tags.length < 29 && (
+              <div className="flex gap-2">
+                <div className="flex-grow flex flex-col justify-end items-end">
+                  <input
+                    type="text"
+                    onKeyDown={handleKeyDown}
+                    id="tags"
+                    value={tagsInput}
+                    placeholder="gifts, kids toy, pants, etc."
+                    name="tags"
+                    onChange={handleTagsInput}
+                    className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
+                  />
+                  <p className="text-gray-500 text-xs">{tagsInput.length}/40</p>
+                </div>
+                <div className="h-8">
+                  <ButtonPrimary
+                    type="button"
+                    name="Add"
+                    disabled={tagsInput === ""}
+                    handleClick={() => {
+                      // Check if tagsInput is within tags, if not, add it in.
+                      const lowerCaseTag = tagsInput.toLowerCase();
+                      if (!tags.includes(lowerCaseTag)) {
+                        setProductValues((prev) => ({
+                          ...prev,
+                          tags: [...tags, lowerCaseTag],
+                        }));
+                      }
+                      setTagsInput("");
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {tags.length !== 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {tags.map((tag, index) => (
+                  <PillTab
+                    key={index}
+                    name={tag}
+                    handleClick={() => {
+                      setProductValues((prev) => ({
+                        ...prev,
+                        tags: tags.filter((t) => t !== tag),
+                      }));
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mt-6 relative">
             <div className="flex justify-between items-center">
               <label
                 htmlFor="price"
-                className="text-black font-medium text-base flex gap-2 items-center"
+                className="text-black font-medium text-base flex gap-1 items-center"
               >
                 Categories:
                 <span>
@@ -1248,7 +1354,7 @@ function DigitalProductDrawer({
                 >
                   <Box sx={style}>
                     <div className="">
-                      <span className="flex flex-col gap-2">
+                      <span className="flex flex-col gap-1">
                         <label
                           htmlFor="newCategoryInput"
                           className="text-black font-semibold text-sm "
@@ -1267,7 +1373,7 @@ function DigitalProductDrawer({
                           className={`transition-colors duration-300 border border-[color:var(--primary)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
                         />
                       </span>
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex gap-1 mt-4">
                         <div className="w-1/2">
                           <ButtonSecondary
                             type="button"
@@ -1299,7 +1405,7 @@ function DigitalProductDrawer({
                 <option value="">No categories added ...</option>
               ) : (
                 <React.Fragment>
-                  <option value="">Saved categories ...</option>
+                  <option value="">Select from saved categories ...</option>
                   {allCategories.map((category) => (
                     <option
                       key={category.categoryName}
@@ -1311,32 +1417,18 @@ function DigitalProductDrawer({
                 </React.Fragment>
               )}
             </select>
-          </span>
-          <div className="mt-4">
-            <p className="font-medium text-sm">Added categories:</p>
-            <ul>
-              {relatedCategories.length !== 0 ? (
-                relatedCategories.map((category) => (
-                  <div
-                    key={category.categoryName}
-                    className="flex justify-between items-center"
-                  >
-                    <li
-                      key={category.id}
-                      className="text-xs list-disc font-light ml-12 md:text-sm"
-                    >
-                      {category.categoryName}
-                    </li>
-                    <IconButton onClick={removeAddedCategory(category)}>
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </div>
-                ))
-              ) : (
-                <p className="font-extralight text-xs mt-1 ml-2">None added.</p>
-              )}
-            </ul>
           </div>
+          {relatedCategories.length !== 0 && (
+            <div className="mt-2 flex gap-1 flex-wrap">
+              {relatedCategories.map((category, index) => (
+                <PillTab
+                  key={index}
+                  name={category.categoryName}
+                  handleClick={removeAddedCategory(category)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-inner md:absolute md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">

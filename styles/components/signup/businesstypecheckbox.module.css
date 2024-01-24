@@ -1,29 +1,28 @@
 .checkbox_group {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	border: 1px solid var(--primary-dark-med);
-	padding: 10px 20px;
-	border-radius: 45px;
-	width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--primary-dark-med);
+  padding: 10px 20px;
+  border-radius: 45px;
+  width: 100%;
 }
 
 .input_group {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .checkbox_group input {
-	width: 20px;
-	height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .checkbox_group input:checked {
-	accent-color: var(--primary);
+  accent-color: var(--primary);
 }
 
 .checkbox_group label {
-	
-	color: var(--primary-dark);
+  color: var(--primary-dark);
 }

@@ -119,6 +119,7 @@ function Etsy() {
       const priceIntPenny = Number(currItem[`PRICE`]) * 100;
       let priceStr = `$${(priceIntPenny / 100).toString()}`;
       const quantity = Number(currItem[`QUANTITY`]);
+      const productTags = currItem[`TAGS`].split(",").join(", ");
 
       if (!priceStr.includes(".")) {
         priceStr += ".00";
@@ -140,6 +141,11 @@ function Etsy() {
           defaultImage: currItem[`IMAGE1`],
           hasUnlimitedQuantity: quantity === 0 ? true : false,
           quantity: quantity === 0 ? undefined : quantity,
+          isEnabled: currItem[`IMAGE1`] ? true : false,
+          tags: productTags,
+          lat: accountStore.lat,
+          lng: accountStore.lng,
+          geohash: accountStore.geohash,
         },
         images,
         optionGroups,
@@ -389,13 +395,24 @@ function Etsy() {
                     <Alert severity="warning" sx={{ fontSize: "14px" }}>
                       <ol>
                         <li className="mb-2">
+                          <h3 className="text-base font-medium">
+                            Read carefully
+                          </h3>
+                        </li>
+                        <li className="mb-2">
                           <p className=" font-medium">
-                            Product variant pricing and variant quantities is
+                            Product variant pricing and variant quantities are
                             not supported by Etsy on import.
                           </p>
                           <p className="font-medium mt-2">
-                            Please check and manually update variant prices and
-                            variant quantities.
+                            Please check variants and manually update prices and
+                            quantities.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2">
+                          <p className=" font-medium">
+                            Products without images are set to inactive.
                           </p>
                         </li>
                       </ol>
@@ -498,7 +515,9 @@ function Etsy() {
               <span className="absolute flex items-center justify-center w-8 h-8 bg-purple-200 rounded-full -start-4 ring-2 ring-white dark:ring-gray-900 ">
                 <p>6</p>
               </span>
-              <h3 className="font-medium leading-tight">Remove digital products</h3>
+              <h3 className="font-medium leading-tight">
+                Remove digital products
+              </h3>
               <p className="text-sm font-light">
                 In your .csv file, delete the rows that contain digital
                 products, if any.

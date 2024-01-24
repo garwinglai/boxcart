@@ -22,6 +22,8 @@ import {
 import { nanoid } from "@/utils/generateId";
 import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/fireConfig";
+import infinity_icon from "@/public/images/icons/account/infinity_icon.png";
+import { useHasHydrated } from "@/utils/useHasHydrated";
 
 const style = {
   position: "absolute",
@@ -92,26 +94,21 @@ function ProductCard({
   //Props
   const {
     id,
-    productId,
     isEnabled,
     productName,
     rating,
     reviewCount,
-    reviews,
-    priceIntPenny,
-    priceStr,
     salePriceStr,
     defaultImage,
     images,
-    imgArrJson,
-    description,
     quantity,
     setQuantityByProduct,
     hasUnlimitedQuantity,
-    questions,
     optionGroups,
-    relatedCategories,
+    priceStr,
   } = product;
+
+  const hydrayed = useHasHydrated();
 
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -160,6 +157,12 @@ function ProductCard({
   };
 
   const handleSwitchChange = (id) => async (e) => {
+    if (!defaultImage || defaultImage === "") {
+      handleOpenSnackbarGlobal("Upload image to enable product.");
+
+      return;
+    }
+
     setIsItemEnabled((prev) => !prev);
     const toggleVisiblityAPI =
       "/api/private/inventory/product/toggle-visibility";
@@ -574,41 +577,7 @@ function ProductCard({
           {/* <p className="text-xs font-light min-w-fit">
             id: {productId ? productId : id}
           </p> */}
-
-          {/* <p className="text-xs font-light md:text-sm">
-            <b className="text-xs md:text-sm">Price: </b>
-            {salePriceStr && salePriceStr !== "" ? (
-              <span>
-                <span>{salePriceStr}</span>
-                <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
-                  {priceStr}
-                </span>
-              </span>
-            ) : (
-              <span>{priceStr}</span>
-            )}
-          </p> */}
-          {setQuantityByProduct ? (
-            <p className="text-xs my-1 md:text-sm">
-              <b className="text-xs md:text-sm">Qty: </b>
-              {hasUnlimitedQuantity ? (
-                "Unlimited"
-              ) : isSoldOut ? (
-                <span className="text-[color:var(--sale-text)] text-xs">
-                  Sold out
-                </span>
-              ) : (
-                quantity
-              )}
-            </p>
-          ) : (
-            !hasUnlimitedQuantity && (
-              <p className="text-xs font-light md:text-sm">
-                {isSoldOut ? "Out of stock" : ""}
-              </p>
-            )
-          )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 mb-1">
             <Rating
               name="read-only"
               value={parseInt(rating)}
@@ -619,6 +588,46 @@ function ProductCard({
               ({reviewCount})
             </p>
           </div>
+          <p className="text-xs font-light md:text-sm">
+            <span className="text-xs md:text-sm">Price: </span>
+            {salePriceStr && salePriceStr !== "" ? (
+              <span>
+                <b>{salePriceStr}</b>
+                <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
+                  {priceStr}
+                </span>
+              </span>
+            ) : (
+              <b>{priceStr}</b>
+            )}
+          </p>
+          {hydrayed && setQuantityByProduct ? (
+            <p className="text-xs font-light md:text-sm">
+              <span className="text-xs md:text-sm">Qty: </span>
+              {hasUnlimitedQuantity ? (
+                <span className="relative w-4 h-4  inline-block">
+                  <Image
+                    src={infinity_icon}
+                    alt="infinity icon"
+                    fill
+                    className="mt-1"
+                  />
+                </span>
+              ) : isSoldOut ? (
+                <span className="text-[color:var(--sale-text)] text-xs">
+                  Sold out
+                </span>
+              ) : (
+                <b>{quantity}</b>
+              )}
+            </p>
+          ) : (
+            !hasUnlimitedQuantity && (
+              <p className="text-xs font-light md:text-sm">
+                {isSoldOut ? "Out of stock" : ""}
+              </p>
+            )
+          )}
         </div>
         <div className="mr-2">
           <IconButton onClick={handleOpenMenu}>
@@ -700,6 +709,7 @@ function ProductCard({
             state={state}
             toggleDrawer={toggleDrawer}
             product={product}
+            userAccount={userAccount}
             categories={categories}
             isEditProduct={true}
             accountId={accountId}

@@ -188,7 +188,7 @@ function DigitalProduct({ userAccount }) {
         />
 
         <div className="flex flex-col gap-2 justify-end items-end ml-auto sm:flex-row">
-          <div className="h-12 w-12 rounded-full fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
+          <div className="h-12 w-12 rounded-full shadow-lg  fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
             <ButtonPrimary
               handleClick={handleOpenProductCreate}
               name={
@@ -251,6 +251,7 @@ function DigitalProduct({ userAccount }) {
             toggleDrawer={toggleDrawerDigitalProductCreate}
             categories={categories}
             isCreateProduct={true}
+            userAccount={userAccount}
             accountId={accountId}
             handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
             getAllDigitalProducts={getAllDigitalProducts}
@@ -273,7 +274,7 @@ function DigitalProduct({ userAccount }) {
         <React.Fragment>
           {currDigitalProducts.length > 0 && (
             <div className="mb-8">
-              <div className="flex flex-col gap-4 min-[640px]:grid min-[640px]:grid-cols-2 xl:grid-cols-4">
+              <div className="flex flex-col gap-4 min-[640px]:grid min-[640px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {currDigitalProducts.map((product) => {
                   const { id, category, accountId } = product;
                   return (

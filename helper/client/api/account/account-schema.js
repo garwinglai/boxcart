@@ -33,10 +33,10 @@ export async function checkIsChecklistCompleteClient(email) {
 }
 
 export async function updateAccountSettingsClient(data) {
-  const apiUrl = `/api/private/account/update`;
+  const apiUrl = `/api/private/account/settings`;
 
   const resAccount = await fetch(apiUrl, {
-    method: "POST",
+    method: "PATCH",
     body: JSON.stringify(data),
   });
 

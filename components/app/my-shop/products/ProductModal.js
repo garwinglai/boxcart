@@ -39,18 +39,14 @@ function ProductModal({
   handleOpenSnackbar,
 }) {
   const {
-    id,
-    isEnabled,
     productName,
-    priceIntPenny,
+    tags,
     priceStr,
     salePriceStr,
     images,
-    imgArrJson,
     description,
     productId,
     quantity,
-    isQuantityByProduct,
     questions,
     optionGroups,
     relatedCategories,
@@ -162,6 +158,18 @@ function ProductModal({
                         return <span key={categoryName}>{categoryName}</span>;
 
                       return <span key={categoryName}>{categoryName}, </span>;
+                    })
+                  : "n/a"}
+              </p>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Tags: </b>{" "}
+                {tags && tags.split(", ").length > 0
+                  ? tags.split(", ").map((tag, idx) => {
+                      const tagsLength = tags.split(", ").length;
+                      if (idx === tagsLength - 1)
+                        return <span key={tag}>{tag}</span>;
+
+                      return <span key={tag}>{tag}, </span>;
                     })
                   : "n/a"}
               </p>

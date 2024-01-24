@@ -51,6 +51,8 @@ function Sites({ siteData, shopper }) {
     id: accountId,
   } = siteData || {};
 
+  const [searchInput, setSearchInput] = useState("");
+
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [allInitialProducts, setAllInitialProducts] = useState(
     products && digitalProducts ? [...products, ...digitalProducts] : []
@@ -147,6 +149,10 @@ function Sites({ siteData, shopper }) {
 
   const handleOpenSignupModal = () => setIsSignUpModalOpen(true);
   const handleCloseSignupModal = () => setIsSignUpModalOpen(false);
+
+  const handleSearchInput = (e) => {
+    setSearchInput(e.target.value);
+  };
 
   const getProductsByCategory = async (categoryId, categoryName) => {
     setIsLoading(true);
@@ -267,6 +273,36 @@ function Sites({ siteData, shopper }) {
     }
   };
 
+  const handleSearchProduct = async (e) => {
+    e.preventDefault();
+
+    if (!searchInput) {
+      handleOpenSnackbar("Please enter a search term.");
+      return;
+    }
+
+    const api = `/api/public/inventory/product/${searchInput}?accountId=${accountId}`;
+
+    const res = await fetch(api, { method: "GET" });
+    const { products, error } = await res.json();
+
+    if (error) {
+      handleOpenSnackbar("Whoops, an error occured.");
+      return;
+    }
+
+    if (products.length < 1) {
+      handleOpenSnackbar("No products found for your search.");
+      return;
+    }
+
+    setCurrProducts(
+      products.sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      })
+    );
+  };
+
   const action = (
     <React.Fragment>
       <IconButton
@@ -328,6 +364,9 @@ function Sites({ siteData, shopper }) {
         </div>
         <div className="mt-2 lg:px-16 xl:px-28 ">
           <ShopSearchBar
+            searchInput={searchInput}
+            handleSearchInput={handleSearchInput}
+            handleSearchProduct={handleSearchProduct}
             allInitialProducts={allInitialProducts}
             isOwner={false}
             allProducts={products}

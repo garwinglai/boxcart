@@ -40,7 +40,7 @@ function DigitalProductModal({
   handleOpenSnackbar,
 }) {
   const {
-    id,
+    tags,
     productName,
     priceStr,
     salePriceStr,
@@ -75,18 +75,33 @@ function DigitalProductModal({
             <h4 className="mb-2 text-black font-semibold text-sm lg:text-base ">
               Cover image:
             </h4>
-            <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
-              <div className="w-full h-full relative aspect-square">
-                <Image
-                  src={defaultImage}
-                  alt="pdf cover image"
-                  fill
-                  priority={true}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="rounded-ss object-cover w-full h-full"
-                />
+            {defaultImage && defaultImage !== "" ? (
+              <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
+                <div className="w-full h-full relative aspect-square">
+                  <Image
+                    src={defaultImage}
+                    alt="pdf cover image"
+                    fill
+                    priority={true}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="rounded-ss object-cover w-full h-full"
+                  />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="self-start h-32 w-32 relative ">
+                <div className="w-full h-full relative aspect-square">
+                  <Image
+                    src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
+                    alt="no cover image"
+                    fill
+                    priority={true}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="rounded-ss object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <div className="my-2">
             <Divider />
@@ -166,6 +181,18 @@ function DigitalProductModal({
                         return <span key={categoryName}>{categoryName}</span>;
 
                       return <span key={categoryName}>{categoryName}, </span>;
+                    })
+                  : "n/a"}
+              </p>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Tags: </b>{" "}
+                {tags && tags.split(", ").length > 0
+                  ? tags.split(", ").map((tag, idx) => {
+                      const tagsLength = tags.split(", ").length;
+                      if (idx === tagsLength - 1)
+                        return <span key={tag}>{tag}</span>;
+
+                      return <span key={tag}>{tag}, </span>;
                     })
                   : "n/a"}
               </p>

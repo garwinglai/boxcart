@@ -3,8 +3,15 @@
   "name": "BoxCart",
   "version": "0.0.1",
   "description": "Discover local products in your area while searching on Google, Amazon, Etsy, and more! Support local businesses and explore unique alternatives to big box retailers with LocalShop Finder.",
-  "permissions": ["tabs"],
-  "host_permissions": ["https://*.google.com/*", "http://localhost:3000/api/*"],
+  "permissions": ["tabs", "scripting", "geolocation"],
+  "host_permissions": [
+    "https://*.google.com/*",
+    "https://*.amazon.com/*",
+    "https://*.etsy.com/*",
+    "https://*.walmart.com/*",
+    "https://*.ebay.com/*",
+    "https://*.target.com/*"
+  ],
   "action": {
     "default_popup": "popup/popup.html"
   },
@@ -14,13 +21,28 @@
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
-      "matches": ["https://*.google.com/*"]
+      "css": ["inject/boxcart-insert.css"],
+      "matches": [
+        "https://*.google.com/*",
+        "https://*.amazon.com/*",
+        "https://*.etsy.com/*",
+        "https://*.walmart.com/*",
+        "https://*.ebay.com/*",
+        "https://*.target.com/*"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icons/user_icon.png"],
-      "matches": ["https://*.google.com/*"]
+      "resources": ["icons/**", "inject/**", "utils/**"],
+      "matches": [
+        "https://*.google.com/*",
+        "https://*.amazon.com/*",
+        "https://*.etsy.com/*",
+        "https://*.walmart.com/*",
+        "https://*.ebay.com/*",
+        "https://*.target.com/*"
+      ]
     }
   ]
 }

@@ -186,7 +186,7 @@ function Products({ userAccount }) {
         />
 
         <div className="flex flex-col gap-2 justify-end items-end ml-auto sm:flex-row">
-          <div className="h-12 w-12 rounded-full fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
+          <div className="h-12 w-12 rounded-full shadow-lg fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
             <ButtonPrimary
               handleClick={handleOpenProductCreate}
               name={
@@ -244,6 +244,7 @@ function Products({ userAccount }) {
             toggleDrawer={toggleDrawerProductCreate}
             categories={categories}
             isCreateProduct={true}
+            userAccount={userAccount}
             accountId={accountId}
             handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}
             getAllProducts={getAllProducts}

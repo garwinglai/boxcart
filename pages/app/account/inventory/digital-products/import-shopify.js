@@ -161,6 +161,11 @@ function Shopify() {
           priceStr: undefined,
           defaultImage: undefined,
           defaultImageAlt: undefined,
+          isEnabled: true,
+          tags: undefined,
+          lat: accountStore.lat,
+          lng: accountStore.lng,
+          geohash: accountStore.geohash,
         },
         relatedCategories: [],
         images: [],
@@ -196,6 +201,13 @@ function Shopify() {
           ? `$${item.variantcompareatprice}`
           : `$${item.variantprice}`;
 
+        const productTags = item.tags ? item.tags.split(", ") : [];
+
+        // only allow 28 product tags, remove the rest
+        if (productTags.length > 28) {
+          productTags.splice(28, productTags.length - 28);
+        }
+
         product.digitalProductId = nanoid();
         product.productName = item.title;
         product.description = item[`body(html)`];
@@ -205,6 +217,8 @@ function Shopify() {
         product.priceStr = priceStr;
         product.defaultImage = item.imagesrc;
         product.defaultImageAlt = item.imagealttext;
+        product.isEnabled = item.imagesrc ? true : false;
+        product.tags = productTags.join(", ");
 
         if (item.type !== "") relatedCategories.push(item.type);
 
@@ -395,23 +409,44 @@ function Shopify() {
                   </div>
                   <h2 className="text-xl font-semibold">Success!</h2>
                   <p className="text-sm">
-                    Products were successfully imported.
+                    Digital products were successfully imported.
                   </p>
                   <div className="px-4 py-8">
                     <Alert severity="warning" sx={{ fontSize: "14px" }}>
                       <ol>
                         <li className="mb-2">
+                          <h3 className="text-base font-medium">
+                            Read carefully
+                          </h3>
+                        </li>
+                        <li className="mb-2">
                           <p className=" font-medium">
-                            Digital product variants are not supported. If you
-                            have variants, please create them as separate
-                            products manually.
+                            Digital product variants are not supported by
+                            Shopify on import.
+                          </p>
+                          <p className="font-medium mt-1">
+                            If you have variants, please create them as separate
+                            digital products manually.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2 mb-2">
+                          <p className=" font-medium">
+                            Digital product quantites are not imported.
+                            Quantities are automatically set to unlimited, which
+                            you can update manually.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2 mb-2">
+                          <p className=" font-medium">
+                            Only 28 product tags per product are imported.
                           </p>
                         </li>
                         <Divider />
                         <li className="mt-2">
                           <p className=" font-medium">
-                            Digital product quantites are not imported.
-                            Quantities are automatically set to unlimited.
+                            Products without images are set to inactive.
                           </p>
                         </li>
                       </ol>
@@ -435,7 +470,7 @@ function Shopify() {
             ) : (
               <React.Fragment>
                 <BoxLoader />
-                <h2>Importing products from Shopify</h2>
+                <h2>Importing digital products from Shopify</h2>
                 <p>This can take a few minutes...</p>
               </React.Fragment>
             )}
@@ -490,7 +525,7 @@ function Shopify() {
                   <p className="text-sm font-light">
                     Click
                     <b> export </b>
-                    and choose products to export.
+                    and choose digital products to export.
                   </p>
                 </li>
                 <li className="list-disc">
@@ -502,7 +537,8 @@ function Shopify() {
                 </li>
                 <li className="list-disc">
                   <p className="text-sm">
-                    Ensure that digital products are not selected.
+                    <u>Ensure that physical products are not selected</u>, if
+                    any.
                   </p>
                 </li>
               </ol>
@@ -511,7 +547,9 @@ function Shopify() {
               <span className="absolute flex items-center justify-center w-8 h-8 bg-purple-200 rounded-full -start-4 ring-2 ring-white dark:ring-gray-900 ">
                 <p>4</p>
               </span>
-              <h3 className="font-medium leading-tight">Upload Product CSV</h3>
+              <h3 className="font-medium leading-tight">
+                Upload digital product CSV
+              </h3>
               <p className="text-sm font-light">
                 Drag your csv below to import <b>products</b>.
               </p>

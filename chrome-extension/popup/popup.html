@@ -6,97 +6,30 @@
 
     <title>Your Extension Popup</title>
 
-    <link rel="stylesheet" type="text/css" href="popup.css" />
+    <link rel="stylesheet" type="text/css" href="./popup.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
   </head>
   <body>
-    <div id="popup-content">
-      <!-- Your popup content goes here -->
-      <nav class="top_container">
-        <div class="header flex">
-          <h1 class="logo">BoxCart</h1>
-          <div class="flex header_right">
-            <button class="icon_button">
-              <img
-                src="../icons/user_icon.png"
-                alt="user icon"
-                class="user_icon"
-              />
-            </button>
-            <button>X</button>
-          </div>
-        </div>
-        <div class="search_container flex">
-          <input type="text" class="search" placeholder="Search products..." />
-          <button>Filt</button>
-        </div>
-      </nav>
-      <div class="bottom_container flex_col">
-        <div class="product_card flex">
-          <img
-            src="https://picsum.photos/200"
-            alt="test image"
-            class="product_image"
-          />
-          <div class="product_details">
-            <div>
-              <h2 class="product_name">Product name</h2>
-              <p class="location">0.23 mi away</p>
-              <p class="price">$12.99</p>
-            </div>
-            <button class="shop_button">Shop</button>
-            <p class="in_cart">12 people have this in cart</p>
-          </div>
-        </div>
-        <div class="product_card flex">
-          <img
-            src="https://picsum.photos/100"
-            alt="test image"
-            class="product_image"
-          />
-          <div class="product_details">
-            <div>
-              <h2 class="product_name">Product name</h2>
-              <p class="location">0.23 mi away</p>
-              <p class="price">$12.99</p>
-            </div>
-            <button class="shop_button">Shop</button>
-            <p class="in_cart">12 people have this in cart</p>
-          </div>
-        </div>
-        <div class="product_card flex">
-          <img
-            src="https://picsum.photos/300"
-            alt="test image"
-            class="product_image"
-          />
-          <div class="product_details">
-            <div>
-              <h2 class="product_name">Product name</h2>
-              <p class="location">0.23 mi away</p>
-              <p class="price">$12.99</p>
-            </div>
-            <button class="shop_button">Shop</button>
-            <p class="in_cart">12 people have this in cart</p>
-          </div>
-        </div>
-        <div class="product_card flex">
-          <img
-            src="https://picsum.photos/400"
-            alt="test image"
-            class="product_image"
-          />
-          <div class="product_details">
-            <div>
-              <h2 class="product_name">Product name</h2>
-              <p class="location">0.23 mi away</p>
-              <p class="price">$12.99</p>
-            </div>
-            <button class="shop_button">Shop</button>
-            <p class="in_cart">12 people have this in cart</p>
-          </div>
-        </div>
+    <div id="boxcart-popup-content">
+      <nav id="boxcart-header-container" class="boxcart-header-container"></nav>
+      <div id="boxcart-tab-menu"></div>
+      <div
+        id="boxcart-account-body-container"
+        class="boxcart-account-body-container"
+      ></div>
+      <div id="boxcart-loading-indicator" class="boxcart-loading-indicator">
+        <p>Looking for products nearby...</p>
       </div>
+      <div
+        id="boxcart-product-list-container"
+        class="boxcart-bottom-container boxcart-flex-col"
+      ></div>
+      <div
+        id="boxcart-footer-container"
+        class="boxcart-flex boxcart-footer-container"
+      ></div>
     </div>
-    <script src="popup.js"></script>
+
+    <script src="./popup.js"></script>
   </body>
 </html>

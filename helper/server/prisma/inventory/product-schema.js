@@ -3,7 +3,6 @@ import { Prisma } from "@prisma/client";
 
 export async function createDigitalProductBatchFromThirdParty(batchData) {
   const batchPromises = [];
-  console.log("batchData", batchData);
 
   for (let i = 0; i < batchData.length; i++) {
     const currentProduct = batchData[i];
@@ -50,7 +49,6 @@ export async function createDigitalProductBatchFromThirdParty(batchData) {
 
 export async function createProductBatchFromThirdParty(batchData) {
   const batchPromises = [];
-  console.log("batchData", batchData);
 
   for (let i = 0; i < batchData.length; i++) {
     const currentProduct = batchData[i];
@@ -207,10 +205,14 @@ const createProduct = (product) => {
 
   const {
     accountId,
+    tags,
     isSampleProduct,
     productName,
     productId,
     description,
+    lat,
+    lng,
+    geohash,
     priceIntPenny: productPricePenny,
     priceStr: productPriceStr,
     salePricePenny,
@@ -255,6 +257,7 @@ const createProduct = (product) => {
         }),
       },
       defaultImageFileName,
+      tags,
       productId,
       defaultImage,
       fireStorageId,
@@ -271,6 +274,9 @@ const createProduct = (product) => {
         }),
       },
       isSampleProduct,
+      lat,
+      lng,
+      geohash,
       enableCustomNote,
       enableCustomerImageUploads,
       productName,
@@ -360,6 +366,10 @@ const createDigitalProduct = (product) => {
     productName,
     digitalProductId,
     description,
+    tags,
+    lat,
+    lng,
+    geohash,
     priceIntPenny: productPricePenny,
     priceStr: productPriceStr,
     salePricePenny,
@@ -401,6 +411,10 @@ const createDigitalProduct = (product) => {
       fireStorageId,
       digitalProductId,
       defaultImage,
+      tags,
+      lat,
+      lng,
+      geohash,
       defaultImageFileName,
       images: {
         create: [
@@ -513,6 +527,7 @@ const updateProduct = (product) => {
     isSampleProduct,
     productName,
     description,
+    tags,
     priceIntPenny,
     priceStr,
     salePricePenny,
@@ -541,6 +556,7 @@ const updateProduct = (product) => {
       productName,
       isSampleProduct,
       description,
+      tags,
       priceIntPenny,
       priceStr,
       salePricePenny,
@@ -876,6 +892,7 @@ const updateDigitalProduct = (product) => {
     productName,
     description,
     priceIntPenny,
+    tags,
     priceStr,
     salePricePenny,
     salePriceStr,
@@ -893,6 +910,7 @@ const updateDigitalProduct = (product) => {
     data: {
       productName,
       description,
+      tags,
       priceIntPenny,
       priceStr,
       salePricePenny,

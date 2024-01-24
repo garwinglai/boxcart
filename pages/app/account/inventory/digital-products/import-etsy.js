@@ -117,7 +117,7 @@ function Etsy() {
 
       const priceIntPenny = Number(currItem[`PRICE`]) * 100;
       let priceStr = `$${(priceIntPenny / 100).toString()}`;
-      const quantity = Number(currItem[`QUANTITY`]);
+      const productTags = currItem[`TAGS`].split(",").join(", ");
 
       if (!priceStr.includes(".")) {
         priceStr += ".00";
@@ -137,6 +137,11 @@ function Etsy() {
           priceIntPenny,
           priceStr,
           defaultImage: currItem[`IMAGE1`],
+          isEnabled: currItem[`IMAGE1`] ? true : false,
+          tags: productTags,
+          lat: accountStore.lat,
+          lng: accountStore.lng,
+          geohash: accountStore.geohash,
         },
         images,
         relatedCategories: [],
@@ -321,17 +326,32 @@ function Etsy() {
                     <Alert severity="warning" sx={{ fontSize: "14px" }}>
                       <ol>
                         <li className="mb-2">
+                          <h3 className="text-base font-medium">
+                            Read carefully
+                          </h3>
+                        </li>
+                        <li className="mb-2">
                           <p className=" font-medium">
-                            Digital product variants are not supported. If you
-                            have variants, please create them as separate
-                            products manually.
+                            Digital product variants are not supported by etsy
+                            on import.
+                          </p>
+                          <p className="font-medium mt-1">
+                            If you have variants, please create them as separate
+                            digital products manually.
                           </p>
                         </li>
                         <Divider />
-                        <li className="mb-2">
+                        <li className="mt-2 mb-2">
                           <p className=" font-medium">
                             Digital product quantites are not imported.
-                            Quantities are automatically set to unlimited.
+                            Quantities are automatically set to unlimited, which
+                            you can update manually.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2">
+                          <p className=" font-medium">
+                            Products without images are set to inactive.
                           </p>
                         </li>
                       </ol>
@@ -355,7 +375,7 @@ function Etsy() {
             ) : (
               <React.Fragment>
                 <BoxLoader />
-                <h2>Importing products from Etsy</h2>
+                <h2>Importing digital products from Etsy</h2>
                 <p>This can take a few minutes...</p>
               </React.Fragment>
             )}

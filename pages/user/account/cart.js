@@ -43,7 +43,7 @@ Cart.getLayout = function getLayout(
 
 Cart.pageTitle = "Cart";
 Cart.pageIcon = (
-  <div className="relative w-10 h-10">
+  <div className="relative w-8 h-8  md:w-10 md:h-10">
     <Image
       src={cart_icon}
       alt="subcribed icon"

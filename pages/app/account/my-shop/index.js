@@ -32,6 +32,7 @@ function MyShop({ userAccount }) {
     id: accountId,
   } = userAccount ? userAccount : {};
 
+  const [searchInput, setSearchInput] = useState("");
   const [isDuplicatingProduct, setIsDuplicatingProduct] = useState(false);
   const [currCategoryId, setCurrCategoryId] = useState("");
   const [currCategory, setCurrCategory] = useState("All Products");
@@ -76,6 +77,10 @@ function MyShop({ userAccount }) {
   const handleChangeSort = (event) => {
     const { value } = event.target;
     setSortByMethod(value);
+  };
+
+  const handleSearchInput = (e) => {
+    setSearchInput(e.target.value);
   };
 
   const handleOpenSnackbar = (message) => {
@@ -251,6 +256,36 @@ function MyShop({ userAccount }) {
     }
   };
 
+  const handleSearchProduct = async (e) => {
+    e.preventDefault();
+
+    if (!searchInput) {
+      handleOpenSnackbar("Please enter a search term.");
+      return;
+    }
+
+    const api = `/api/public/inventory/product/${searchInput}?accountId=${accountId}`;
+
+    const res = await fetch(api, { method: "GET" });
+    const { products, error } = await res.json();
+
+    if (error) {
+      handleOpenSnackbar("Whoops, an error occured.");
+      return;
+    }
+
+    if (products.length < 1) {
+      handleOpenSnackbar("No products found for your search.");
+      return;
+    }
+
+    setCurrProducts(
+      products.sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      })
+    );
+  };
+
   return (
     <div className="bg-white mb-28 lg:mb-0">
       <Snackbar
@@ -277,6 +312,9 @@ function MyShop({ userAccount }) {
         <Divider light />
       </div>
       <ShopSearchBar
+        searchInput={searchInput}
+        handleSearchInput={handleSearchInput}
+        handleSearchProduct={handleSearchProduct}
         isOwner={true}
         allProducts={products}
         categories={currCategories}

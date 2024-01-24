@@ -21,7 +21,6 @@ import SignupFormAddress from "@/components/auth/signup/SignupFormAddress";
 import SignupFormDistance from "@/components/auth/signup/SignupFormDistance";
 import CredentialsForm from "@/components/auth/CredentialsForm";
 import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
-import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
 import { newUserSignup } from "@/helper/client/api/auth/registration";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -997,6 +996,9 @@ function Signup() {
       lastName,
       subdomain,
       fullDomain,
+      lat,
+      lng,
+      geohash,
     } = accountOne;
 
     const storedAccount = {
@@ -1009,6 +1011,9 @@ function Signup() {
       lastName,
       subdomain,
       fullDomain,
+      lat,
+      lng,
+      geohash,
     };
 
     setAccount(storedAccount);
@@ -1552,13 +1557,14 @@ function Signup() {
                 htmlFor="select business type"
                 className="text-black font-medium"
               >
-                What&apos;s your business type?
+                What&apos;s your business category? Select all that apply.
               </label>
+
               {businessTypesArr.map((type) => {
-                const { uniqueId, id, name, label, imgSrc, imgAlt } = type;
+                const { id, name, label, imgSrc, imgAlt } = type;
                 return (
                   <BusinessTypeCheckbox
-                    key={uniqueId}
+                    key={id}
                     id={id}
                     name={name}
                     onChange={handleChange}

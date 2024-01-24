@@ -228,6 +228,11 @@ function Shopify() {
           hasUnlimitedQuantity: true,
           setQuantityByProduct: true,
           quantity: undefined,
+          tags: undefined,
+          isEnabled: true,
+          lat: accountStore.lat,
+          lng: accountStore.lng,
+          geohash: accountStore.geohash,
         },
         relatedCategories: [],
         optionGroups: [],
@@ -293,6 +298,12 @@ function Shopify() {
         const priceStr = item.variantcompareatprice
           ? `$${item.variantcompareatprice}`
           : `$${item.variantprice}`;
+        const productTags = item.tags ? item.tags.split(", ") : [];
+
+        // only allow 28 product tags, remove the rest
+        if (productTags.length > 28) {
+          productTags.splice(28, productTags.length - 28);
+        }
 
         product.productId = nanoid();
         product.productName = item.title;
@@ -304,6 +315,8 @@ function Shopify() {
         product.defaultImage = item.imagesrc;
         product.defaultImageAlt = item.imagealttext;
         product.quantity = csvInventory[item.handle];
+        product.isEnabled = item.imagesrc ? true : false;
+        product.tags = productTags.join(", ");
 
         if (item.type !== "") relatedCategories.push(item.type);
 
@@ -662,19 +675,36 @@ function Shopify() {
                     <Alert severity="warning" sx={{ fontSize: "14px" }}>
                       <ol>
                         <li className="mb-2">
+                          <h3 className="text-base font-medium">
+                            Read carefully
+                          </h3>
+                        </li>
+                        <li className="mb-2">
                           <p className=" font-medium">
-                            Product variant pricing and variant quantities is
+                            Product variant pricing and variant quantities are
                             not supported by Shopify on import.
                           </p>
                           <p className="font-medium mt-2">
-                            Please check and manually update variant prices and
-                            variant quantities.
+                            Please check products manually update variant prices
+                            and variant quantities.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2 mb-2">
+                          <p className=" font-medium">
+                            Gift cards are not imported.
+                          </p>
+                        </li>
+                        <Divider />
+                        <li className="mt-2 mb-2">
+                          <p className=" font-medium">
+                            Only 28 product tags per product are imported.
                           </p>
                         </li>
                         <Divider />
                         <li className="mt-2">
                           <p className=" font-medium">
-                            Gift cards are not imported.
+                            Products without images are set to inactive.
                           </p>
                         </li>
                       </ol>
@@ -765,7 +795,8 @@ function Shopify() {
                 </li>
                 <li className="list-disc">
                   <p className="text-sm">
-                    Ensure that digital products are not selected.
+                    <u>Ensure that digital products are not selected</u>, if
+                    any.
                   </p>
                 </li>
               </ol>
@@ -890,7 +921,8 @@ function Shopify() {
                 </li>
                 <li className="list-disc">
                   <p className="text-sm">
-                    Ensure that digital products are not selected.
+                    <u>Ensure that digital products are not selected</u>, if
+                    any.
                   </p>
                 </li>
               </ol>
@@ -900,7 +932,7 @@ function Shopify() {
                 <p>7</p>
               </span>
               <h3 className="font-medium leading-tight">
-                Upload Inventory CSV
+                Upload inventory CSV
               </h3>
               <p className="text-sm font-light">
                 Drag your csv below to import product <b>quantities</b>.

@@ -1,6 +1,14 @@
 const { Storage } = require("@google-cloud/storage");
+import { isAuthServer } from "@/helper/server/auth/isAuthServer";
 
 export default async function handler(req, res) {
+  const isLoggedIn = await isAuthServer(req, res);
+
+  if (!isLoggedIn) {
+    res.status(401).json({ message: "Invalid credentials." });
+    return;
+  }
+
   const { method, body } = req;
 
   const { subdomain, fireStorageId, digitalFiles } = body;

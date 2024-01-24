@@ -7,6 +7,28 @@ import custom_mug from "../../public/images/temp/custom_mug.jpg";
 import custom_sweater from "../../public/images/temp/custom_sweater.jpg";
 import launch_icon from "@/public/images/icons/launch_icon.png";
 import crowd_funding_icon from "@/public/images/icons/crowd_funding_icon.png";
+import ecomm_icon from "@/public/images/icons/business_type/ecomm_icon.png";
+import digital_icon from "@/public/images/icons/business_type/digital_icon.png";
+import jewelry_icon from "@/public/images/icons/business_type/jewelry_icon.png";
+import service_icon from "@/public/images/icons/business_type/service_icon.png";
+import gift_icon from "@/public/images/icons/business_type/gift_icon.png";
+import home_icon from "@/public/images/icons/business_type/home_icon.png";
+import beverage_icon from "@/public/images/icons/business_type/beverage_icon.png";
+import beauty_icon from "@/public/images/icons/business_type/beauty_icon.png";
+import flower_icon from "@/public/images/icons/business_type/flower_icon.png";
+import a_icon from "@/public/images/icons/business_identity/a_icon.png";
+import american_flag_icon from "@/public/images/icons/business_identity/american_flag_icon.png";
+import b_icon from "@/public/images/icons/business_identity/b_icon.png";
+import bcorp_icon from "@/public/images/icons/business_identity/bcorp_icon.png";
+import family_icon from "@/public/images/icons/business_identity/family_icon.png";
+import i_icon from "@/public/images/icons/business_identity/i_icon.png";
+import l_icon from "@/public/images/icons/business_identity/l_icon.png";
+import lgbtqia_icon from "@/public/images/icons/business_identity/lgbtqia_icon.png";
+import recycle_icon from "@/public/images/icons/business_identity/recycle_icon.png";
+import vegan_icon from "@/public/images/icons/business_identity/vegan_icon.png";
+import vegetarian_icon from "@/public/images/icons/business_identity/vegetarian_icon.png";
+import veteran_icon from "@/public/images/icons/business_identity/veteran_icon.png";
+import x_icon from "@/public/images/icons/business_identity/x_icon.png";
 
 export const membershipPackages = [
   // {
@@ -61,25 +83,137 @@ export const membershipPackages = [
   },
 ];
 
+export const businessIdentityArr = [
+  {
+    id: "aapi",
+    name: "AAPI",
+    label: "AAPI",
+    imgSrc: a_icon,
+    imgAlt: "aapi icon",
+  },
+  {
+    id: "b-corp-certified",
+    name: "B-Corp",
+    label: "B corp certified",
+    imgSrc: bcorp_icon,
+    imgAlt: "b corp icon",
+  },
+  {
+    id: "black-owned",
+    name: "Black owned",
+    label: "Black owned",
+    imgSrc: b_icon,
+    imgAlt: "black avatar icon",
+  },
+  {
+    id: "family-owned",
+    name: "Family owned",
+    label: "Family owned",
+    imgSrc: family_icon,
+    imgAlt: "family icon",
+  },
+  {
+    id: "indigenous-owned",
+    name: "Indigenous owned",
+    label: "Indigenous owned",
+    imgSrc: i_icon,
+    imgAlt: "indigenous avatar icon",
+  },
+  {
+    id: "latina-owned",
+    name: "Latina owned",
+    label: "Latina owned",
+    imgSrc: l_icon,
+    imgAlt: "latina avatar icon",
+  },
+  {
+    id: "lgbtqia-owned",
+    name: "LGBTQIA+ owned",
+    label: "LGBTQIA+ owned",
+    imgSrc: lgbtqia_icon,
+    imgAlt: "lgbtqia icon",
+  },
+  {
+    id: "made-in-america",
+    name: "Made in america",
+    label: "Made in america",
+    imgSrc: american_flag_icon,
+    imgAlt: "american flag icon",
+  },
+  {
+    id: "sustainable",
+    name: "Sustainable",
+    label: "Sustainable",
+    imgSrc: recycle_icon,
+    imgAlt: "sustainability icon",
+  },
+  {
+    id: "vegan",
+    name: "Vegan",
+    label: "Vegan",
+    imgSrc: vegan_icon,
+    imgAlt: "vegan icon",
+  },
+  {
+    id: "vegetarian",
+    name: "Vegetarian",
+    label: "Vegetarian",
+    imgSrc: vegetarian_icon,
+    imgAlt: "vegetarian icon",
+  },
+  {
+    id: "veteran-owned",
+    name: "Veteran owned",
+    label: "Veteran owned",
+    imgSrc: veteran_icon,
+    imgAlt: "veteran icon",
+  },
+  {
+    id: "none",
+    name: "None",
+    label: "None",
+    imgSrc: x_icon,
+    imgAlt: "x icon",
+  },
+];
+
 export const businessTypesArr = [
   {
-    uniqueId: "1",
-    id: "arts and crafts",
+    id: "arts-and-crafts",
     name: "arts and crafts",
     label: "Arts & Crafts",
     imgSrc: arts_and_crafts_icon,
     imgAlt: "arts and crafts icon",
   },
   {
-    uniqueId: "2",
-    id: "bakery",
-    name: "bakery",
-    label: "Bakery",
-    imgSrc: bakery_icon,
-    imgAlt: "bakery icon",
+    id: "beauty",
+    name: "beauty",
+    label: "Beauty",
+    imgSrc: beauty_icon,
+    imgAlt: "beauty icon",
   },
   {
-    uniqueId: "3",
+    id: "beverage",
+    name: "beverage",
+    label: "Beverage",
+    imgSrc: beverage_icon,
+    imgAlt: "beverage icon",
+  },
+  {
+    id: "digital-products",
+    name: "digital-products",
+    label: "Digital Products",
+    imgSrc: digital_icon,
+    imgAlt: "digital product icon",
+  },
+  {
+    id: "e-commerce",
+    name: "e-commerce",
+    label: "E-commerce",
+    imgSrc: ecomm_icon,
+    imgAlt: "ecommerce icon",
+  },
+  {
     id: "fashion",
     name: "fashion",
     label: "Fashion",
@@ -87,20 +221,46 @@ export const businessTypesArr = [
     imgAlt: "Fashion icon",
   },
   {
-    uniqueId: "4",
-    id: "restaurant",
-    name: "restaurant",
-    label: "Restaurant",
-    imgSrc: restaurant_icon,
-    imgAlt: "restaurant icon",
+    id: "florist",
+    name: "florist",
+    label: "Florist",
+    imgSrc: flower_icon,
+    imgAlt: "Flower icon",
   },
   {
-    uniqueId: "5",
-    id: "desserts",
-    name: "desserts",
-    label: "Desserts",
-    imgSrc: dessert_icon,
-    imgAlt: "desserts icon",
+    id: "food",
+    name: "food",
+    label: "Food",
+    imgSrc: restaurant_icon,
+    imgAlt: "food icon",
+  },
+  {
+    id: "gifts",
+    name: "gifts",
+    label: "Gifts",
+    imgSrc: gift_icon,
+    imgAlt: "gifts icon",
+  },
+  {
+    id: "home",
+    name: "home",
+    label: "Home decor",
+    imgSrc: home_icon,
+    imgAlt: "home icon",
+  },
+  {
+    id: "jewelry",
+    name: "jewelry",
+    label: "Jewelry",
+    imgSrc: jewelry_icon,
+    imgAlt: "jewelry icon",
+  },
+  {
+    id: "service",
+    name: "service",
+    label: "Service",
+    imgSrc: service_icon,
+    imgAlt: "service icon",
   },
 ];
 

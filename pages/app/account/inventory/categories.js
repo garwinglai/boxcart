@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import ButtonFilter from "@/components/global/buttons/ButtonFilter";
 import { useRouter } from "next/router";
 import CategoryCard from "@/components/app/my-shop/category/CategoryCard";
 import CategoryDrawer from "@/components/app/my-shop/category/CategoryDrawer";
 import Image from "next/image";
-import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import prisma from "@/lib/prisma";
 import Snackbar from "@mui/material/Snackbar";
@@ -135,7 +133,7 @@ function Categories({ userAccount }) {
         />
 
         <div className="ml-auto">
-          <div className="h-12 w-12 rounded-full fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
+          <div className="h-12 w-12 rounded-full shadow-lg  fixed bottom-20 right-4 z-10 md:h-10 md:w-fit md:bottom-10 md:right-8">
             <ButtonPrimary
               handleClick={toggleDrawer("right", true)}
               name={

@@ -60,7 +60,11 @@ function DesktopNavBar({ pageRoute }) {
     pageRoute === "gift-card" || pageRoute === "email-marketing" ? true : false
   );
   const [openInventoryList, setOpenInventoryList] = useState(
-    pageRoute === "products" || pageRoute === "categories" ? true : false
+    pageRoute === "products" ||
+      pageRoute === "categories" ||
+      pageRoute === "digital-products"
+      ? true
+      : false
   );
   const [openCommList, setOpenCommList] = useState(
     pageRoute === "contacts" ||
@@ -282,7 +286,7 @@ function DesktopNavBar({ pageRoute }) {
             }}
           />
 
-          {openStoreList ? (
+          {openInventoryList ? (
             <ExpandLess
               sx={{
                 color: "var(--primary-dark)",
@@ -333,7 +337,7 @@ function DesktopNavBar({ pageRoute }) {
                 />
               </MenuItem>
             </Link>
-            {/* <Link
+            <Link
               href="/app/account/inventory/digital-products"
               className={`${styles.menu_link_group}`}
             >
@@ -371,7 +375,7 @@ function DesktopNavBar({ pageRoute }) {
                   }}
                 />
               </MenuItem>
-            </Link> */}
+            </Link>
             <Link
               href="/app/account/inventory/categories"
               className={`${styles.menu_link_group}`}

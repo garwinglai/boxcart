@@ -1,44 +1,45 @@
 .nextbackbuttons {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8rem;
 }
 
 .hide_back_button {
-	visibility: hidden;
+  visibility: hidden;
 }
 
 .hide_skip_button {
-	visibility: hidden;
+  visibility: hidden;
 }
 
 .button_group {
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .skip_button {
-	border: none;
-	color: var(--primary-dark-med);
-	background-color: transparent;
-	text-decoration: underline;
+  border: none;
+  color: var(--primary-dark-med);
+  background-color: transparent;
+  text-decoration: underline;
 }
 
 /* * Active Buttons */
 
 .skip_button:active {
-	color: var(--primary-light-med);
+  color: var(--primary-light-med);
 }
 
 .next_button:disabled:active {
-	background-color: unset;
-	box-shadow: unset;
+  background-color: unset;
+  box-shadow: unset;
 }
 
 @media (hover: hover) {
-	.next_button:disabled:hover {
-		background: unset;
-		cursor: not-allowed;
-	}
+  .next_button:disabled:hover {
+    background: unset;
+    cursor: not-allowed;
+  }
 }

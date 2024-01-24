@@ -176,7 +176,7 @@ function AccountSettings({ userAccount }) {
         <div className={`${styles.section_header_box} ${styles.flex}`}>
           <h3>User Info</h3>
           <div className="flex items-center gap-2">
-            <div className="w-fit">
+            <div className="w-fit h-8">
               <ButtonPrimary
                 name={isUserInputDisabled ? "Edit" : "Cancel"}
                 type="button"
@@ -184,7 +184,7 @@ function AccountSettings({ userAccount }) {
               />
             </div>
             {!isUserInputDisabled && (
-              <div className="w-fit">
+              <div className="w-fit h-8">
                 <ButtonFourth
                   name="Save"
                   type="submit"
@@ -263,16 +263,16 @@ function AccountSettings({ userAccount }) {
         </div>
       </form>
       <div className={`${styles.section_left} ${styles.flex}`}>
-        <form
+        {/* <form
           className={`${styles.section_box} ${styles.membership_info_box} ${styles.flexCol}`}
         >
           <div className={`${styles.section_header_box} ${styles.flex}`}>
             <h3>Membership</h3>
-            <div>
+            <div className="w-fit h-8">
               <ButtonPrimary name="Change Plan" type="button" />
             </div>
           </div>
-          <p className="text-sm font-light">Coming soon ... </p>
+          <p className="text-sm font-light">Coming soon ... </p> */}
           {/* <div className={`${styles.membership_context_box} ${styles.flexCol}`}>
             <div className={`${styles.flex} ${styles.member_context_group}`}>
               <h5>Free period:</h5>
@@ -312,14 +312,14 @@ function AccountSettings({ userAccount }) {
               Auto Renew
             </button>
           </div> */}
-        </form>
+        {/* </form> */}
         <form
           className={`${styles.section_box} ${styles.payment_info_box} ${styles.flexCol}`}
         >
           <div className={`${styles.section_header_box} ${styles.flex}`}>
             <h3>Payment Methods</h3>
             {/* <button className={`${styles.update_btn}`}>Add Payment</button> */}
-            <div>
+            <div className="w-fit h-8">
               <ButtonPrimary name="Add Payment" type="button" />
             </div>
           </div>

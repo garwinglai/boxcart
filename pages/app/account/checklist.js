@@ -16,13 +16,23 @@ import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
 import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
 import { Divider } from "@mui/material";
+import IdentityModal from "@/components/app/business-identities/IdentityModal";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "max-content",
+  width: "95%",
+  "@media (min-width: 426px)": {
+    width: "50%",
+  },
+  "@media (min-width: 769px)": {
+    width: "40%",
+  },
+  "@media (min-width: 1025px)": {
+    width: "30%",
+  },
   bgcolor: "background.paper",
   // border: "2px solid #000",
   boxShadow: 24,
@@ -61,14 +71,19 @@ function Checklist({ userSession, userAccount, pageTitle }) {
   // * States
   const [isFirstLoginModalOpen, setIsFirstLoginModalOpen] =
     useState(isFirstLogin);
+  const [openBusinessIdentity, setOpenBusinessIdentity] = useState(false);
   const [isResendEmail, setIsResendEmail] = useState(false);
   const [resendEmailErrorMessage, setResendEmailErrorMessage] = useState("");
   const [loaders, setLoaders] = useState({
     isSendEmailLoading: false,
+    isBusinessIdentityLoading: false,
   });
+  const [businessIdentities, setBusinessIdentities] = useState([]);
+  const [noIdentitySelectedError, setNoIdentitySelectedError] = useState(false);
+  const [tooManyIdentitiesError, setTooManyIdentitiesError] = useState(false);
 
   // * DOB States
-  const { isSendEmailLoading } = loaders;
+  const { isSendEmailLoading, isBusinessIdentityLoading } = loaders;
 
   // * Instantiate
   const router = useRouter();
@@ -85,8 +100,49 @@ function Checklist({ userSession, userAccount, pageTitle }) {
     setIsFirstLoginModalOpen(false);
   };
 
+  const closeBusinessIdentityModal = () => {
+    setOpenBusinessIdentity(false);
+  };
+
+  const saveBusinessIdentity = async () => {
+    if (businessIdentities.length === 0) {
+      setNoIdentitySelectedError(true);
+      return;
+    }
+
+    if (businessIdentities.length > 3) {
+      setTooManyIdentitiesError(true);
+      return;
+    }
+
+    setLoaders((prev) => ({ ...prev, isBusinessIdentityLoading: true }));
+    const identities = businessIdentities.join(", ");
+
+    const data = { id, businessIdentities: identities };
+
+    const api = "/api/private/account/businessIdentity";
+
+    const response = await fetch(api, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    const { success, error } = result;
+
+    if (!success) {
+      // TODO: Error logs (why they couldn't save business identity)
+    }
+
+    closeBusinessIdentityModal();
+    setLoaders((prev) => ({ ...prev, isBusinessIdentityLoading: false }));
+  };
+
   const handleConfirmEmailModalClick = () => {
     handleClose();
+
+    if (isFirstLogin) {
+      setOpenBusinessIdentity(true);
+    }
 
     if (isResendEmail) return;
     updateAccountFirstLoginClient(id);
@@ -117,13 +173,42 @@ function Checklist({ userSession, userAccount, pageTitle }) {
     }
   };
 
+  function isBusinessIdentityChecked(name) {
+    if (businessIdentities.length !== 0) {
+      const isChecked = businessIdentities.includes(name);
+
+      if (isChecked) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+
+    if (noIdentitySelectedError) setNoIdentitySelectedError(false);
+    if (tooManyIdentitiesError) setTooManyIdentitiesError(false);
+
+    if (checked) {
+      setBusinessIdentities((prev) => [...prev, name]);
+    } else {
+      const removeBusinessIdentities = businessIdentities.filter(
+        (identity) => identity !== name
+      );
+
+      setBusinessIdentities(removeBusinessIdentities);
+    }
+  }
+
   return (
     <div className={`${styles.checklist_page} ${styles.flexCol}`}>
       <Modal
         open={isFirstLoginModalOpen}
         onClose={handleConfirmEmailModalClick}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+        aria-labelledby="Send Email Verification"
+        aria-describedby="Modal to send email verification"
       >
         <Box sx={style}>
           <div className="flex flex-col items-center py-4 px-8 lg:px-16 lg:py-8">
@@ -149,6 +234,15 @@ function Checklist({ userSession, userAccount, pageTitle }) {
           </div>
         </Box>
       </Modal>
+      <IdentityModal
+        openBusinessIdentity={openBusinessIdentity}
+        isBusinessIdentityChecked={isBusinessIdentityChecked}
+        isBusinessIdentityLoading={isBusinessIdentityLoading}
+        noIdentitySelectedError={noIdentitySelectedError}
+        handleChange={handleChange}
+        saveBusinessIdentity={saveBusinessIdentity}
+        tooManyIdentitiesError={tooManyIdentitiesError}
+      />
       <div className="px-4 mt-4">
         <h3 className="mb-6">Required steps to launch your shop.</h3>
         <div className="px-6">

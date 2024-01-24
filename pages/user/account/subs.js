@@ -89,7 +89,7 @@ Subs.getLayout = function getLayout(
 
 Subs.pageTitle = "Subs";
 Subs.pageIcon = (
-  <div className="relative w-10 h-10">
+  <div className="relative w-8 h-8  ">
     <Image
       src={subs_icon}
       alt="subcribed icon"

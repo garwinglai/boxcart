@@ -83,7 +83,7 @@ function UserMenu({ pageRoute, isMobileView, handleCloseMenu }) {
         className="relative overflow-y-scroll h-full w-full"
         sx={{ padding: "1rem", width: "100%" }}
       >
-        <Link
+        {/* <Link
           href="/user/account/dashboard"
           onClick={isMobileView && handleCloseMenu}
         >
@@ -113,7 +113,7 @@ function UserMenu({ pageRoute, isMobileView, handleCloseMenu }) {
               }}
             />
           </MenuItem>
-        </Link>
+        </Link> */}
         <Link
           href="/user/account/orders"
           onClick={isMobileView && handleCloseMenu}
@@ -145,7 +145,7 @@ function UserMenu({ pageRoute, isMobileView, handleCloseMenu }) {
             />
           </MenuItem>
         </Link>
-        <Link
+        {/* <Link
           href="/user/account/wishlist"
           onClick={isMobileView && handleCloseMenu}
         >
@@ -175,7 +175,7 @@ function UserMenu({ pageRoute, isMobileView, handleCloseMenu }) {
               }}
             />
           </MenuItem>
-        </Link>
+        </Link> */}
         {/* <Link
           href="/user/account/likes"
           onClick={isMobileView && handleCloseMenu}

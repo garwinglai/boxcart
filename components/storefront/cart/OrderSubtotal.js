@@ -123,7 +123,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
       {applyFivePercentDiscount && (
         <p className="text-xs mt-4 bg-red-100 rounded p-2 ">
           View 5% cash back in{" "}
-          <Link href="/user/account/dashboard" target="_blank">
+          <Link href="/user/account/orders" target="_blank">
             <u>account</u>
           </Link>{" "}
           after purchase.

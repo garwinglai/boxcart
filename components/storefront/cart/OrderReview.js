@@ -58,7 +58,7 @@ function OrderReview({
       <div className="pb-4">
         <h3 className="font-medium mt-4 mb-2 text-base">Order Details:</h3>
         <div className="flex flex-col gap-2">
-          {!hideForDate && requireOrderDate && (
+          {hydrated && !hideForDate && requireOrderDate && (
             <div className="flex justify-between items-center">
               <p className="text-sm">
                 <b>For date:</b>

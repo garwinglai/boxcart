@@ -24,11 +24,14 @@ function ShopSearchBar({
   sortByMethod,
   handleChangeSort,
   allInitialProducts,
+  searchInput,
+  handleSearchInput,
+  handleSearchProduct,
 }) {
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     bottom: false,
   });
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleOpenSortMenu = (event) => {
@@ -57,7 +60,10 @@ function ShopSearchBar({
 
   return (
     <div className="flex px-4 gap-2 items-center justify-between lg:justify-start">
-      <div className="relative flex-grow py-2 lg:flex-grow-0 lg:w-1/3">
+      <form
+        onSubmit={handleSearchProduct}
+        className="relative flex-grow py-2 lg:flex-grow-0 lg:w-1/3"
+      >
         <label
           htmlFor="search"
           className="absolute flex items-center gap-2 top-[16px] left-5 text-[color:var(--gray-text)] font-light text-sm"
@@ -68,10 +74,12 @@ function ShopSearchBar({
           type="text"
           name="search"
           id="search"
+          value={searchInput}
+          onChange={handleSearchInput}
           placeholder="Search all products"
           className=" w-full py-2 rounded font-light text-xs bg-[color:var(--gray-light-soft)] border lg:border-[color:var(--gray-light-med)] active:border-[color:var(--gray-light-med)] focus:border-[color:var(--gray)] ring-0 pl-12 outline-none"
         />
-      </div>
+      </form>
       <div className="lg:hidden">
         <IconButton onClick={toggleDrawer("bottom", true)}>
           <FilterListOutlinedIcon

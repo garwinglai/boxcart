@@ -11,7 +11,7 @@ function UserAccountLayout({
 }) {
   return (
     <div className="flex overflow-hidden h-screen relative">
-      <div className="hidden lg:block lg:w-[225px] lg:shadow-md lg:h-screen">
+      <div className="hidden lg:block lg:min-w-[225px] lg:shadow-md lg:h-screen">
         <UserMenu pageRoute={pageRoute} />
       </div>
       <div className="flex-grow overflow-scroll">

@@ -3,10 +3,14 @@ import { getServerSession } from "next-auth/next";
 
 // Used in getServerSideProps...
 export async function isAuth(context, next) {
-  const session = await getServerSession(context.req, context.res, options);
+  const session = await getServerSession(
+    context.req,
+    context.res,
+    options(context.req, context.res)
+  );
   const serializedSession = JSON.parse(JSON.stringify(session));
 
-  if (!session) {
+  if (!session || !session.user) {
     return {
       redirect: {
         destination:
@@ -23,11 +27,15 @@ export async function isAuth(context, next) {
 
 export async function isAuthUserAccount(context, next) {
   const { req, res } = context;
-  const session = await getServerSession(req, res, options);
+  const session = await getServerSession(
+    req,
+    res,
+    options(context.req, context.res)
+  );
 
   const serializedSession = JSON.parse(JSON.stringify(session));
 
-  if (!session) {
+  if (!session || !session.user) {
     return {
       redirect: {
         destination:
@@ -44,7 +52,11 @@ export async function isAuthUserAccount(context, next) {
 
 export async function isAuthUserShopping(context, next) {
   const { req, res } = context;
-  const session = await getServerSession(req, res, options);
+  const session = await getServerSession(
+    req,
+    res,
+    options(context.req, context.res)
+  );
   const serializedSession = JSON.parse(JSON.stringify(session));
 
   return next(serializedSession);

@@ -11,10 +11,17 @@ import tiktok_icon from "@/public/images/icons/socials/tiktok_icon.png";
 import link_icon from "@/public/images/icons/socials/link_icon.png";
 import Image from "next/image";
 import ShareIcon from "@mui/icons-material/Share";
+import Pill from "../global/identities/Pill";
 
 function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
-  const { businessName, businessBio, city, socials, fullDomain } =
-    userAccount || {};
+  const {
+    businessName,
+    businessBio,
+    city,
+    socials,
+    fullDomain,
+    businessIdentities,
+  } = userAccount || {};
 
   const handleOpenSocialLink = (url) => (value) => {
     // check if url has "https://" if not add it
@@ -56,11 +63,28 @@ function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
         <span className=" text-base font-medium">12.2k </span>
         Subscribed
       </p> */}
+      {businessIdentities && !businessIdentities.includes("None") && (
+        <div className="flex flex-wrap items-center gap-2 py-1">
+          {businessIdentities.split(", ").map((identity, index) => {
+            if (identity !== "None")
+              return <Pill key={index} name={identity} />;
+          })}
+        </div>
+      )}
       <p className="font-light text-sm my-2 text-[color:var(--black-design-extralight)] ">
         {businessBio}
       </p>
-      <div className="flex justify-between flex-wrap items-center mt-2">
-        <div className="flex gap-1">
+      <div className="flex items-center gap-1">
+        <LocationOnOutlinedIcon
+          fontSize="small"
+          sx={{ color: "var(--gray-text)" }}
+        />
+        <p className="font-light text-sm text-[color:var(--black-design-extralight)] ">
+          {city}
+        </p>
+      </div>
+      <div className="flex gap-2 justify-between flex-wrap items-center mt-2">
+        <div className="flex gap-1 flex-wrap">
           {socials && socials.length === 0 && isOwner ? (
             <p className="font-extralight text-xs">- No socials added -</p>
           ) : (
@@ -99,15 +123,6 @@ function ShopBio({ isOwner, userAccount, handleOpenSnackbar }) {
               );
             })
           )}
-        </div>
-        <div className="flex items-center gap-1">
-          <LocationOnOutlinedIcon
-            fontSize="small"
-            sx={{ color: "var(--gray-text)" }}
-          />
-          <p className="font-light text-sm text-[color:var(--black-design-extralight)] ">
-            {city}
-          </p>
         </div>
       </div>
     </div>

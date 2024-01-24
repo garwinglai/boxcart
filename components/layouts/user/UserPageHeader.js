@@ -35,7 +35,9 @@ function UserPageHeader({ pageTitle, pageIcon, pageRoute }) {
         {pageIcon}
         <h1 className="text-base md:text-lg">{pageTitle}</h1>
       </div>
-      <p className="hidden text-gray-400 text-sm md:block">Powered by BoxCart</p>
+      <p className="hidden text-gray-400 text-sm md:block">
+        Powered by BoxCart
+      </p>
       <div className="lg:hidden">
         <IconButton onClick={handleOpenMenu}>
           <AccountCircleIcon />

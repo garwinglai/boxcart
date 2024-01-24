@@ -34,6 +34,9 @@ import Geocode from "react-geocode";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
 import { checkSubdomainTakenAccount } from "@/helper/client/api/account/subdomain";
 import { checkEmailAvailableAccount } from "@/helper/client/api/account/email";
+import Pill from "@/components/global/identities/Pill";
+import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
+import IdentityModal from "@/components/app/business-identities/IdentityModal";
 
 Geocode.setApiKey(process.env.NEXT_PUBLIC_GOOGLE_GEO_API_KEY);
 Geocode.setLanguage("en");
@@ -45,7 +48,6 @@ const styleMobile = {
   transform: "translate(-50%, -50%)",
   width: 350,
   bgcolor: "background.paper",
-  // border: "2px solid #000",
   borderRadius: 1,
   boxShadow: 24,
   p: 4,
@@ -64,6 +66,17 @@ function Profile({ userAccount }) {
   const setAccount = useAccountStore((state) => state.setAccount);
   const checklistStore = useChecklistStore((state) => state.checklist);
   const setChecklistStore = useChecklistStore((state) => state.setChecklist);
+
+  const [openBusinessIdentity, setOpenBusinessIdentity] = useState(false);
+  const [isBusinessIdentityLoading, setIsBusinessIdentityLoading] =
+    useState(false);
+  const [businessIdentities, setBusinessIdentities] = useState(
+    userAccount.businessIdentities
+      ? userAccount.businessIdentities.split(", ")
+      : []
+  );
+  const [noIdentitySelectedError, setNoIdentitySelectedError] = useState(false);
+  const [tooManyIdentitiesError, setTooManyIdentitiesError] = useState(false);
 
   const [initialUserAccount, setInitialUserAccount] = useState(userAccount);
   const [subscriberCount, setSubscriberCount] = useState(0);
@@ -148,6 +161,72 @@ function Profile({ userAccount }) {
     initialUserAccount,
   ]);
 
+  const closeBusinessIdentityModal = () => {
+    setOpenBusinessIdentity(false);
+  };
+
+  const saveBusinessIdentity = async () => {
+    if (businessIdentities.length === 0) {
+      setNoIdentitySelectedError(true);
+      return;
+    }
+
+    if (businessIdentities.length > 3) {
+      setTooManyIdentitiesError(true);
+      return;
+    }
+
+    setIsBusinessIdentityLoading(true);
+    const identities = businessIdentities.join(", ");
+
+    const data = { id: accountId, businessIdentities: identities };
+
+    const api = "/api/private/account/businessIdentity";
+
+    const response = await fetch(api, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    const { success, error } = result;
+
+    if (!success) {
+      // TODO: Error logs (why they couldn't save business identity)
+    }
+
+    closeBusinessIdentityModal();
+    setIsBusinessIdentityLoading(false);
+  };
+
+  const handleChangeBusinessIdentities = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (noIdentitySelectedError) setNoIdentitySelectedError(false);
+    if (tooManyIdentitiesError) setTooManyIdentitiesError(false);
+
+    if (checked) {
+      setBusinessIdentities((prev) => [...prev, name]);
+    } else {
+      const removeBusinessIdentities = businessIdentities.filter(
+        (identity) => identity !== name
+      );
+
+      setBusinessIdentities(removeBusinessIdentities);
+    }
+  };
+
+  const isBusinessIdentityChecked = (name) => {
+    if (businessIdentities.length !== 0) {
+      const isChecked = businessIdentities.includes(name);
+
+      if (isChecked) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  };
+
   const checkIfChangesWereMade = (userAccount) => {
     const {
       businessName,
@@ -177,8 +256,8 @@ function Profile({ userAccount }) {
 
     const logoImageChanged = logoFileName !== "";
     const bannerImageChanged = bannerFileName !== "";
-    const newSocials = socialLink !== "";
-    const newPlatform = platform !== "";
+    // const newSocials = socialLink !== "";
+    // const newPlatform = platform !== "";
     const socialsChanged = socials.length !== socialLinks.length;
 
     const socialsAreDifferent = socials.some((social) => {
@@ -192,8 +271,6 @@ function Profile({ userAccount }) {
       return false;
     });
 
-    // log all the changes:
-
     // check if any of the values are different from the original, if so, show the save/cancel buttons
     if (
       businessNameChanged ||
@@ -202,14 +279,12 @@ function Profile({ userAccount }) {
       subDomainChanged ||
       logoImageChanged ||
       bannerImageChanged ||
-      newSocials ||
       socialsChanged ||
       socialsAreDifferent ||
       addy1Changed ||
       addy2Changed ||
       cityChanged ||
       stateChanged ||
-      newPlatform ||
       zipChanged
     ) {
       setShowCancelSaveButtons(true);
@@ -478,7 +553,7 @@ function Profile({ userAccount }) {
       if (emailAvailable.value) {
         setAlert({
           showAlert: true,
-          alertMsg: "Email already exists.",
+          alertMsg: "Email in use.",
         });
         setIsLoading(false);
         return;
@@ -643,6 +718,7 @@ function Profile({ userAccount }) {
         setIsLoading(false);
         return;
       }
+
       updatedAccount = value;
       setInitialUserAccount(updatedAccount);
     } catch (error) {
@@ -651,6 +727,14 @@ function Profile({ userAccount }) {
         showAlert: true,
         alertMsg: "Error saving.",
       });
+    }
+
+    if (
+      lat !== userAccount.lat ||
+      lng !== userAccount.lng ||
+      geohash !== userAccount.geohash
+    ) {
+      await updateProductsLatLngGeohash(lat, lng, geohash, accountId);
     }
 
     if (bannerError) {
@@ -692,6 +776,18 @@ function Profile({ userAccount }) {
     checkIfChangesWereMade(updatedAccount);
   };
 
+  const updateProductsLatLngGeohash = async (lat, lng, geohash, accountId) => {
+    const api = "/api/private/inventory/updateProductLocation";
+    const body = JSON.stringify({ lat, lng, geohash, accountId });
+
+    const response = await fetch(api, {
+      method: "PATCH",
+      body,
+    });
+    const result = await response.json();
+    console.log("result", result);
+  };
+
   const getLatLngFromAddress = (address) => {
     return Geocode.fromAddress(address).then(
       (response) => {
@@ -704,6 +800,10 @@ function Profile({ userAccount }) {
         // return { error };
       }
     );
+  };
+
+  const editBusinessIdentity = (e) => {
+    setOpenBusinessIdentity(true);
   };
 
   const setAccountStore = async (
@@ -720,6 +820,9 @@ function Profile({ userAccount }) {
       lastName,
       subdomain,
       fullDomain,
+      lat,
+      lng,
+      geohash,
     } = updatedAccount;
 
     const storedAccount = {
@@ -733,6 +836,9 @@ function Profile({ userAccount }) {
       lastName,
       subdomain,
       fullDomain,
+      lat,
+      lng,
+      geohash,
     };
 
     setAccount(storedAccount);
@@ -975,6 +1081,39 @@ function Profile({ userAccount }) {
             </div>
           </div>
         </div>
+        <div className="p-4 mx-4 flex flex-col gap-4 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
+          <div className="flex justify-between items-center">
+            <h3>Business identities</h3>
+            <div>
+              <ButtonPrimary
+                type="button"
+                name="Edit"
+                handleClick={editBusinessIdentity}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {businessIdentities.length === 0 ? (
+              <p className="text-sm font-light">
+                No identity selected. Select your business identities if you
+                wish to showcase to the public.
+              </p>
+            ) : (
+              businessIdentities.map((identity, index) => (
+                <Pill key={index} name={identity} />
+              ))
+            )}
+          </div>
+          <IdentityModal
+            openBusinessIdentity={openBusinessIdentity}
+            isBusinessIdentityChecked={isBusinessIdentityChecked}
+            isBusinessIdentityLoading={isBusinessIdentityLoading}
+            noIdentitySelectedError={noIdentitySelectedError}
+            handleChange={handleChangeBusinessIdentities}
+            saveBusinessIdentity={saveBusinessIdentity}
+            tooManyIdentitiesError={tooManyIdentitiesError}
+          />
+        </div>
         <div className="p-4 mx-4 flex flex-col gap-2 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
           <h3>Address</h3>
 
@@ -1064,6 +1203,7 @@ function Profile({ userAccount }) {
             </div>
           </div>
         </div>
+
         <div className="p-4 mx-4 flex flex-col gap-4 bg-white rounded  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)]">
           <h3>Social links</h3>
           <div>
@@ -1079,6 +1219,7 @@ function Profile({ userAccount }) {
               name="platform"
               onChange={handleSocialLinkChange}
               value={platform}
+              placeholder="Instagram, Tiktok, etc."
             />
           </div>
           <div>
@@ -1151,6 +1292,7 @@ function Profile({ userAccount }) {
             })
           )}
         </div>
+
         {showCancelSaveButtons && (
           <div className="fixed bottom-[3.3rem] z-10 border-b w-full bg-white border-t p-4 md:w-[calc(100%-225px)] md:bottom-0 lg:left-0 lg:ml-[225px]">
             <div className="lg:w-2/5 lg:ml-auto">

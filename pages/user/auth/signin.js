@@ -112,8 +112,8 @@ function SignIn() {
 
     const signedInRoute =
       process.env.NODE_ENV && process.env.NODE_ENV === "production"
-        ? "https://boxcart.shop/user/account/dashboard"
-        : "http://localhost:3000/user/account/dashboard";
+        ? "https://boxcart.shop/user/account/orders"
+        : "http://localhost:3000/user/account/orders";
     push(signedInRoute);
     return;
   };

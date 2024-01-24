@@ -454,7 +454,7 @@ function ReviewComponent({
           </Modal>
         </div>
       )}
-      {reviews.length > 0 ? (
+      {reviews && reviews.length > 0 ? (
         reviews.map((review) => <Review key={review.id} review={review} />)
       ) : (
         <div className="opacity-25 flex flex-col items-center mt-12">

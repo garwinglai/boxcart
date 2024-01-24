@@ -125,6 +125,12 @@ function DigitalProductCard({
   };
 
   const handleSwitchChange = (id) => async (e) => {
+    if (!defaultImage || defaultImage === "") {
+      handleOpenSnackbarGlobal("Upload image to enable product.");
+
+      return;
+    }
+
     setIsItemEnabled((prev) => !prev);
     const toggleVisiblityAPI =
       "/api/private/inventory/digital-product/toggle-visibility";
@@ -517,14 +523,14 @@ function DigitalProductCard({
 
   return (
     <div
-      className={`rounded-lg w-full shadow-md border bg-white md:row-auto ${
+      className={`rounded-lg w-full shadow-md bg-white md:row-auto ${
         isExpanded ? "md:grid-row-end-auto" : "md:h-fit"
       }`}
     >
-      <div className="flex justify-between items-start border-b border-[color:var(--gray-light-med)]">
+      <div className="flex justify-between items-start">
         {defaultImage ? (
           <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
-            <div className="w-full h-full relative aspect-square">
+            <div className="w-full h-full  relative aspect-square">
               <Image
                 src={defaultImage}
                 alt="pdf cover image"
@@ -537,7 +543,7 @@ function DigitalProductCard({
           </div>
         ) : (
           <div className="self-start min-w-[30%] relative sm:w-[20%] lg:w-[30%]">
-            <div className="w-full h-full relative aspect-square">
+            <div className="w-full h-full  relative aspect-square">
               <Image
                 src={"https://fl-1.cdn.flockler.com/embed/no-image.svg"}
                 alt="default product image"
@@ -550,16 +556,11 @@ function DigitalProductCard({
           </div>
         )}
 
-        <div className="flex-grow flex flex-col py-2 pl-2">
-          <div className="flex item-center justify-between gap-2">
-            <h2 className="text-sm font-medium sm:text-base md:text-lg ">
-              {productName}
-            </h2>
-          </div>
-          <p className="text-xs font-light min-w-fit">
-            id: {digitalProductId ? digitalProductId : id}
-          </p>
-          <div className="flex items-center gap-1">
+        <div className="flex flex-col flex-grow overflow-hidden py-2 pl-2">
+          <h2 className="text-sm font-medium text-ellipsis whitespace-nowrap overflow-hidden ">
+            {productName}
+          </h2>
+          <div className="flex items-center gap-1 mt-1">
             <Rating
               name="read-only"
               value={parseInt(rating)}
@@ -570,17 +571,17 @@ function DigitalProductCard({
               ({reviewCount})
             </p>
           </div>
-          <p className="text-xs font-light md:text-sm">
-            <b className="text-xs md:text-sm">Price: </b>
+          <p className="text-xs font-light mt-2 md:text-sm">
+            <span className="text-xs md:text-sm">Price: </span>
             {salePriceStr && salePriceStr !== "" ? (
               <span>
-                <span>{salePriceStr}</span>
+                <b>{salePriceStr}</b>
                 <span className=" line-through text-xs font-extralight ml-2 text-gray-500">
                   {priceStr}
                 </span>
               </span>
             ) : (
-              <span>{priceStr}</span>
+              <b>{priceStr}</b>
             )}
           </p>
         </div>
@@ -670,6 +671,7 @@ function DigitalProductCard({
             product={product}
             categories={categories}
             isEditProduct={true}
+            userAccount={userAccount}
             accountId={accountId}
             updateProductList={updateProductList}
             handleOpenSnackbarGlobal={handleOpenSnackbarGlobal}

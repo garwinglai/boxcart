@@ -68,6 +68,8 @@ export const options = (req, res) => ({
               isEmailVerified: user.isEmailVerified,
             };
 
+            console.log("userData", userData);
+
             return userData;
           } catch (error) {
             console.log("error checking hash [...nextauth] line 73:", error);
@@ -78,7 +80,7 @@ export const options = (req, res) => ({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, session }) {
       // user only passes through the first time user logs in.
       // Add any data to token. Token gets called in session callback to use.
 
@@ -89,9 +91,12 @@ export const options = (req, res) => ({
 
       return token;
     },
-    async session({ token, session }) {
+    async session({ token, session, user }) {
       // add additional token data to sesssion and return session when session is called.
-      session.user.id = token.id;
+      if (token) {
+        session.user.id = token.id;
+      }
+
       return session;
     },
   },

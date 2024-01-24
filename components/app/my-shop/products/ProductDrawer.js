@@ -30,11 +30,11 @@ import {
   getDownloadURL,
   ref,
   uploadBytes,
-  uploadBytesResumable,
 } from "firebase/storage";
 import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
+import PillTab from "./PillTab";
 
 const style = {
   position: "absolute",
@@ -52,6 +52,7 @@ function ProductDrawer({
   state,
   toggleDrawer,
   product,
+  userAccount,
   categories,
   isCreateProduct,
   isEditProduct,
@@ -99,9 +100,12 @@ function ProductDrawer({
   );
 
   const [defaultImageValues, setDefaultImageValues] = useState(null);
+
+  const [tagsInput, setTagsInput] = useState("");
   const [productValues, setProductValues] = useState({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
+    tags: product ? (product.tags ? product.tags.split(", ") : []) : [],
     salePriceInt: product
       ? product.salePricePenny
         ? (product.salePricePenny / 100).toFixed(2)
@@ -153,16 +157,14 @@ function ProductDrawer({
   const {
     productName,
     description,
+    tags,
     priceInt,
-    priceStr,
     salePriceInt,
     defaultImgStr,
-    imgArrJson,
     quantity,
     setQuantityByProduct,
     id,
     productId,
-    isSampleProduct,
     relatedCategories,
     enableCustomNote,
     enableCustomerImageUploads,
@@ -176,7 +178,26 @@ function ProductDrawer({
   } = showOptionInputs;
   const { isSnackbarOpen, snackbarMessage } = snackbar;
 
-  // useEffect to structure optionGroup variables from product edit
+  useEffect(() => {
+    const handleScroll = (event) => {
+      // Prevent scrolling on the input field
+      event.preventDefault();
+    };
+
+    // Select only input elements with type "number" and attach the scroll event listener
+    const numberInputElements = document.querySelectorAll(
+      'input[type="number"]'
+    );
+
+    numberInputElements.forEach((inputElement) => {
+      inputElement.addEventListener("wheel", handleScroll);
+
+      // Remove the event listener when the component is unmounted
+      return () => {
+        inputElement.removeEventListener("wheel", handleScroll);
+      };
+    });
+  }, []);
 
   useEffect(() => {
     if (isCreateProduct) return;
@@ -185,6 +206,26 @@ function ProductDrawer({
     setOptions(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleTagsInput = (e) => {
+    const { value } = e.target;
+
+    if (value.length > 40) {
+      handleOpenSnackbar("Max characters reached.");
+      return;
+    }
+
+    // Change the above regex to include white space
+    const regex = /^[a-zA-Z0-9- ]*$/;
+
+    const isTagsFormat = regex.test(value);
+
+    if (!isTagsFormat) {
+      handleOpenSnackbar("Tags cannot have symbols except for hypens.");
+      return;
+    }
+    setTagsInput(value);
+  };
 
   const setOptions = (updatedProduct) => {
     const { optionGroups } = updatedProduct ? updatedProduct : product;
@@ -294,9 +335,7 @@ function ProductDrawer({
   const handleCategoryNameChange = (e) => {
     const { value } = e.target;
 
-    // Change value to have uppercase first letter
-    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
-    setNewCategoryInput(capitalizedValue);
+    setNewCategoryInput(value);
   };
 
   const handleOpenCategoryModal = () => setOpenCategoryModal(true);
@@ -321,7 +360,9 @@ function ProductDrawer({
     // if the value is already in the allCategories array, return
     const allCategoriesArr = allCategories.map((item) => item.categoryName);
     if (allCategoriesArr.includes(newCategoryInput)) {
-      handleOpenSnackbar("Category already exists");
+      handleOpenSnackbar(
+        "Category already exists. Select from saved categories."
+      );
       return;
     }
 
@@ -330,7 +371,9 @@ function ProductDrawer({
     );
 
     if (relatedCategoriesArr.includes(newCategoryInput)) {
-      handleOpenSnackbar("Category already exists");
+      handleOpenSnackbar(
+        "Category already exists. Select from saved categories."
+      );
       return;
     }
 
@@ -1020,6 +1063,18 @@ function ProductDrawer({
       setProductValues((prev) => ({ ...prev, priceInt: value }));
     }
 
+    if (name === "salePriceInt") {
+      // Create a regex check to make sure it's price format, else open snackbar with message
+      const regex = /^$|^(?!0\d)\d*(\.\d{1,2})?$/;
+      const isPriceFormat = regex.test(value);
+
+      if (!isPriceFormat) {
+        return;
+      }
+
+      setProductValues((prev) => ({ ...prev, salePriceInt: value }));
+    }
+
     if (name === "setQuantity") {
       if (value === "product") {
         setProductValues((prev) => ({
@@ -1115,6 +1170,8 @@ function ProductDrawer({
       setIsSaveProductLoading(false);
       return;
     }
+
+    // Check if salePriceInt or priceInt is negative o
 
     const productSchema = structureProductSchema();
     // Incorrect product inputs
@@ -1476,6 +1533,7 @@ function ProductDrawer({
       setProductValues({
         productName: "",
         description: "",
+        tags: [],
         priceInt: "",
         priceStr: "",
         salePriceInt: "",
@@ -1519,6 +1577,7 @@ function ProductDrawer({
       const {
         productName,
         description,
+        tags,
         priceIntPenny,
         priceStr,
         salePricePenny,
@@ -1542,6 +1601,7 @@ function ProductDrawer({
       setProductValues({
         productName,
         description,
+        tags: tags ? tags.split(", ") : [],
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
         salePriceInt:
@@ -1610,6 +1670,12 @@ function ProductDrawer({
 
     if (salePriceInt != "") {
       salePricePenny = parseInt((salePriceInt * 100).toFixed(2));
+
+      if (salePricePenny < 0) {
+        handleOpenSnackbar("Sale price cannot be negative.");
+        return null;
+      }
+
       let salePriceValue = salePriceInt.toString();
 
       if (
@@ -1633,6 +1699,11 @@ function ProductDrawer({
     const priceIntPenny = parseInt((priceInt * 100).toFixed(2));
     let priceValue = priceInt.toString();
 
+    if (priceIntPenny < 0) {
+      handleOpenSnackbar("Price cannot be negative.");
+      return null;
+    }
+
     if (salePricePenny >= priceIntPenny) {
       handleOpenSnackbar("Sale price must be less than original price.");
       return null;
@@ -1651,13 +1722,21 @@ function ProductDrawer({
     }
 
     const convertToPriceStr = `$${priceValue}`;
+    const productTags = tags.join(", ");
+    const lat = userAccount.lat;
+    const lng = userAccount.lng;
+    const geohash = userAccount.geohash;
 
     const productSchema = {
       id,
       productId,
       accountId,
       isSampleProduct: false,
+      lat,
+      lng,
+      geohash,
       productName,
+      tags: productTags,
       description,
       defaultImageFileName: defaultImgStr,
       priceIntPenny,
@@ -1952,8 +2031,8 @@ function ProductDrawer({
         onSubmit={handleSave}
         className=" w-screen bg-[color:var(--gray-light)] min-h-screen p-4 flex flex-col gap-4 overflow-y-scroll pb-56 md:w-[60vw] lg:w-[45vw] xl:w-[35vw]"
       >
-        <div className="flex justify-between items-center sticky top-0 z-10 ">
-          <span className="flex gap-2 items-center">
+        <div className="flex justify-between items-center sticky top-0 z-10 bg-white rounded-full shadow-lg py-2 px-4">
+          <span className="flex gap-1 items-center">
             <Image
               src={product_tag_icon}
               alt="bardcode icon"
@@ -1972,8 +2051,8 @@ function ProductDrawer({
         </div>
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
           <div className="w-full relative ">
-            <span className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <span className="flex items-start justify-between gap-1">
+              <div className="flex items-center gap-1">
                 <h4 className="text-black font-semibold text-sm ">Photos:</h4>
                 <p className="text-xs text-[color:var(--gray)] font-light">
                   8 images max.
@@ -1989,7 +2068,7 @@ function ProductDrawer({
               </div>
             </span>
 
-            <div className="flex overflow-x-scroll w-full mt-4 gap-2 pb-4">
+            <div className="flex overflow-x-scroll w-full mt-4 gap-1 pb-4">
               {productPhotos.length !== 0 ? (
                 productPhotos.map((photo, idx) => {
                   const { image, fileName, isDefault } = photo;
@@ -2057,8 +2136,8 @@ function ProductDrawer({
               )}
             </span>
           </div>
-          <span className="flex flex-col gap-2 mt-4">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="title"
                 className="text-black font-medium text-base "
@@ -2079,9 +2158,9 @@ function ProductDrawer({
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-4">
-            <div className="flex items-center gap-2">
+          </div>
+          <div className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="description"
                 className="text-black font-medium text-base "
@@ -2100,9 +2179,9 @@ function ProductDrawer({
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 px-4 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)]  font-light text-xs overflow-hidden`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-4 relative">
-            <div className="flex items-center gap-2">
+          </div>
+          <div className="flex flex-col gap-1 mt-4 relative">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="price"
                 className="text-black font-medium text-base "
@@ -2116,21 +2195,21 @@ function ProductDrawer({
             <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
               $
             </span>
-            {/* //create an input for price so that it only has 2 decimals */}
             <input
               onKeyDown={handleKeyDown}
               required
               type="number"
               step="0.01"
+              // onWheel={(e) => e.preventDefault()}
               name="priceInt"
               id="price"
               value={priceInt}
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-4 relative">
-            <div className="flex items-center gap-2">
+          </div>
+          <div className="flex flex-col gap-1 mt-4 relative">
+            <div className="flex items-center gap-1">
               <label
                 htmlFor="price"
                 className="text-black font-medium text-base "
@@ -2144,7 +2223,6 @@ function ProductDrawer({
             <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
               $
             </span>
-            {/* //create an input for price so that it only has 2 decimals */}
             <input
               onKeyDown={handleKeyDown}
               type="number"
@@ -2155,18 +2233,87 @@ function ProductDrawer({
               onChange={handleProductInputChange}
               className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-8 font-light text-xs`}
             />
-          </span>
-          <span className="flex flex-col gap-2 mt-6 relative">
+          </div>
+          <div className="flex flex-col gap-1 mt-4">
+            <div className="flex items-center gap-1">
+              <label
+                htmlFor="title"
+                className="text-black font-medium text-base "
+              >
+                Search tags:
+              </label>
+              <span>
+                <p className="font-extralight text-xs">(optional)</p>
+              </span>
+            </div>
+            <p className="text-xs">
+              Create <u>descriptive</u> tags to get found on search! Max: 28
+              tags (Don&apos;t repeat tags)
+            </p>
+            {tags.length < 29 && (
+              <div className="flex gap-2">
+                <div className="flex-grow flex flex-col justify-end items-end">
+                  <input
+                    type="text"
+                    onKeyDown={handleKeyDown}
+                    id="tags"
+                    value={tagsInput}
+                    name="tags"
+                    placeholder="fashion, women, purple sweater, wool, knit, winter clothing, etc."
+                    onChange={handleTagsInput}
+                    className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
+                  />
+                  <p className="text-gray-500 text-xs">{tagsInput.length}/40</p>
+                </div>
+                <div className="h-fit">
+                  <ButtonPrimary
+                    type="button"
+                    name="Add"
+                    disabled={tagsInput === ""}
+                    handleClick={() => {
+                      // Check if tagsInput is within tags, if not, add it in.
+                      const lowerCaseTag = tagsInput.toLowerCase();
+                      if (!tags.includes(lowerCaseTag)) {
+                        setProductValues((prev) => ({
+                          ...prev,
+                          tags: [...tags, lowerCaseTag],
+                        }));
+                      }
+                      setTagsInput("");
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {tags.length !== 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {tags.map((tag, index) => (
+                  <PillTab
+                    key={index}
+                    name={tag}
+                    handleClick={() => {
+                      setProductValues((prev) => ({
+                        ...prev,
+                        tags: tags.filter((t) => t !== tag),
+                      }));
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 mt-6 relative">
             <div className="flex justify-between items-center">
               <label
                 htmlFor="price"
-                className="text-black font-medium text-base flex gap-2 items-center"
+                className="text-black font-medium text-base flex gap-1 items-center"
               >
                 Categories:
                 <span>
                   <p className="font-extralight text-xs">(optional)</p>
                 </span>
               </label>
+
               <div>
                 <ButtonFilter
                   type="button"
@@ -2180,7 +2327,7 @@ function ProductDrawer({
                 >
                   <Box sx={style}>
                     <div className="">
-                      <span className="flex flex-col gap-2">
+                      <span className="flex flex-col gap-1">
                         <label
                           htmlFor="newCategoryInput"
                           className="text-black font-semibold text-sm "
@@ -2199,7 +2346,7 @@ function ProductDrawer({
                           className={`transition-colors duration-300 border border-[color:var(--primary)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
                         />
                       </span>
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex gap-1 mt-4">
                         <div className="w-1/2">
                           <ButtonSecondary
                             type="button"
@@ -2231,7 +2378,7 @@ function ProductDrawer({
                 <option value="">No categories added ...</option>
               ) : (
                 <React.Fragment>
-                  <option value="">Saved categories ...</option>
+                  <option value="">Select from saved categories ...</option>
                   {allCategories.map((category) => (
                     <option
                       key={category.categoryName}
@@ -2243,38 +2390,24 @@ function ProductDrawer({
                 </React.Fragment>
               )}
             </select>
-          </span>
-
-          <div className="mt-4">
-            <p className="font-medium text-sm">Added categories:</p>
-            <ul>
-              {relatedCategories.length !== 0 ? (
-                relatedCategories.map((category) => (
-                  <div
-                    key={category.categoryName}
-                    className="flex justify-between items-center"
-                  >
-                    <li
-                      key={category.id}
-                      className="text-xs list-disc font-light ml-12 md:text-sm"
-                    >
-                      {category.categoryName}
-                    </li>
-                    <IconButton onClick={removeAddedCategory(category)}>
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </div>
-                ))
-              ) : (
-                <p className="font-extralight text-xs mt-1 ml-2">None added.</p>
-              )}
-            </ul>
           </div>
 
-          <span className="flex flex-col gap-2 mt-6 relative">
+          {relatedCategories.length !== 0 && (
+            <div className="mt-2 flex gap-1 flex-wrap">
+              {relatedCategories.map((category, index) => (
+                <PillTab
+                  key={index}
+                  name={category.categoryName}
+                  handleClick={removeAddedCategory(category)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1 mt-6 relative">
             <span className="flex justify-between">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <label
                     htmlFor="quantity"
                     className="text-black font-medium text-base "
@@ -2346,7 +2479,7 @@ function ProductDrawer({
                 </FormControl>
               </React.Fragment>
             )}
-          </span>
+          </div>
         </div>
         <div>
           <div
@@ -2354,7 +2487,7 @@ function ProductDrawer({
           >
             <span className="flex items-center justify-between">
               <div className="w-2/3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <h4 className="text-base">Product options:</h4>
                   <span>
                     <p className="font-extralight text-xs">(optional)</p>
@@ -2540,7 +2673,7 @@ function ProductDrawer({
                               <div className="flex-grow">
                                 <div className="flex gap-4 justify-center items-center">
                                   <span className="flex flex-col relative flex-grow">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
                                       <label
                                         htmlFor="optionName"
                                         className="text-[color:var(--black-design-extralight)] font-medium text-xs "
@@ -2566,7 +2699,7 @@ function ProductDrawer({
                                     />
                                   </span>
                                   <span className="flex flex-col relative flex-grow">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
                                       <label
                                         htmlFor="priceStr"
                                         className="text-[color:var(--black-design-extralight)] font-medium text-xs "
@@ -2636,9 +2769,9 @@ function ProductDrawer({
         </div>
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
           <div className="mt-4">
-            <span className="flex flex-col gap-2 mt-4">
+            <span className="flex flex-col gap-1 mt-4">
               <span className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <label
                     htmlFor="customerQuestion"
                     className="text-black font-medium text-base "
@@ -2684,7 +2817,7 @@ function ProductDrawer({
                       </IconButton>
                       <p className="text-sm font-light">{item.question}</p>
                     </span>
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-1">
                       <p
                         className={`text-sm font-light ${
                           item.isRequired

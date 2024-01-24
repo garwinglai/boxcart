@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -80,7 +81,7 @@ model ShopperAccount {
   wishlist        Wishlist[]
   subscribes      Subscriber[]
   orders          CustomerOrder[]
-  User            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          Int             @unique
   Customer        Customer?
 
@@ -135,6 +136,7 @@ model Account {
   isFirstLogin                    Boolean              @default(true)
   isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
   isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
+  businessIdentities              String?
   email                           String               @unique
   isEmailVerified                 Boolean              @default(false)
   userName                        String
@@ -553,8 +555,12 @@ model DigitalProduct {
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
   isEnabled            Boolean         @default(true)
+  tags                 String?         @db.Text
   productTypeDisplay   String          @default("digital")
   productType          Int             @default(1)
+  lat                  Float?
+  lng                  Float?
+  geohash              String?
   productName          String
   description          String
   hasUnlimitedQuantity Boolean         @default(true)
@@ -588,6 +594,16 @@ model DigitalProduct {
   accountId            Int
 
   @@index([accountId])
+  @@index([lat])
+  @@index([lng])
+  @@index([isEnabled])
+  @@fulltext([tags])
+  @@fulltext([productName])
+  @@fulltext([description])
+  @@fulltext([productName, tags])
+  @@fulltext([description, tags])
+  @@fulltext([productName, description])
+  @@fulltext([productName, description, tags])
 }
 
 model DigitalFile {
@@ -610,10 +626,14 @@ model Product {
   updatedAt                  DateTime        @updatedAt
   productTypeDisplay         String          @default("physical") // "physical", "digital"
   productType                Int             @default(0) // 0: physical, 1: digital
+  tags                       String?         @db.Text
   isSampleProduct            Boolean         @default(false)
   isEnabled                  Boolean         @default(true)
   productName                String
   description                String?         @db.Text
+  lat                        Float?
+  lng                        Float?
+  geohash                    String?
   salePricePenny             Int?
   salePriceStr               String?
   priceIntPenny              Int
@@ -650,6 +670,16 @@ model Product {
   wishlistCount              Int             @default(0)
 
   @@index([accountId])
+  @@index([lat])
+  @@index([lng])
+  @@index([isEnabled])
+  @@fulltext([tags])
+  @@fulltext([productName])
+  @@fulltext([description])
+  @@fulltext([productName, tags])
+  @@fulltext([description, tags])
+  @@fulltext([productName, description])
+  @@fulltext([productName, description, tags])
 }
 
 model Image {

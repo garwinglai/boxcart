@@ -145,8 +145,6 @@ function Signin() {
   const setAccountStore = async (account) => {
     const {
       id: accountId,
-      logoImageFileName,
-      bannerImageFileName,
       businessName,
       businessBio,
       city,
@@ -156,6 +154,9 @@ function Signin() {
       fullDomain,
       bannerImage,
       logoImage,
+      lat,
+      lng,
+      geohash,
     } = account;
 
     const storedAccount = {
@@ -169,6 +170,9 @@ function Signin() {
       lastName,
       subdomain,
       fullDomain,
+      lat,
+      lng,
+      geohash,
     };
 
     setAccount(storedAccount);

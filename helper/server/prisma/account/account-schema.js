@@ -43,6 +43,8 @@ export async function updateAccountSettingsServer(body) {
   const { accountId, updatedSettings, socialLinks, removedSocialLinks } =
     JSON.parse(body);
 
+  console.log("socialLinks", socialLinks);
+
   try {
     const updateUser = await prisma.account.update({
       where: {
@@ -58,21 +60,12 @@ export async function updateAccountSettingsServer(body) {
           },
         },
         socials: {
-          upsert: socialLinks.filter((social) => {
+          create: socialLinks.filter((social) => {
             const { platform, socialLink, id } = social;
 
             if (id) return;
 
-            return {
-              where: {
-                social_identifier: {
-                  accountId,
-                  socialLink,
-                },
-              },
-              update: social,
-              create: social,
-            };
+            return { ...social };
           }),
           deleteMany: removedSocialLinks.map((item) => {
             const { id, socialLink } = item;
@@ -89,7 +82,7 @@ export async function updateAccountSettingsServer(body) {
 
     return { success: true, value: updateUser };
   } catch (error) {
-    console.log("error creating user", error);
+    console.log("error updating user", error);
     return { success: false, error };
   }
 }
