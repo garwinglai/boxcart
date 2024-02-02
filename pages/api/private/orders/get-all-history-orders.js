@@ -12,7 +12,8 @@ export default async function handler(req, res) {
   const { method, body, query } = req;
 
   if (method === "GET") {
-    const resOrderStatusUpdate = await getHistoryOrders();
+    const { accountId } = query;
+    const resOrderStatusUpdate = await getHistoryOrders(accountId);
     const { success, value, error } = resOrderStatusUpdate;
 
     if (success) {

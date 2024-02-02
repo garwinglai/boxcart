@@ -153,10 +153,11 @@ export async function updateOrderPaymentStatusAndStripeIdServer(orderData) {
   }
 }
 
-export async function getPendingOrders() {
+export async function getPendingOrders(accountId) {
   try {
     const orders = await prisma.customerOrder.findMany({
       where: {
+        accountId: parseInt(accountId),
         orderStatus: "pending",
       },
       orderBy: {
@@ -181,10 +182,11 @@ export async function getPendingOrders() {
   }
 }
 
-export async function getHistoryOrders() {
+export async function getHistoryOrders(accountId) {
   try {
     const orders = await prisma.customerOrder.findMany({
       where: {
+        accountId: parseInt(accountId),
         orderStatus: { not: "pending" },
       },
       orderBy: {

@@ -241,11 +241,11 @@ function DigitalShopCard({
 
       handleClose();
       handleCloseDeleteModal();
-      if (currCategory === "All Products") {
-        getAllProducts(accountId);
+      if (currCategory === "All Digital") {
+        getAllDigitalProducts(accountId);
+        handleRemoveDigitalProductFromInitialProduct(productId);
       } else {
         getProductsByCategory(currCategoryId, currCategory);
-        handleRemoveDigitalProductFromInitialProduct(productId);
       }
       handleOpenSnackbar("Product deleted.");
       setIsLoading(false);
@@ -364,11 +364,11 @@ function DigitalShopCard({
 
     setIsDuplicatingProduct(false);
     handleOpenSnackbar("Duplicated.");
-    if (currCategory === "All Products") {
-      getAllProducts(accountId);
+    if (currCategory === "All Digital") {
+      getAllDigitalProducts(accountId);
+      handleAddDigitalProductToInitialProduct(createdProduct);
     } else {
       getProductsByCategory(currCategoryId, currCategory);
-      handleAddDigitalProductToInitialProduct(createdProduct);
     }
   };
 
@@ -676,12 +676,12 @@ function DigitalShopCard({
                       </Box>
                     </Modal>
 
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={handleDuplicateProduct}
                       sx={{ fontSize: "12px" }}
                     >
                       Duplicate
-                    </MenuItem>
+                    </MenuItem> */}
                   </StyledMenu>
                   <DigitalProductDrawer
                     state={state}

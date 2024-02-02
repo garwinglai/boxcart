@@ -9,9 +9,15 @@ import ShopSearchBar from "@/components/storefront/ShopSearchBar";
 import ShopMenu from "@/components/storefront/menus/shop/ShopMenu";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import CategoryShopList from "@/components/storefront/menus/shop/CategoryShopList";
-import { getProductsByCategoryIdClient } from "@/helper/client/api/inventory/category-schema";
+import {
+  getCategoriesClient,
+  getProductsByCategoryIdClient,
+} from "@/helper/client/api/inventory/category-schema";
 import Snackbar from "@mui/material/Snackbar";
-import { getProductsClient } from "@/helper/client/api/inventory/product-schema";
+import {
+  getDigitalProductsClient,
+  getProductsClient,
+} from "@/helper/client/api/inventory/product-schema";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 import prisma from "@/lib/prisma";
 import { useChecklistStore } from "@/lib/store";
@@ -40,7 +46,10 @@ function MyShop({ userAccount }) {
     categories ? categories : []
   );
   const [allInitialProducts, setAllInitialProducts] = useState(
-    products && digitalProducts ? [...products, ...digitalProducts] : []
+    products ? products : []
+  );
+  const [allInitialDigitalProducts, setAllInitialDigitalProducts] = useState(
+    digitalProducts ? digitalProducts : []
   );
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
@@ -53,13 +62,7 @@ function MyShop({ userAccount }) {
         })
       : []
   );
-  const [currDigitalProducts, setCurrDigitalProducts] = useState(
-    digitalProducts
-      ? digitalProducts.sort((a, b) => {
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        })
-      : []
-  );
+  const [currDigitalProducts, setCurrDigitalProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortByMethod, setSortByMethod] = useState("Newest");
 
@@ -119,13 +122,13 @@ function MyShop({ userAccount }) {
   };
 
   const handleRemoveDigitalProductFromInitialProduct = (productId) => {
-    setAllInitialProducts((prev) =>
+    setAllInitialDigitalProducts((prev) =>
       prev.filter((product) => product.id !== productId)
     );
   };
 
   const handleAddDigitalProductToInitialProduct = (product) => {
-    setAllInitialProducts((prev) => [...prev, product]);
+    setAllInitialDigitalProducts((prev) => [...prev, product]);
   };
 
   const getProductsByCategory = async (categoryId, categoryName) => {
@@ -181,9 +184,10 @@ function MyShop({ userAccount }) {
       const { products, digitalProducts, categories } = value;
       setCurrProducts(products);
       setCurrCategory("All Products");
-      setCurrCategories(categories);
-      setCurrDigitalProducts(digitalProducts);
-      setAllInitialProducts([...products, ...digitalProducts]);
+      setCurrDigitalProducts([]);
+      // setCurrCategories(categories);
+      // setCurrDigitalProducts(digitalProducts);
+      // setAllInitialProducts(products);
     } else {
       handleOpenSnackbar("Error getting products.");
     }
@@ -192,25 +196,28 @@ function MyShop({ userAccount }) {
     setIsLoading(false);
   };
 
-  // const getAllDigitalProducts = async () => {
-  //   const { success, value } = await getDigitalProductsClient(accountId);
-  //   const categories = await getCategoriesClient(accountId);
+  const getAllDigitalProducts = async () => {
+    console.log("getAllDigitalProducts");
+    setIsLoading(true);
+    const { success, value } = await getDigitalProductsClient(accountId);
 
-  //   if (success) {
-  //     const { digitalProducts } = value;
-  //     setCurrDigitalProducts(digitalProducts);
-  //     setCurrCategory("All Products");
-  //     return;
-  //   } else {
-  //     handleOpenSnackbar("Error getting digital products.");
-  //   }
+    if (success) {
+      const { digitalProducts, products } = value;
+      setCurrDigitalProducts(digitalProducts);
+      // setCurrProducts(digitalProducts);
+      setCurrCategory("All Digital");
+      setCurrProducts([]);
+    } else {
+      handleOpenSnackbar("Error getting digital products.");
+    }
 
-  //   if (categories.success) {
-  //     setCurrCategories(categories.value);
-  //   }
+    // if (categories.success) {
+    //   setCurrCategories(categories.value);
+    // }
 
-  //   setIsLoading(false);
-  // };
+    setSortByMethod("Newest");
+    setIsLoading(false);
+  };
 
   const handleSortSearchResults = (sortMethod) => {
     const products = [...currProducts];
@@ -320,19 +327,24 @@ function MyShop({ userAccount }) {
         categories={currCategories}
         getProductsByCategory={getProductsByCategory}
         getAllProducts={getAllProducts}
+        allInitialProducts={allInitialProducts}
+        allInitialDigitalProducts={allInitialDigitalProducts}
+        getAllDigitalProducts={getAllDigitalProducts}
         handleSortSearchResults={handleSortSearchResults}
         sortByMethod={sortByMethod}
         handleChangeSort={handleChangeSort}
-        allInitialProducts={allInitialProducts}
+        currCategory={currCategory}
       />
 
       <div className="flex w-full xl:mt-4">
         <div className="hidden lg:block lg:w-1/5 xl:w-2/12">
           <CategoryShopList
             allInitialProducts={allInitialProducts}
+            getAllProducts={getAllProducts}
+            allInitialDigitalProducts={allInitialDigitalProducts}
+            getAllDigitalProducts={getAllDigitalProducts}
             categories={currCategories}
             getProductsByCategory={getProductsByCategory}
-            getAllProducts={getAllProducts}
             currCategory={currCategory}
           />
         </div>
@@ -352,7 +364,7 @@ function MyShop({ userAccount }) {
               updateProductList={updateProductList}
               handleOpenSnackbar={handleOpenSnackbar}
               getAllProducts={getAllProducts}
-              getAllDigitalProducts={getAllProducts}
+              getAllDigitalProducts={getAllDigitalProducts}
               userAccount={userAccount}
               getProductsByCategory={getProductsByCategory}
               currCategory={currCategory}

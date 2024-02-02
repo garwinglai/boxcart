@@ -1676,6 +1676,11 @@ function ProductDrawer({
         return null;
       }
 
+      if (salePricePenny < 50) {
+        handleOpenSnackbar("Sale price cannot be less than $0.50.");
+        return null;
+      }
+
       let salePriceValue = salePriceInt.toString();
 
       if (
@@ -1704,6 +1709,11 @@ function ProductDrawer({
       return null;
     }
 
+    if (priceIntPenny < 50) {
+      handleOpenSnackbar("Price cannot be less than $0.50.");
+      return null;
+    }
+
     if (salePricePenny >= priceIntPenny) {
       handleOpenSnackbar("Sale price must be less than original price.");
       return null;
@@ -1723,9 +1733,9 @@ function ProductDrawer({
 
     const convertToPriceStr = `$${priceValue}`;
     const productTags = tags.join(", ");
-    const lat = userAccount.lat;
-    const lng = userAccount.lng;
-    const geohash = userAccount.geohash;
+    const lat = account.lat;
+    const lng = account.lng;
+    const geohash = account.geohash;
 
     const productSchema = {
       id,

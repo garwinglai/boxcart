@@ -43,28 +43,15 @@ function CheckoutFormStripe({
   selectedPayment,
   siteData,
   shopper,
+  applicationFeePenny,
 }) {
   const { businessName, fullDomain, email, logoImage } = siteData;
 
   const stripe = useStripe();
   const elements = useElements();
 
-  const setCartDetails = useCartStore((state) => state.setCartDetails);
-  const cartDetails = useCartStore((state) => state.cartDetails);
-  const cart = useCartStore((state) => state.cart);
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const hydrated = useHasHydrated();
-
-  const {
-    id,
-    customerFName,
-    customerLName,
-    customerEmail,
-    customerPhone,
-    deliveryAddress,
-    applyFivePercentDiscount,
-    totalPenny,
-  } = cartDetails;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +62,23 @@ function CheckoutFormStripe({
   const { query, push } = router;
   const { site } = query;
   const subdomain = site + ".boxcart.shop";
+
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cart, cartDetails } = cartStore || {};
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
+
+  const {
+    id,
+    customerFName,
+    customerLName,
+    customerEmail,
+    customerPhone,
+    deliveryAddress,
+    applyFivePercentDiscount,
+    totalPenny,
+  } = cartDetails || {};
 
   useEffect(() => {
     if (!stripe) {
@@ -133,7 +137,7 @@ function CheckoutFormStripe({
   useEffect(() => {
     if (!shopperAccount) return;
 
-    setCartDetails({
+    setCartDetails(site, {
       customerFName: shopperAccount.firstName,
       customerLName: shopperAccount.lastName,
       customerEmail: shopperAccount.email,
@@ -144,19 +148,19 @@ function CheckoutFormStripe({
     if (shopperAccount) return;
     // Initialize cart details in store
     if (!customerFName) {
-      setCartDetails({ customerFName: "" });
+      setCartDetails(site, { customerFName: "" });
     }
 
     if (!customerLName) {
-      setCartDetails({ customerLName: "" });
+      setCartDetails(site, { customerLName: "" });
     }
 
     if (!customerEmail) {
-      setCartDetails({ customerEmail: "" });
+      setCartDetails(site, { customerEmail: "" });
     }
 
     if (!customerPhone) {
-      setCartDetails({ customerPhone: "" });
+      setCartDetails(site, { customerPhone: "" });
     }
   }, []);
 
@@ -184,11 +188,11 @@ function CheckoutFormStripe({
 
   const handleCustomerInfoChange = (e) => {
     const { name, value } = e.target;
-    setCartDetails({ [name]: value });
+    setCartDetails(site, { [name]: value });
   };
 
   const handleCustomerPhoneChange = (value, country, event, formattedValue) => {
-    setCartDetails({ customerPhone: formattedValue });
+    setCartDetails(site, { customerPhone: formattedValue });
   };
 
   const handleOpenSignupModal = () => setIsModalOpen(true);
@@ -230,13 +234,14 @@ function CheckoutFormStripe({
     if (allDigitalProductIds && allDigitalProductIds.length > 0) {
       createAndSendDigitalProduct(orderData);
     }
-    setCartDetails({ id });
+    setCartDetails(site, { id });
   };
 
   const sendEmailToBusiness = async (orderData) => {
     const orderLink = `boxcart.shop/app/account/orders/live`;
 
     const emailData = {
+      createdAt: orderData.createdAt,
       email,
       businessName,
       customerEmail,
@@ -681,6 +686,12 @@ function CheckoutFormStripe({
     const totalAfterStripeFeesDisplay = `$${(
       totalAfterStripeFeesPenny / 100
     ).toFixed(2)}`;
+    const applicationFeeDisplay = `$${(applicationFeePenny / 100).toFixed(2)}`;
+    const totalAfterAllFeesPenny =
+      totalAfterStripeFeesPenny - applicationFeePenny;
+    const totalAfterAllFeesDisplay = `$${(totalAfterAllFeesPenny / 100).toFixed(
+      2
+    )}`;
 
     const orderDetailsData = {
       orderId: nanoid(),
@@ -700,6 +711,8 @@ function CheckoutFormStripe({
       taxRateDisplay,
       cardFeePenny: stripeFeesPenny,
       cardFeeDisplay: stripeFeesDisplay,
+      applicationFeePenny,
+      applicationFeeDisplay,
       taxAndFeesPenny,
       taxAndFeesDisplay,
       deliveryFeePenny,
@@ -708,6 +721,8 @@ function CheckoutFormStripe({
       totalDisplay,
       totalAfterStripeFeesPenny,
       totalAfterStripeFeesDisplay,
+      totalAfterAllFeesPenny,
+      totalAfterAllFeesDisplay,
       paymentMethod,
       orderStatus: allDigitalProducts ? "completed" : "pending",
       paymentStatus,

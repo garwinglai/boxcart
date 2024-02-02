@@ -7,6 +7,8 @@ function CategoryShopList({
   getAllProducts,
   currCategory,
   allInitialProducts,
+  getAllDigitalProducts,
+  allInitialDigitalProducts,
 }) {
   const handleCategoryClick = (categoryId, categoryName) => (e) => {
     getProductsByCategory(categoryId, categoryName);
@@ -14,6 +16,10 @@ function CategoryShopList({
 
   const handleGetAllProductsClick = (e) => {
     getAllProducts();
+  };
+
+  const handleGetAllDigitalProductsClick = (e) => {
+    getAllDigitalProducts();
   };
 
   return (
@@ -30,6 +36,20 @@ function CategoryShopList({
           <span className="flex items-center gap-4 justify-between">
             <p className="font-light text-left">All Products</p>
             <p className="font-extralight">{allInitialProducts.length}</p>
+          </span>
+        </button>
+        <button
+          onClick={handleGetAllDigitalProductsClick}
+          className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+            currCategory == "All Digital" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-between">
+            <p className="font-light text-left">All Digital</p>
+            <p className="font-extralight">
+              {allInitialDigitalProducts.length}
+            </p>
           </span>
         </button>
         {categories.map((category, idx) => {

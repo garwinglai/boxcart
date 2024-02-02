@@ -23,7 +23,7 @@ function stringAvatar(name) {
 
 function ShopNavTop() {
   const hydrated = useHasHydrated();
-  const cart = useCartStore((state) => state.cart);
+  // const cart = useCartStore((state) => state.cart);
   const shopper = useShopperStore((state) => state.shopperAccount);
 
   const [anchor, setAnchor] = useState("right");
@@ -39,8 +39,17 @@ function ShopNavTop() {
   const { pathname, query } = useRouter();
   const { site } = query;
 
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+
+  const { cart } = cartStore || {};
+
   useEffect(() => {
-    setCartLength(cart.length);
+    if (cart) {
+      setCartLength(cart.length);
+    }
+
     const businessName = getLocalStorage("businessName");
     setBusinessName(businessName);
   }, [cart, pathname]);

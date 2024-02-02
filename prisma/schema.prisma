@@ -12,6 +12,28 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum CodeType {
+  FREESELLERACCESS
+  EARLYACCESS
+  AMBASSADOR
+  SELLERPROMO
+}
+
+enum Role {
+  // BoxCart Admin
+  BOXADMIN
+  // BoxCart Staff
+  BOXSTAFF
+  // BoxCart Partner
+  PARTNER
+  // Business owners - boxcart users
+  OWNER
+  // Businesses' staff
+  STAFF
+  // Shopper
+  SHOPPER
+}
+
 model Waitlist {
   id         Int      @id @default(autoincrement())
   name       String?
@@ -27,21 +49,6 @@ model Waitlist {
   userId     Int?     @unique
 
   @@index([userId])
-}
-
-enum Role {
-  // BoxCart Admin
-  SUPERADMIN
-  // BoxCart Staff
-  SUPERSTAFF
-  // BoxCart Partner
-  PARTNER
-  // Business owners - boxcart users
-  OWNER
-  // Businesses' staff
-  STAFF
-  // Shopper
-  SHOPPER
 }
 
 model User {
@@ -84,6 +91,7 @@ model ShopperAccount {
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          Int             @unique
   Customer        Customer?
+  usedCodes       UsedCode[]
 
   @@index([userId])
 }
@@ -120,6 +128,35 @@ model Wishlist {
   @@index([digitalProductId])
 }
 
+// * Create another table for Seller Promo Codes
+
+model AdminCode {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  code      String   @unique
+  maxUse    Int      @default(1)
+  useCount  Int      @default(0)
+  creator   Role     @default(BOXADMIN)
+  codeType  CodeType @default(FREESELLERACCESS)
+}
+
+model UsedCode {
+  id               Int             @id @default(autoincrement())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  code             String
+  creator          Role            @default(BOXADMIN)
+  codeType         CodeType        @default(FREESELLERACCESS)
+  account          Account?        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId        Int?
+  shopperAccount   ShopperAccount? @relation(fields: [shopperAccountId], references: [id], onDelete: Cascade)
+  shopperAccountId Int?
+
+  @@index([accountId])
+  @@index([shopperAccountId])
+}
+
 model Account {
   id                              Int                  @id @default(autoincrement())
   createdAt                       DateTime             @default(now())
@@ -142,7 +179,6 @@ model Account {
   userName                        String
   firstName                       String
   lastName                        String
-  accessCode                      String?              @unique
   businessName                    String
   subdomain                       String               @unique
   fullDomain                      String               @unique
@@ -193,6 +229,7 @@ model Account {
   reviews                         Review[]
   taxId                           Int?
   payoutId                        Int?
+  usedCodes                       UsedCode[]
 
   @@index([userId])
 }
@@ -282,6 +319,8 @@ model CustomerOrder {
   fulfillmentType             Int // 0: delivery, 1: pickup, 2: download
   fulfillmentDisplay          String //"delivery", "pickup", "download"
   subtotalPenny               Int
+  applicationFeePenny         Int?
+  applicationFeeDisplay       String?
   subtotalDisplay             String
   taxRate                     Float?
   taxRateDisplay              String?
@@ -305,6 +344,8 @@ model CustomerOrder {
   totalDisplay                String
   totalAfterStripeFeesPenny   Int?
   totalAfterStripeFeesDisplay String?
+  totalAfterAllFeesPenny      Int?
+  totalAfterAllFeesDisplay    String?
   totalItemsOrdered           Int
   account                     Account          @relation(fields: [accountId], references: [id])
   accountId                   Int

@@ -28,35 +28,12 @@ const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function DigitalProduct({ product }) {
   const { account, id: productId } = product || {};
-  const { id: accountId } = account || {};
+  const { id: accountId, subdomain } = account || {};
 
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
 
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
-  const cart = useCartStore((state) => state.cart);
-  const productsStore = useProductQuantityStore((state) => state.products);
-  const setProductsStore = useProductQuantityStore(
-    (state) => state.setProducts
-  );
-  const removeProduct = useProductQuantityStore((state) => state.removeProduct);
-  const reduceProductQuantity = useProductQuantityStore(
-    (state) => state.reduceProductQuantity
-  );
-  const optionQuantityStore = useOptionsQuantityStore((state) => state.options);
-  const setOptionsQuantityStore = useOptionsQuantityStore(
-    (state) => state.setOptions
-  );
-  const reduceRemainingQuantity = useOptionsQuantityStore(
-    (state) => state.reduceRemainingQuantity
-  );
-  const updateRemainingMax = useOptionsQuantityStore(
-    (state) => state.updateRemainingMax
-  );
-  const removeOption = useOptionsQuantityStore((state) => state.removeOption);
-  const reduceOptionQuantity = useOptionsQuantityStore(
-    (state) => state.reduceOptionQuantity
-  );
 
   const {
     id,
@@ -141,7 +118,9 @@ function DigitalProduct({ product }) {
     const { value } = event.target;
     const quantityInt = parseInt(value);
 
-    const productPricePenny = product.priceIntPenny;
+    const productPricePenny = product.salePricePenny
+      ? product.salePricePenny
+      : product.priceIntPenny;
     let newItemTotalInt = productPricePenny * quantityInt;
     const newItemTotalDisplay =
       `$` + (newItemTotalInt / 100).toFixed(2).toString();
@@ -158,8 +137,8 @@ function DigitalProduct({ product }) {
     const addToCartProductData = structureOrderData();
 
     setAddedToCart(true);
-    addSubtotal(itemTotalPenny);
-    setCart(addToCartProductData);
+    addSubtotal(subdomain, itemTotalPenny);
+    setCart(subdomain, addToCartProductData);
     setIsLoading(false);
   };
 

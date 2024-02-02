@@ -9,9 +9,9 @@ const stripe = require("stripe")(secrey_key);
 
 export default async function handler(req, res) {
   const { items } = req.body;
-  const { stripeAccountId, amountPenny } = items[0];
+  const { stripeAccountId, amountPenny, applicationFee } = items[0];
 
-  const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
+  // const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
 
   const paymentConfig =
     process.env.NODE_ENV === "development"
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
         automatic_payment_methods: {
           enabled: true,
         },
+        application_fee_amount: applicationFee,
         payment_method_configuration: paymentConfig,
       },
       {
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
 
     res.send({
       clientSecret: client_secret,
+      applicationFee: applicationFee,
     });
   } catch (e) {
     console.log("error", e.message);

@@ -7,9 +7,13 @@ export default async function handler(req, res) {
 
   if (method === "POST") {
     const { userData } = body;
+    const { password } = userData;
+
+    console.log("password", password);
 
     const saltRounds = 10;
-    const hash = await bcrypt.hash(userData.password, saltRounds);
+    const hash = await bcrypt.hash(password, saltRounds);
+    console.log("has", hash);
 
     try {
       const user = await prisma.user.create({

@@ -11,30 +11,12 @@ function OrderReview({
   order,
   isBusiness,
 }) {
-  const cart = useCartStore((state) => state.cart);
-  const cartDetails = useCartStore((state) => state.cartDetails);
-  const hydrated = useHasHydrated();
-
-  const isDigitalProduct = (product) => product.productType === 1;
-  const hideForDate = cart.every(isDigitalProduct);
-
-  const {
-    orderForDateDisplay,
-    orderForTimeDisplay,
-    fulfillmentDisplay,
-    deliveryAddress,
-    pickupAddress,
-    fulfillmentType,
-    requireOrderTime,
-    requireOrderDate,
-    pickupNote,
-    applyFivePercentDiscount,
-  } = cartDetails;
-
   const {
     push,
     query: { site },
   } = useRouter();
+
+  const hydrated = useHasHydrated();
 
   const handleAddDateTime = () => {
     push(`/${site}`);
@@ -58,7 +40,7 @@ function OrderReview({
       <div className="pb-4">
         <h3 className="font-medium mt-4 mb-2 text-base">Order Details:</h3>
         <div className="flex flex-col gap-2">
-          {hydrated && !hideForDate && requireOrderDate && (
+          {hydrated && requireOrderDate && (
             <div className="flex justify-between items-center">
               <p className="text-sm">
                 <b>For date:</b>
@@ -107,6 +89,27 @@ function OrderReview({
     );
   }
 
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cart, cartDetails } = cartStore || {};
+
+  const isDigitalProduct = (product) => product.productType === 1;
+  const hideForDate = cart.every(isDigitalProduct);
+
+  const {
+    orderForDateDisplay,
+    orderForTimeDisplay,
+    fulfillmentDisplay,
+    deliveryAddress,
+    pickupAddress,
+    fulfillmentType,
+    requireOrderTime,
+    requireOrderDate,
+    pickupNote,
+    applyFivePercentDiscount,
+  } = cartDetails || {};
+
   return (
     <div className="py-6">
       <h3 className="font-medium mb-2 text-base">Order Details:</h3>
@@ -121,14 +124,15 @@ function OrderReview({
                   orderForTimeDisplay &&
                   ` @ ` + orderForTimeDisplay}
               </p>
-              {requireOrderDate && orderForDateDisplay === "" && (
-                <button
-                  onClick={handleAddDateTime}
-                  className="text-blue-600 text-sm font-light"
-                >
-                  add
-                </button>
-              )}
+              {requireOrderDate &&
+                (orderForDateDisplay === "" || !orderForDateDisplay) && (
+                  <button
+                    onClick={handleAddDateTime}
+                    className="text-blue-600 text-sm font-light"
+                  >
+                    add
+                  </button>
+                )}
             </div>
           </div>
         )}

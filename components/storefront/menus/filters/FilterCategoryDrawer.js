@@ -9,10 +9,12 @@ function FilterCategoryDrawer({
   anchor,
   state,
   categories,
+  currCategory,
   getProductsByCategory,
   getAllProducts,
-
   allInitialProducts,
+  getAllDigitalProducts,
+  allInitialDigitalProducts,
 }) {
   const handleCategoryClick = (categoryId, categoryName) => (e) => {
     getProductsByCategory(categoryId, categoryName);
@@ -21,6 +23,11 @@ function FilterCategoryDrawer({
 
   const handleGetAllProductsClick = (e) => {
     getAllProducts();
+    toggleDrawer("bottom", false)(e);
+  };
+
+  const handleGetAllDigitalProductsClick = (e) => {
+    getAllDigitalProducts();
     toggleDrawer("bottom", false)(e);
   };
 
@@ -38,11 +45,28 @@ function FilterCategoryDrawer({
       <div className="flex flex-col p-4 gap-2">
         <button
           onClick={handleGetAllProductsClick}
-          className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
+          className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+            currCategory == "All Products" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
         >
           <span className="flex items-center gap-4 justify-between">
             <p className="font-light text-left">All Products</p>
             <p className="font-extralight">{allInitialProducts.length}</p>
+          </span>
+        </button>
+        <button
+          onClick={handleGetAllDigitalProductsClick}
+          className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+            currCategory == "All Digital" &&
+            "bg-[color:var(--third-light-soft)]"
+          }`}
+        >
+          <span className="flex items-center gap-4 justify-between">
+            <p className="font-light text-left">All Digital</p>
+            <p className="font-extralight">
+              {allInitialDigitalProducts.length}
+            </p>
           </span>
         </button>
         {categories &&
@@ -54,7 +78,10 @@ function FilterCategoryDrawer({
               <button
                 key={id}
                 onClick={handleCategoryClick(id, categoryName)}
-                className="text-sm py-2 px-4 rounded hover:bg-[color:var(--third-light)] active:bg-[color:var(--third-light)]"
+                className={`text-sm py-2 px-2 rounded hover:bg-[color:var(--third-light-soft)] ${
+                  currCategory == categoryName &&
+                  "bg-[color:var(--third-light-soft)]"
+                }`}
               >
                 <span className="flex items-center gap-4 justify-between">
                   <p className="font-light text-left">{categoryName}</p>

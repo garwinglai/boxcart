@@ -1204,7 +1204,7 @@ function Payments({ userAccount }) {
               )}
             </div>
           </div>
-          <div className="border-b border-[color:var(--gray-light)] py-4">
+          {/* <div className="border-b border-[color:var(--gray-light)] py-4">
             <div className="flex justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -1459,7 +1459,7 @@ function Payments({ userAccount }) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       {showSaveCancelButtons && (

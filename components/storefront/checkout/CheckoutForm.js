@@ -35,6 +35,7 @@ function CheckoutForm({
   selectedPaymentDetails,
   siteData,
   shopper,
+  applicationFeePenny,
 }) {
   const { businessName, fullDomain, email, logoImage } = siteData;
 
@@ -414,6 +415,7 @@ function CheckoutForm({
     const paymentStatus = "unpaid";
     const paymentAccount = selectedPaymentDetails.paymentAccount;
     const paymentInstructions = selectedPaymentDetails.paymentInstructions;
+    const applicationFeeDisplay = `$${(applicationFeePenny / 100).toFixed(2)}`;
 
     const orderDetailsData = {
       orderId: nanoid(),
@@ -427,6 +429,8 @@ function CheckoutForm({
       requireOrderDate,
       fulfillmentType,
       fulfillmentDisplay,
+      applicationFeePenny,
+      applicationFeeDisplay,
       subtotalPenny,
       subtotalDisplay,
       taxRate,

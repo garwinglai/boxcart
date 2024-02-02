@@ -8,6 +8,10 @@ import { findUser } from "@/helper/server/prisma/auth/login";
 const confirmPasswordHashpassword = (plainPassword, hashedPassword) => {
   return new Promise((resolve) => {
     bcrypt.compare(plainPassword, hashedPassword, function (err, res) {
+      if (err) {
+        console.log("err", err);
+        resolve(false);
+      }
       resolve(res);
     });
   });
@@ -61,6 +65,7 @@ export const options = (req, res) => ({
 
             const userData = {
               userId: user.id,
+              accountId: user.accounts[0]?.id,
               firstName: user.firstName,
               lastName: user.lastName,
               name: user.name,
@@ -68,11 +73,9 @@ export const options = (req, res) => ({
               isEmailVerified: user.isEmailVerified,
             };
 
-            console.log("userData", userData);
-
             return userData;
           } catch (error) {
-            console.log("error checking hash [...nextauth] line 73:", error);
+            console.log("error signin in", error);
             return null;
           }
         }
@@ -85,7 +88,8 @@ export const options = (req, res) => ({
       // Add any data to token. Token gets called in session callback to use.
 
       if (user) {
-        token.id = user.userId;
+        token.id = user.accountId;
+        token.userId = user.userId;
         return token;
       }
 

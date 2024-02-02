@@ -81,18 +81,6 @@ let stagedDeliveryDate = "";
 let stagedDeliveryTime = "";
 
 function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
-  const hydrated = useHasHydrated();
-  const cartDetails = useCartStore((state) => state.cartDetails);
-  const setCartDetails = useCartStore((state) => state.setCartDetails);
-
-  const {
-    fulfillmentDisplay,
-    fulfillmentType,
-    deliveryAddress,
-    orderForDateDisplay,
-    orderForTimeDisplay,
-  } = cartDetails;
-
   const {
     fulfillmentMethodInt,
     fulfillmentMethods,
@@ -100,7 +88,24 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     lat: bizLat,
     lng: bizLng,
     id: accountId,
+    subdomain,
   } = userAccount ? userAccount : {};
+
+  const hydrated = useHasHydrated();
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === subdomain);
+  });
+
+  const { cartDetails } = cartStore || {};
+
+  const {
+    fulfillmentDisplay,
+    fulfillmentType,
+    deliveryAddress,
+    orderForDateDisplay,
+    orderForTimeDisplay,
+  } = cartDetails || {};
 
   const {
     timeBlock,
@@ -182,9 +187,9 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     } else {
       const dateStr = new Date(date).toLocaleDateString();
 
-      setCartDetails({
-        orderForDateDisplay: dateStr,
-      });
+      const details = { orderForDateDisplay: dateStr };
+
+      setCartDetails(subdomain, details);
     }
 
     const selectedDateValues = fetchShopHours(
@@ -700,7 +705,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 
     const selectedDate = new Date(date).toLocaleDateString();
 
-    setCartDetails({
+    setCartDetails(subdomain, {
       orderForDateDisplay: selectedDate,
     });
 
@@ -718,7 +723,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     setTimeBlockTimes([]);
     // setDeliveryTime(stagedDeliveryTime);
     // setDeliveryDate(stagedDeliveryDate);
-    setCartDetails({
+    setCartDetails(subdomain, {
       orderForDateDisplay: stagedDeliveryDate,
       orderForTimeDisplay: stagedDeliveryTime,
     });
@@ -769,7 +774,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 
     stagedDeliveryDate = orderForDateDisplay;
 
-    setCartDetails({
+    setCartDetails(subdomain, {
       orderForDateDisplay: stagedDeliveryDate,
     });
     setOpenAvailabilityModalOwner(false);
@@ -782,7 +787,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const handleSelectTime = (e) => {
     const { name } = e.target;
     // setDeliveryTime(name);
-    setCartDetails({ orderForTimeDisplay: name });
+    setCartDetails(subdomain, { orderForTimeDisplay: name });
   };
 
   const handleChange = (panel) => (event, isExpanded) => {
@@ -791,7 +796,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 
   const handleSwitch = () => {
     if (fulfillmentType === 0) {
-      setCartDetails({
+      setCartDetails(subdomain, {
         fulfillmentType: 1,
         fulfillmentDisplay: "pickup",
         deliveryFeeType: 0,
@@ -802,7 +807,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
       return;
     }
 
-    setCartDetails({
+    setCartDetails(subdomain, {
       fulfillmentType: 0,
       fulfillmentDisplay: "delivery",
       deliveryAddress: "",
@@ -810,82 +815,6 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 
     handleChange("panel1");
     return;
-  };
-
-  const updateDeliveryFee = (distanceInMi, distanceInKm) => {
-    const deliveryMethod = fulfillmentMethods.find(
-      (method) => method.methodInt === 0
-    );
-
-    const {
-      deliveryFeeType,
-      deliveryFeePriceStr,
-      deliveryFeePriceIntPenny,
-      deliveryFeeByDistanceStr,
-      deliveryFeeByDistanceIntPenny,
-      deliveryFeeDistanceMetric,
-      deliveryFeeByPercentStr,
-      deliveryFeeByPercent,
-    } = deliveryMethod;
-
-    const deliveryFeeTypeInt =
-      deliveryFeeType === "free"
-        ? 0
-        : deliveryFeeType === "flat"
-        ? 1
-        : deliveryFeeType === "percentage"
-        ? 2
-        : 3;
-
-    let deliveryFeeByDistancePenny = deliveryFeeByDistanceIntPenny;
-    let deliveryFeeByDistanceDisplay = deliveryFeeByDistanceStr;
-    let deliveryFeeByPercentNum = deliveryFeeByPercent;
-    let deliveryFeeByPercentDisplay = deliveryFeeByPercentStr;
-
-    if (deliveryFeeTypeInt === 2) {
-      const { subtotalPenny } = cartDetails;
-
-      deliveryFeeByPercentNum = subtotalPenny * (deliveryFeeByPercent / 100);
-      deliveryFeeByPercentDisplay = `$${(deliveryFeeByPercentNum / 100).toFixed(
-        2
-      )}`;
-    }
-
-    if (deliveryFeeTypeInt === 3) {
-      deliveryFeeByDistancePenny =
-        deliveryFeeDistanceMetric === "mi"
-          ? deliveryFeeByDistanceIntPenny * distanceInMi
-          : deliveryFeeByDistanceIntPenny * distanceInKm;
-
-      deliveryFeeByDistanceDisplay = `$${(
-        deliveryFeeByDistancePenny / 100
-      ).toFixed(2)}`;
-    }
-
-    const deliveryFeePenny =
-      deliveryFeeTypeInt === 0
-        ? 0
-        : deliveryFeeTypeInt === 1
-        ? deliveryFeePriceIntPenny
-        : deliveryFeeTypeInt === 2
-        ? deliveryFeeByPercentNum
-        : deliveryFeeByDistancePenny;
-
-    const deliveryFeeDisplay =
-      deliveryFeeTypeInt === 0
-        ? "$0.00"
-        : deliveryFeeTypeInt === 1
-        ? deliveryFeePriceStr
-        : deliveryFeeTypeInt === 2
-        ? deliveryFeeByPercentDisplay
-        : deliveryFeeByDistanceDisplay;
-
-    setCartDetails({
-      deliveryFeeType: deliveryFeeTypeInt,
-      deliveryFeeTypeDisplay: deliveryFeeType,
-      deliveryFeePenny,
-      deliveryFeeDisplay,
-    });
   };
 
   const handleChangeDeliveryClick = () => {
@@ -926,8 +855,8 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     const distanceInMiStr = roundedNumInMi.toString() + " mi";
     const distanceInKmStr = roundedNumInKm.toString() + " km";
 
-    setCartDetails({
-      delvieryDistanceMi: roundedNumInMi,
+    setCartDetails(subdomain, {
+      deliveryDistanceMi: roundedNumInMi,
       deliveryDistanceMiDisplay: distanceInMiStr,
       deliveryDistanceKm: roundedNumInKm,
       deliveryDistanceKmDisplay: distanceInKmStr,
@@ -1019,7 +948,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
             </button>
             <Modal
               open={openDeliveryPickupModal}
-              onClose={handleCloseDeliveryPickupModal}
+              // onClose={handleCloseDeliveryPickupModal}
               aria-labelledby="delivery address modal"
               aria-describedby="enter delivery address modal"
             >
@@ -1160,15 +1089,17 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                                   if (distance) {
                                     const { roundedNumInMi, roundedNumInKm } =
                                       distance;
-                                    setCartDetails({
+                                    setCartDetails(subdomain, {
                                       deliveryAddress: address,
                                     });
-                                    updateDeliveryFee(
-                                      roundedNumInMi,
-                                      roundedNumInKm
-                                    );
+                                    // updateDeliveryFee(
+                                    //   roundedNumInMi,
+                                    //   roundedNumInKm
+                                    // );
                                   } else {
-                                    setCartDetails({ deliveryAddress: "" });
+                                    setCartDetails(subdomain, {
+                                      deliveryAddress: "",
+                                    });
                                   }
 
                                   setLat(lat);
@@ -1189,14 +1120,17 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                     </AccordionDetails>
                   </Accordion>
 
-                  <div className="">
-                    <button
-                      onClick={handleSetDeliveryAddress(fulfillmentType)}
-                      className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
-                    >
-                      Set fulfillment
-                    </button>
-                  </div>
+                  {(fulfillmentType === 1 ||
+                    (fulfillmentType === 0 && cartDetails.deliveryAddress)) && (
+                    <div className="">
+                      <button
+                        onClick={handleSetDeliveryAddress(fulfillmentType)}
+                        className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
+                      >
+                        Set fulfillment
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Box>
             </Modal>
@@ -1256,10 +1190,14 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                             if (distance) {
                               const { roundedNumInMi, roundedNumInKm } =
                                 distance;
-                              setCartDetails({ deliveryAddress: address });
-                              updateDeliveryFee(roundedNumInMi, roundedNumInKm);
+                              setCartDetails(subdomain, {
+                                deliveryAddress: address,
+                              });
+                              // updateDeliveryFee(roundedNumInMi, roundedNumInKm);
                             } else {
-                              setCartDetails({ deliveryAddress: "" });
+                              setCartDetails(subdomain, {
+                                deliveryAddress: "",
+                              });
                             }
 
                             setLat(lat);

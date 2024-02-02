@@ -1,5 +1,5 @@
 export async function checkAccessCode(code) {
-  const accessCodeUrl = `/api/public/waitlist/earlyCode/${code}`;
+  const accessCodeUrl = `/api/public/waitlist/early-code/${code}`;
 
   const resCheckCode = await fetch(accessCodeUrl, {
     method: "GET",
@@ -15,7 +15,7 @@ export async function checkAccessCode(code) {
 }
 
 export async function checkAccessCodeUsed(code) {
-  const accessCodeUrl = `/api/public/account/earlyCodeUsed/${code}`;
+  const accessCodeUrl = `/api/public/account/early-code-used/${code}`;
 
   const resCheckCode = await fetch(accessCodeUrl, {
     method: "GET",

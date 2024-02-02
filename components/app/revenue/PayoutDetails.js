@@ -3,9 +3,17 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import payout_icon from "@/public/images/icons/payout_icon.png";
 
-function PayoutDetails({ payoutDetail, closeViewDetails }) {
-  const { id, amount, arrival_date, created, status, destination } =
-    payoutDetail;
+function PayoutDetails({ payoutDetail, closeViewDetails, stripeAccId }) {
+  const {
+    id,
+    amount,
+    arrival_date,
+    created,
+    status,
+    destination,
+    balance_transaction,
+  } = payoutDetail;
+  console.log(stripeAccId, payoutDetail);
 
   const createdDate = new Date(created * 1000).toLocaleDateString();
   const arrivalDate = new Date(arrival_date * 1000).toLocaleDateString();
@@ -17,11 +25,44 @@ function PayoutDetails({ payoutDetail, closeViewDetails }) {
     // feesDisplay: "",
     // netDisplay: "",
   });
+  const [balanceTransactions, setBalanceTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   // destructure payout
   const { balanceDisplay, feesDisplay, netDisplay } = payout;
+
+  // Fetch transactions for current payout
+  useEffect(() => {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    const retrievePayouts = async () => {
+      const retrievePayoutsApi = `/api/private/stripe/retrieve-transactions/${stripeAccId}/${id}`;
+
+      const res = await fetch(retrievePayoutsApi, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      console.log("data", data);
+
+      if (!data.success || data.error) {
+        setErrorMessage("Problem loading payout details.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (data) {
+        setBalanceTransactions(data.balanceTransactions);
+      }
+      setIsLoading(false);
+    };
+
+    retrievePayouts();
+  }, [id]);
 
   // Fetch payout
   useEffect(() => {
@@ -81,7 +122,7 @@ function PayoutDetails({ payoutDetail, closeViewDetails }) {
             <p className="text-sm">{createdDate}</p>
             <p className="text-sm">{arrivalDate}</p>
             <p className="text-sm">{status}</p>
-            <p className="text-sm">{amount}</p>
+            <p className="text-sm">{balanceDisplay}</p>
           </div>
         </div>
       </div>

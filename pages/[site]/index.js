@@ -8,9 +8,15 @@ import Divider from "@mui/material/Divider";
 import ShopSearchBar from "@/components/storefront/ShopSearchBar";
 import CategoryShopList from "@/components/storefront/menus/shop/CategoryShopList";
 import prisma from "@/lib/prisma";
-import { getProductsByCategoryIdClientPublic } from "@/helper/client/api/inventory/category-schema";
+import {
+  getCategoriesClient,
+  getProductsByCategoryIdClientPublic,
+} from "@/helper/client/api/inventory/category-schema";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
-import { getProductsClientPublic } from "@/helper/client/api/inventory/product-schema";
+import {
+  getDigitalProductsClient,
+  getProductsClientPublic,
+} from "@/helper/client/api/inventory/product-schema";
 import Snackbar from "@mui/material/Snackbar";
 import { useCartStore, useShopperStore } from "@/lib/store";
 import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
@@ -21,9 +27,14 @@ import { useSession } from "next-auth/react";
 import { isAuthUserShopping } from "@/helper/server/auth/isAuth";
 
 function Sites({ siteData, shopper }) {
-  const cart = useCartStore((state) => state.cart);
-  const cartDetails = useCartStore((state) => state.cartDetails);
+  const { subdomain } = siteData;
+
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === subdomain);
+  });
+  const { cartDetails } = cartStore || {};
   const setCartDetails = useCartStore((state) => state.setCartDetails);
+
   const setShopperAccount = useShopperStore((state) => state.setShopperAccount);
   const removeShopperAccount = useShopperStore(
     (state) => state.removeShopperAccount
@@ -55,7 +66,10 @@ function Sites({ siteData, shopper }) {
 
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [allInitialProducts, setAllInitialProducts] = useState(
-    products && digitalProducts ? [...products, ...digitalProducts] : []
+    products ? products : []
+  );
+  const [allInitialDigitalProducts, setAllInitialDigitalProducts] = useState(
+    digitalProducts ? digitalProducts : []
   );
   const [sortByMethod, setSortByMethod] = useState("Newest");
   const [currCategory, setCurrCategory] = useState("All Products");
@@ -63,9 +77,7 @@ function Sites({ siteData, shopper }) {
     categories ? categories : []
   );
   const [currProducts, setCurrProducts] = useState(products ? products : []);
-  const [currDigitalProducts, setCurrDigitalProducts] = useState(
-    digitalProducts ? digitalProducts : []
-  );
+  const [currDigitalProducts, setCurrDigitalProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState({
     snackbarOpen: false,
@@ -118,13 +130,11 @@ function Sites({ siteData, shopper }) {
       }
     }
 
-    const numberOfTipOptions = 3;
-
-    const { fulfillmentType, fulfillmentDisplay } = cartDetails;
+    const { fulfillmentType, fulfillmentDisplay } = cartDetails || {};
     let typeOfFulfillment;
     let displayFulfillmentType;
 
-    if (fulfillmentType && fulfillmentType == fulfillmentMethodInt) {
+    if (fulfillmentDisplay) {
       typeOfFulfillment = fulfillmentType;
       displayFulfillmentType = fulfillmentDisplay;
       pickupNote = cartDetails.pickupNote;
@@ -135,7 +145,7 @@ function Sites({ siteData, shopper }) {
       pickupNote = fulfillmentMethodInt == 0 ? "" : pickupNote;
     }
 
-    setCartDetails({
+    const details = {
       taxRate: isTaxRateEnabled ? taxRate : 0,
       taxRateDisplay: isTaxRateEnabled ? taxRateDisplay : "$0.00",
       requireOrderTime: isTimeBlockEnabled,
@@ -144,7 +154,9 @@ function Sites({ siteData, shopper }) {
       fulfillmentDisplay: displayFulfillmentType,
       pickupAddress: fullAddress,
       pickupNote,
-    });
+    };
+
+    setCartDetails(subdomain, details);
   }, []);
 
   const handleOpenSignupModal = () => setIsSignUpModalOpen(true);
@@ -207,9 +219,9 @@ function Sites({ siteData, shopper }) {
       const { products, digitalProducts, categories } = value;
       setCurrProducts(products);
       setCurrCategory("All Products");
-      setCurrCategories(categories);
-      setCurrDigitalProducts(digitalProducts);
-      setAllInitialProducts([...products, ...digitalProducts]);
+      setCurrDigitalProducts([]);
+      // setCurrCategories(categories);
+      // setAllInitialProducts([...products, ...digitalProducts]);
     } else {
       handleOpenSnackbar("Error getting products.");
     }
@@ -217,6 +229,28 @@ function Sites({ siteData, shopper }) {
     if (categories.success) {
       setCurrCategories(categories.value);
     }
+
+    setSortByMethod("Newest");
+    setIsLoading(false);
+  };
+
+  const getAllDigitalProducts = async () => {
+    setIsLoading(true);
+    const { success, value } = await getDigitalProductsClient(accountId);
+
+    if (success) {
+      const { digitalProducts, products } = value;
+      setCurrDigitalProducts(digitalProducts);
+      // setCurrProducts(digitalProducts);
+      setCurrCategory("All Digital");
+      setCurrProducts([]);
+    } else {
+      handleOpenSnackbar("Error getting digital products.");
+    }
+
+    // if (categories.success) {
+    //   setCurrCategories(categories.value);
+    // }
 
     setSortByMethod("Newest");
     setIsLoading(false);
@@ -368,25 +402,30 @@ function Sites({ siteData, shopper }) {
             handleSearchInput={handleSearchInput}
             handleSearchProduct={handleSearchProduct}
             allInitialProducts={allInitialProducts}
+            allInitialDigitalProducts={allInitialDigitalProducts}
             isOwner={false}
             allProducts={products}
             categories={currCategories}
             getProductsByCategory={getProductsByCategory}
             getAllProducts={getAllProducts}
+            getAllDigitalProducts={getAllDigitalProducts}
             handleSortSearchResults={handleSortSearchResults}
             sortByMethod={sortByMethod}
             handleChangeSort={handleChangeSort}
+            currCategory={currCategory}
           />
         </div>
         <div className="flex w-full lg:px-16 xl:px-28  xl:mt-4">
           <div className="hidden lg:block min-w-fit">
             <CategoryShopList
               allInitialProducts={allInitialProducts}
+              allInitialDigitalProducts={allInitialDigitalProducts}
               isOwner={false}
               categories={currCategories}
               allProducts={products}
               getProductsByCategory={getProductsByCategory}
               getAllProducts={getAllProducts}
+              getAllDigitalProducts={getAllDigitalProducts}
             />
           </div>
           {isLoading ? (

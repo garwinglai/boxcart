@@ -3,46 +3,14 @@ import styles from "../../../styles/components/storefront/cart/subtotal.module.c
 import { useCartStore } from "@/lib/store";
 import { useHasHydrated } from "@/utils/useHasHydrated";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
-  const cartDetails = useCartStore((state) => state.cartDetails);
-  const setCartDetails = useCartStore((state) => state.setCartDetails);
-
-  const hydrated = useHasHydrated();
-
   const {
-    subtotalPenny,
-    subtotalDisplay,
-    taxRate,
-    taxRateDisplay,
-    taxAndFeesPenny,
-    taxAndFeesDisplay,
-    deliveryFeeType,
-    deliveryFeePenny,
-    deliveryFeeDisplay,
-    totalDisplay,
-    applyFivePercentDiscount,
-  } = cartDetails;
-
-  const cashBackAmt = applyFivePercentDiscount ? subtotalPenny * 0.05 : 0;
-
-  useEffect(() => {
-    const taxAndFeesPenny = Math.round(
-      (subtotalPenny * (taxRate / 100)).toFixed(2)
-    );
-
-    const taxAndFeesDisplay = `$${(taxAndFeesPenny / 100).toFixed(2)}`;
-
-    const totalPenny = subtotalPenny + taxAndFeesPenny + deliveryFeePenny;
-    const totalDisplay = `$${(totalPenny / 100).toFixed(2)}`;
-
-    setCartDetails({
-      taxAndFeesPenny,
-      taxAndFeesDisplay,
-      totalPenny,
-      totalDisplay,
-    });
-  }, []);
+    push,
+    query: { site },
+  } = useRouter();
+  const hydrated = useHasHydrated();
 
   if (orderSubmitted || isBusiness) {
     const {
@@ -85,6 +53,27 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
     );
   }
 
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cartDetails } = cartStore || {};
+
+  const {
+    subtotalPenny,
+    subtotalDisplay,
+    taxRate,
+    taxRateDisplay,
+    taxAndFeesPenny,
+    taxAndFeesDisplay,
+    deliveryFeeType,
+    deliveryFeePenny,
+    deliveryFeeDisplay,
+    totalDisplay,
+    applyFivePercentDiscount,
+  } = cartDetails;
+
+  const cashBackAmt = applyFivePercentDiscount ? subtotalPenny * 0.05 : 0;
+
   return (
     <div className="pt-4">
       {!isInCart && <h3 className="font-medium text-base">Subtotal:</h3>}
@@ -105,7 +94,7 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
           )}
         </div>
         {hydrated && (
-          <div className={`${styles.flexCol} ${styles.subtotal_values}`}>
+          <div className={`${styles.flexCol} ${styles.subtotal_values} mb-4`}>
             {!isInCart ? (
               <React.Fragment>
                 <p>{subtotalDisplay}</p>

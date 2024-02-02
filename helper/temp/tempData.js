@@ -1,13 +1,9 @@
 import arts_and_crafts_icon from "../../public/images/icons/business_type/art_and_craft_icon.png";
-import bakery_icon from "../../public/images/icons/business_type/bakery_icon.png";
 import fashion_icon from "../../public/images/icons/business_type/fashion_icon.png";
 import restaurant_icon from "../../public/images/icons/business_type/restaurant_icon.png";
-import dessert_icon from "../../public/images/icons/business_type/dessert_icon.png";
 import custom_mug from "../../public/images/temp/custom_mug.jpg";
 import custom_sweater from "../../public/images/temp/custom_sweater.jpg";
 import launch_icon from "@/public/images/icons/launch_icon.png";
-import crowd_funding_icon from "@/public/images/icons/crowd_funding_icon.png";
-import ecomm_icon from "@/public/images/icons/business_type/ecomm_icon.png";
 import digital_icon from "@/public/images/icons/business_type/digital_icon.png";
 import jewelry_icon from "@/public/images/icons/business_type/jewelry_icon.png";
 import service_icon from "@/public/images/icons/business_type/service_icon.png";
@@ -15,7 +11,6 @@ import gift_icon from "@/public/images/icons/business_type/gift_icon.png";
 import home_icon from "@/public/images/icons/business_type/home_icon.png";
 import beverage_icon from "@/public/images/icons/business_type/beverage_icon.png";
 import beauty_icon from "@/public/images/icons/business_type/beauty_icon.png";
-import flower_icon from "@/public/images/icons/business_type/flower_icon.png";
 import a_icon from "@/public/images/icons/business_identity/a_icon.png";
 import american_flag_icon from "@/public/images/icons/business_identity/american_flag_icon.png";
 import b_icon from "@/public/images/icons/business_identity/b_icon.png";
@@ -29,6 +24,42 @@ import vegan_icon from "@/public/images/icons/business_identity/vegan_icon.png";
 import vegetarian_icon from "@/public/images/icons/business_identity/vegetarian_icon.png";
 import veteran_icon from "@/public/images/icons/business_identity/veteran_icon.png";
 import x_icon from "@/public/images/icons/business_identity/x_icon.png";
+import heart_icon from "@/public/images/icons/business_type/heart_icon.png";
+import book_icon from "@/public/images/icons/business_type/book_icon.png";
+import music_icon from "@/public/images/icons/business_type/music_icon.png";
+import dog_icon from "@/public/images/icons/business_type/dog_icon.png";
+import football_icon from "@/public/images/icons/business_type/football_icon.png";
+import pokeball_icon from "@/public/images/icons/business_type/pokeball_icon.png";
+import old_photo_icon from "@/public/images/icons/business_type/old_photo_icon.png";
+import baby_stroller_icon from "@/public/images/icons/business_type/baby_stroller_icon.png";
+import electronics_icon from "@/public/images/icons/business_type/electronics_icon.png";
+import furniture_icon from "@/public/images/icons/business_type/furniture_icon.png";
+import candle_icon from "@/public/images/icons/business_type/candle_icon.png";
+import version_icon from "@/public/images/icons/version_update_icon.png";
+
+export const sellerVersion = {
+  icon: version_icon,
+  value: "version 0.0.2",
+  updates: [
+    "Minor bug fixes.",
+    "Digital & media products are now available.",
+    "Import products from Shopify & Etsy.",
+    "Chrome plugin enabled - your products will now be promoted to online customers for free! More information: www.boxcart.shop",
+    // "Tax automations are now available.",
+  ],
+  coming: [],
+};
+
+export const shopperVersion = {
+  icon: version_icon,
+  value: "version 0.0.2",
+  updates: ["Minor bug fixes.", "Digital & media products are now available."],
+  coming: [],
+};
+
+export const storeVersion = {
+  value: "version 0.0.2",
+};
 
 export const membershipPackages = [
   // {
@@ -179,16 +210,23 @@ export const businessIdentityArr = [
 
 export const businessTypesArr = [
   {
-    id: "arts-and-crafts",
-    name: "arts and crafts",
-    label: "Arts & Crafts",
+    id: "arts-crafts-hobby",
+    name: "arts crafts hobby",
+    label: "Arts, Crafts, & Hobby",
     imgSrc: arts_and_crafts_icon,
     imgAlt: "arts and crafts icon",
   },
   {
-    id: "beauty",
-    name: "beauty",
-    label: "Beauty",
+    id: "baby-and-todler",
+    name: "baby and todler",
+    label: "Baby & Todler",
+    imgSrc: baby_stroller_icon,
+    imgAlt: "baby stroller icon",
+  },
+  {
+    id: "beauty-and-skincare",
+    name: "beauty and skincare",
+    label: "Beauty & Skincare",
     imgSrc: beauty_icon,
     imgAlt: "beauty icon",
   },
@@ -200,32 +238,25 @@ export const businessTypesArr = [
     imgAlt: "beverage icon",
   },
   {
-    id: "digital-products",
-    name: "digital-products",
-    label: "Digital Products",
+    id: "digital-products-and-media",
+    name: "digital-media-products",
+    label: "Digital & Media Products",
     imgSrc: digital_icon,
     imgAlt: "digital product icon",
   },
   {
-    id: "e-commerce",
-    name: "e-commerce",
-    label: "E-commerce",
-    imgSrc: ecomm_icon,
-    imgAlt: "ecommerce icon",
+    id: "electronics",
+    name: "electronics",
+    label: "Electronics",
+    imgSrc: electronics_icon,
+    imgAlt: "electronics icon",
   },
   {
-    id: "fashion",
-    name: "fashion",
-    label: "Fashion",
+    id: "fashion-and-apparel",
+    name: "fashion and apparel",
+    label: "Fashion & Apparel",
     imgSrc: fashion_icon,
     imgAlt: "Fashion icon",
-  },
-  {
-    id: "florist",
-    name: "florist",
-    label: "Florist",
-    imgSrc: flower_icon,
-    imgAlt: "Flower icon",
   },
   {
     id: "food",
@@ -235,6 +266,20 @@ export const businessTypesArr = [
     imgAlt: "food icon",
   },
   {
+    id: "fragrance-and-candles",
+    name: "fragrance and candles",
+    label: "Fragrance & Candles",
+    imgSrc: candle_icon,
+    imgAlt: "candle icon",
+  },
+  {
+    id: "furniture",
+    name: "furiture",
+    label: "Furniture",
+    imgSrc: furniture_icon,
+    imgAlt: "furniture icon",
+  },
+  {
     id: "gifts",
     name: "gifts",
     label: "Gifts",
@@ -242,18 +287,46 @@ export const businessTypesArr = [
     imgAlt: "gifts icon",
   },
   {
-    id: "home",
-    name: "home",
-    label: "Home decor",
+    id: "health-and-wellness",
+    name: "health-and-wellness",
+    label: "Health & Wellness",
+    imgSrc: heart_icon,
+    imgAlt: "gifts icon",
+  },
+  {
+    id: "home-and-garden",
+    name: "home and garden",
+    label: "Home & Garden",
     imgSrc: home_icon,
     imgAlt: "home icon",
   },
   {
-    id: "jewelry",
-    name: "jewelry",
-    label: "Jewelry",
+    id: "jewelry-and-accessories",
+    name: "jewelry and accessories",
+    label: "Jewelry & Accessories",
     imgSrc: jewelry_icon,
     imgAlt: "jewelry icon",
+  },
+  {
+    id: "literature",
+    name: "literature",
+    label: "Literature",
+    imgSrc: book_icon,
+    imgAlt: "book icon",
+  },
+  {
+    id: "music",
+    name: "music",
+    label: "Music",
+    imgSrc: music_icon,
+    imgAlt: "music icon",
+  },
+  {
+    id: "pet-and-animal",
+    name: "pet and animal",
+    label: "Pet & Animal",
+    imgSrc: dog_icon,
+    imgAlt: "dpg icon",
   },
   {
     id: "service",
@@ -262,6 +335,34 @@ export const businessTypesArr = [
     imgSrc: service_icon,
     imgAlt: "service icon",
   },
+  {
+    id: "sporting-goods",
+    name: "sporting goods",
+    label: "Sporting Goods",
+    imgSrc: football_icon,
+    imgAlt: "footbal icon",
+  },
+  {
+    id: "toys-and-games",
+    name: "toys and games",
+    label: "Toys & Games",
+    imgSrc: pokeball_icon,
+    imgAlt: "pokemon icon",
+  },
+  {
+    id: "vintage-antique-and-collectibles",
+    name: "vintage antique and collectibles",
+    label: "Vintage, Antique, & Collectibles",
+    imgSrc: old_photo_icon,
+    imgAlt: "old photo icon",
+  },
+  // {
+  //   id: "other",
+  //   name: "vintage antique and collectibles",
+  //   label: "Vintage, Antique, & Collectibles",
+  //   imgSrc: service_icon,
+  //   imgAlt: "service icon",
+  // },
 ];
 
 export const products = [

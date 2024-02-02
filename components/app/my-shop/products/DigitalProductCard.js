@@ -658,12 +658,12 @@ function DigitalProductCard({
               </Box>
             </Modal>
 
-            <MenuItem
+            {/* <MenuItem
               onClick={handleDuplicateProduct}
               sx={{ fontSize: "12px" }}
             >
               Duplicate
-            </MenuItem>
+            </MenuItem> */}
           </StyledMenu>
           <DigitalProductDrawer
             state={state}

@@ -20,7 +20,7 @@ import PaymentNotes from "@/components/storefront/checkout/PaymentNotes";
 
 function OrderSubmitted({ order }) {
   const resetCartStore = useCartStore((state) => state.resetCartStore);
-  const cartDetails = useCartStore((state) => state.cartDetails);
+
   const resetProductStore = useProductQuantityStore(
     (state) => state.removeAllProducts
   );
@@ -55,7 +55,7 @@ function OrderSubmitted({ order }) {
 
   const unsetCartStoreData = () => {
     // Removes cart and cart details
-    resetCartStore({
+    resetCartStore(site, {
       customerName: "",
       customerEmail: "",
       customerPhone: "",

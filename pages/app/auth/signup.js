@@ -30,12 +30,14 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useAccountStore, useConnectAccountStore } from "@/lib/store";
 import { storage, createGeoHash } from "@/firebase/fireConfig";
 import Geocode from "react-geocode";
-import {
-  checkAccessCode,
-  checkAccessCodeUsed,
-} from "@/helper/client/api/account/early-bird-code";
+import { checkAccessCode } from "@/helper/client/api/codes/index";
+import { checkAccessCodeUsed } from "@/helper/client/api/account/early-bird-code";
 import logo from "@/public/images/logos/boxcart_logo_full.png";
 import { checkIfUserEmailInUse } from "@/helper/client/api/user";
+import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
+import ButtonFourth from "@/components/global/buttons/ButtonFourth";
+import ButtonThird from "@/components/global/buttons/ButtonThird";
+import CloseIcon from "@mui/icons-material/Close";
 
 // steps:
 // 0: accessCode
@@ -71,8 +73,8 @@ function Signup() {
   const [waitlistId, setWaitlistId] = useState("");
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [maxSteps, setMaxSteps] = useState(10);
+  const [step, setStep] = useState(0);
+  const [maxSteps, setMaxSteps] = useState(11);
   const [isLastStep, setIsLastStep] = useState(false);
   const [canSkip, setCanSkip] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -88,6 +90,7 @@ function Signup() {
     businessName: "",
     subdomain: "",
     businessTypes: [],
+    otherBusinessTypes: [],
     otherBusinessType: "",
     logoImageFileName: "",
     businessBio: "",
@@ -140,6 +143,7 @@ function Signup() {
     businessName,
     subdomain,
     businessTypes,
+    otherBusinessTypes,
     otherBusinessType,
     logoImageFileName,
     businessBio,
@@ -365,61 +369,34 @@ function Signup() {
       if (accessCode !== "") {
         setIsLoading(true);
 
-        const waitlist = await checkAccessCode(accessCode);
+        const resVerifyCode = await checkAccessCode(accessCode);
 
-        // value == user
-        if (waitlist.success) {
-          if (!waitlist.value) {
-            setOpenError(true);
-            setErrorMessage(
-              "Access code not found. If you have a code, reach out to: hello@boxcart.shop"
-            );
-            setIsLoading(false);
-            return;
-          }
-
-          if (waitlist.value) {
-            const { value } = waitlist;
-            setWaitlistId(value.id);
-            const account = await checkAccessCodeUsed(accessCode);
-
-            if (account.success) {
-              if (account.value) {
-                setOpenError(true);
-                setErrorMessage("Access code has already been used.");
-                setIsLoading(false);
-                return;
-              }
-              if (!account.value) {
-                const { fName, lName, email, subdomain } = waitlist.value;
-
-                setSignupValues((prev) => ({
-                  ...prev,
-                  firstName: fName,
-                  lastName: lName,
-                  email,
-                  subdomain,
-                }));
-                setWaitListEmail(email);
-              }
-            }
-
-            if (!account.success) {
-              setOpenError(true);
-              setErrorMessage(
-                "Unknown error. Please contact hello@boxcart.shop with your access code."
-              );
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
-
-        if (!waitlist.success) {
+        if (!resVerifyCode.success) {
           setOpenError(true);
           setErrorMessage(
             "Unknown error. Please contact hello@boxcart.shop with your access code."
           );
+          setIsLoading(false);
+          return;
+        }
+
+        // value == user
+
+        if (!resVerifyCode.value) {
+          setOpenError(true);
+          setErrorMessage(
+            "Access code not found. If you have a code, reach out to: hello@boxcart.shop"
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const { value } = resVerifyCode;
+        const { maxUse, useCount } = value;
+
+        if (useCount >= maxUse) {
+          setOpenError(true);
+          setErrorMessage("Access code has already been used.");
           setIsLoading(false);
           return;
         }
@@ -472,10 +449,10 @@ function Signup() {
 
   //* Disable next button if input is null for required info.
   function checkIfInputIsEmpty() {
-    if (step == 0) {
-      if (!accessCode)
-        return { isEmpty: true, errorMsg: "Access code required to join." };
-    }
+    // if (step == 0) {
+    //   if (!accessCode)
+    //     return { isEmpty: true, errorMsg: "Access code required to join." };
+    // }
 
     if (step == 1) {
       if (businessName == "")
@@ -488,7 +465,7 @@ function Signup() {
     }
 
     if (step == 3) {
-      if (businessTypes.length === 0 && otherBusinessType == "")
+      if (businessTypes.length === 0 && otherBusinessTypes.length == 0)
         return { isEmpty: true, errorMsg: "Select a business type." };
     }
 
@@ -819,11 +796,11 @@ function Signup() {
       return;
     }
 
-    const { account, shopperAccount } = isEmailInUse.user
+    const { accounts: existingAccounts, shopperAccount } = isEmailInUse.user
       ? isEmailInUse.user
       : {};
 
-    if (account && account.length > 0) {
+    if (existingAccounts && existingAccounts.length > 0) {
       setOpenError(true);
       setErrorMessage(
         "Email already exists. Please use a different email or sign in."
@@ -873,34 +850,23 @@ function Signup() {
         setErrorMessage(
           "Failed to create account. Reach out to hello@boxcart.shop for more assistance."
         );
+        return;
       }
 
-      if (success && createdUser) {
-        const signInResult = await userSignIn(email, password);
+      const signInResult = await userSignIn(email, password);
 
-        if (!signInResult) {
-          setIsLoading(false);
-          return;
-        }
-
-        accounts = createdUser.accounts;
-        user = createdUser;
+      if (!signInResult) {
+        setIsLoading(false);
+        return;
       }
+
+      accounts = createdUser.accounts;
+      user = createdUser;
     }
 
     const userId = user.id;
     const accountId = accounts[0].id;
     const accountOne = accounts[0];
-    const checklist = {
-      accountId,
-      hasViewedShareStore: false,
-      hasViewedSupportChannels: false,
-      id: newUserData.id,
-      isDeliverySet: false,
-      isEmailVerified: true,
-      isPaymentsSet: false,
-      isProductsUploaded: false,
-    };
 
     sendBusinessVerificationEmail(userId, accountId, email);
     setAccountStore(accountOne, logoImg);
@@ -1133,7 +1099,7 @@ function Signup() {
       typeOfTip,
     };
 
-    const businessTypeData = [...businessTypes, ...otherBusinessType];
+    const businessTypeData = [...businessTypes, ...otherBusinessTypes];
 
     const fulfillmentData = fulfillmentMethods.map((method) => {
       if (method === "delivery") {
@@ -1434,7 +1400,7 @@ function Signup() {
           <LinearProgressWithLabel value={(step / maxSteps) * 100} />
         </div>
       </div>
-      <div className="md:mt-4 md:px-32 xl:px-80">
+      <div className={`${step !== 3 ? `md:mt-4 md:px-32 xl:px-80` : ``} `}>
         <form onSubmit={handleSignup} className={`${styles.form_box}`}>
           {/* Access code */}
           {step == 0 && (
@@ -1445,7 +1411,7 @@ function Signup() {
                 htmlFor="access_input"
                 className="font-medium mb-2 text-xl text-black"
               >
-                Invite access code:
+                Invite code:
               </label>
               <input
                 id="accessCode"
@@ -1457,20 +1423,9 @@ function Signup() {
                 onChange={handleChange}
               />
               <p className="text-sm font-light text-black mt-4">
-                BoxCart is currently invite only. Invitees have been given an
-                access code via email.
+                If you have an invite code, please enter it here before
+                proceeding.
               </p>
-              <span className="flex gap-1 items-end">
-                <p className="text-sm font-light text-black mt-4">
-                  If you&apos;re interested in joining early
-                </p>
-                <Link
-                  href="/waitlist/reserve-shop"
-                  className="underline text-sm text-[color:var(--primary)] "
-                >
-                  click here.
-                </Link>
-              </span>
             </div>
           )}
 
@@ -1560,34 +1515,90 @@ function Signup() {
                 What&apos;s your business category? Select all that apply.
               </label>
 
-              {businessTypesArr.map((type) => {
-                const { id, name, label, imgSrc, imgAlt } = type;
-                return (
-                  <BusinessTypeCheckbox
-                    key={id}
-                    id={id}
-                    name={name}
-                    onChange={handleChange}
-                    checked={isBusinessTypeChecked}
-                    label={label}
-                    imgSrc={imgSrc}
-                    imgAlt={imgAlt}
-                    // autoFocus
-                  />
-                );
-              })}
-
-              <div className={`${styles.business_type_other}`}>
-                <input
-                  id="other"
-                  type="text"
-                  placeholder="Other:"
-                  name="otherBusinessType"
-                  value={otherBusinessType}
-                  onChange={handleChange}
-                  className="text-sm placeholder:text-sm py-1 font-light text-black "
-                />
+              <div className="flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {businessTypesArr.map((type) => {
+                  const { id, name, label, imgSrc, imgAlt } = type;
+                  return (
+                    <BusinessTypeCheckbox
+                      key={id}
+                      id={id}
+                      name={name}
+                      onChange={handleChange}
+                      checked={isBusinessTypeChecked}
+                      label={label}
+                      imgSrc={imgSrc}
+                      imgAlt={imgAlt}
+                      // autoFocus
+                    />
+                  );
+                })}
               </div>
+              <div className="flex items-center gap-8 mt-4">
+                <div className={`${styles.business_type_other}`}>
+                  <input
+                    id="other"
+                    type="text"
+                    placeholder="Other:"
+                    name="otherBusinessType"
+                    value={otherBusinessType}
+                    onChange={handleChange}
+                    className="text-sm placeholder:text-sm py-1 font-light text-black "
+                  />
+                </div>
+                <div className="">
+                  <ButtonThird
+                    type="button"
+                    name="Add"
+                    handleClick={() => {
+                      if (otherBusinessType === "") {
+                        setOpenError(true);
+                        setErrorMessage("No business type was added in Other.");
+                        return;
+                      }
+
+                      setSignupValues((prev) => ({
+                        ...prev,
+                        otherBusinessType: "",
+                        otherBusinessTypes: [
+                          ...prev.otherBusinessTypes,
+                          otherBusinessType,
+                        ],
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+              {otherBusinessTypes.length > 0 && (
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  {otherBusinessTypes.map((type, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-full text-sm"
+                      >
+                        <p>{type}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSignupValues((prev) => ({
+                              ...prev,
+                              otherBusinessTypes:
+                                prev.otherBusinessTypes.filter(
+                                  (item, i) => i !== index
+                                ),
+                            }));
+                          }}
+                        >
+                          <CloseIcon
+                            className="text-gray-500"
+                            fontSize="small"
+                          />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

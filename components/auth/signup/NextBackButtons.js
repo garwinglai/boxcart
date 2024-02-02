@@ -19,7 +19,7 @@ function NextBackButtons({
 }) {
   return (
     <div className={`${styles.nextbackbuttons}`}>
-      <div className={` ${step == 1 && styles.hide_back_button}`}>
+      <div>
         {!isLoading && (
           <ButtonSecondary name="Back" handleClick={backStep} type="button" />
         )}
@@ -28,7 +28,7 @@ function NextBackButtons({
       <button
         type="button"
         className={`${styles.skip_button} text-sm ${
-          (step == 0 || !canSkip || isLoading) && styles.hide_skip_button
+          (!canSkip || isLoading) && styles.hide_skip_button
         }`}
         onClick={nextStep}
       >

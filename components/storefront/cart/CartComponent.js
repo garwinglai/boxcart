@@ -21,8 +21,7 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
   );
   const productsStore = useProductQuantityStore((state) => state.products);
   const removeProduct = useProductQuantityStore((state) => state.removeProduct);
-  const cart = useCartStore((state) => state.cart);
-  const cartDetails = useCartStore((state) => state.cartDetails);
+
   const updateInitialOptionQuantity = useOptionsQuantityStore(
     (state) => state.updateInitialOptionQuantity
   );
@@ -35,15 +34,6 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
   });
 
   const { isOpen, message, vertical, horizontal } = snackbar;
-  const {
-    requireOrderTime,
-    requireOrderDate,
-    orderForDateDisplay,
-    orderForTimeDisplay,
-    fulfillmentDisplay,
-    deliveryAddress,
-    fulfillmentType,
-  } = cartDetails;
 
   const [isLoading, setIsLoading] = useState(false);
   const [cartLength, setCartLength] = useState(0);
@@ -52,14 +42,29 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
     []
   ); // [addToCartTempItemId]
 
-  const isDigitalProduct = (product) => product.productType === 1;
-  const allDigitalProducts = cart.every(isDigitalProduct);
-
   const {
     push,
     back,
     query: { site },
   } = useRouter();
+
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cart, cartDetails } = cartStore || {};
+
+  const {
+    requireOrderTime,
+    requireOrderDate,
+    orderForDateDisplay,
+    orderForTimeDisplay,
+    fulfillmentDisplay,
+    deliveryAddress,
+    fulfillmentType,
+  } = cartDetails || {};
+
+  const isDigitalProduct = (product) => product.productType === 1;
+  const allDigitalProducts = cart.every(isDigitalProduct);
 
   useEffect(() => {
     setCartLength(cart.length);
@@ -96,13 +101,19 @@ function CartComponent({ toggleDrawer, isDesktop, query }) {
         return;
       }
 
-      if (requireOrderDate && orderForDateDisplay === "") {
+      if (
+        requireOrderDate &&
+        (orderForDateDisplay === "" || !orderForDateDisplay)
+      ) {
         handleOpenSnackBar("Please select a date for your order.");
         setIsLoading(false);
         return;
       }
 
-      if (requireOrderTime && orderForTimeDisplay === "") {
+      if (
+        requireOrderTime &&
+        (orderForTimeDisplay === "" || !orderForTimeDisplay)
+      ) {
         handleOpenSnackBar("Please select a time for your order.");
         setIsLoading(false);
         return;

@@ -18,6 +18,7 @@ import { IconButton } from "@mui/material";
 
 function ShopSearchBar({
   categories,
+  currCategory,
   getProductsByCategory,
   getAllProducts,
   handleSortSearchResults,
@@ -27,6 +28,8 @@ function ShopSearchBar({
   searchInput,
   handleSearchInput,
   handleSearchProduct,
+  getAllDigitalProducts,
+  allInitialDigitalProducts,
 }) {
   const [state, setState] = useState({
     bottom: false,
@@ -90,9 +93,12 @@ function ShopSearchBar({
 
         <FilterCategoryDrawer
           getAllProducts={getAllProducts}
+          getAllDigitalProducts={getAllDigitalProducts}
+          allInitialDigitalProducts={allInitialDigitalProducts}
           getProductsByCategory={getProductsByCategory}
           categories={categories}
           toggleDrawer={toggleDrawer}
+          currCategory={currCategory}
           anchor="bottom"
           state={state}
           allInitialProducts={allInitialProducts}

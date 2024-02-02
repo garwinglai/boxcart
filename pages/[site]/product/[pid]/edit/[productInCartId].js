@@ -19,7 +19,6 @@ import {
   useOptionsQuantityStore,
   useShopperStore,
 } from "@/lib/store";
-import { nanoid } from "nanoid";
 import Link from "next/link";
 import CheckmarkGif from "@/public/videos/checkmark.gif";
 import ReviewComponent from "@/components/storefront/reviews/ReviewComponent";
@@ -29,14 +28,20 @@ const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function EditAddToCartProduct({ product }) {
   const { account, id: productId } = product || {};
-  const { id: accountId } = account || {};
+  const { id: accountId, subdomain } = account || {};
 
-  const shopperAccount = useShopperStore((state) => state.shopperAccount);
-  const cart = useCartStore((state) => state.cart);
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === subdomain);
+  });
+
+  const { cart } = cartStore || {};
+
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
   const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
   const subtractSubtotal = useCartStore((state) => state.subtractSubtotal);
+
+  const shopperAccount = useShopperStore((state) => state.shopperAccount);
   const productsStore = useProductQuantityStore((state) => state.products);
   const setProductsStore = useProductQuantityStore(
     (state) => state.setProducts
@@ -152,7 +157,7 @@ function EditAddToCartProduct({ product }) {
     );
 
     if (!currProductInCartToEdit) {
-      push("/");
+      push(`/${site}`);
       return;
     }
 
@@ -319,7 +324,7 @@ function EditAddToCartProduct({ product }) {
     );
 
     if (!currProductInCartToEdit) {
-      push("/");
+      push(`/${site}`);
       return;
     }
 
@@ -473,7 +478,9 @@ function EditAddToCartProduct({ product }) {
     const { value } = event.target;
     const quantityInt = parseInt(value);
 
-    const productPricePenny = product.priceIntPenny;
+    const productPricePenny = product.salePricePenny
+      ? product.salePricePenny
+      : product.priceIntPenny;
     let newItemTotalInt = productPricePenny * quantityInt;
     let totalPennyFromSelectManyOptions = 0;
     let totalPennyFromSelectOneOptions = 0;
@@ -849,10 +856,10 @@ function EditAddToCartProduct({ product }) {
     }
 
     setAddedToCart(true);
-    removeItemFromCart(productInCartId);
-    subtractSubtotal(beforeEditPricePenny);
-    addSubtotal(itemTotalPenny);
-    setCart(addToCartProductData);
+    removeItemFromCart(subdomain, productInCartId);
+    subtractSubtotal(subdomain, beforeEditPricePenny);
+    addSubtotal(subdomain, itemTotalPenny);
+    setCart(subdomain, addToCartProductData);
     setIsLoading(false);
 
     setTimeout(() => {
@@ -868,7 +875,7 @@ function EditAddToCartProduct({ product }) {
       setSeconds(1);
     }, 4000);
     setTimeout(() => {
-      push("/");
+      push(`/${site}`);
     }, 5000);
   };
 

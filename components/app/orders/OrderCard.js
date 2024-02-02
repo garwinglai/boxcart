@@ -37,6 +37,9 @@ function OrderCard({
     fulfillmentDisplay,
     deliveryAddress,
     totalAfterStripeFeesDisplay,
+    applicationFeeDisplay,
+    totalAfterAllFeesPenny,
+    totalAfterAllFeesDisplay,
     totalItemsOrdered,
     totalDisplay,
     fulfillmentType,
@@ -56,6 +59,7 @@ function OrderCard({
     totalPenny,
     stripeOrderId,
   } = order;
+  console.log("order", order);
 
   const { name, email, phoneNum } = customer;
   const orderedOn = new Date(createdAt).toLocaleDateString("en-US");
@@ -373,12 +377,18 @@ function OrderCard({
                   <p className="break-words">card fees: {cardFeeDisplay}</p>
                 </div>
               )}
-              {totalAfterStripeFeesDisplay && (
+              {applicationFeeDisplay && (
                 <div className={`${styles.flex} ${styles.info_icon_group}`}>
                   <CreditCardOutlinedIcon fontSize="small" color="disabled" />
                   <p className="break-words">
-                    net: {totalAfterStripeFeesDisplay}
+                    boxcart fees: {applicationFeeDisplay}
                   </p>
+                </div>
+              )}
+              {totalAfterAllFeesDisplay && (
+                <div className={`${styles.flex} ${styles.info_icon_group}`}>
+                  <CreditCardOutlinedIcon fontSize="small" color="disabled" />
+                  <p className="break-words">net: {totalAfterAllFeesDisplay}</p>
                 </div>
               )}
             </div>

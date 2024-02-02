@@ -209,7 +209,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
           />
         </SwipeableDrawer>
       </div>
-      {hydrate && isChecklistAlertOpen && (
+      {hydrate && isChecklistAlertOpen && pageTitle !== "Checklist" && (
         <Link href="/app/account/checklist">
           <Alert
             // severity="error"
@@ -223,7 +223,7 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
               />
             }
             sx={{
-              backgroundColor: "var(--primary-light-med)",
+              backgroundColor: "var(--primary)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -231,8 +231,8 @@ function PageHeader({ pageTitle, pageIcon, mobilePageRoute }) {
               padding: "0.5rem 1rem",
             }}
           >
-            <p className=" font-normal text-[color:var(--black-design-extralight)]">
-              Complete <u>checklist</u> to launch your store.
+            <p className=" font-normal text-[color:var(--black-design-extralight)] text-white">
+              Complete to launch your store. Banner removed upon completion.
             </p>
           </Alert>
         </Link>

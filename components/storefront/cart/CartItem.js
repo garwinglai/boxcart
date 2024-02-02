@@ -57,15 +57,6 @@ function CartItem({
   const reduceProductQuantity = useProductQuantityStore(
     (state) => state.reduceProductQuantity
   );
-  const cart = useCartStore((state) => state.cart);
-  const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
-  const addQuantityToCartItem = useCartStore(
-    (state) => state.addQuantityToCartItem
-  );
-  const subtractQuantityFromCartItem = useCartStore(
-    (state) => state.subtractQuantityFromCartItem
-  );
-
   const optionQuantityStore = useOptionsQuantityStore((state) => state.options);
   const setOptionsQuantityStore = useOptionsQuantityStore(
     (state) => state.setOptions
@@ -87,12 +78,30 @@ function CartItem({
     (state) => state.addOptionQuantity
   );
 
+  const {
+    push,
+    query: { site },
+  } = useRouter();
+
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cart } = cartStore || {};
+
   const addSubtotal = useCartStore((state) => state.addSubtotal);
-  const subtractSubtotal = useCartStore((state) => state.subtractSubtotal);
   const addCartItemPrice = useCartStore((state) => state.addCartItemPrice);
+  const addQuantityToCartItem = useCartStore(
+    (state) => state.addQuantityToCartItem
+  );
+  const subtractSubtotal = useCartStore((state) => state.subtractSubtotal);
+  const removeItemFromCart = useCartStore((state) => state.removeItemFromCart);
+  const subtractQuantityFromCartItem = useCartStore(
+    (state) => state.subtractQuantityFromCartItem
+  );
   const subtractCartItemPrice = useCartStore(
     (state) => state.subtractCartItemPrice
   );
+
   const [showNotEnoughStock, setShowNotEnoughStock] = useState(
     notEnoughStockItems &&
       notEnoughStockItems.some(
@@ -110,11 +119,6 @@ function CartItem({
   const [openDownloadModal, setOpenDownloadModal] = useState(false);
   const handleOpenDownloadModal = () => setOpenDownloadModal(true);
   const handleCloseDownloadModal = () => setOpenDownloadModal(false);
-
-  const {
-    push,
-    query: { site },
-  } = useRouter();
 
   const {
     priceDisplay,
@@ -180,9 +184,9 @@ function CartItem({
     }
 
     if (hasUnlimitedQuantity) {
-      addQuantityToCartItem(addToCartTempItemId);
-      addSubtotal(priceToAddPenny);
-      addCartItemPrice(addToCartTempItemId, priceToAddPenny);
+      addQuantityToCartItem(site, addToCartTempItemId);
+      addSubtotal(site, priceToAddPenny);
+      addCartItemPrice(site, addToCartTempItemId, priceToAddPenny);
     }
   };
 
@@ -270,9 +274,9 @@ function CartItem({
     }
     // 3. if quantityLeft > 0, update remainingMax, subtract quantity from maxLeft, and find the max.
     updateRemainingMax(productId, remainingMaxQuantity);
-    addSubtotal(priceToAddPenny);
-    addQuantityToCartItem(addToCartTempItemId);
-    addCartItemPrice(addToCartTempItemId, priceToAddPenny);
+    addSubtotal(site, priceToAddPenny);
+    addQuantityToCartItem(site, addToCartTempItemId);
+    addCartItemPrice(site, addToCartTempItemId, priceToAddPenny);
   };
 
   const subtractQuantityFromProductStore = (
@@ -293,9 +297,9 @@ function CartItem({
       const { initialQuantity } = productInStore;
       if (sumOfSelectedQuantitiesForCartItems <= initialQuantity) {
         reduceProductQuantity(productId, quantityToReduceFromProductStore);
-        addSubtotal(priceToAddPenny);
-        addQuantityToCartItem(addToCartTempItemId);
-        addCartItemPrice(addToCartTempItemId, priceToAddPenny);
+        addSubtotal(site, priceToAddPenny);
+        addQuantityToCartItem(site, addToCartTempItemId);
+        addCartItemPrice(site, addToCartTempItemId, priceToAddPenny);
       } else {
         handleOpenSnackBar("Max quantity reached.");
       }
@@ -325,9 +329,9 @@ function CartItem({
       reAddProductOptionQuantities();
     }
 
-    subtractQuantityFromCartItem(addToCartTempItemId);
-    subtractSubtotal(priceToSubtractPenny);
-    subtractCartItemPrice(addToCartTempItemId, priceToSubtractPenny);
+    subtractQuantityFromCartItem(site, addToCartTempItemId);
+    subtractSubtotal(site, priceToSubtractPenny);
+    subtractCartItemPrice(site, addToCartTempItemId, priceToSubtractPenny);
   };
 
   const handleRemoveItemFromCart = (addToCartTempItemId) => (e) => {
@@ -343,9 +347,9 @@ function CartItem({
       reAddProductOptionQuantities();
     }
 
-    removeItemFromCart(addToCartTempItemId);
-    subtractSubtotal(pricePenny);
-    subtractCartItemPrice(addToCartTempItemId, pricePenny);
+    removeItemFromCart(site, addToCartTempItemId);
+    subtractSubtotal(site, pricePenny);
+    subtractCartItemPrice(site, addToCartTempItemId, pricePenny);
   };
 
   const reAddProductOptionQuantities = () => {

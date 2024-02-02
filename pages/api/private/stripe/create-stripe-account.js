@@ -57,7 +57,8 @@ export default async function handler(req, res) {
     settings: {
       payouts: {
         schedule: {
-          interval: "manual",
+          interval: "weekly",
+          weekly_anchor: "monday",
         },
       },
     },

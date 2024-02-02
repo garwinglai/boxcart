@@ -1,9 +1,5 @@
 import { isAuthServer } from "@/helper/server/auth/isAuthServer";
-import {
-  getOrders,
-  getPendingOrders,
-  updateOrderStatusServer,
-} from "@/helper/server/prisma/orders";
+import { getPendingOrders } from "@/helper/server/prisma/orders";
 
 export default async function handler(req, res) {
   const isLoggedIn = await isAuthServer(req, res);
@@ -16,7 +12,8 @@ export default async function handler(req, res) {
   const { method, body, query } = req;
 
   if (method === "GET") {
-    const resOrderStatusUpdate = await getPendingOrders();
+    const { accountId } = query;
+    const resOrderStatusUpdate = await getPendingOrders(accountId);
     const { success, value, error } = resOrderStatusUpdate;
 
     if (success) {

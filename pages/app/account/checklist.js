@@ -260,7 +260,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   isEmailVerified && "line-through"
                 }`}
               >
-                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
                   Verify email
                 </h3>
               </div>
@@ -433,7 +433,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   hasLogo && hasBanner && "line-through"
                 }`}
               >
-                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
                   Update profile banner &amp; logo
                 </h3>
               </div>

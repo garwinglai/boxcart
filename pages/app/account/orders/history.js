@@ -12,7 +12,7 @@ import prisma from "@/lib/prisma";
 import Image from "next/image";
 import orders_icon from "@/public/images/icons/user/orders_icon.png";
 
-function AllOrders({ orders }) {
+function AllOrders({ orders, accountId }) {
   const [snackbarValues, setSnackbarValues] = useState({
     snackbarOpen: false,
     snackbarMessage: "",
@@ -44,7 +44,10 @@ function AllOrders({ orders }) {
   };
 
   const getAllHistoryOrders = async () => {
-    const orders = await fetch(`/api/private/orders/get-all-history-orders`);
+    console.log("here");
+    const orders = await fetch(
+      `/api/private/orders/get-all-history-orders/?accountId=${accountId}`
+    );
     const allOrders = await orders.json();
     const responseStatus = orders.status;
 
@@ -208,6 +211,7 @@ export async function getServerSideProps(context) {
     return {
       props: {
         orders: serializedData,
+        accountId: id,
       },
     };
   });

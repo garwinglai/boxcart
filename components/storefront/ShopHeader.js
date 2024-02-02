@@ -52,7 +52,6 @@ function ShopHeader({
 
   const account = useAccountStore((state) => state.account);
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
-  const { subdomain } = account;
 
   const [openMessage, setOpenMessage] = useState({
     right: false,

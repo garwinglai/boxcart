@@ -53,6 +53,7 @@ function Revenue({ userAccount }) {
   const [availBalancePenny, setAvailBalancePenny] = useState(0);
   const [availableStripeBalance, setAvailableStripeBalance] = useState(0);
   const [pendingStripeBalance, setPendingStripeBalance] = useState(0);
+  const [pendingBalancePenny, setPendingBalancePenny] = useState(0);
   const [stripeAccId, setStripeAccId] = useState("");
   const [isCashingOut, setIsCashingOut] = useState(false);
   const [alert, setAlert] = useState({
@@ -184,14 +185,22 @@ function Revenue({ userAccount }) {
   useEffect(() => {
     setIsLoadingStripeBalance(true);
 
-    if (!acceptedPayments) return;
+    if (!acceptedPayments) {
+      setIsLoadingStripeBalance(false);
+      return;
+    }
 
     const getStripeBalance = async () => {
-      let { stripeAccountId } = acceptedPayments.find(
+      let paymentTypes = acceptedPayments.find(
         (payment) => payment.paymentMethod === "stripe"
       );
 
-      if (!stripeAccountId) return;
+      if (!paymentTypes) {
+        setIsLoadingStripeBalance(false);
+        return;
+      }
+
+      const { stripeAccountId } = paymentTypes;
 
       const getBalanceApi = `/api/private/stripe/get-balance/${stripeAccountId}`;
 
@@ -211,11 +220,16 @@ function Revenue({ userAccount }) {
 
       if (success) {
         const { available, pending } = balance;
-        const availBalance = available[0].amount / 100;
-        const pendingBalance = pending[0].amount / 100;
+
+        const stripeAvailBalance = available[0].amount / 100;
+        const stripePendingBalance = pending[0].amount / 100;
+
+        const availBalance = stripeAvailBalance.toFixed(2);
+        const pendingBalance = stripePendingBalance.toFixed(2);
 
         setStripeAccId(stripeAccountId);
         setAvailBalancePenny(available[0].amount);
+        setPendingBalancePenny(pending[0].amount);
         setAvailableStripeBalance(availBalance);
         setPendingStripeBalance(pendingBalance);
       }
@@ -484,7 +498,7 @@ function Revenue({ userAccount }) {
             <div className="flex flex-col items-end">
               {isLoadingStripeBalance ? (
                 <CircularProgress size={20} sx={{ marginBottom: "2px" }} />
-              ) : availableStripeBalance === 0 ? (
+              ) : availBalancePenny === 0 ? (
                 <p className="text-gray-500 text-base">
                   {availableStripeBalance} $
                 </p>
@@ -496,7 +510,7 @@ function Revenue({ userAccount }) {
               <Divider style={{ width: "100%" }} />
               {isLoadingStripeBalance ? (
                 <CircularProgress size={20} sx={{ marginTop: "2px" }} />
-              ) : pendingStripeBalance === 0 ? (
+              ) : pendingBalancePenny === 0 ? (
                 <p className="text-gray-500 text-base">
                   {pendingStripeBalance} $
                 </p>
@@ -518,41 +532,17 @@ function Revenue({ userAccount }) {
                     <h4 className="font-bold text-xs">Payout info:</h4>
                     <ul className="pl-4">
                       <li className="list-disc">
-                        Payouts are manual. If you have an available balance,
-                        there will be a cash out button.
+                        Auto payouts occur weekly on Monday. Available balance
+                        will be deposited to your bank account.
                       </li>
                       <li className="list-disc">
-                        Payout will be available after 7 days, 14 days for
-                        certain industries, and 30 days if you&apos;re in
-                        Brazil.
-                      </li>
-                    </ul>
-                    <h4 className="font-bold text-xs mt-4">Payout fees:</h4>
-                    <ul className="pl-4">
-                      <li className="list-disc">
-                        Payout fees will be deducted from available amount.
+                        Pending balance will become available after 7 days of
+                        cleared customer payment, 14 days for certain
+                        industries, and 30 days if you&apos;re in Brazil.
                       </li>
                       <li className="list-disc">
-                        0.25% + 25c per payout initiated.
-                      </li>
-                      <li className="list-disc">
-                        $2 active fee for the month a payout is initiated.
-                      </li>
-                      <li className="list-disc">
-                        These fees are not BoxCart fees. These fees belong to
-                        the credit card company, Stripe.
-                      </li>
-                    </ul>
-                    <h4 className="font-bold text-xs mt-4">Recommended:</h4>
-                    <ul className="pl-4">
-                      <li className="list-disc">
-                        To incur the least amount of fees, we recommend to cash
-                        out only when needed.
-                      </li>
-                      <li className="list-disc">
-                        If you have already cashed out for a certain month, any
-                        additional payout will not incur the $2 active fee for
-                        that month.
+                        Payout balance is your available balance minus card and
+                        boxcart fees.
                       </li>
                     </ul>
                   </div>
@@ -564,10 +554,10 @@ function Revenue({ userAccount }) {
               </HtmlTooltip>
             </div>
 
-            <div className="w-fit ml-auto">
+            {/* <div className="w-fit ml-auto">
               {isCashingOut ? (
                 <CircularProgress size={20} />
-              ) : availableStripeBalance === 0 ? (
+              ) : availBalancePenny === 0 ? (
                 <p className="text-xs md:text-sm font-extralight text-gray-400 border rounded-full px-2 py-1">
                   No payout balance
                 </p>
@@ -578,11 +568,11 @@ function Revenue({ userAccount }) {
                   disabled={availableStripeBalance == 0}
                 />
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
-      <div className="my-4">
+      {/* <div className="my-4">
         <Divider textAlign="left">
           <p className="font-light text-sm text-[color:var(--black-design-extralight)]">
             Income by payment type
@@ -655,7 +645,7 @@ function Revenue({ userAccount }) {
             />
           );
         })}
-      </div>
+      </div> */}
       <div className="my-4">
         <Divider textAlign="left">
           <p className="font-light text-sm ">Payout history</p>
@@ -689,6 +679,7 @@ function Revenue({ userAccount }) {
         <PayoutDetails
           payoutDetail={payoutDetail}
           closeViewDetails={closeViewDetails}
+          stripeAccId={stripeAccId}
         />
       </Drawer>
     </div>

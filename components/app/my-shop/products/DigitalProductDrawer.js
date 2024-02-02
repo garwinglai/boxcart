@@ -611,15 +611,15 @@ function DigitalProductDrawer({
       updateProductList(updatedProduct);
     }
     setIsSaveProductLoading(false);
-    if (currCategory) {
-      if (currCategory === "All Products") {
-        getAllProducts(accountId);
-      } else {
-        getProductsByCategory(currCategoryId, currCategory);
-      }
-    } else {
+
+    if (currCategory === "All Products") {
+      getAllProducts(accountId);
+    } else if (currCategory === "All Digital") {
       getAllDigitalProducts(accountId);
+    } else {
+      getProductsByCategory(currCategoryId, currCategory);
     }
+
     updateChecklist();
     toggleDrawer("right", false)(e);
   };
@@ -925,9 +925,9 @@ function DigitalProductDrawer({
 
     const convertToPriceStr = `$${priceValue}`;
     const productTags = tags.join(", ");
-    const lat = userAccount.lat;
-    const lng = userAccount.lng;
-    const geohash = userAccount.geohash;
+    const lat = account.lat;
+    const lng = account.lng;
+    const geohash = account.geohash;
 
     const productSchema = {
       id,

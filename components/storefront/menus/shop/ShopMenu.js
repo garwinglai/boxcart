@@ -26,12 +26,18 @@ function ShopMenu({
   handleRemoveDigitalProductFromInitialProduct,
   handleAddDigitalProductToInitialProduct,
 }) {
-  const cart = useCartStore((state) => state.cart);
+  const { subdomain } = userAccount;
 
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === subdomain);
+  });
+  const { cart } = cartStore || {};
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    setCartItems(cart);
+    if (cart) {
+      setCartItems(cart);
+    }
   }, [cart]);
 
   return (

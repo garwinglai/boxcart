@@ -28,13 +28,16 @@ const unlimitedQuantity = Array.from({ length: 100 }, (_, i) => i + 1);
 
 function Product({ product }) {
   const { account, id: productId } = product || {};
-  const { id: accountId } = account || {};
+  const { id: accountId, subdomain } = account || {};
 
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === subdomain);
+  });
+  const { cart } = cartStore || {};
 
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
-  const cart = useCartStore((state) => state.cart);
   const productsStore = useProductQuantityStore((state) => state.products);
   const setProductsStore = useProductQuantityStore(
     (state) => state.setProducts
@@ -91,6 +94,7 @@ function Product({ product }) {
       ? product.salePricePenny
       : product.priceIntPenny
   );
+
   const [radioOptionValues, setRadioOptionValues] = useState([]);
   const [checkboxOptionValues, setCheckboxOptionValues] = useState([]);
   const [customerNote, setCustomerNote] = useState("");
@@ -339,7 +343,9 @@ function Product({ product }) {
     const { value } = event.target;
     const quantityInt = parseInt(value);
 
-    const productPricePenny = product.priceIntPenny;
+    const productPricePenny = product.salePricePenny
+      ? product.salePricePenny
+      : product.priceIntPenny;
     let newItemTotalInt = productPricePenny * quantityInt;
     let totalPennyFromSelectManyOptions = 0;
     let totalPennyFromSelectOneOptions = 0;
@@ -710,8 +716,8 @@ function Product({ product }) {
     }
 
     setAddedToCart(true);
-    addSubtotal(itemTotalPenny);
-    setCart(addToCartProductData);
+    addSubtotal(subdomain, itemTotalPenny);
+    setCart(subdomain, addToCartProductData);
     setIsLoading(false);
   };
 

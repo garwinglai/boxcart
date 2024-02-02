@@ -27,7 +27,10 @@ function OrderGridRow({
     customer,
     accountId,
     paymentMethod,
+    requireOrderDate,
+    orderForDateDisplay,
   } = order;
+  console.log("order", order);
 
   const { name } = customer;
 
@@ -167,7 +170,11 @@ function OrderGridRow({
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">5.23.2023</p>
+        {requireOrderDate ? (
+          <p className="text-xs">{orderForDateDisplay}</p>
+        ) : (
+          <p className="text-xs">-</p>
+        )}
       </td>
       <td
         className={`${styles.table_data} ${styles.black_text}`}

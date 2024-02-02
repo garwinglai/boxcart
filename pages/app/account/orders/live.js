@@ -16,7 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import orders_icon from "@/public/images/icons/account/orders_icon.png";
 import Image from "next/image";
 
-function LiveOrders({ orders }) {
+function LiveOrders({ orders, accountId }) {
   const [snackbarValues, setSnackbarValues] = useState({
     snackbarOpen: false,
     snackbarMessage: "",
@@ -47,7 +47,9 @@ function LiveOrders({ orders }) {
   };
 
   const getOrders = async () => {
-    const orders = await fetch(`/api/private/orders/getPendingOrders`);
+    const orders = await fetch(
+      `/api/private/orders/get-pending-orders/?accountId=${accountId}`
+    );
     const allOrders = await orders.json();
     const responseStatus = orders.status;
 
@@ -264,6 +266,7 @@ export async function getServerSideProps(context) {
     return {
       props: {
         orders: serializedData,
+        accountId: id,
       },
     };
   });

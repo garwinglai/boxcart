@@ -596,12 +596,12 @@ function ShopCard({
                       </Box>
                     </Modal>
 
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={handleDuplicateProduct}
                       sx={{ fontSize: "12px" }}
                     >
                       Duplicate
-                    </MenuItem>
+                    </MenuItem> */}
                   </StyledMenu>
                   <ProductDrawer
                     state={state}

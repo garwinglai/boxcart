@@ -231,7 +231,7 @@ function Fulfillment({ userSession, userAccount }) {
           : null)
       : false;
     const deliveryFeeByPercentStateChange = deliveryMethod
-      ? deliveryMethod.deliveryFeeByPercent !==
+      ? deliveryMethod.deliveryFeeByPercent !=
         (deliveryFeeByPercent !== "" ? deliveryFeeByPercent : null)
       : false;
     const deliveryFeeDistanceMetricStateChange = deliveryMethod

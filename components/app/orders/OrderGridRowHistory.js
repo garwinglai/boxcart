@@ -187,11 +187,6 @@ function OrderGridRowHistory({
     setState({ ...state, [anchor]: open });
   };
 
-  const handleRowClick = () => {
-    toggleDrawer("right", true);
-  };
-
-  const handleAction = () => {};
   return (
     <tr className={`${styles.table_row}`}>
       <td
@@ -212,7 +207,13 @@ function OrderGridRowHistory({
         className={`${styles.table_data}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">5.23.2023</p>
+        {requireOrderDate ? (
+          <p className="text-xs">
+            {orderForDateDisplay ? orderForDateDisplay : "-"}
+          </p>
+        ) : (
+          <p className="text-xs">-</p>
+        )}
       </td>
       <td
         className={`${styles.table_data} ${styles.black_text}`}
