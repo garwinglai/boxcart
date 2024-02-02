@@ -5,7 +5,7 @@ import { getLocalStorage, setLocalStorage } from "@/utils/clientStorage";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 
 function ShopLayout({ children }) {
-  const [isLoadingVersion, setIsLoadingVersion] = useState(true);
+  const [isLoadingVersion, setIsLoadingVersion] = useState(false);
 
   // useEffect(() => {
   //   const currentVersion = getLocalStorage("version store");

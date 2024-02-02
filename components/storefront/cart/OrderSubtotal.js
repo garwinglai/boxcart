@@ -12,6 +12,27 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
   } = useRouter();
   const hydrated = useHasHydrated();
 
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cartDetails } = cartStore || {};
+
+  const {
+    subtotalPenny,
+    subtotalDisplay,
+    taxRate,
+    taxRateDisplay,
+    taxAndFeesPenny,
+    taxAndFeesDisplay,
+    deliveryFeeType,
+    deliveryFeePenny,
+    deliveryFeeDisplay,
+    totalDisplay,
+    applyFivePercentDiscount,
+  } = cartDetails || {};
+
+  const cashBackAmt = applyFivePercentDiscount ? subtotalPenny * 0.05 : 0;
+
   if (orderSubmitted || isBusiness) {
     const {
       subtotalPenny,
@@ -52,27 +73,6 @@ function OrderSubtotal({ isInCart, orderSubmitted, order, isBusiness }) {
       </div>
     );
   }
-
-  const cartStore = useCartStore((state) => {
-    return state.store.find((store) => store.storeName === site);
-  });
-  const { cartDetails } = cartStore || {};
-
-  const {
-    subtotalPenny,
-    subtotalDisplay,
-    taxRate,
-    taxRateDisplay,
-    taxAndFeesPenny,
-    taxAndFeesDisplay,
-    deliveryFeeType,
-    deliveryFeePenny,
-    deliveryFeeDisplay,
-    totalDisplay,
-    applyFivePercentDiscount,
-  } = cartDetails;
-
-  const cashBackAmt = applyFivePercentDiscount ? subtotalPenny * 0.05 : 0;
 
   return (
     <div className="pt-4">

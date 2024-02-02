@@ -17,6 +17,13 @@ function OrderReview({
   } = useRouter();
 
   const hydrated = useHasHydrated();
+  const cartStore = useCartStore((state) => {
+    return state.store.find((store) => store.storeName === site);
+  });
+  const { cart, cartDetails } = cartStore || {};
+
+  const isDigitalProduct = (product) => product.productType === 1;
+  const hideForDate = cart?.every(isDigitalProduct);
 
   const handleAddDateTime = () => {
     push(`/${site}`);
@@ -88,14 +95,6 @@ function OrderReview({
       </div>
     );
   }
-
-  const cartStore = useCartStore((state) => {
-    return state.store.find((store) => store.storeName === site);
-  });
-  const { cart, cartDetails } = cartStore || {};
-
-  const isDigitalProduct = (product) => product.productType === 1;
-  const hideForDate = cart.every(isDigitalProduct);
 
   const {
     orderForDateDisplay,
