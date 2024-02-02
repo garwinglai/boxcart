@@ -2,7 +2,6 @@
 import { Role } from "@prisma/client";
 
 export async function verifyAccessCode(code) {
-  console.log("code", code);
   try {
     const user = await prisma.adminCode.findUnique({
       where: {
@@ -11,8 +10,8 @@ export async function verifyAccessCode(code) {
     });
 
     return { success: true, value: user, error: null };
-  } catch (e) {
-    console.log(" verify access code Error:", e);
+  } catch (error) {
+    console.log(" verify access code Error:", error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const prismaError = {
