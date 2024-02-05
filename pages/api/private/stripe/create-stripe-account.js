@@ -39,8 +39,16 @@ export default async function handler(req, res) {
 
   // * Create Stripe Account
   const account = await stripe.accounts.create({
-    type: "standard",
+    type: "express",
     email,
+    capabilities: {
+      card_payments: {
+        requested: true,
+      },
+      transfers: {
+        requested: true,
+      },
+    },
     business_profile: {
       name: businessName,
       product_description: businessBio,
@@ -57,8 +65,7 @@ export default async function handler(req, res) {
     settings: {
       payouts: {
         schedule: {
-          interval: "weekly",
-          weekly_anchor: "monday",
+          interval: "manual",
         },
       },
     },

@@ -1163,7 +1163,6 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
 
             <Modal
               open={openDeliveryAddressModal}
-              onClose={handleCloseDeliveryAddressModal}
               aria-labelledby="delivery address modal"
               aria-describedby="enter delivery address modal"
             >
@@ -1210,12 +1209,14 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                           * Location too far.
                         </p>
                       )}
-                      <button
-                        onClick={handleSetDeliveryAddress(fulfillmentType)}
-                        className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
-                      >
-                        Set address
-                      </button>
+                      {cartDetails.deliveryAddress && (
+                        <button
+                          onClick={handleSetDeliveryAddress(fulfillmentType)}
+                          className="text-white w-full mt-4 font-light text-sm h-8 px-4 bg-[color:var(--black-design-extralight)] active:bg-black rounded md:text-sm md:px-6"
+                        >
+                          Set address
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <p className="font-light text-xs">Loading...</p>

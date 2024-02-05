@@ -20,6 +20,8 @@ const publishable_key =
     ? process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_STRIPE_LIVE_PUBLISHABLE_KEY;
 
+const stripePromise = loadStripe(publishable_key);
+
 function Checkout({ siteData }) {
   const {
     id: accountId,
@@ -41,7 +43,7 @@ function Checkout({ siteData }) {
     isOpenSnackbar: false,
     snackbarMessage: "",
   });
-  const [stripePromise, setStripePromise] = useState(null);
+  // const [stripePromise, setStripePromise] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [customerStripeId, setCustomerStripeId] = useState("");
@@ -117,13 +119,9 @@ function Checkout({ siteData }) {
     if (cartLength === 0) return;
     if (selectedPayment !== "card") return;
 
-    if (stripeAccountId === "") return;
+    // if (stripeAccountId === "") return;
 
-    const stripePromise = loadStripe(publishable_key, {
-      stripeAccount: stripeAccountId,
-    });
-
-    setStripePromise(stripePromise);
+    // setStripePromise(stripePromise);
 
     const { totalPenny: amountPenny } = cartDetails;
     const hasFreeAccess = usedCodes.some(
@@ -144,6 +142,8 @@ function Checkout({ siteData }) {
       .then((res) => res.json())
       .then((data) => {
         const { clientSecret } = data;
+
+        console.log("data", data);
 
         setClientSecret(clientSecret);
         setApplicationFeePenny(applicationFee);
@@ -365,7 +365,7 @@ function Checkout({ siteData }) {
         </div>
       </div>
       {selectedPayment === "card" && clientSecret && (
-        <Elements options={options} stripe={stripePromise}>
+        <Elements options={options} stripe={stripePromise} key={clientSecret}>
           <CheckoutFormStripe
             handleOpenSnackbar={handleOpenSnackbar}
             accountId={accountId}

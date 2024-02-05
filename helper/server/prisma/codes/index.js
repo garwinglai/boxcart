@@ -1,6 +1,7 @@
 // TODO: update code section.
 import { Role } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function verifyAccessCode(code) {
   try {

@@ -111,6 +111,7 @@ function Sites({ siteData, shopper }) {
     if (!stripeAccount) return;
 
     const { stripeAccountId } = stripeAccount;
+
     if (stripeAccountId) {
       setLocalStorage("stripeAccountId", stripeAccountId);
     }

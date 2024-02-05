@@ -35,6 +35,7 @@ function OrderGridRowHistory({
     paymentMethod,
     accountId,
     totalPenny,
+    totalAfterAllFeesDisplay,
   } = order;
 
   const { name, email, phoneNum } = customer;
@@ -231,7 +232,7 @@ function OrderGridRowHistory({
         className={`${styles.table_data} ${styles.black_text}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">{totalDisplay}</p>
+        <p className="text-xs">{totalAfterAllFeesDisplay}</p>
       </td>
 
       <td

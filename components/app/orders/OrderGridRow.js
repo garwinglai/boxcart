@@ -29,8 +29,8 @@ function OrderGridRow({
     paymentMethod,
     requireOrderDate,
     orderForDateDisplay,
+    totalAfterAllFeesDisplay,
   } = order;
-  console.log("order", order);
 
   const { name } = customer;
 
@@ -192,7 +192,7 @@ function OrderGridRow({
         className={`${styles.table_data} ${styles.black_text}`}
         onClick={toggleDrawer("right", true)}
       >
-        <p className="text-xs">{totalDisplay}</p>
+        <p className="text-xs">{totalAfterAllFeesDisplay}</p>
       </td>
       <td
         className={`${styles.table_data}`}

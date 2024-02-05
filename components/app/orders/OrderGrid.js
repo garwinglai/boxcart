@@ -13,7 +13,7 @@ function OrderGrid({ orders, getOrders, handleOpenSnackbar }) {
           <th className={`${styles.table_title}`}>For</th>
           <th className={`${styles.table_title}`}>Customer</th>
           <th className={`${styles.table_title}`}>Items</th>
-          <th className={`${styles.table_title}`}>Total</th>
+          <th className={`${styles.table_title}`}>Net</th>
           <th className={`${styles.table_title}`}>Fulfillment</th>
           <th className={`${styles.table_title}`}>Payment</th>
           <th className={`${styles.table_title}`}>Status</th>
