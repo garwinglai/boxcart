@@ -67,11 +67,11 @@ export default async function handler(req, res) {
       await sendgrid.send(mailOptions);
     } catch (error) {
       console.log("Email send failed file: api/sendgrid/verify-email:", error);
-      return res
+      res
         .status(error.statusCode || 500)
         .json({ success: false, error: error.message });
     }
 
-    return res.status(200).json({ success: true, error: "" });
+    res.status(200).json({ success: true, error: "" });
   }
 }

@@ -143,8 +143,6 @@ function Checkout({ siteData }) {
       .then((data) => {
         const { clientSecret } = data;
 
-        console.log("data", data);
-
         setClientSecret(clientSecret);
         setApplicationFeePenny(applicationFee);
       })

@@ -1,15 +1,5 @@
-import React, { useState } from "react";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import ChatIcon from "@mui/icons-material/Chat";
-import NewspaperIcon from "@mui/icons-material/Newspaper";
+import React from "react";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import ButtonSecondary from "@/components/global/buttons/ButtonSecondary";
-import ButtonThird from "@/components/global/buttons/ButtonThird";
-import ButtonFilter from "@/components/global/buttons/ButtonFilter";
-import ButtonFourth from "@/components/global/buttons/ButtonFourth";
-import { IconButton } from "@mui/material";
-import { Close } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { db } from "@/firebase/fireConfig";
 import { doc, deleteDoc } from "firebase/firestore";

@@ -85,13 +85,9 @@ function CheckoutFormStripe({
       return;
     }
 
-    console.log("stripe", stripe);
-
     const clientSecret = new URLSearchParams(window.location.search).get(
       "payment_intent_client_secret"
     );
-
-    console.log("clientSecret", clientSecret);
 
     if (!clientSecret) {
       return;

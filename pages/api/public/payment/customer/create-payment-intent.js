@@ -13,39 +13,20 @@ export default async function handler(req, res) {
 
   const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
 
-  const paymentConfig =
-    process.env.NODE_ENV === "development"
-      ? "pmc_1Nx3BgJYT3F0eBGGXZs9en9w"
-      : "pmc_1NwxyRJYT3F0eBGGrE4s0Y33";
-
   // Create a PaymentIntent with the order amount and currency
   try {
-    // const paymentIntent = await stripe.paymentIntents.create({
-    //   amount: amountPenny,
-    //   currency: "usd",
-    //   automatic_payment_methods: {
-    //     enabled: true,
-    //   },
-
-    //   transfer_data: {
-    //     destination: stripeAccountId,
-    //   },
-    //   on_behalf_of: stripeAccountId,
-    // });
-
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountPenny,
       currency: "usd",
       automatic_payment_methods: {
         enabled: true,
       },
-      payment_method: "pm_card_visa", // ! enable this for testing in local
+      // payment_method: "pm_card_visa", // ! enable this for testing in local
       application_fee_amount: applicationFee + stripeFeeRoundedPenny,
       transfer_data: {
         destination: stripeAccountId,
       },
       on_behalf_of: stripeAccountId,
-      // payment_method_configuration: paymentConfig,
     });
 
     const { client_secret } = paymentIntent;

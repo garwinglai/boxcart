@@ -270,7 +270,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 spam to verify your email, or resend the verification email.
               </p>
               <div className="w-fit mt-2">
-                {!isEmailVerified && (
+                {isEmailVerified && (
                   <ButtonPrimary
                     handleClick={handleSendVerifyEmail}
                     name="Send"
