@@ -7,7 +7,6 @@ export default async function handler(req, res) {
 
   if (method === "POST") {
     const { senderName, fromEmail, toEmail, receiverName, subject } = body;
-    const refactorSenderName = " " + senderName + ",";
 
     // return;
     const templateId = "d-92afccebf3d942c5a1711bf75afae0ba";
@@ -22,7 +21,7 @@ export default async function handler(req, res) {
       templateId,
       dynamic_template_data: {
         subject,
-        senderName: refactorSenderName,
+        senderName,
         receiverName,
         boxcartLink: "https://home.boxcart.shop/add-your-business",
       },
