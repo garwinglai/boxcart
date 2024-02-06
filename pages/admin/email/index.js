@@ -190,7 +190,7 @@ function Email() {
             onChange={handleInputUpdate}
           />
         </div>
-        <p>CSV Column Values (receiver name, email)</p>
+        <p>CSV Column Values (Full name, email)</p>
 
         <div className="py-4 ">
           {!uploadedCSVProduct ? (
