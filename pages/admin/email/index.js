@@ -180,7 +180,7 @@ function Email() {
           />
         </div>
         <div className="flex gap-2 items-center justify-between">
-          <label className="text-black">Email subject:</label>
+          <label className="text-black">Subject:</label>
           <input
             required
             type="text"

@@ -158,78 +158,81 @@ model UsedCode {
 }
 
 model Account {
-  id                              Int                  @id @default(autoincrement())
-  createdAt                       DateTime             @default(now())
-  updatedAt                       DateTime             @updatedAt
-  version                         String               @default("1.0.0")
-  referredFrom                    String?
-  role                            Role                 @default(OWNER)
-  isActive                        Boolean              @default(true) // free accounts that aren't free
-  hasPremiumPlan                  Boolean              @default(false) // Default false until user pays for premium plan.
-  isFreePeriodActive              Boolean              @default(true)
-  isBetaUser                      Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
-  freePeriodEndDateStr            String?
-  freePeriodEndDateEpoch          String? // 1 month free
-  isFirstLogin                    Boolean              @default(true)
-  isChecklistComplete             Boolean              @default(false) // Default false until checklist is complete.
-  isNonMandatoryChecklistComplete Boolean              @default(false) // Default false until checklist is complete.
-  businessIdentities              String?
-  email                           String               @unique
-  isEmailVerified                 Boolean              @default(false)
-  userName                        String
-  firstName                       String
-  lastName                        String
-  businessName                    String
-  subdomain                       String               @unique
-  fullDomain                      String               @unique
+  id                               Int                  @id @default(autoincrement())
+  createdAt                        DateTime             @default(now())
+  updatedAt                        DateTime             @updatedAt
+  version                          String               @default("1.0.0")
+  referredFrom                     String?
+  role                             Role                 @default(OWNER)
+  isActive                         Boolean              @default(true) // free accounts that aren't free
+  hasPremiumPlan                   Boolean              @default(false) // Default false until user pays for premium plan.
+  isFreePeriodActive               Boolean              @default(true)
+  isBetaUser                       Boolean              @default(true) // Default is true, meantime we are only accepting beta users.
+  freePeriodEndDateStr             String?
+  freePeriodEndDateEpoch           String? // 1 month free
+  isFirstLogin                     Boolean              @default(true)
+  isChecklistComplete              Boolean              @default(false) // Default false until checklist is complete.
+  isNonMandatoryChecklistComplete  Boolean              @default(false) // Default false until checklist is complete.
+  businessIdentities               String?
+  email                            String               @unique
+  isEmailVerified                  Boolean              @default(false)
+  userName                         String
+  firstName                        String
+  lastName                         String
+  businessName                     String
+  subdomain                        String               @unique
+  fullDomain                       String               @unique
+  defaultProductTaxCode            String?
+  defaultProductTaxCodeName        String?
+  defaultProductTaxCodeDescription String?              @db.VarChar(255)
   // logoImgStr             String?
-  logoImageFileName               String?
-  logoImage                       String?              @db.Text
-  bannerImageFileName             String?
-  bannerImage                     String?              @db.Text
-  businessBio                     String?              @db.VarChar(255)
-  socials                         Social[]
-  subscriberCount                 Int                  @default(0)
-  customers                       Customer[]
-  subscribers                     Subscriber[]
-  contacts                        Contact[]
-  fulfillmentMethodInt            Int // 0: delivery, 1: pickup, 2: both
-  fulfillmentMethods              Fulfillment[]
-  address_1                       String
-  address_2                       String?
-  city                            String
-  state                           String
-  zip                             String
-  fullAddress                     String
-  lat                             Float?
-  lng                             Float?
-  geohash                         String?
-  enableTips                      Boolean              @default(false)
-  rating                          String               @default("5.00")
-  reviewCount                     Int                  @default(1)
-  tips                            Tips?
-  tax                             Tax?
-  user                            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                          Int
+  logoImageFileName                String?
+  logoImage                        String?              @db.Text
+  bannerImageFileName              String?
+  bannerImage                      String?              @db.Text
+  businessBio                      String?              @db.VarChar(255)
+  socials                          Social[]
+  subscriberCount                  Int                  @default(0)
+  customers                        Customer[]
+  subscribers                      Subscriber[]
+  contacts                         Contact[]
+  fulfillmentMethodInt             Int // 0: delivery, 1: pickup, 2: both
+  fulfillmentMethods               Fulfillment[]
+  address_1                        String
+  address_2                        String?
+  city                             String
+  state                            String
+  zip                              String
+  fullAddress                      String
+  lat                              Float?
+  lng                              Float?
+  geohash                          String?
+  enableTips                       Boolean              @default(false)
+  rating                           String               @default("5.00")
+  reviewCount                      Int                  @default(1)
+  tips                             Tips?
+  tax                              Tax?
+  user                             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                           Int
   // hasPaymentMethod       Boolean              @default(false)
-  requireDeposit                  Boolean              @default(false)
-  businessTypes                   BusinessType[]
-  acceptedPayments                AcceptedPayment[]
-  deposit                         Deposit?
-  savedPaymentMethods             SavedPaymentMethod[]
-  premiumPlan                     PremiumPlan?
-  checklist                       Checklist?
-  products                        Product[]
-  digitalProducts                 DigitalProduct[]
-  categories                      Category[]
-  availability                    Availability?
-  orders                          CustomerOrder[]
-  revenue                         Revenue?
-  payout                          Payout[]
-  reviews                         Review[]
-  taxId                           Int?
-  payoutId                        Int?
-  usedCodes                       UsedCode[]
+  requireDeposit                   Boolean              @default(false)
+  businessTypes                    BusinessType[]
+  acceptedPayments                 AcceptedPayment[]
+  deposit                          Deposit?
+  savedPaymentMethods              SavedPaymentMethod[]
+  premiumPlan                      PremiumPlan?
+  checklist                        Checklist?
+  products                         Product[]
+  digitalProducts                  DigitalProduct[]
+  categories                       Category[]
+  availability                     Availability?
+  orders                           CustomerOrder[]
+  revenue                          Revenue?
+  payout                           Payout[]
+  reviews                          Review[]
+  taxId                            Int?
+  payoutId                         Int?
+  usedCodes                        UsedCode[]
 
   @@index([userId])
 }
@@ -672,6 +675,9 @@ model Product {
   isEnabled                  Boolean         @default(true)
   productName                String
   description                String?         @db.Text
+  taxCode                    String?
+  taxCodeName                String?
+  taxCodeDescription         String?         @db.VarChar(255)
   lat                        Float?
   lng                        Float?
   geohash                    String?

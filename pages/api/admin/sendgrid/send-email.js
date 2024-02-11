@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true, error: "" });
     } catch (error) {
-      console.log("Email send failed file: api/sendgrid/verify-email:", error);
+      console.log("Email failed send:", error);
       res
         .status(error.statusCode || 500)
         .json({ success: false, error: error.message });

@@ -96,6 +96,9 @@ const createUser = (
     businessName,
     freePeriodEndDateStr,
     freePeriodEndDateEpoch,
+    defaultProductTaxCode,
+    defaultProductTaxCodeName,
+    defaultProductTaxCodeDescription,
     subdomain,
     fullDomain,
     logoImageFileName,
@@ -125,6 +128,9 @@ const createUser = (
       accounts: {
         create: [
           {
+            defaultProductTaxCode,
+            defaultProductTaxCodeName,
+            defaultProductTaxCodeDescription,
             email,
             userName: name,
             firstName,
@@ -195,6 +201,9 @@ const createUser = (
             products: {
               create: [
                 {
+                  taxCode: defaultProductTaxCode,
+                  taxCodeName: defaultProductTaxCodeName,
+                  taxCodeDescription: defaultProductTaxCodeDescription,
                   isSampleProduct: true,
                   productName: "Sample test product",
                   priceIntPenny: 599,

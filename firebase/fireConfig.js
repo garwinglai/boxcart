@@ -5,7 +5,6 @@ import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import * as geofire from "geofire-common";
-import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 

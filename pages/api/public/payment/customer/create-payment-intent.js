@@ -8,38 +8,41 @@ const secrey_key =
 const stripe = require("stripe")(secrey_key);
 
 export default async function handler(req, res) {
-  const { items } = req.body;
+  const { body, method } = req;
+  const { items } = body;
   const { stripeAccountId, amountPenny, applicationFee } = items[0];
 
-  const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
+  if (method === "POST") {
+    const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
 
-  // Create a PaymentIntent with the order amount and currency
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountPenny,
-      currency: "usd",
-      automatic_payment_methods: {
-        enabled: true,
-      },
-      // payment_method: "pm_card_visa", // ! enable this for testing in local
-      application_fee_amount: applicationFee + stripeFeeRoundedPenny,
-      transfer_data: {
-        destination: stripeAccountId,
-      },
-      on_behalf_of: stripeAccountId,
-    });
+    // Create a PaymentIntent with the order amount and currency
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountPenny,
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        // payment_method: "pm_card_visa", // ! enable this for testing in local
+        application_fee_amount: applicationFee + stripeFeeRoundedPenny,
+        transfer_data: {
+          destination: stripeAccountId,
+        },
+        on_behalf_of: stripeAccountId,
+      });
 
-    const { client_secret } = paymentIntent;
+      const { client_secret } = paymentIntent;
 
-    res.send({
-      clientSecret: client_secret,
-    });
-  } catch (e) {
-    console.log("error", e.message);
-    res.status(400).send({
-      error: {
-        message: e.message,
-      },
-    });
+      res.send({
+        clientSecret: client_secret,
+      });
+    } catch (e) {
+      console.log("error", e.message);
+      res.status(400).send({
+        error: {
+          message: e.message,
+        },
+      });
+    }
   }
 }

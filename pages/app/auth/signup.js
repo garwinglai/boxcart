@@ -31,13 +31,11 @@ import { useAccountStore, useConnectAccountStore } from "@/lib/store";
 import { storage, createGeoHash } from "@/firebase/fireConfig";
 import Geocode from "react-geocode";
 import { checkAccessCode } from "@/helper/client/api/codes/index";
-import { checkAccessCodeUsed } from "@/helper/client/api/account/early-bird-code";
-import logo from "@/public/images/logos/boxcart_logo_full.png";
+import logo from "@/public/images/logos/profilelogo.png";
 import { checkIfUserEmailInUse } from "@/helper/client/api/user";
-import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
-import ButtonFourth from "@/components/global/buttons/ButtonFourth";
 import ButtonThird from "@/components/global/buttons/ButtonThird";
 import CloseIcon from "@mui/icons-material/Close";
+import TaxForm from "@/components/auth/signup/TaxForm";
 
 // steps:
 // 0: accessCode
@@ -74,7 +72,7 @@ function Signup() {
   const [waitListEmail, setWaitListEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
-  const [maxSteps, setMaxSteps] = useState(11);
+  const [maxSteps, setMaxSteps] = useState(12);
   const [isLastStep, setIsLastStep] = useState(false);
   const [canSkip, setCanSkip] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -89,6 +87,9 @@ function Signup() {
     accessCode: "",
     businessName: "",
     subdomain: "",
+    defaultProductTaxCode: "",
+    defaultProductTaxCodeName: "",
+    defaultProductTaxCodeDescription: "",
     businessTypes: [],
     otherBusinessTypes: [],
     otherBusinessType: "",
@@ -165,6 +166,9 @@ function Signup() {
     enableTips,
     typeOfTip,
     tipValues,
+    defaultProductTaxCode,
+    defaultProductTaxCodeName,
+    defaultProductTaxCodeDescription,
   } = signupValues;
 
   const { facebookUrl, instagramUrl, tiktokUrl, youtubeUrl } = socialLinks;
@@ -268,56 +272,12 @@ function Signup() {
             setIsLastStep(true);
           }
         } else {
-          setMaxSteps(10);
-          if (step == 10) {
-            setIsLastStep(true);
-          }
-        }
-      }
-      if (deliveryTypeInt == 1) {
-        if (enableTips) {
-          setMaxSteps(12);
-          if (step == 13) {
-            setIsLastStep(true);
-          }
-        } else {
           setMaxSteps(11);
           if (step == 11) {
             setIsLastStep(true);
           }
         }
       }
-    }
-
-    if (fulfillmentMethodInt == 1) {
-      if (enableTips) {
-        setMaxSteps(11);
-        if (step == 12) {
-          setIsLastStep(true);
-        }
-      } else {
-        setMaxSteps(10);
-        if (step == 10) {
-          setIsLastStep(true);
-        }
-      }
-    }
-
-    if (fulfillmentMethodInt == 2) {
-      if (deliveryTypeInt == 0) {
-        if (enableTips) {
-          setMaxSteps(12);
-          if (step == 13) {
-            setIsLastStep(true);
-          }
-        } else {
-          setMaxSteps(11);
-          if (step == 11) {
-            setIsLastStep(true);
-          }
-        }
-      }
-
       if (deliveryTypeInt == 1) {
         if (enableTips) {
           setMaxSteps(13);
@@ -327,6 +287,50 @@ function Signup() {
         } else {
           setMaxSteps(12);
           if (step == 12) {
+            setIsLastStep(true);
+          }
+        }
+      }
+    }
+
+    if (fulfillmentMethodInt == 1) {
+      if (enableTips) {
+        setMaxSteps(12);
+        if (step == 13) {
+          setIsLastStep(true);
+        }
+      } else {
+        setMaxSteps(11);
+        if (step == 11) {
+          setIsLastStep(true);
+        }
+      }
+    }
+
+    if (fulfillmentMethodInt == 2) {
+      if (deliveryTypeInt == 0) {
+        if (enableTips) {
+          setMaxSteps(13);
+          if (step == 14) {
+            setIsLastStep(true);
+          }
+        } else {
+          setMaxSteps(12);
+          if (step == 12) {
+            setIsLastStep(true);
+          }
+        }
+      }
+
+      if (deliveryTypeInt == 1) {
+        if (enableTips) {
+          setMaxSteps(14);
+          if (step == 13) {
+            setIsLastStep(true);
+          }
+        } else {
+          setMaxSteps(13);
+          if (step == 13) {
             setIsLastStep(true);
           }
         }
@@ -376,6 +380,7 @@ function Signup() {
           setErrorMessage(
             "Unknown error. Please contact hello@boxcart.shop with your access code."
           );
+          setSignupValues((prev) => ({ ...prev, accessCode: "" }));
           setIsLoading(false);
           return;
         }
@@ -387,6 +392,8 @@ function Signup() {
           setErrorMessage(
             "Access code not found. If you have a code, reach out to: hello@boxcart.shop"
           );
+          // clear access code input
+          setSignupValues((prev) => ({ ...prev, accessCode: "" }));
           setIsLoading(false);
           return;
         }
@@ -441,6 +448,22 @@ function Signup() {
     if (step == 6) {
       const isValid = checkSocialMediaUrlValidEntry();
       if (!isValid) return;
+    }
+
+    if (
+      (step == 10 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+      (step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
+      (step == 10 && fulfillmentMethodInt == 1) ||
+      (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
+      step == 12
+    ) {
+      // if taxCode is empty, return error.
+      if (defaultProductTaxCode === "" || defaultProductTaxCodeName === "") {
+        setOpenError(true);
+        setErrorMessage("Select a tax code.");
+        setIsLoading(false);
+        return;
+      }
     }
 
     //* Advanced to next step.
@@ -652,15 +675,6 @@ function Signup() {
     }
 
     if (step == 11) {
-      // Set tip values for outsource delivery.
-      // if (
-      //   (fulfillmentMethodInt == 0 && deliveryTypeInt == 0 && enableTips) ||
-      //   (fulfillmentMethodInt == 1 && enableTips)
-      // ) {
-      //   setCorrectTipValues(name, value);
-      //   return;
-      // }
-
       // pickup note
       if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1) {
         if (value.length > 150) {
@@ -671,27 +685,17 @@ function Signup() {
       }
     }
 
-    if (step == 12) {
-      // Set tip values for in-house delivery.
-      // if (
-      //   (fulfillmentMethodInt == 0 && deliveryTypeInt == 1 && enableTips) ||
-      //   (fulfillmentMethodInt == 2 && enableTips)
-      // ) {
-      //   setCorrectTipValues(name, value);
-      //   return;
-      // }
-    }
-
-    if (step == 13) {
-      // if (fulfillmentMethodInt == 2 && deliveryTypeInt == 1 && enableTips) {
-      //   setCorrectTipValues(name, value);
-      //   return;
-      // }
-    }
-
-    // Set state values for step 0,1,2,3-(input for other business type)
-
     setSignupValues((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function setDefaultTaxCode(value) {
+    const { id, name, description } = value;
+    setSignupValues((prev) => ({
+      ...prev,
+      defaultProductTaxCode: id,
+      defaultProductTaxCodeName: name,
+      defaultProductTaxCodeDescription: description,
+    }));
   }
 
   function handleAddressChange(e) {
@@ -1073,6 +1077,9 @@ function Signup() {
       waitlistId,
       freePeriodEndDateStr,
       freePeriodEndDateEpoch,
+      defaultProductTaxCode,
+      defaultProductTaxCodeName,
+      defaultProductTaxCodeDescription,
       email,
       password,
       name,
@@ -1372,18 +1379,23 @@ function Signup() {
       <Snackbar open={openError} onClose={handleCloseSnackbar}>
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>
-      <div className="lg:px-52">
+      <div className="lg:w-1/2 lg:mx-auto">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => push("https://www.home.boxcart.shop")}>
-            <div className=" w-40 h-28 relative -mt-8 -mb-4 -ml-8">
-              <Image
-                src={logo}
-                alt="boxcart logo"
-                fill
-                priority
-                className=" object-cover rounded"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+            <div className="flex gap-1 items-center mb-4">
+              <div className=" w-8 h-8 relative">
+                <Image
+                  src={logo}
+                  alt="boxcart logo"
+                  fill
+                  priority
+                  className=" object-cover rounded"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <span className=" font-bold text-lg text-[color:var(--primary)]">
+                boxcart
+              </span>
             </div>
           </button>
           <div className="flex flex-col md:flex-row md:gap-2 items-end mb-4">
@@ -1423,8 +1435,7 @@ function Signup() {
                 onChange={handleChange}
               />
               <p className="text-sm font-light text-black mt-4">
-                If you have an invite code, please enter it here before
-                proceeding.
+                Enter invite code if you have one.
               </p>
             </div>
           )}
@@ -1436,7 +1447,7 @@ function Signup() {
             >
               <label
                 htmlFor="biz_name_input"
-                className="text-black font-medium"
+                className="text-black font-medium text-xl"
               >
                 What&apos;s your business name? *
               </label>
@@ -1468,7 +1479,7 @@ function Signup() {
             >
               <label
                 htmlFor="subdomain"
-                className="font-medium text-black mb-4"
+                className="font-medium text-black mb-4 text-xl"
               >
                 Enter your business domain. *
               </label>
@@ -1510,9 +1521,14 @@ function Signup() {
             >
               <label
                 htmlFor="select business type"
-                className="text-black font-medium"
+                className="text-black font-medium text-xl"
               >
-                What&apos;s your business category? Select all that apply.
+                <span className="block">
+                  What&apos;s your business category?
+                </span>
+                <span className="text-sm font-light">
+                  Select all that apply.
+                </span>
               </label>
 
               <div className="flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1605,7 +1621,7 @@ function Signup() {
           {/* Logo */}
           {step == 4 && (
             <div className={`${styles.form_section_group}`}>
-              <h4 className="">Upload your logo.</h4>
+              <h2 className="">Upload your logo.</h2>
 
               {logoImageFileName === "" ? (
                 <Avatar
@@ -1626,7 +1642,7 @@ function Signup() {
               )}
               <label
                 htmlFor="logo_file"
-                className={`${styles.upload_logo_button}`}
+                className={`${styles.upload_logo_button} text-xl`}
               >
                 Upload file:
               </label>
@@ -1656,7 +1672,7 @@ function Signup() {
             <div className={`${styles.form_section_group} ${styles.bio_group}`}>
               <label
                 htmlFor="business-bio"
-                className="text-black font-medium mb-4"
+                className="text-black font-medium mb-4 text-xl"
               >
                 Enter a short bio about your business.
               </label>
@@ -1680,9 +1696,9 @@ function Signup() {
           {/* Socials */}
           {step == 6 && (
             <div className={`${styles.form_section_group}`}>
-              <h4 className="font-medium text-black mb-4">
+              <h2 className="font-medium text-black mb-4">
                 Link your socials.
-              </h4>
+              </h2>
 
               <div className={`${styles.socials_group}`}>
                 <Image
@@ -1755,9 +1771,9 @@ function Signup() {
             <div
               className={`${styles.form_section_group} ${styles.fulfillment}`}
             >
-              <h4 className="text-black mb-4 font-medium">
+              <h2 className="text-black mb-4 font-medium">
                 How do you fulfill your orders?
-              </h4>
+              </h2>
               <FulfillmentRadioGroup
                 id="delivery"
                 name="delivery"
@@ -1793,9 +1809,9 @@ function Signup() {
             <div
               className={`${styles.form_section_group} ${styles.fulfillment}`}
             >
-              <h4 className="font-medium text-black mb-4">
+              <h2 className="font-medium text-black mb-4">
                 How do you deliver?
-              </h4>
+              </h2>
               <FulfillmentRadioGroup
                 id="outsource"
                 name="outsource"
@@ -1857,9 +1873,9 @@ function Signup() {
             >
               <label
                 htmlFor="pickup_note"
-                className="font-medium text-black mb-4"
+                className="font-medium text-black mb-4 text-xl"
               >
-                Leave a note for pickup orders.
+                Leave a note for pickup orders
               </label>
               <textarea
                 type="text"
@@ -1922,6 +1938,20 @@ function Signup() {
             (step == 10 && fulfillmentMethodInt == 1) ||
             (step == 11 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
             (step == 12 &&
+              fulfillmentMethodInt == 2 &&
+              deliveryTypeInt == 1)) && (
+            <div className={`${styles.form_section_group}`}>
+              <TaxForm
+                setDefaultTaxCode={setDefaultTaxCode}
+                defaultProductTaxCodeName={defaultProductTaxCodeName}
+              />
+            </div>
+          )}
+          {((step == 11 && fulfillmentMethodInt == 0 && deliveryTypeInt == 0) ||
+            (step == 12 && fulfillmentMethodInt == 0 && deliveryTypeInt == 1) ||
+            (step == 11 && fulfillmentMethodInt == 1) ||
+            (step == 12 && fulfillmentMethodInt == 2 && deliveryTypeInt == 0) ||
+            (step == 13 &&
               fulfillmentMethodInt == 2 &&
               deliveryTypeInt == 1)) && (
             <div className={`${styles.form_section_group}`}>

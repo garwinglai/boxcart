@@ -5,7 +5,7 @@ import SignupFormRadioGroup from "./SignupFormRadioGroup";
 function SignupFormDistance({ isLocalDistanceChecked, handleChange }) {
   return (
     <div>
-      <h4 className="font-medium mb-4">How far do you deliver?</h4>
+      <h2 className="font-medium mb-4">How far do you deliver?</h2>
       <div className={`${styles.distance_box}`}>
         <SignupFormRadioGroup
           id="5mi"
