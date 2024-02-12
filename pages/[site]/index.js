@@ -542,11 +542,14 @@ export async function getServerSideProps(context) {
           serializedShopper = JSON.parse(JSON.stringify(shopperAccount));
           shopper = shopperAccount;
         }
+        console.log("shopUser", shopUser);
 
+        console.log("siteData", siteData);
         site = siteData;
       } else {
         const [siteData] = await Promise.all(promises);
         site = siteData;
+        console.log("siteData", siteData);
       }
 
       if (!site) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layouts/AppLayout";
 import { IOSSwitch } from "@/components/global/switches/IOSSwitch";
-import Link from "next/link";
 import ButtonPrimary from "@/components/global/buttons/ButtonPrimary";
 import { isAuth } from "@/helper/server/auth/isAuth";
 import CurrencyInput from "react-currency-input-field";
@@ -24,13 +23,10 @@ import { CircularProgress } from "@mui/material";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { useChecklistStore } from "@/lib/store";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import venmo from "@/public/images/icons/venmo.png";
-import paypal from "@/public/images/icons/paypal.png";
-import zelle from "@/public/images/icons/zelle.png";
-import cash from "@/public/images/icons/cash.png";
 import credit_card from "@/public/images/icons/credit-card.png";
 import Image from "next/image";
 import payments_icon from "@/public/images/icons/account/payments_icon.png";
+import TaxForm from "@/components/auth/signup/TaxForm";
 
 const styleMobile = {
   position: "absolute",
@@ -106,12 +102,16 @@ function Payments({ userAccount }) {
   const [depositPercentageFee, setDepositPercentageFee] = useState(
     deposit ? (deposit.feeTypeSymbol === "%" ? deposit.feeIntPercent : "") : ""
   );
-  const [enableTaxes, setEnableTaxes] = useState(
-    tax ? tax.isTaxRateEnabled : false
-  );
+
   const [taxAmt, setTaxAmt] = useState(
     tax ? (tax.taxRate ? tax.taxRate : "") : ""
   );
+  const [taxValues, setTaxValues] = useState({
+    defaultProductTaxCode: account?.defaultProductTaxCode || "",
+    defaultProductTaxCodeName: account?.defaultProductTaxCodeName || "",
+    defaultProductTaxCodeDescription:
+      account?.defaultProductTaxCodeDescription || "",
+  });
   const [useStripe, setUseStripe] = useState(false);
   const [stripeValues, setStripeValues] = useState({
     stripeAccountId: "",
@@ -147,6 +147,11 @@ function Payments({ userAccount }) {
     snackbarMessage: "",
   });
 
+  const {
+    defaultProductTaxCode,
+    defaultProductTaxCodeName,
+    defaultProductTaxCodeDescription,
+  } = taxValues;
   const { snackbarOpen, snackbarMessage } = openSnackbar;
   const { stripeAccountId, details_submitted, charges_enabled } = stripeValues;
   const { zellePayInstructions, zelleAccount } = zelleValues;
@@ -229,8 +234,12 @@ function Payments({ userAccount }) {
     setUseVenmo(false);
     setUseZelle(false);
     setUsePayPal(false);
-    setEnableTaxes(tax.isTaxRateEnabled);
-    setTaxAmt(tax.taxRate);
+    setTaxValues({
+      defaultProductTaxCode: account?.defaultProductTaxCode || "",
+      defaultProductTaxCodeName: account?.defaultProductTaxCodeName || "",
+      defaultProductTaxCodeDescription:
+        account?.defaultProductTaxCodeDescription || "",
+    });
 
     setStripeInitialState(false);
     setCashInitialState(false);
@@ -346,7 +355,6 @@ function Payments({ userAccount }) {
     // check if state values are different than prop values. If it is, then show save/cancel buttons
 
     if (
-      enableTaxes !== tax.isTaxRateEnabled ||
       useStripe !== stripeInitialState ||
       useCash !== cashInitialState ||
       useVenmo !== venmoInitialState ||
@@ -359,63 +367,60 @@ function Payments({ userAccount }) {
       setShowSaveCancelButtons(false);
     }
 
-    if (tax.isTaxRateEnabled) {
-      if (taxAmt !== tax.taxRate) {
-        setShowSaveCancelButtons(true);
-        return;
-      } else {
-        setShowSaveCancelButtons(false);
-      }
+    if (defaultProductTaxCode !== account.defaultProductTaxCode) {
+      setShowSaveCancelButtons(true);
+      return;
+    } else {
+      setShowSaveCancelButtons(false);
     }
 
-    if (useCash) {
-      if (cashPayInstructions !== initialCashInstructions) {
-        setShowSaveCancelButtons(true);
-        return;
-      } else {
-        setShowSaveCancelButtons(false);
-      }
-    }
+    // if (useCash) {
+    //   if (cashPayInstructions !== initialCashInstructions) {
+    //     setShowSaveCancelButtons(true);
+    //     return;
+    //   } else {
+    //     setShowSaveCancelButtons(false);
+    //   }
+    // }
 
-    if (useVenmo) {
-      if (
-        venmoPayInstructions !==
-          initialVenmoValues.initialVenmoPayInstructions ||
-        venmoAccount !== initialVenmoValues.initialVenmoAccount
-      ) {
-        setShowSaveCancelButtons(true);
-        return;
-      } else {
-        setShowSaveCancelButtons(false);
-      }
-    }
+    // if (useVenmo) {
+    //   if (
+    //     venmoPayInstructions !==
+    //       initialVenmoValues.initialVenmoPayInstructions ||
+    //     venmoAccount !== initialVenmoValues.initialVenmoAccount
+    //   ) {
+    //     setShowSaveCancelButtons(true);
+    //     return;
+    //   } else {
+    //     setShowSaveCancelButtons(false);
+    //   }
+    // }
 
-    if (useZelle) {
-      if (
-        zellePayInstructions !==
-          initialZelleValues.initialZellPayInstructions ||
-        zelleAccount !== initialZelleValues.initialZelleAccount
-      ) {
-        setShowSaveCancelButtons(true);
-        return;
-      } else {
-        setShowSaveCancelButtons(false);
-      }
-    }
+    // if (useZelle) {
+    //   if (
+    //     zellePayInstructions !==
+    //       initialZelleValues.initialZellPayInstructions ||
+    //     zelleAccount !== initialZelleValues.initialZelleAccount
+    //   ) {
+    //     setShowSaveCancelButtons(true);
+    //     return;
+    //   } else {
+    //     setShowSaveCancelButtons(false);
+    //   }
+    // }
 
-    if (usePayPal) {
-      if (
-        paypalInstructions !== initialPaypalValues.initialPaypalInstructions ||
-        paypalAccount !== initialPaypalValues.initialPaypalAccount
-      ) {
-        setShowSaveCancelButtons(true);
-        return;
-      } else {
-        setShowSaveCancelButtons(false);
-      }
-    }
+    // if (usePayPal) {
+    //   if (
+    //     paypalInstructions !== initialPaypalValues.initialPaypalInstructions ||
+    //     paypalAccount !== initialPaypalValues.initialPaypalAccount
+    //   ) {
+    //     setShowSaveCancelButtons(true);
+    //     return;
+    //   } else {
+    //     setShowSaveCancelButtons(false);
+    //   }
+    // }
   }, [
-    enableTaxes,
     useStripe,
     useCash,
     useVenmo,
@@ -445,19 +450,6 @@ function Payments({ userAccount }) {
     }
 
     setOpenSnackbar(false);
-  };
-
-  const handleEnabletaxes = (e) => {
-    setEnableTaxes((prev) => !prev);
-  };
-
-  const handleChangeTaxAmt = (value) => {
-    setTaxAmt(value);
-  };
-
-  const handleViewTaxRatesClick = () => {
-    const taxRateUrl = "https://quaderno.io/sales-tax-calculator/";
-    window.open(taxRateUrl, "_blank", "noreferrer");
   };
 
   const handleChangeInPayment = (e) => {
@@ -702,40 +694,6 @@ function Payments({ userAccount }) {
     setInitialStates(acceptedPayments, tax, placeholderCardMessage);
   };
 
-  const structureTaxData = () => {
-    let taxData = {};
-
-    if (!enableTaxes) {
-      taxData = {
-        isTaxRateEnabled: enableTaxes,
-      };
-    } else {
-      let taxRateDisplay;
-
-      if (taxAmt.toString().includes(".")) {
-        const [numBeforeDecimal, numAfterDecimal] = taxAmt
-          .toString()
-          .split(".");
-
-        if (numAfterDecimal === "00") {
-          taxRateDisplay = numBeforeDecimal + "%";
-        } else {
-          taxRateDisplay = parseFloat(taxAmt).toFixed(2).toString() + "%";
-        }
-      } else {
-        taxRateDisplay = taxAmt + "%";
-      }
-
-      taxData = {
-        taxRate: parseFloat(taxAmt),
-        taxRateDisplay,
-        isTaxRateEnabled: enableTaxes,
-      };
-    }
-
-    return taxData;
-  };
-
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -750,7 +708,6 @@ function Payments({ userAccount }) {
     // const accountData = structureAccountData();
     // const depositData = structureDepositData();
     const paymentData = structurePaymentData();
-    const taxData = structureTaxData();
 
     const data = {
       // accountData,
@@ -758,7 +715,6 @@ function Payments({ userAccount }) {
       paymentData,
       accountId,
       removedPayments,
-      taxData,
     };
 
     try {
@@ -951,6 +907,16 @@ function Payments({ userAccount }) {
     return paymentsData;
   };
 
+  function setDefaultTaxCode(value) {
+    const { id, name, description } = value;
+    setTaxValues((prev) => ({
+      ...prev,
+      defaultProductTaxCode: id,
+      defaultProductTaxCodeName: name,
+      defaultProductTaxCodeDescription: description,
+    }));
+  }
+
   // Displays
   const action = (
     <React.Fragment>
@@ -1073,53 +1039,18 @@ function Payments({ userAccount }) {
           </div>
         </div> */}
         <div className="p-4 mx-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded h-fit bg-white lg:mx-0">
-          <div className="flex justify-between pr-4">
-            <h3>Taxes</h3>
-            <IOSSwitch
-              checked={enableTaxes}
-              onChange={handleEnabletaxes}
-              value="taxes"
+          <div>
+            <TaxForm
+              setDefaultTaxCode={setDefaultTaxCode}
+              defaultProductTaxCode={defaultProductTaxCode}
+              defaultProductTaxCodeName={defaultProductTaxCodeName}
+              isInAppForm={true}
             />
-          </div>
-          <p className="text-gray-800 font-light text-xs mt-2">
-            Apply sales tax.
-          </p>
-          <div
-            className={`transition-opactiy ${
-              enableTaxes
-                ? "visible opacity-100 px-4 mt-4"
-                : "invisible h-0 opacity-0"
-            } `}
-          >
-            <div className="flex flex-end w-full items-center">
-              <button
-                type="button"
-                role="link"
-                onClick={handleViewTaxRatesClick}
-                className="underline text-blue-500 text-sm font-light"
-              >
-                View tax rates
-              </button>
-              <div className="w-1/6 flex gap-2 items-center ml-auto">
-                <CurrencyInput
-                  name="percentage"
-                  required
-                  placeholder="%"
-                  disabled={enableTaxes ? false : true}
-                  value={taxAmt}
-                  onValueChange={handleChangeTaxAmt}
-                  decimalsLimit={2}
-                  decimalScale={2}
-                  suffix="%"
-                  className={`w-full transition-colors duration-300 border border-[color:var(--primary-light-med)] rounded-md p-2 focus:outline-none focus:border focus:border-[color:var(--primary-dark-med)] font-light text-xs`}
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>
       <div className="px-4 pt-4 m-4 h-fit  shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] rounded bg-white lg:col-start-2 lg:row-start-1 lg:row-end-4 lg:m-0">
-        <h3>Payments</h3>
+        <h2>Payments</h2>
         <p className="text-gray-800 font-light text-xs mt-2 mb-4">
           Allow your customers the flexibility to pay in any way.
         </p>
@@ -1541,8 +1472,6 @@ export async function getServerSideProps(context) {
           email,
         },
         include: {
-          tax: true,
-          deposit: true,
           acceptedPayments: true,
         },
       });

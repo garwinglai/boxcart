@@ -813,10 +813,14 @@ function Signup() {
       return;
     }
 
-    const { url: logoImg, error: logoErr } = await storeLogoImageFirebase(
-      logoFile,
-      subdomain
-    );
+    let logoImg;
+    let logoErr;
+
+    if (logoFile) {
+      const { url, error } = await storeLogoImageFirebase(logoFile, subdomain);
+      logoImg = url;
+      logoErr = error;
+    }
 
     if (logoErr) {
       console.log("Error saving logo image", error);
@@ -1943,7 +1947,9 @@ function Signup() {
             <div className={`${styles.form_section_group}`}>
               <TaxForm
                 setDefaultTaxCode={setDefaultTaxCode}
+                defaultProductTaxCode={defaultProductTaxCode}
                 defaultProductTaxCodeName={defaultProductTaxCodeName}
+                isSignUpForm={true}
               />
             </div>
           )}

@@ -184,7 +184,7 @@ model Account {
   fullDomain                       String               @unique
   defaultProductTaxCode            String?
   defaultProductTaxCodeName        String?
-  defaultProductTaxCodeDescription String?              @db.VarChar(255)
+  defaultProductTaxCodeDescription String?              @db.Text
   // logoImgStr             String?
   logoImageFileName                String?
   logoImage                        String?              @db.Text
@@ -211,7 +211,6 @@ model Account {
   rating                           String               @default("5.00")
   reviewCount                      Int                  @default(1)
   tips                             Tips?
-  tax                              Tax?
   user                             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                           Int
   // hasPaymentMethod       Boolean              @default(false)
@@ -230,7 +229,6 @@ model Account {
   revenue                          Revenue?
   payout                           Payout[]
   reviews                          Review[]
-  taxId                            Int?
   payoutId                         Int?
   usedCodes                        UsedCode[]
 
@@ -292,16 +290,16 @@ model Customer {
   @@index([shopperAccountId])
 }
 
-model Tax {
-  id               Int     @id @default(autoincrement())
-  taxRate          Float?
-  taxRateDisplay   String?
-  isTaxRateEnabled Boolean @default(false)
-  account          Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId        Int     @unique
+// model Tax {
+//   id               Int     @id @default(autoincrement())
+//   taxRate          Float?
+//   taxRateDisplay   String?
+//   isTaxRateEnabled Boolean @default(false)
+//   account          Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+//   accountId        Int     @unique
 
-  @@index([accountId])
-}
+//   @@index([accountId])
+// }
 
 model CustomerOrder {
   id                          Int              @id @default(autoincrement())
@@ -677,7 +675,7 @@ model Product {
   description                String?         @db.Text
   taxCode                    String?
   taxCodeName                String?
-  taxCodeDescription         String?         @db.VarChar(255)
+  taxCodeDescription         String?         @db.Text
   lat                        Float?
   lng                        Float?
   geohash                    String?

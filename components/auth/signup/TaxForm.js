@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import SearchableDropdown from "@/components/global/designs/SearchableDropdown";
 import BoxLoader from "@/components/global/loaders/BoxLoader";
 
-function TaxForm({ setDefaultTaxCode, defaultProductTaxCodeName }) {
+function TaxForm({
+  setDefaultTaxCode,
+  defaultProductTaxCodeName,
+  defaultProductTaxCode,
+  isInAppForm,
+}) {
   const [taxCodes, setTaxCodes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,8 +50,6 @@ function TaxForm({ setDefaultTaxCode, defaultProductTaxCodeName }) {
     const { value } = e.target;
     if (!value) return;
 
-    console.log("value", value);
-
     setDefaultTaxCode(JSON.parse(value));
 
     // Perform actions based on selected option
@@ -54,9 +57,15 @@ function TaxForm({ setDefaultTaxCode, defaultProductTaxCodeName }) {
 
   return (
     <div>
-      <h2 className="text-black mb-4 font-medium">
-        Select your default product tax code.
-      </h2>
+      {isInAppForm ? (
+        <h2 className="text-black mb-4 font-medium">
+          Default product tax code.
+        </h2>
+      ) : (
+        <h2 className="text-black mb-4 font-medium">
+          Select your default product tax code.
+        </h2>
+      )}
       <p className="text-sm">
         <strong>Read carefully. </strong>
       </p>
@@ -92,11 +101,11 @@ function TaxForm({ setDefaultTaxCode, defaultProductTaxCodeName }) {
               options={filteredTaxCodes}
             />
           </div>
-          <div className="flex items-center gap-2 mt-4">
-            <p className="font-medium min-w-fit">Selected Tax Code:</p>
-            <p className="font-light text-sm">
+          <div className="flex flex-col items-start gap-2 mt-4 border p-2 bg-gray-200 rounded">
+            <p className="font-light text-sm min-w-fit">Selected Tax Code:</p>
+            <p className="font-medium">
               {defaultProductTaxCodeName
-                ? defaultProductTaxCodeName
+                ? `${defaultProductTaxCodeName} - ${defaultProductTaxCode}`
                 : "Nothing selected."}
             </p>
           </div>

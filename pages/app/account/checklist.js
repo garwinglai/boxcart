@@ -67,6 +67,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
     hasLogo,
     hasBanner,
   } = checklist;
+  console.log("checklist", checklist);
 
   // * States
   const [isFirstLoginModalOpen, setIsFirstLoginModalOpen] =
@@ -222,9 +223,12 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 resendEmailErrorMessage
               </p>
             ) : (
-              <p className="text-center text-sm my-4 md:text-base">
-                Verification email as been sent to <br /> {email}
-              </p>
+              <div>
+                <p className="text-center text-sm my-4 md:text-base">
+                  Verification email as been sent to <br /> {email}
+                </p>
+                <p className="text-center text-sm font-light mb-4">May need to check spam.</p>
+              </div>
             )}
             <ButtonPrimary
               type="button"
@@ -270,7 +274,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 spam to verify your email, or resend the verification email.
               </p>
               <div className="w-fit mt-2">
-                {isEmailVerified && (
+                {!isEmailVerified && (
                   <ButtonPrimary
                     handleClick={handleSendVerifyEmail}
                     name="Send"

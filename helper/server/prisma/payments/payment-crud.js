@@ -53,7 +53,6 @@ export async function updatePaymentServer(data) {
     paymentData,
     accountId,
     removedPayments,
-    taxData,
   } = data;
 
   // const { requireDeposit } = accountData;
@@ -64,26 +63,6 @@ export async function updatePaymentServer(data) {
         id: accountId,
       },
       data: {
-        // requireDeposit,
-        tax: {
-          upsert: {
-            where: {
-              accountId,
-            },
-            update: taxData,
-            create: taxData,
-          },
-        },
-        // deposit: {
-        //   upsert: {
-        //     where: {
-        //       accountId,
-        //     },
-        //     update: depositData,
-        //     create: depositData,
-        //   },
-        //   delete: !requireDeposit && depositData,
-        // },
         acceptedPayments: {
           upsert: paymentData.map((payment) => {
             if (!payment) return;
