@@ -511,10 +511,8 @@ export async function getServerSideProps(context) {
             categoryName: "asc",
           },
         },
-        tax: true,
         fulfillmentMethods: true,
         acceptedPayments: true,
-        deposit: true,
         socials: true,
         availability: {
           include: {

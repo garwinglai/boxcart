@@ -366,7 +366,8 @@ function Payments({ userAccount }) {
     } else {
       setShowSaveCancelButtons(false);
     }
-
+    console.log("defaultProductTaxCode", defaultProductTaxCode);
+    console.log("account.defaultProductTaxCode", account.defaultProductTaxCode);
     if (defaultProductTaxCode !== account.defaultProductTaxCode) {
       setShowSaveCancelButtons(true);
       return;
@@ -435,6 +436,9 @@ function Payments({ userAccount }) {
     paypalInstructions,
     paypalAccount,
     account,
+    defaultProductTaxCode,
+    defaultProductTaxCodeName,
+    defaultProductTaxCodeDescription,
   ]);
 
   const handleOpenSnackbar = (message) => {
@@ -705,12 +709,12 @@ function Payments({ userAccount }) {
       return;
     }
 
-    // const accountData = structureAccountData();
+    const accountData = structureAccountData();
     // const depositData = structureDepositData();
     const paymentData = structurePaymentData();
 
     const data = {
-      // accountData,
+      accountData,
       // depositData,
       paymentData,
       accountId,
@@ -782,7 +786,9 @@ function Payments({ userAccount }) {
 
   const structureAccountData = () => {
     const accountData = {
-      requireDeposit: hasDeposit,
+      defaultProductTaxCode,
+      defaultProductTaxCodeName,
+      defaultProductTaxCodeDescription,
     };
     return accountData;
   };

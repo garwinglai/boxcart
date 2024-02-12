@@ -48,7 +48,7 @@ export async function saveStripeIdServer(data) {
 
 export async function updatePaymentServer(data) {
   const {
-    // accountData,
+    accountData,
     // depositData,
     paymentData,
     accountId,
@@ -63,6 +63,7 @@ export async function updatePaymentServer(data) {
         id: accountId,
       },
       data: {
+        ...accountData,
         acceptedPayments: {
           upsert: paymentData.map((payment) => {
             if (!payment) return;
@@ -89,9 +90,7 @@ export async function updatePaymentServer(data) {
         },
       },
       include: {
-        deposit: true,
         acceptedPayments: true,
-        tax: true,
       },
     });
 
