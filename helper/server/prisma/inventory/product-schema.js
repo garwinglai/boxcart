@@ -226,6 +226,9 @@ const createProduct = (product) => {
     defaultImage,
     enableCustomNote,
     enableCustomerImageUploads,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productSchema;
 
   return prisma.product.create({
@@ -257,6 +260,9 @@ const createProduct = (product) => {
         }),
       },
       defaultImageFileName,
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       tags,
       productId,
       defaultImage,
@@ -378,6 +384,9 @@ const createDigitalProduct = (product) => {
     fireStorageId,
     defaultImage,
     defaultImageFileName,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productSchema;
 
   return prisma.digitalProduct.create({
@@ -408,6 +417,9 @@ const createDigitalProduct = (product) => {
           };
         }),
       },
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       fireStorageId,
       digitalProductId,
       defaultImage,
@@ -546,6 +558,9 @@ const updateProduct = (product) => {
     defaultImage,
     enableCustomNote,
     enableCustomerImageUploads,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productSchema;
 
   return prisma.product.update({
@@ -567,6 +582,9 @@ const updateProduct = (product) => {
       setQuantityByProduct,
       enableCustomNote,
       enableCustomerImageUploads,
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       quantity,
       images: {
         update:
@@ -901,6 +919,9 @@ const updateDigitalProduct = (product) => {
     defaultImageFileName,
     relatedCategories,
     removedCategories,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productSchema;
 
   return prisma.digitalProduct.update({
@@ -908,6 +929,9 @@ const updateDigitalProduct = (product) => {
       id,
     },
     data: {
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       productName,
       description,
       tags,

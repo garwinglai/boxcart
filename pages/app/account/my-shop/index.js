@@ -55,13 +55,7 @@ function MyShop({ userAccount }) {
     snackbarOpen: false,
     snackbarMessage: "",
   });
-  const [currProducts, setCurrProducts] = useState(
-    products
-      ? products.sort((a, b) => {
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        })
-      : []
-  );
+  const [currProducts, setCurrProducts] = useState(products ? products : []);
   const [currDigitalProducts, setCurrDigitalProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortByMethod, setSortByMethod] = useState("Newest");
@@ -197,7 +191,6 @@ function MyShop({ userAccount }) {
   };
 
   const getAllDigitalProducts = async () => {
-    console.log("getAllDigitalProducts");
     setIsLoading(true);
     const { success, value } = await getDigitalProductsClient(accountId);
 
@@ -421,6 +414,9 @@ export async function getServerSideProps(context) {
               digitalFiles: true,
               relatedCategories: true,
             },
+            orderBy: {
+              productName: "asc",
+            },
           },
           products: {
             include: {
@@ -432,6 +428,9 @@ export async function getServerSideProps(context) {
               },
               questions: true,
               relatedCategories: true,
+            },
+            orderBy: {
+              productName: "asc",
             },
           },
           availability: {
@@ -456,7 +455,6 @@ export async function getServerSideProps(context) {
           },
         };
       }
-
       serializedAccount = JSON.parse(JSON.stringify(userAccount));
     } catch (error) {
       console.log("serversideprops checklist error:", error);

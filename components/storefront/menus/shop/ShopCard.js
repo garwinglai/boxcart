@@ -610,6 +610,7 @@ function ShopCard({
                     categories={categories}
                     isEditProduct={true}
                     accountId={accountId}
+                    userAccount={userAccount}
                     updateProductList={updateProductList}
                     handleOpenSnackbarGlobal={handleOpenSnackbar}
                     getAllProducts={getAllProducts}

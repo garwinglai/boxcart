@@ -31,6 +31,7 @@ import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
 import PillTab from "./PillTab";
+import TaxForm from "@/components/auth/signup/TaxForm";
 
 const style = {
   position: "absolute",
@@ -86,6 +87,11 @@ function DigitalProductDrawer({
     productName: product ? product.productName : "",
     description: product ? product.description : "",
     tags: product ? (product.tags ? product.tags.split(", ") : []) : [],
+    taxCode: product?.taxCode ? product.taxCode : "",
+    taxCodeName: product?.taxCodeName ? product.taxCodeName : "",
+    taxCodeDescription: product?.taxCodeDescription
+      ? product.taxCodeDescription
+      : "",
     salePriceInt: product
       ? product.salePricePenny
         ? (product.salePricePenny / 100).toFixed(2)
@@ -132,9 +138,31 @@ function DigitalProductDrawer({
     relatedCategories,
     defaultImage,
     images,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productValues;
 
   const { isSnackbarOpen, snackbarMessage } = snackbar;
+
+  function setDefaultTaxCode(value) {
+    const { id, name, description } = value;
+    setProductValues((prev) => ({
+      ...prev,
+      taxCode: id,
+      taxCodeName: name,
+      taxCodeDescription: description,
+    }));
+  }
+
+  const resetTaxCodeToShopDefault = () => {
+    setProductValues((prev) => ({
+      ...prev,
+      taxCode: "",
+      taxCodeName: "",
+      taxCodeDescription: "",
+    }));
+  };
 
   const handleCategoryNameChange = (e) => {
     const { value } = e.target;
@@ -612,12 +640,16 @@ function DigitalProductDrawer({
     }
     setIsSaveProductLoading(false);
 
-    if (currCategory === "All Products") {
-      getAllProducts(accountId);
-    } else if (currCategory === "All Digital") {
-      getAllDigitalProducts(accountId);
+    if (currCategory) {
+      if (currCategory === "All Products") {
+        getAllProducts(accountId);
+      } else if (currCategory === "All Digital") {
+        getAllDigitalProducts(accountId);
+      } else {
+        getProductsByCategory(currCategoryId, currCategory);
+      }
     } else {
-      getProductsByCategory(currCategoryId, currCategory);
+      getAllDigitalProducts(accountId);
     }
 
     updateChecklist();
@@ -823,6 +855,9 @@ function DigitalProductDrawer({
         relatedCategories: [],
         images: [],
         defaultImage: "",
+        taxCode: "",
+        taxCodeName: "",
+        taxCodeDescription: "",
       });
 
       setDigitalFiles([]);
@@ -844,11 +879,17 @@ function DigitalProductDrawer({
         relatedCategories,
         defaultImage,
         images,
+        taxCode,
+        taxCodeName,
+        taxCodeDescription,
       } = updatedProduct ? updatedProduct : product;
 
       setProductValues({
         productName,
         description,
+        taxCode,
+        taxCodeName,
+        taxCodeDescription,
         tags: tags ? tags.split(", ") : [],
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
@@ -936,6 +977,9 @@ function DigitalProductDrawer({
       lat,
       lng,
       geohash,
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       accountId,
       productName,
       description,
@@ -1194,9 +1238,9 @@ function DigitalProductDrawer({
               >
                 Description:
               </label>
-              <span>
+              {/* <span>
                 <p className="font-extralight text-xs">(optional)</p>
-              </span>
+              </span> */}
             </div>
             <textarea
               type="text"
@@ -1243,9 +1287,6 @@ function DigitalProductDrawer({
               >
                 Sale price:
               </label>
-              <span>
-                <p className="font-extralight text-xs">(optional)</p>
-              </span>
             </div>
             <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
               $
@@ -1270,9 +1311,6 @@ function DigitalProductDrawer({
               >
                 Search gags:
               </label>
-              <span>
-                <p className="font-extralight text-xs">(optional)</p>
-              </span>
             </div>
             <p className="text-xs">
               Create <u>descriptive</u> tags to get found on search! Max: 28
@@ -1337,9 +1375,6 @@ function DigitalProductDrawer({
                 className="text-black font-medium text-base flex gap-1 items-center"
               >
                 Categories:
-                <span>
-                  <p className="font-extralight text-xs">(optional)</p>
-                </span>
               </label>
               <div>
                 <ButtonFilter
@@ -1430,7 +1465,16 @@ function DigitalProductDrawer({
             </div>
           )}
         </div>
-
+        <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+          <TaxForm
+            setDefaultTaxCode={setDefaultTaxCode}
+            defaultProductTaxCode={taxCode}
+            defaultProductTaxCodeName={taxCodeName}
+            isInProductCreate={true}
+            userAccount={userAccount}
+            resetTaxCodeToShopDefault={resetTaxCodeToShopDefault}
+          />
+        </div>
         <div className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-inner md:absolute md:w-[60vw] lg:w-[45vw] xl:w-[35vw]">
           <SaveCancelButtons
             handleCancel={handleCloseDrawer}

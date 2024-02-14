@@ -35,6 +35,7 @@ import { storage } from "@/firebase/fireConfig";
 import { nanoid } from "@/utils/generateId";
 import { useAccountStore, useChecklistStore } from "@/lib/store";
 import PillTab from "./PillTab";
+import TaxForm from "@/components/auth/signup/TaxForm";
 
 const style = {
   position: "absolute",
@@ -116,6 +117,11 @@ function ProductDrawer({
         ? product.salePriceStr
         : ""
       : "",
+    taxCode: product?.taxCode ? product.taxCode : "",
+    taxCodeName: product?.taxCodeName ? product.taxCodeName : "",
+    taxCodeDescription: product?.taxCodeDescription
+      ? product.taxCodeDescription
+      : "",
     priceInt: product ? (product.priceIntPenny / 100).toFixed(2) : "",
     priceStr: product ? product.priceStr : "",
     defaultImgStr: product ? product.defaultImageFileName : "",
@@ -168,6 +174,9 @@ function ProductDrawer({
     relatedCategories,
     enableCustomNote,
     enableCustomerImageUploads,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
   } = productValues;
 
   const {
@@ -206,6 +215,25 @@ function ProductDrawer({
     setOptions(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function setDefaultTaxCode(value) {
+    const { id, name, description } = value;
+    setProductValues((prev) => ({
+      ...prev,
+      taxCode: id,
+      taxCodeName: name,
+      taxCodeDescription: description,
+    }));
+  }
+
+  const resetTaxCodeToShopDefault = () => {
+    setProductValues((prev) => ({
+      ...prev,
+      taxCode: "",
+      taxCodeName: "",
+      taxCodeDescription: "",
+    }));
+  };
 
   const handleTagsInput = (e) => {
     const { value } = e.target;
@@ -1540,6 +1568,9 @@ function ProductDrawer({
         salePriceStr: "",
         defaultImgStr: "",
         imgArrJson: "",
+        taxCode: "",
+        taxCodeName: "",
+        taxCodeDescription: "",
         quantity: 1,
         setQuantityByProduct: true,
         id: "",
@@ -1587,6 +1618,9 @@ function ProductDrawer({
         imgArrJson,
         quantity,
         setQuantityByProduct,
+        taxCode,
+        taxCodeName,
+        taxCodeDescription,
         id,
         isSampleProduct,
         relatedCategories,
@@ -1602,6 +1636,9 @@ function ProductDrawer({
         productName,
         description,
         tags: tags ? tags.split(", ") : [],
+        taxCode,
+        taxCodeName,
+        taxCodeDescription,
         priceInt: priceIntPenny / 100,
         priceStr: priceStr.slice(1),
         salePriceInt:
@@ -1746,6 +1783,9 @@ function ProductDrawer({
       lng,
       geohash,
       productName,
+      taxCode,
+      taxCodeName,
+      taxCodeDescription,
       tags: productTags,
       description,
       defaultImageFileName: defaultImgStr,
@@ -2177,9 +2217,6 @@ function ProductDrawer({
               >
                 Description:
               </label>
-              <span>
-                <p className="font-extralight text-xs">(optional)</p>
-              </span>
             </div>
             <textarea
               type="text"
@@ -2226,9 +2263,6 @@ function ProductDrawer({
               >
                 Sale price:
               </label>
-              <span>
-                <p className="font-extralight text-xs">(optional)</p>
-              </span>
             </div>
             <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
               $
@@ -2252,9 +2286,6 @@ function ProductDrawer({
               >
                 Search tags:
               </label>
-              <span>
-                <p className="font-extralight text-xs">(optional)</p>
-              </span>
             </div>
             <p className="text-xs">
               Create <u>descriptive</u> tags to get found on search! Max: 28
@@ -2269,7 +2300,7 @@ function ProductDrawer({
                     id="tags"
                     value={tagsInput}
                     name="tags"
-                    placeholder="fashion, women, purple sweater, wool, knit, winter clothing, etc."
+                    placeholder="gift for men, fashion, women, purple sweater, wool, knit, winter clothing, etc."
                     onChange={handleTagsInput}
                     className={`transition-colors duration-300 border border-[color:var(--gray-light-med)] rounded w-full py-2 focus:outline-none focus:border focus:border-[color:var(--primary-light-med)] indent-4 font-light text-xs`}
                   />
@@ -2319,9 +2350,6 @@ function ProductDrawer({
                 className="text-black font-medium text-base flex gap-1 items-center"
               >
                 Categories:
-                <span>
-                  <p className="font-extralight text-xs">(optional)</p>
-                </span>
               </label>
 
               <div>
@@ -2424,9 +2452,9 @@ function ProductDrawer({
                   >
                     Quantity:
                   </label>
-                  <span>
+                  {/* <span>
                     <p className="font-extralight text-xs">(optional)</p>
-                  </span>
+                  </span> */}
                 </div>
 
                 <p className="text-xs font-extralight">
@@ -2499,9 +2527,6 @@ function ProductDrawer({
               <div className="w-2/3">
                 <div className="flex items-center gap-1">
                   <h4 className="text-base">Product options:</h4>
-                  <span>
-                    <p className="font-extralight text-xs">(optional)</p>
-                  </span>
                 </div>
                 <p className="text-xs font-extralight">
                   Have different options for this product? <br /> i.e. (size,
@@ -2716,11 +2741,6 @@ function ProductDrawer({
                                       >
                                         Add on price
                                       </label>
-                                      <span>
-                                        <p className="font-extralight text-xs">
-                                          (optional)
-                                        </p>
-                                      </span>
                                     </div>
                                     <span className="text-[color:var(--gray-light-med)] text-sm font-light absolute bottom-2 left-4">
                                       $
@@ -2778,8 +2798,18 @@ function ProductDrawer({
           </div>
         </div>
         <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
-          <div className="mt-4">
-            <span className="flex flex-col gap-1 mt-4">
+          <TaxForm
+            setDefaultTaxCode={setDefaultTaxCode}
+            defaultProductTaxCode={taxCode}
+            defaultProductTaxCodeName={taxCodeName}
+            isInProductCreate={true}
+            userAccount={userAccount}
+            resetTaxCodeToShopDefault={resetTaxCodeToShopDefault}
+          />
+        </div>
+        <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white">
+          <div className="">
+            <span className="flex flex-col gap-1">
               <span className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <label
@@ -2788,9 +2818,6 @@ function ProductDrawer({
                   >
                     Questions to ask customers:
                   </label>
-                  <span>
-                    <p className="font-extralight text-xs">(optional)</p>
-                  </span>
                 </div>
               </span>
               <input

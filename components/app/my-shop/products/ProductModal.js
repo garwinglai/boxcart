@@ -42,6 +42,9 @@ function ProductModal({
     productName,
     tags,
     priceStr,
+    taxCode,
+    taxCodeName,
+    taxCodeDescription,
     salePriceStr,
     images,
     description,
@@ -172,6 +175,20 @@ function ProductModal({
                       return <span key={tag}>{tag}, </span>;
                     })
                   : "n/a"}
+              </p>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Tax Code: </b>
+                {taxCode ? taxCode : account.defaultProductTaxCode}
+              </p>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Tax Code Name: </b>
+                {taxCodeName ? taxCodeName : account.defaultProductTaxCodeName}
+              </p>
+              <p className="text-xs font-light lg:text-sm">
+                <b className=" font-medium">Tax Code Description: </b>
+                {taxCodeDescription
+                  ? taxCodeDescription
+                  : account.defaultProductTaxCodeDescription}
               </p>
             </div>
           </div>

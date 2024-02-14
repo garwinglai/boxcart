@@ -689,6 +689,7 @@ function DigitalShopCard({
                     product={product}
                     categories={categories}
                     isEditProduct={true}
+                    userAccount={userAccount}
                     accountId={accountId}
                     updateProductList={updateProductList}
                     handleOpenSnackbarGlobal={handleOpenSnackbar}

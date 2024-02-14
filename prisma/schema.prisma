@@ -600,6 +600,9 @@ model DigitalProduct {
   tags                 String?         @db.Text
   productTypeDisplay   String          @default("digital")
   productType          Int             @default(1)
+  taxCode              String?
+  taxCodeName          String?
+  taxCodeDescription   String?         @db.Text
   lat                  Float?
   lng                  Float?
   geohash              String?
