@@ -30,6 +30,7 @@ function EditAddToCartProduct({ product }) {
   const { account, id: productId } = product || {};
   const { id: accountId, subdomain } = account || {};
 
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartStore = useCartStore((state) => {
     return state.store.find((store) => store.storeName === subdomain);
   });
@@ -86,6 +87,7 @@ function EditAddToCartProduct({ product }) {
     enableCustomNote,
     enableCustomerImageUploads,
     isSampleProduct,
+    taxCode,
   } = product;
 
   const [seconds, setSeconds] = useState(5);
@@ -860,6 +862,7 @@ function EditAddToCartProduct({ product }) {
     subtractSubtotal(subdomain, beforeEditPricePenny);
     addSubtotal(subdomain, itemTotalPenny);
     setCart(subdomain, addToCartProductData);
+    setCartDetails(subdomain, { taxRateCalculated: false });
     setIsLoading(false);
 
     setTimeout(() => {
@@ -1185,6 +1188,7 @@ function EditAddToCartProduct({ product }) {
 
     const addToCartProductData = {
       productId: id,
+      productTaxCode: taxCode ? taxCode : account.defaultProductTaxCode,
       addToCartTempItemId,
       setQuantityByProduct,
       defaultImage,

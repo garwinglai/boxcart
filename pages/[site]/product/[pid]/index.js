@@ -31,6 +31,7 @@ function Product({ product }) {
   const { id: accountId, subdomain } = account || {};
 
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartStore = useCartStore((state) => {
     return state.store.find((store) => store.storeName === subdomain);
   });
@@ -79,6 +80,7 @@ function Product({ product }) {
     isSampleProduct,
     productType,
     productTypeDisplay,
+    taxCode,
   } = product;
 
   const [reviews, setReviews] = useState(product.reviews);
@@ -718,6 +720,7 @@ function Product({ product }) {
     setAddedToCart(true);
     addSubtotal(subdomain, itemTotalPenny);
     setCart(subdomain, addToCartProductData);
+    setCartDetails(subdomain, { taxRateCalculated: false });
     setIsLoading(false);
   };
 
@@ -1106,6 +1109,7 @@ function Product({ product }) {
     const addToCartProductData = {
       defaultImage,
       productId: id,
+      productTaxCode: taxCode ? taxCode : account.defaultProductTaxCode,
       addToCartTempItemId,
       setQuantityByProduct,
       productType,

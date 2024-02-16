@@ -83,6 +83,7 @@ function CartItem({
     query: { site },
   } = useRouter();
 
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
   const cartStore = useCartStore((state) => {
     return state.store.find((store) => store.storeName === site);
   });
@@ -188,6 +189,8 @@ function CartItem({
       addSubtotal(site, priceToAddPenny);
       addCartItemPrice(site, addToCartTempItemId, priceToAddPenny);
     }
+
+    setCartDetails(site, { taxRateCalculated: false });
   };
 
   const subtractQuantityFromOptionsStore = (
@@ -332,6 +335,7 @@ function CartItem({
     subtractQuantityFromCartItem(site, addToCartTempItemId);
     subtractSubtotal(site, priceToSubtractPenny);
     subtractCartItemPrice(site, addToCartTempItemId, priceToSubtractPenny);
+    setCartDetails(site, { taxRateCalculated: false });
   };
 
   const handleRemoveItemFromCart = (addToCartTempItemId) => (e) => {
@@ -350,6 +354,7 @@ function CartItem({
     removeItemFromCart(site, addToCartTempItemId);
     subtractSubtotal(site, pricePenny);
     subtractCartItemPrice(site, addToCartTempItemId, pricePenny);
+    setCartDetails(site, { taxRateCalculated: false });
   };
 
   const reAddProductOptionQuantities = () => {

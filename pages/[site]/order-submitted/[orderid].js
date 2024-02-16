@@ -55,38 +55,7 @@ function OrderSubmitted({ order }) {
 
   const unsetCartStoreData = () => {
     // Removes cart and cart details
-    resetCartStore(site, {
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
-      requireOrderTime: false,
-      requireOrderDate: false,
-      orderForDateDisplay: "",
-      orderForTimeDisplay: "",
-      fulfillmentType: null,
-      fulfillmentDisplay: null,
-      deliveryAddress: "",
-      pickupAddress: "",
-      subtotalPenny: 0,
-      subtotalDisplay: "$0.00",
-      taxRate: 0,
-      taxRateDisplay: "$0.00",
-      cardFeePenny: 0,
-      cardFeeDisplay: "$0.00",
-      taxAndFeesPenny: 0,
-      taxAndFeesDisplay: "$0.00",
-      deliveryFeePenny: 0,
-      deliveryFeeDisplay: "$0.00",
-      deliveryFeeType: 0, // 0 = free, 1 = flat, 2 = percentage , 3 = distance
-      deliveryFeeTypeDisplay: "free",
-      deliveryDistanceMi: 0,
-      deliveryDistanceMiDisplay: "0 mi",
-      deliveryDistanceKm: 0,
-      deliveryDistanceKmDisplay: "0 km",
-      selectedTipIndex: null,
-      totalPenny: 0,
-      totalDisplay: "$0.00",
-    });
+    resetCartStore(site, {});
   };
 
   // TODO: generate receipt download

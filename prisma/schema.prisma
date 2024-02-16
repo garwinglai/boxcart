@@ -341,6 +341,10 @@ model CustomerOrder {
   deliveryFeeDisplay          String?
   tipPenny                    Int?
   tipDisplay                  String?
+  stripeTaxFeePenny           Int?
+  stripeTaxFeeDisplay         String?
+  salesTaxPenny               Int?
+  salesTaxDisplay             String?
   totalPenny                  Int
   totalDisplay                String
   totalAfterStripeFeesPenny   Int?

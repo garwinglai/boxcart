@@ -9,10 +9,11 @@ const stripe = require("stripe")(secrey_key);
 
 export default async function handler(req, res) {
   const { body, method } = req;
-  const { items } = body;
-  const { stripeAccountId, amountPenny, applicationFee } = items[0];
 
   if (method === "POST") {
+    const { items } = body;
+    const { stripeAccountId, amountPenny, applicationFee } = items[0];
+
     const stripeFeeRoundedPenny = calculateAmountMinusStripeFee(amountPenny);
 
     // Create a PaymentIntent with the order amount and currency
@@ -31,13 +32,15 @@ export default async function handler(req, res) {
         on_behalf_of: stripeAccountId,
       });
 
-      const { client_secret } = paymentIntent;
+      const { id: paymentIntentId, client_secret } = paymentIntent;
+      console.log("create paymentIntent", paymentIntent);
 
       res.send({
         clientSecret: client_secret,
+        paymentIntentId,
       });
     } catch (e) {
-      console.log("error", e.message);
+      console.log("error", e);
       res.status(400).send({
         error: {
           message: e.message,

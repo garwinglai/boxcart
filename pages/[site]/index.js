@@ -120,7 +120,6 @@ function Sites({ siteData, shopper }) {
   useEffect(() => {
     if (!availability) return;
     const { hasCustomAvailability, isTimeBlockEnabled } = availability;
-    const { taxRate, taxRateDisplay, isTaxRateEnabled } = tax ? tax : {};
     let pickupNote = "";
 
     for (let i = 0; i < fulfillmentMethods.length; i++) {
@@ -131,7 +130,14 @@ function Sites({ siteData, shopper }) {
       }
     }
 
-    const { fulfillmentType, fulfillmentDisplay } = cartDetails || {};
+    const {
+      fulfillmentType,
+      fulfillmentDisplay,
+      taxRateCalculated,
+      taxAndFeesDisplay,
+      taxAndFeesPenny,
+    } = cartDetails || {};
+
     let typeOfFulfillment;
     let displayFulfillmentType;
 
@@ -147,8 +153,9 @@ function Sites({ siteData, shopper }) {
     }
 
     const details = {
-      taxRate: isTaxRateEnabled ? taxRate : 0,
-      taxRateDisplay: isTaxRateEnabled ? taxRateDisplay : "$0.00",
+      taxRateCalculated: taxRateCalculated ? taxRateCalculated : false,
+      taxAndFeesPenny: taxAndFeesPenny ? taxAndFeesPenny : 0,
+      taxAndFeesDisplay: taxAndFeesDisplay ? taxAndFeesDisplay : "$0.00",
       requireOrderTime: isTimeBlockEnabled,
       requireOrderDate: hasCustomAvailability,
       fulfillmentType: typeOfFulfillment,
@@ -540,14 +547,11 @@ export async function getServerSideProps(context) {
           serializedShopper = JSON.parse(JSON.stringify(shopperAccount));
           shopper = shopperAccount;
         }
-        console.log("shopUser", shopUser);
 
-        console.log("siteData", siteData);
         site = siteData;
       } else {
         const [siteData] = await Promise.all(promises);
         site = siteData;
-        console.log("siteData", siteData);
       }
 
       if (!site) {

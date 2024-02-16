@@ -32,6 +32,7 @@ function DigitalProduct({ product }) {
 
   const shopperAccount = useShopperStore((state) => state.shopperAccount);
 
+  const setCartDetails = useCartStore((state) => state.setCartDetails);
   const setCart = useCartStore((state) => state.setCart);
   const addSubtotal = useCartStore((state) => state.addSubtotal);
 
@@ -44,6 +45,7 @@ function DigitalProduct({ product }) {
     defaultImage,
     productType,
     productTypeDisplay,
+    taxCode,
   } = product;
 
   const [reviews, setReviews] = useState(product.reviews);
@@ -139,6 +141,7 @@ function DigitalProduct({ product }) {
     setAddedToCart(true);
     addSubtotal(subdomain, itemTotalPenny);
     setCart(subdomain, addToCartProductData);
+    setCartDetails(subdomain, { taxRateCalculated: false });
     setIsLoading(false);
   };
 
@@ -147,6 +150,7 @@ function DigitalProduct({ product }) {
 
     const addToCartProductData = {
       defaultImage,
+      productTaxCode: taxCode ? taxCode : account.defaultProductTaxCode,
       productId: id,
       addToCartTempItemId,
       productName: productName,

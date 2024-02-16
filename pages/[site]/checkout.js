@@ -43,7 +43,7 @@ function Checkout({ siteData }) {
     isOpenSnackbar: false,
     snackbarMessage: "",
   });
-  // const [stripePromise, setStripePromise] = useState(null);
+
   const [clientSecret, setClientSecret] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [customerStripeId, setCustomerStripeId] = useState("");
@@ -52,6 +52,7 @@ function Checkout({ siteData }) {
   const [selectedPaymentDetails, setSelectedPaymentDetails] = useState({});
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
   const [applicationFeePenny, setApplicationFeePenny] = useState(0);
+  const [paymentIntentId, setPaymentIntentId] = useState("");
 
   const { isOpenSnackbar, snackbarMessage } = snackbarValues;
 
@@ -117,20 +118,23 @@ function Checkout({ siteData }) {
     if (!cart) return;
     const cartLength = cart.length;
     if (cartLength === 0) return;
-    if (selectedPayment !== "card") return;
+    // if (selectedPayment !== "card") return;
+    if (stripeAccountId === "") return;
 
-    // if (stripeAccountId === "") return;
+    const {
+      totalPenny: amountPenny,
+      subtotalPenny,
+      deliveryFeePenny,
+    } = cartDetails;
 
-    // setStripePromise(stripePromise);
-
-    const { totalPenny: amountPenny } = cartDetails;
     const hasFreeAccess = usedCodes.some(
       (code) => code.codeType === "FREESELLERACCESS"
     );
 
+    const applicationFeeAmount = subtotalPenny + deliveryFeePenny;
     const applicationFee = hasFreeAccess
       ? 0
-      : calculateApplicationFee(amountPenny);
+      : calculateApplicationFee(applicationFeeAmount);
 
     fetch("/api/public/payment/customer/create-payment-intent", {
       method: "POST",
@@ -141,13 +145,14 @@ function Checkout({ siteData }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        const { clientSecret } = data;
+        const { clientSecret, paymentIntentId } = data;
 
+        setPaymentIntentId(paymentIntentId);
         setClientSecret(clientSecret);
         setApplicationFeePenny(applicationFee);
       })
       .catch((err) => console.log("Err", err));
-  }, [selectedPayment]);
+  }, [stripeAccountId]);
 
   const calculateApplicationFee = (amountPenny) => {
     // We take 12%, caluclate the fee from amountPenny
@@ -160,28 +165,17 @@ function Checkout({ siteData }) {
   useEffect(() => {
     // if (!cartDetails) return;
 
-    const { subtotalPenny, taxRate, deliveryFeePenny } = cartDetails || {};
-
-    const taxAndFeesPenny = Math.round(
-      (subtotalPenny * (taxRate / 100)).toFixed(2)
-    );
-
-    const taxAndFeesDisplay = `$${(taxAndFeesPenny / 100).toFixed(2)}`;
+    const { subtotalPenny, taxAndFeesPenny, deliveryFeePenny } =
+      cartDetails || {};
 
     const totalPenny = subtotalPenny + taxAndFeesPenny + deliveryFeePenny;
     const totalDisplay = `$${(totalPenny / 100).toFixed(2)}`;
 
     setCartDetails(subdomain, {
-      taxAndFeesPenny,
-      taxAndFeesDisplay,
       totalPenny,
       totalDisplay,
     });
-  }, [
-    cartDetails?.subtotalPenny,
-    cartDetails?.taxRate,
-    cartDetails?.deliveryFeePenny,
-  ]);
+  }, [cartDetails?.deliveryFeePenny]);
 
   useEffect(() => {
     if (!cartDetails) return;
@@ -326,8 +320,8 @@ function Checkout({ siteData }) {
     },
   };
   const options = {
-    clientSecret,
     appearance,
+    clientSecret,
   };
 
   // if (!clientSecret) return <div>Error loading. Refresh...</div>;
@@ -349,7 +343,7 @@ function Checkout({ siteData }) {
         message={snackbarMessage}
         action={action}
       />
-      <div className="flex justify-between sticky top-14 p-2 lg:px-28  bg-white items-center border-b z-10">
+      <div className="flex justify-between sticky top-0 p-2 lg:px-28  bg-white items-center border-b z-10">
         <IconButton onClick={handleBack}>
           <ChevronLeftIcon color="black" />
         </IconButton>
@@ -362,9 +356,10 @@ function Checkout({ siteData }) {
           />
         </div>
       </div>
-      {selectedPayment === "card" && clientSecret && (
-        <Elements options={options} stripe={stripePromise} key={clientSecret}>
+      {clientSecret && (
+        <Elements options={options} stripe={stripePromise}>
           <CheckoutFormStripe
+            paymentIntentId={paymentIntentId}
             handleOpenSnackbar={handleOpenSnackbar}
             accountId={accountId}
             availablePayments={availablePayments}
@@ -428,6 +423,6 @@ export async function getServerSideProps(context) {
   };
 }
 
-Checkout.getLayout = function getLayout(page) {
-  return <ShopLayout>{page}</ShopLayout>;
-};
+// Checkout.getLayout = function getLayout(page) {
+//   return <ShopLayout>{page}</ShopLayout>;
+// };

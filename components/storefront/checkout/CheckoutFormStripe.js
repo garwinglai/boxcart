@@ -44,6 +44,7 @@ function CheckoutFormStripe({
   siteData,
   shopper,
   applicationFeePenny,
+  paymentIntentId,
 }) {
   const { businessName, fullDomain, email, logoImage } = siteData;
 
@@ -57,6 +58,24 @@ function CheckoutFormStripe({
   const [isLoading, setIsLoading] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [isGuestCheckout, setIsGuestCheckout] = useState(false);
+  const [paymentInfoEntered, setPaymentInfoEntered] = useState(false);
+  const [billingAddressEntered, setBillingAddressEntered] = useState(false);
+
+  const handlePaymentInfoComplete = (e) => {
+    setPaymentInfoEntered(true);
+  };
+
+  const handlePaymentInfoIncomplete = (e) => {
+    setPaymentInfoEntered(false);
+  };
+
+  const handleBillingInfoComplete = (e) => {
+    setBillingAddressEntered(true);
+  };
+
+  const handleBillingAddressIncomplete = (e) => {
+    setBillingAddressEntered(false);
+  };
 
   const router = useRouter();
   const { query, push } = router;
@@ -78,62 +97,141 @@ function CheckoutFormStripe({
     deliveryAddress,
     applyFivePercentDiscount,
     totalPenny,
+    deliveryFeePenny,
+    subtotalPenny,
+    taxAndFeesDisplay,
+    taxAndFeesPenny,
+    taxRate,
+    taxRateDisplay,
+    taxRateCalculated,
+    taxCalculationId,
   } = cartDetails || {};
 
-  useEffect(() => {
-    if (!stripe) {
-      return;
-    }
+  const createPaymentIntentTaxTransaction = async (
+    paymentIntentId,
+    taxCalculationId
+  ) => {
+    const apiRoute = "/api/public/payment/customer/create-tax-transaction";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ paymentIntentId, taxCalculationId }),
+    });
 
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
-    );
+    const data = await response.json();
 
-    if (!clientSecret) {
-      return;
-    }
-    setIsPaymentProcessing(true);
+    return data;
+  };
 
-    stripe
-      .retrievePaymentIntent(clientSecret)
-      .then(async ({ paymentIntent }) => {
-        const { status, id: stripeOrderId } = paymentIntent;
+  const updatePaymentIntentTaxTransaction = async (
+    paymentIntentId,
+    taxTransactionObject
+  ) => {
+    const apiRoute =
+      "/api/public/payment/customer/update-payment-intent-tax-transaction";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ paymentIntentId, taxTransactionObject }),
+    });
 
-        const orderData = {
-          id,
-          paymentStatus: "paid",
-          stripeOrderId,
-        };
+    const data = await response.json();
 
-        switch (status) {
-          case "succeeded":
-            await updateOrderPaymentStatus(orderData);
-            push(`${window.location.origin}/order-submitted/${id}`);
+    return data;
+  };
 
-            break;
-          case "processing":
-            // handleOpenSnackbar("Your payment is processing.");
-            break;
-          case "requires_payment_method":
-            orderData.paymentStatus = "failed";
-            await updateOrderPaymentStatus(orderData);
+  // useEffect(() => {
+  //   if (!stripe) {
+  //     return;
+  //   }
 
-            handleOpenSnackbar(
-              "Your payment was not successful, please try again."
-            );
+  //   const clientSecret = new URLSearchParams(window.location.search).get(
+  //     "payment_intent_client_secret"
+  //   );
 
-            break;
-          default:
-            orderData.paymentStatus = "error";
-            await updateOrderPaymentStatus(orderData);
+  //   if (!clientSecret) {
+  //     return;
+  //   }
+  //   setIsPaymentProcessing(true);
 
-            handleOpenSnackbar("Something went wrong.");
-            break;
-        }
-        // setIsPaymentProcessing(false);
-      })
-      .catch((error) => console.log("error", error));
-  }, [stripe]);
+  //   stripe
+  //     .retrievePaymentIntent(clientSecret)
+  //     .then(async ({ paymentIntent }) => {
+  //       const {
+  //         status,
+  //         id: stripeOrderId,
+  //         metadata: { tax_calculation },
+  //       } = paymentIntent;
+
+  //       const orderData = {
+  //         id,
+  //         paymentStatus: "paid",
+  //         stripeOrderId,
+  //       };
+
+  //       switch (status) {
+  //         case "succeeded":
+  //           await updateOrderPaymentStatus(orderData);
+
+  //           const taxTransactionResponse =
+  //             await createPaymentIntentTaxTransaction(
+  //               stripeOrderId,
+  //               tax_calculation
+  //             );
+
+  //           const { error, taxTransactionObject } = taxTransactionResponse;
+
+  //           if (error || !taxTransactionObject) {
+  //             handleOpenSnackbar("Error updating tax transaction.");
+  //             push(`${window.location.origin}/order-submitted/${id}`);
+  //             return;
+  //           }
+
+  //           const updatePITaxTransaction =
+  //             await updatePaymentIntentTaxTransaction(
+  //               paymentIntentId,
+  //               taxTransactionObject
+  //             );
+
+  //           const { error2, paymentIntentId: stripePaymentIntentId } =
+  //             updatePITaxTransaction;
+
+  //           if (error2 || !stripePaymentIntentId) {
+  //             handleOpenSnackbar("Error updating tax calculation.");
+  //             push(`${window.location.origin}/order-submitted/${id}`);
+  //             return;
+  //           }
+
+  //           push(`${window.location.origin}/order-submitted/${id}`);
+
+  //           break;
+  //         case "processing":
+  //           // handleOpenSnackbar("Your payment is processing.");
+  //           break;
+  //         case "requires_payment_method":
+  //           orderData.paymentStatus = "failed";
+  //           await updateOrderPaymentStatus(orderData);
+
+  //           handleOpenSnackbar(
+  //             "Your payment was not successful, please try again."
+  //           );
+
+  //           break;
+  //         default:
+  //           orderData.paymentStatus = "error";
+  //           await updateOrderPaymentStatus(orderData);
+
+  //           handleOpenSnackbar("Something went wrong.");
+  //           break;
+  //       }
+  //       // setIsPaymentProcessing(false);
+  //     })
+  //     .catch((error) => console.log("error", error));
+  // }, [stripe]);
 
   useEffect(() => {
     if (!shopperAccount) return;
@@ -344,7 +442,6 @@ function CheckoutFormStripe({
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error) {
-      console.log("error", error);
       const { type, message } = error;
       const errorData = {
         id,
@@ -385,7 +482,11 @@ function CheckoutFormStripe({
         return;
       }
     } else if (paymentIntent) {
-      const { status, id: stripeOrderId } = paymentIntent;
+      const {
+        status,
+        id: stripeOrderId,
+        // metadata: { tax_calculation },
+      } = paymentIntent;
 
       const orderData = {
         id,
@@ -404,6 +505,35 @@ function CheckoutFormStripe({
       switch (status) {
         case "succeeded":
           await updateOrderPaymentStatus(orderData);
+          const taxTransactionResponse =
+            await createPaymentIntentTaxTransaction(
+              stripeOrderId,
+              taxCalculationId
+            );
+
+          const { error, taxTransactionObject } = taxTransactionResponse;
+
+          if (error || !taxTransactionObject) {
+            handleOpenSnackbar("Error updating tax transaction.");
+            push(`${window.location.origin}/order-submitted/${id}`);
+            return;
+          }
+
+          const updatePITaxTransaction =
+            await updatePaymentIntentTaxTransaction(
+              paymentIntentId,
+              taxTransactionObject
+            );
+
+          const { error2, paymentIntentId: stripePaymentIntentId } =
+            updatePITaxTransaction;
+
+          if (error2 || !stripePaymentIntentId) {
+            handleOpenSnackbar("Error updating tax calculation.");
+            push(`${window.location.origin}/order-submitted/${id}`);
+            return;
+          }
+
           push(`${window.location.origin}/${site}/order-submitted/${id}`);
 
           break;
@@ -658,10 +788,12 @@ function CheckoutFormStripe({
       requireOrderDate,
       fulfillmentType,
       fulfillmentDisplay,
+      salesTaxDisplay,
+      salesTaxPenny,
+      stripeTaxFeePenny,
+      stripeTaxFeeDisplay,
       subtotalPenny,
       subtotalDisplay,
-      taxRate,
-      taxRateDisplay,
       taxAndFeesPenny,
       taxAndFeesDisplay,
       deliveryFeePenny,
@@ -687,9 +819,10 @@ function CheckoutFormStripe({
     const totalAfterStripeFeesDisplay = `$${(
       totalAfterStripeFeesPenny / 100
     ).toFixed(2)}`;
-    const applicationFeeDisplay = `$${(applicationFeePenny / 100).toFixed(2)}`;
-    const totalAfterAllFeesPenny =
-      totalAfterStripeFeesPenny - applicationFeePenny;
+    const applicationFee =
+      applicationFeePenny + stripeFeesPenny + taxAndFeesPenny;
+    const applicationFeeDisplay = `$${(applicationFee / 100).toFixed(2)}`;
+    const totalAfterAllFeesPenny = totalPenny - applicationFee;
     const totalAfterAllFeesDisplay = `$${(totalAfterAllFeesPenny / 100).toFixed(
       2
     )}`;
@@ -706,13 +839,15 @@ function CheckoutFormStripe({
       requireOrderDate,
       fulfillmentType: allDigitalProducts ? 2 : fulfillmentType,
       fulfillmentDisplay: allDigitalProducts ? "download" : fulfillmentDisplay,
+      salesTaxDisplay,
+      salesTaxPenny,
+      stripeTaxFeePenny,
+      stripeTaxFeeDisplay,
       subtotalPenny,
       subtotalDisplay,
-      taxRate,
-      taxRateDisplay,
       cardFeePenny: stripeFeesPenny,
       cardFeeDisplay: stripeFeesDisplay,
-      applicationFeePenny,
+      applicationFeePenny: applicationFee,
       applicationFeeDisplay,
       taxAndFeesPenny,
       taxAndFeesDisplay,
@@ -928,6 +1063,143 @@ function CheckoutFormStripe({
     };
   };
 
+  const handlePaymentChange = (event) => {
+    if (event.complete) {
+      if (!paymentInfoEntered) {
+        handlePaymentInfoComplete();
+      }
+      return;
+    }
+
+    if (paymentInfoEntered) {
+      handlePaymentInfoIncomplete();
+    }
+  };
+
+  const handleAddressChange = async (event) => {
+    if (event.complete) {
+      if (!billingAddressEntered) {
+        handleBillingInfoComplete();
+      }
+
+      const { address: billingAddress } = event.value;
+
+      if (!taxRateCalculated) {
+        const { error, salesTaxObject } = await calculateSalesTax(
+          billingAddress,
+          cart,
+          deliveryFeePenny
+        );
+
+        if (error || !salesTaxObject) {
+          handleOpenSnackbar(
+            "Error calculating sales tax. Refresh and try again."
+          );
+          return;
+        }
+
+        const { total, taxAndFees } = updateCartDetailsStore(salesTaxObject);
+
+        const {
+          paymentIntentId: updatedPaymentIntentId,
+          clientSecret,
+          error: updatePaymentIntentError,
+        } = await updatePaymentIntentTaxCalculation(
+          paymentIntentId,
+          salesTaxObject,
+          total,
+          taxAndFees,
+          applicationFeePenny
+        );
+
+        if (updatePaymentIntentError) {
+          handleOpenSnackbar(
+            "Error calculating sales tax. Refresh and try again."
+          );
+          return;
+        }
+      }
+
+      return;
+    }
+
+    if (billingAddressEntered) {
+      handleBillingAddressIncomplete();
+    }
+  };
+
+  const updatePaymentIntentTaxCalculation = async (
+    paymentIntentId,
+    salesTaxObject,
+    total,
+    taxAndFees,
+    applicationFeePenny
+  ) => {
+    const { id } = salesTaxObject;
+    const apiRoute =
+      "/api/public/payment/customer/update-payment-intent-tax-calculation";
+
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentIntentId,
+        taxCalcId: id,
+        total,
+        taxAndFees,
+        applicationFeePenny,
+      }),
+    });
+    const data = await response.json();
+    return data;
+  };
+
+  const updateCartDetailsStore = (salesTaxObject) => {
+    const salesTaxPenny =
+      salesTaxObject.tax_amount_exclusive + salesTaxObject.tax_amount_inclusive;
+    const salesTaxDisplay = `$${(salesTaxPenny / 100).toFixed(2)}`;
+    const stripeTaxFeePenny = 60;
+    const stripeTaxFeeDisplay = `$${(stripeTaxFeePenny / 100).toFixed(2)}`;
+
+    const taxAndFeesPenny = salesTaxPenny + stripeTaxFeePenny;
+    const taxAndFeesDisplay = `$${(taxAndFeesPenny / 100).toFixed(2)}`;
+
+    const total = subtotalPenny + taxAndFeesPenny + deliveryFeePenny;
+    const totalDisplay = `$${(total / 100).toFixed(2)}`;
+
+    setCartDetails(site, {
+      taxCalculationId: salesTaxObject.id,
+      taxRateCalculated: true,
+      salesTaxPenny,
+      salesTaxDisplay,
+      stripeTaxFeePenny,
+      stripeTaxFeeDisplay,
+      taxAndFeesPenny,
+      taxAndFeesDisplay,
+      totalPenny: total,
+      totalDisplay,
+    });
+
+    return { total, taxAndFees: taxAndFeesPenny };
+  };
+
+  const calculateSalesTax = async (billingAddress, cart, deliveryFeePenny) => {
+    // billing address is an object, help me pass it to the backend via the apiRoute as params
+    const apiRoute = "/api/public/payment/customer/calculate-sales-tax";
+    const response = await fetch(apiRoute, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ billingAddress, cart, deliveryFeePenny }),
+    });
+    const data = await response.json();
+
+    return data;
+  };
+
   const paymentElementOptions = {
     layout: "tabs",
   };
@@ -1039,6 +1311,7 @@ function CheckoutFormStripe({
               <h3 className="font-medium">Payment:</h3>
               <div className="lg:px-12">
                 <PaymentElement
+                  onChange={handlePaymentChange}
                   id="payment-element"
                   options={paymentElementOptions}
                 />
@@ -1048,8 +1321,9 @@ function CheckoutFormStripe({
               <h3 className="font-medium">Billing information:</h3>
               <div className="lg:px-12">
                 <AddressElement
+                  onChange={handleAddressChange}
                   id="address-element"
-                  options={{ mode: "shipping" }}
+                  options={{ mode: "billing" }}
                 />
               </div>
             </div>
@@ -1075,8 +1349,28 @@ function CheckoutFormStripe({
           <div className="fixed bottom-0 w-full p-4 bg-white border-t border-[color:var(--gray-light-med)] lg:relative lg:border">
             <button
               type="submit"
-              disabled={isLoading || !stripe || !elements}
-              className="text-white font-extralight py-2 w-full  bg-[color:var(--black-design-extralight)] active:bg-black"
+              disabled={
+                isLoading ||
+                !stripe ||
+                !elements ||
+                !customerFName ||
+                !customerLName ||
+                !customerEmail ||
+                !paymentInfoEntered ||
+                !billingAddressEntered
+              }
+              className={`text-white font-extralight py-2 w-full   active:bg-black ${
+                isLoading ||
+                !stripe ||
+                !elements ||
+                !customerFName ||
+                !customerLName ||
+                !customerEmail ||
+                !paymentInfoEntered ||
+                !billingAddressEntered
+                  ? "bg-gray-300 hover:text-gray-300"
+                  : "bg-[color:var(--black-design-extralight)]"
+              }`}
             >
               {isLoading ? (
                 <div className="flex justify-center gap-4 items-center">
