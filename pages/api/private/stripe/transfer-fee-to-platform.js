@@ -4,10 +4,6 @@ const secretKey =
   process.env.NODE_ENV === "development"
     ? process.env.STRIPE_TEST_SECRET_KEY
     : process.env.STRIPE_LIVE_SECRET_KEY;
-const pubslishableKey =
-  process.env.NODE_ENV === "development"
-    ? process.env.NEXT_PUBLIC_STRIPE_TEST_PUBLISHABLE_KEY
-    : process.env.NEXT_PUBLIC_STRIPE_LIVE_PUBLISHABLE_KEY;
 
 const stripe = require("stripe")(secretKey);
 
@@ -18,9 +14,11 @@ export default async function handler(req, res) {
     res.status(401).json({ message: "Invalid credentials." });
     return;
   }
+
   const { method } = req;
 
   if (method === "POST") {
+    const platformStripeAccId = "acct_1NunzsJYT3F0eBGG";
     const { body } = req;
     const { stripeAccId, amount } = body;
 
@@ -29,7 +27,7 @@ export default async function handler(req, res) {
         {
           amount,
           currency: "usd",
-          destination: "acct_1NunzsJYT3F0eBGG",
+          destination: platformStripeAccId,
         },
         {
           stripeAccount: stripeAccId,

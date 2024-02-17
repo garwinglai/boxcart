@@ -8,10 +8,16 @@ export default function calculateAmountMinusStripeFee(amountPenny) {
 }
 
 export function calculateStripePayoutFee(amountPenny, hasMonthlyFee) {
-  const stripeFee = 0.25;
-  let stripeFeeRoundedPenny = stripeFee * 100;
+  const stripeFeePercent = 0.0025;
+  const stripeFeeConstantInPennies = 25;
+  let stripeFeeInPennies = Math.round(
+    stripeFeePercent * amountPenny + stripeFeeConstantInPennies
+  );
 
-  if (hasMonthlyFee) stripeFeeRoundedPenny += 200;
+  if (hasMonthlyFee) {
+    const monthlyFeeInPennies = 300;
+    stripeFeeInPennies += monthlyFeeInPennies;
+  }
 
-  return stripeFeeRoundedPenny;
+  return stripeFeeInPennies;
 }

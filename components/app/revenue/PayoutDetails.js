@@ -2,6 +2,7 @@ import { ChevronLeft } from "@mui/icons-material";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import payout_icon from "@/public/images/icons/payout_icon.png";
+import Link from "next/link";
 
 function PayoutDetails({ payoutDetail, closeViewDetails, stripeAccId }) {
   const {
@@ -13,7 +14,6 @@ function PayoutDetails({ payoutDetail, closeViewDetails, stripeAccId }) {
     destination,
     balance_transaction,
   } = payoutDetail;
-  console.log(stripeAccId, payoutDetail);
 
   const createdDate = new Date(created * 1000).toLocaleDateString();
   const arrivalDate = new Date(arrival_date * 1000).toLocaleDateString();
@@ -47,7 +47,6 @@ function PayoutDetails({ payoutDetail, closeViewDetails, stripeAccId }) {
         },
       });
       const data = await res.json();
-      console.log("data", data);
 
       if (!data.success || data.error) {
         setErrorMessage("Problem loading payout details.");
@@ -113,18 +112,38 @@ function PayoutDetails({ payoutDetail, closeViewDetails, stripeAccId }) {
       <div className="rounded p-4 w-full shadow-[0_1px_2px_0_rgba(0,0,0,0.24),0_1px_3px_0_rgba(0,0,0,0.12)] bg-white relative">
         <div className="flex justify-between items-start px-4">
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Payout initiated</p>
-            <p className="text-sm font-medium">Arrival date</p>
-            <p className="text-sm font-medium">Status</p>
-            <p className="text-sm font-medium">Amount</p>
+            <p className="text-base font-medium">Initiated</p>
+            <p className="text-base font-medium">Arrival</p>
+            <p className="text-base font-medium">Status</p>
+            <p className="text-base font-medium">Balance before fees</p>
+            <p className="text-base font-medium">Stripe payout fees</p>
+            <p className="text-base font-medium">Net payout amount</p>
           </div>
           <div className="flex flex-col text-right gap-2">
-            <p className="text-sm">{createdDate}</p>
-            <p className="text-sm">{arrivalDate}</p>
-            <p className="text-sm">{status}</p>
-            <p className="text-sm">{balanceDisplay}</p>
+            <p className="text-base">{createdDate}</p>
+            <p className="text-base">{arrivalDate}</p>
+            <p className="text-base">{status}</p>
+            <p className="text-base">{balanceDisplay}</p>
+            <p className="text-base">{feesDisplay}</p>
+            <p className="text-base">{netDisplay}</p>
           </div>
         </div>
+      </div>
+      <div>
+        <h2>Stripe payout fees:</h2>
+
+        <p className="mt-4">
+          Stripe is our online payment processor. When you initiate a payout,
+          these are the following fees:
+        </p>
+        <ol className="ml-8 mt-4">
+          <li className="list-disc text-sm">.25% + $0.25 per payout volume.</li>
+          <li className="list-disc text-sm mt-2">
+            $2 monthly active fee. This fee occurs once a month, only if there
+            were payouts initiated that month. If no payouts were initiated on a
+            certain month, there will be no fee for that month.
+          </li>
+        </ol>
       </div>
     </div>
   );

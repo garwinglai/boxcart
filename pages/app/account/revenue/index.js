@@ -27,6 +27,7 @@ import PayoutGrid from "@/components/app/income/PayoutGrid";
 import Drawer from "@mui/material/Drawer";
 import PayoutDetails from "@/components/app/revenue/PayoutDetails";
 import revenue_icon from "@/public/images/icons/account/revenue_icon.png";
+import { calculateStripePayoutFee } from "@/utils/stripe-fees";
 
 const HtmlTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -268,56 +269,54 @@ function Revenue({ userAccount }) {
   const handleWithdraw = async () => {
     setIsCashingOut(true);
 
-    // Pull payout to see when was last payout, collect $2 if new month
-    // const recentPayout = await fetchMostRecentPayout(accountId);
+    // Pull payout to see when was last payout, collect $3 if new month
+    const recentPayout = await fetchMostRecentPayout(accountId);
 
-    // if (!recentPayout.success || recentPayout.error) {
-    //   handleOpenAlert("Error retrieving payout.");
-    //   setIsCashingOut(false);
-    //   return;
-    // }
+    if (!recentPayout.success || recentPayout.error) {
+      handleOpenAlert("Error retrieving payout.");
+      setIsCashingOut(false);
+      return;
+    }
 
-    // let hasMonthylFee = false;
+    let hasMonthylFee = false;
 
     // First payout
-    // if (recentPayout.payout) {
-    //   const { createdAt } = recentPayout.payout;
-    //   const currentMonth = new Date().getMonth();
-    //   const currentYear = new Date().getFullYear();
-    //   const lastPayoutMonth = new Date(createdAt).getMonth();
-    //   const lastPayoutYear = new Date(createdAt).getFullYear();
-    //   if (
-    //     (currentMonth !== lastPayoutMonth && currentYear === lastPayoutYear) ||
-    //     (currentMonth === lastPayoutMonth && currentYear !== lastPayoutYear)
-    //   ) {
-    //     hasMonthylFee = true;
-    //   }
-    // } else {
-    //   hasMonthylFee = true;
-    // }
+    if (recentPayout.payout) {
+      const { createdAt } = recentPayout.payout;
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const lastPayoutMonth = new Date(createdAt).getMonth();
+      const lastPayoutYear = new Date(createdAt).getFullYear();
 
-    // const transferAmountPenny = calculateStripePayoutFee(
-    //   availBalancePenny,
-    //   hasMonthylFee
-    // );
+      if (currentMonth !== lastPayoutMonth || currentYear !== lastPayoutYear) {
+        hasMonthylFee = true;
+      }
+    } else {
+      hasMonthylFee = true;
+    }
 
-    // const transferData = {
-    //   amount: transferAmountPenny,
-    //   stripeAccId,
-    // };
+    const transferAmountInPennies = calculateStripePayoutFee(
+      availBalancePenny,
+      hasMonthylFee
+    );
+
+    const transferData = {
+      amount: transferAmountInPennies,
+      stripeAccId,
+    };
 
     // Transfer payout fees
-    // const stripeTransfer = await transferPayoutFees(transferData);
+    const stripeTransfer = await transferPayoutFees(transferData);
 
-    // if (!stripeTransfer.success || stripeTransfer.error) {
-    //   handleOpenAlert("Transfer payout error.");
-    //   setIsCashingOut(false);
-    //   return;
-    // }
+    if (!stripeTransfer.success || stripeTransfer.error) {
+      handleOpenAlert("Transfer payout error.");
+      setIsCashingOut(false);
+      return;
+    }
 
-    // const netBalancePenny = availBalancePenny - transferAmountPenny;
+    const netBalancePenny = availBalancePenny - transferAmountInPennies;
     const stripePayoutData = {
-      amount: availBalancePenny,
+      amount: netBalancePenny,
       stripeAccId,
     };
 
@@ -334,20 +333,20 @@ function Revenue({ userAccount }) {
     const arrival = new Date(arrival_date * 1000).toLocaleDateString();
 
     const balanceDisplay = `$${(availBalancePenny / 100).toFixed(2)}`;
-    // const feesDisplay = `$${(transferAmountPenny / 100).toFixed(2)}`;
+    const feesDisplay = `$${(transferAmountInPennies / 100).toFixed(2)}`;
     const netDisplay = `$${(amount / 100).toFixed(2)}`;
 
     // Save data to payouts
     const savePayoutData = {
       stripeAccountId: stripeAccId,
       stripePayoutId,
-      // stripeTransferId: stripeTransfer.transfer.id,
+      stripeTransferId: stripeTransfer.transfer.id,
       balance: availBalancePenny,
       balanceDisplay,
-      // fees: transferAmountPenny,
-      // feesDisplay,
-      // net: amount,
-      // netDisplay,
+      fees: transferAmountInPennies,
+      feesDisplay,
+      net: amount,
+      netDisplay,
     };
 
     const createdPayout = await createPayoutPrisma(savePayoutData, accountId);
@@ -381,18 +380,18 @@ function Revenue({ userAccount }) {
     return createdPayout;
   };
 
-  // const fetchMostRecentPayout = async (accountId) => {
-  //   const api = `/api/private/payout/get-last-payout/${accountId}`;
-  //   const res = await fetch(api, {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   });
-  //   const data = await res.json();
+  const fetchMostRecentPayout = async (accountId) => {
+    const api = `/api/private/payout/get-last-payout/${accountId}`;
+    const res = await fetch(api, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
 
-  //   return data;
-  // };
+    return data;
+  };
 
   const transferPayoutFees = async (transferData) => {
     const transferApi = `/api/private/stripe/transfer-fee-to-platform`;
@@ -529,22 +528,58 @@ function Revenue({ userAccount }) {
                 enterTouchDelay={0}
                 title={
                   <div className="px-4 py-2">
-                    <h4 className="font-bold text-xs">Payout info:</h4>
-                    <ul className="pl-4">
-                      <li className="list-disc">
-                        Auto payouts occur weekly on Monday. Available balance
-                        will be deposited to your bank account.
-                      </li>
-                      <li className="list-disc">
-                        Pending balance will become available after 7 days of
-                        cleared customer payment, 14 days for certain
-                        industries, and 30 days if you&apos;re in Brazil.
-                      </li>
-                      <li className="list-disc">
-                        Payout balance is your available balance minus card and
-                        boxcart fees.
-                      </li>
-                    </ul>
+                    <div>
+                      <h4 className="font-bold text-xs">Payout info:</h4>
+                      <ul className="pl-4">
+                        <li className="list-disc">
+                          Click withdraw to initiate a payout if there is
+                          available balance.
+                        </li>
+                        <li className="list-disc">
+                          Pending balance will become available after 7 days of
+                          cleared customer payment, 14 days for certain
+                          industries, and 30 days if you&apos;re in Brazil.
+                        </li>
+                        <li className="list-disc">
+                          Payout balance is your available balance minus card
+                          and boxcart fees.
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="font-bold text-xs">Payout fees:</h4>
+                      <ul className="pl-4">
+                        <li className="list-disc">
+                          0.25% + $0.25 per payout volume.
+                        </li>
+                        <li className="list-disc">
+                          $3 monthly active fee. This fee occurs once a month,
+                          only if there were payouts initiated that month. If no
+                          payouts were initiated on a certain month, there will
+                          be no fee for that month.
+                        </li>
+                        <li className="list-disc">
+                          We handle all refunds and disputes on your behalf.
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="font-bold text-xs">Recommendation:</h4>
+                      <ul className="pl-4">
+                        <li className="list-disc">
+                          Due to card fees, we recommend initiating payouts as
+                          little as possible so you don't incur the $3 monthly
+                          active fee often, and also save on the $0.25 per
+                          payout.
+                        </li>
+                        <li className="list-disc">
+                          If you initiated a payout in a certain month, it may
+                          be worth initiating another payout at the end of the
+                          same month, to take advantage of the $3 fee that was
+                          charged.
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 }
               >
@@ -554,7 +589,7 @@ function Revenue({ userAccount }) {
               </HtmlTooltip>
             </div>
 
-            {/* <div className="w-fit ml-auto">
+            <div className="w-fit ml-auto">
               {isCashingOut ? (
                 <CircularProgress size={20} />
               ) : availBalancePenny === 0 ? (
@@ -568,7 +603,7 @@ function Revenue({ userAccount }) {
                   disabled={availableStripeBalance == 0}
                 />
               )}
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
