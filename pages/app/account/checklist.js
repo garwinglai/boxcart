@@ -227,7 +227,9 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 <p className="text-center text-sm my-4 md:text-base">
                   Verification email as been sent to <br /> {email}
                 </p>
-                <p className="text-center text-sm font-light mb-4">May need to check spam.</p>
+                <p className="text-center text-sm font-light mb-4">
+                  May need to check spam.
+                </p>
               </div>
             )}
             <ButtonPrimary
@@ -282,46 +284,14 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 )}
               </div>
             </li>
-            <li className="mb-10 ms-6">
-              <span
-                className={`absolute flex items-center justify-center w-6 h-6 ${
-                  isProductsUploaded ? "bg-gray-300" : "bg-purple-300"
-                } rounded-full -start-3 ring-2 ring-gray-900`}
-              >
-                <p>2</p>
-              </span>
-              <div
-                className={`${styles.task} ${styles.flex} ${
-                  isProductsUploaded && "line-through"
-                }`}
-              >
-                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
-                  Upload products
-                </h3>
-              </div>
 
-              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
-                Create products or import products from your Etsy or Shopify
-                store.
-              </p>
-              <div className="w-fit mt-2">
-                {!isProductsUploaded && (
-                  <Link
-                    href="/app/account/inventory/products"
-                    className="mt-4 h-8"
-                  >
-                    <ButtonPrimary name="Go" />
-                  </Link>
-                )}
-              </div>
-            </li>
             <li className="mb-10 ms-6">
               <span
                 className={`absolute flex items-center justify-center w-6 h-6 ${
                   isDeliverySet ? "bg-gray-300" : "bg-purple-300"
                 } rounded-full -start-3 ring-2 ring-gray-900`}
               >
-                <p>3</p>
+                <p>2</p>
               </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
@@ -353,7 +323,7 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                   isPaymentsSet ? "bg-gray-300" : "bg-purple-300"
                 } rounded-full -start-3 ring-2 ring-gray-900`}
               >
-                <p>4</p>
+                <p>3</p>
               </span>
               <div
                 className={`${styles.task} ${styles.flex} ${
@@ -372,6 +342,39 @@ function Checklist({ userSession, userAccount, pageTitle }) {
                 {!isPaymentsSet && (
                   <Link
                     href="/app/account/my-shop/payments"
+                    className="mt-4 h-8"
+                  >
+                    <ButtonPrimary name="Go" />
+                  </Link>
+                )}
+              </div>
+            </li>
+            <li className="mb-10 ms-6">
+              <span
+                className={`absolute flex items-center justify-center w-6 h-6 ${
+                  isProductsUploaded ? "bg-gray-300" : "bg-purple-300"
+                } rounded-full -start-3 ring-2 ring-gray-900`}
+              >
+                <p>4</p>
+              </span>
+              <div
+                className={`${styles.task} ${styles.flex} ${
+                  isProductsUploaded && "line-through"
+                }`}
+              >
+                <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 ">
+                  Upload products
+                </h3>
+              </div>
+
+              <p className="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
+                Create products or import products from your Etsy or Shopify
+                store.
+              </p>
+              <div className="w-fit mt-2">
+                {!isProductsUploaded && (
+                  <Link
+                    href="/app/account/inventory/products"
                     className="mt-4 h-8"
                   >
                     <ButtonPrimary name="Go" />

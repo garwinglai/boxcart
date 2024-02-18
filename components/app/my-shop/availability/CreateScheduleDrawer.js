@@ -977,11 +977,15 @@ function CreateScheduleDrawer({
             padding: "16px",
           }}
         >
-          <p className="text-sm px-4 border-b pb-2 f">
-            *** Setting schedule is only necessary if your customers can select
-            pickup times, choose their own delivery dates, or book appointments.
-            Otherwise, we recommend to disable.
-          </p>
+          <div className="px-4 border-b mb-4 bg-orange-100 py-2 rounded ">
+            <h2 className="text-base font-medium">Read:</h2>
+            <p className="font-medium text-sm ">
+              Setting schedule is only necessary if customers are required to
+              select pickup times, choose specific delivery dates, or book
+              appointments. If you run an online shop and allow customer to
+              order 24/7, you do not need to set a schedule.
+            </p>
+          </div>
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="date"

@@ -50,6 +50,7 @@ const styledAvailModal = {
   "@media (min-width: 1025px)": {
     width: "30%",
   },
+  // height: "75%",
   bgcolor: "background.paper",
   boxShadow: 24,
   borderRadius: "8px",
@@ -180,16 +181,15 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
   const handleOpenAvailabilityModalOwner = () => {
     let date = dayjs();
 
-    if (orderForDateDisplay !== "") {
-      date = dayjs(orderForDateDisplay);
-      setCalendarDate(date);
-      setCalendarMonth(date);
-    } else {
+    if (!orderForDateDisplay || orderForDateDisplay === "") {
       const dateStr = new Date(date).toLocaleDateString();
-
       const details = { orderForDateDisplay: dateStr };
 
       setCartDetails(subdomain, details);
+    } else {
+      date = dayjs(orderForDateDisplay);
+      setCalendarDate(date);
+      setCalendarMonth(date);
     }
 
     const selectedDateValues = fetchShopHours(
@@ -736,7 +736,11 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
     }
 
     if (isTimeBlockEnabled) {
-      if (orderForTimeDisplay === "" || orderForTimeDisplay === "time") {
+      if (
+        orderForTimeDisplay === "" ||
+        orderForTimeDisplay === "time" ||
+        !orderForTimeDisplay
+      ) {
         handleOpenSnackbar("Please select a time.");
         return;
       }
@@ -953,7 +957,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
               aria-describedby="enter delivery address modal"
             >
               <Box sx={styledDeliveryModal}>
-                <div className="max-h-[36rem] p-4 rounded-lg overflow-y-scroll">
+                <div className=" p-4 rounded-lg overflow-y-scroll">
                   <h3 className="mb-2">Select fulfillment:</h3>
                   <Accordion
                     onChange={handleSwitch}
@@ -1315,7 +1319,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
         aria-describedby="view of calendar to select date and time"
       >
         <Box sx={styledAvailModal}>
-          <div className="max-h-[36rem] overflow-y-scroll">
+          <div className="max-h-[38rem] overflow-y-scroll">
             <div className="border-b p-4">
               <h3 className="pb-2 underline">Availability:</h3>
               <div className="flex gap-2 items-center text-[color:var(--black-design-extralight)]">
@@ -1387,6 +1391,18 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     {timeBlockTimes.map((time, i) => {
+                      const today = new Date().toLocaleDateString();
+
+                      if (today == selectedDate) {
+                        const currentTime = new Date().getTime();
+
+                        const scheduledTime = new Date(
+                          `${selectedDate} ${time}`
+                        ).getTime();
+
+                        if (currentTime >= scheduledTime) return null;
+                      }
+
                       return isOwner ? (
                         <p
                           key={i}
@@ -1399,7 +1415,7 @@ function ShopFulfillment({ isOwner, userAccount, handleOpenSnackbar }) {
                           name={time}
                           onClick={handleSelectTime}
                           key={i}
-                          className={`whitespace-nowrap border rounded py-1 text-center text-[color:var(--gray-light-med)] w-full hover:bg-[color:var(--gray-light-med)] hover:text-white focus:bg-[color:var(--secondary)] focus:text-white
+                          className={`whitespace-nowrap border rounded py-1 text-center text-[color:var(--gray-light-med)] w-full hover:bg-[color:var(--secondary)] hover:text-white focus:bg-[color:var(--black-design-extralight)] focus:text-white
                         ${
                           hydrated && orderForTimeDisplay == time
                             ? "bg-[color:var(--secondary)] text-white"

@@ -239,10 +239,10 @@ function ScheduleCard({
 
   return (
     <div
-      className={`grid items-center justify-center bg-white shadow rounded p-4 py-1 grid-cols-[.75fr_2.5fr_2.5fr_0.5fr]`}
+      className={`grid items-center justify-center bg-white shadow rounded p-4 py-1 grid-cols-[.50fr_2.5fr_1.5fr_0.5fr]`}
     >
       <IOSSwitch checked={isEnabled} onClick={handleToggleEnableSchedule} />
-      <div className={`flex flex-col justify-center items-center`}>
+      <div className={`text-center`}>
         <span>
           {scheduleType === "date" && <p className="text-xs">{startDateStr}</p>}
           {scheduleType === "range" && (
@@ -250,16 +250,15 @@ function ScheduleCard({
               {startDateStr} - {endDateStr}
             </p>
           )}
-          {scheduleType === "week" &&
-            daysDisplay.split(", ").map((day) => (
-              <p key={day} className="text-xs font-extralight text-center">
-                {day}
-              </p>
-            ))}
+          {scheduleType === "week" && (
+            <p className="text-xs font-extralight text-center px-4">
+              {daysDisplay}
+            </p>
+          )}
         </span>
       </div>
       <span>
-        <p className="text-xs">{hoursDisplay}</p>
+        <p className="text-xs text-center">{hoursDisplay}</p>
       </span>
 
       <StyledMenu
@@ -305,9 +304,11 @@ function ScheduleCard({
         />
       </Drawer>
 
-      <IconButton onClick={handleOpenMenu}>
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
+      <div className="mx-auto">
+        <IconButton onClick={handleOpenMenu}>
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </div>
     </div>
   );
 }

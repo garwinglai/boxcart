@@ -568,9 +568,9 @@ function Revenue({ userAccount }) {
                       <ul className="pl-4">
                         <li className="list-disc">
                           Due to card fees, we recommend initiating payouts as
-                          little as possible so you don't incur the $3 monthly
-                          active fee often, and also save on the $0.25 per
-                          payout.
+                          little as possible so you don&apos;t incur the $3
+                          monthly active fee often, and also save on the $0.25
+                          per payout.
                         </li>
                         <li className="list-disc">
                           If you initiated a payout in a certain month, it may

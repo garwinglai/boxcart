@@ -871,7 +871,12 @@ function Availability({ userAccount }) {
       return;
     }
 
-    if (hasCustomHours) isCustomHoursEnabled = false;
+    if (hasCustomHours) {
+      isCustomHoursEnabled = false;
+      handleOpenSnackbar("Disabling...");
+    } else {
+      handleOpenSnackbar("Enabling...");
+    }
 
     setHasCustomHours((prev) => !prev);
 
@@ -886,7 +891,13 @@ function Availability({ userAccount }) {
       return;
     }
 
-    if (isCustomHoursEnabled) updateChecklist(value, isCustomHoursEnabled);
+    if (isCustomHoursEnabled) {
+      updateChecklist(value, isCustomHoursEnabled);
+      handleOpenSnackbar("Enabled");
+      return;
+    }
+
+    handleOpenSnackbar("Disabled");
   };
 
   const updateChecklist = (availability, isCustomHoursEnabled) => {
@@ -948,7 +959,12 @@ function Availability({ userAccount }) {
   const handleTimeBlockSwitch = async () => {
     let timeBlockToggle = true;
 
-    if (timeBlockEnabled) timeBlockToggle = false;
+    if (timeBlockEnabled) {
+      timeBlockToggle = false;
+      handleOpenSnackbar("Disabling...");
+    } else {
+      handleOpenSnackbar("Enabling...");
+    }
 
     setTimeBlockEnabled((prev) => !prev);
 
@@ -961,6 +977,13 @@ function Availability({ userAccount }) {
       handleOpenSnackbar("Error updating time block.");
       setTimeBlockEnabled((prev) => !prev);
     }
+
+    if (timeBlockToggle) {
+      handleOpenSnackbar("Enabled");
+      return;
+    }
+
+    handleOpenSnackbar("Disabled");
   };
 
   const updateTimeBlockCurrValue = (value) => {
@@ -980,7 +1003,12 @@ function Availability({ userAccount }) {
   const handleOrderInAdvanceSwitch = async (e) => {
     let orderInAdvanceToggle = true;
 
-    if (orderInAdvanceEnabled) orderInAdvanceToggle = false;
+    if (orderInAdvanceEnabled) {
+      orderInAdvanceToggle = false;
+      handleOpenSnackbar("Disabling...");
+    } else {
+      handleOpenSnackbar("Enabling...");
+    }
 
     setOrderInAdvanceEnabled((prev) => !prev);
 
@@ -994,6 +1022,12 @@ function Availability({ userAccount }) {
       handleOpenSnackbar("Error.");
       setOrderInAdvanceEnabled((prev) => !prev);
     }
+
+    if (orderInAdvanceEnabled) {
+      handleOpenSnackbar("Disabled");
+      return;
+    }
+    handleOpenSnackbar("Enabled");
   };
 
   // TODO: after lunch : 1. timeblock, update savings to availability model 2. on register, create
@@ -1076,9 +1110,9 @@ function Availability({ userAccount }) {
         </div>
         <div className="lg:flex-grow lg:border-l pl-4">
           <div className="flex justify-between items-center mb-4 ">
-            <h3 className="ml-4 text-normal font-normal">Created schedules:</h3>
+            <h3 className="ml-4 text-normal font-normal">Schedules:</h3>
             <div className="flex items-center mr-4">
-              <p className="font-light text-sm">Schedule overlap: </p>
+              <p className="font-light text-sm">Overlap: </p>
               <HtmlTooltip
                 leaveTouchDelay={10000}
                 enterTouchDelay={0}
@@ -1202,7 +1236,7 @@ function Availability({ userAccount }) {
           {daysOfWeekAvailabilityLength > 0 && (
             <div className="px-4  pt-4 pb-6">
               <h6 className="mb-2 text-[color:var(--third-dark)]">
-                Weekly Schedule <i>(repeats)</i>
+                Weekly Schedule
               </h6>
               <div className="flex flex-col gap-2">
                 {daysOfWeekAvailability.map((date) => {
@@ -1272,53 +1306,12 @@ function Availability({ userAccount }) {
         action={action}
       />
       <div className="lg:flex">
-        <div className="flex flex-col border shadow rounded items- justify-between p-4 bg-white  m-4 lg:w-1/2">
-          <div className="flex items-center gap-4  justify-between w-full">
-            <div className="flex flex-col">
-              <h4>Set availability</h4>
-              <p className="font-extralight text-xs">
-                Availability will allow customers to select delivery date,
-                pickup time, or book a service.
-              </p>
-            </div>
-            <IOSSwitch
-              checked={hasCustomHours}
-              onClick={handleSetHoursSwitch}
-            />
-          </div>
-          {hasCustomHours && (
-            <div className="ml-auto mt-4">
-              <div className="flex justify-betweenitems-center">
-                <div>
-                  <ButtonPrimary
-                    handleClick={toggleDrawer("right", true)}
-                    name="Schedule"
-                    icon={<AddIcon sx={{ fontSize: "14px" }} />}
-                  />
-                </div>
-              </div>
-              <Drawer
-                anchor={"right"}
-                open={drawerState["right"]}
-                onClose={toggleDrawer("right", false)}
-              >
-                <CreateScheduleDrawer
-                  toggleDrawer={toggleDrawer("right", false)}
-                  accountId={accountId}
-                  handleOpenSnackbar={handleOpenSnackbar}
-                  availability={availability}
-                  getAvailabilities={getAvailabilities}
-                />
-              </Drawer>
-            </div>
-          )}
-        </div>
         <div className="flex flex-col border shadow rounded items-center justify-between  p-4 bg-white  m-4 lg:w-1/2">
           <div className="flex gap-4 items-center justify-between w-full">
             <div className="flex flex-col">
               <h4>Order in advance:</h4>
               <p className="font-extralight text-xs">
-                Customers must order ahead of time. (Best for custom orders.)
+                Customers must order ahead of time. Ex: 24 hours ahead.
               </p>
             </div>
             <IOSSwitch
@@ -1359,8 +1352,8 @@ function Availability({ userAccount }) {
             <div className="flex flex-col">
               <h4>Time buffer</h4>
               <p className="font-extralight text-xs">
-                Set a time buffer in your availability. Best for food, bookings,
-                services, etc.
+                Set a time buffer between each order. Ex: accept orders every 15
+                minutes.
               </p>
             </div>
             <IOSSwitch
@@ -1388,6 +1381,47 @@ function Availability({ userAccount }) {
                   timeBlock={timeBlockCurrentValue}
                   handleOpenSnackbar={handleOpenSnackbar}
                   updateTimeBlockCurrValue={updateTimeBlockCurrValue}
+                />
+              </Drawer>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col border shadow rounded items- justify-between p-4 bg-white  m-4 lg:w-1/2">
+          <div className="flex items-center gap-4  justify-between w-full">
+            <div className="flex flex-col">
+              <h4>Set availability</h4>
+              <p className="font-extralight text-xs">
+                Availability will allow customers to select delivery date,
+                pickup time, or book a service.
+              </p>
+            </div>
+            <IOSSwitch
+              checked={hasCustomHours}
+              onClick={handleSetHoursSwitch}
+            />
+          </div>
+          {hasCustomHours && (
+            <div className="ml-auto mt-4">
+              <div className="flex justify-betweenitems-center">
+                <div>
+                  <ButtonPrimary
+                    handleClick={toggleDrawer("right", true)}
+                    name="Schedule"
+                    icon={<AddIcon sx={{ fontSize: "14px" }} />}
+                  />
+                </div>
+              </div>
+              <Drawer
+                anchor={"right"}
+                open={drawerState["right"]}
+                onClose={toggleDrawer("right", false)}
+              >
+                <CreateScheduleDrawer
+                  toggleDrawer={toggleDrawer("right", false)}
+                  accountId={accountId}
+                  handleOpenSnackbar={handleOpenSnackbar}
+                  availability={availability}
+                  getAvailabilities={getAvailabilities}
                 />
               </Drawer>
             </div>

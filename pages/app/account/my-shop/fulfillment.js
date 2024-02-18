@@ -645,10 +645,11 @@ function Fulfillment({ userSession, userAccount }) {
       if (success) {
         if (isPickupChecked) {
           const { hasCustomAvailability } = availability;
+          const message =
+            "If pickup is enabled, availability must be set to allow customers to choose pickup times.";
 
           if (!hasCustomAvailability || !availability) {
             setOpenSetAvailabilityModal(true);
-            const message = "You must set your shop hours to enable pickup.";
             setAvailabilityModalMessage(message);
 
             if (isChecklistComplete) {
@@ -677,7 +678,7 @@ function Fulfillment({ userSession, userAccount }) {
               daysOfWeekAvailLen == 0
             ) {
               setOpenSetAvailabilityModal(true);
-              const message = "You must set your shop hours to enable pickup.";
+
               setAvailabilityModalMessage(message);
 
               if (isChecklistComplete) {
@@ -1193,9 +1194,9 @@ function Fulfillment({ userSession, userAccount }) {
         <Box sx={styleMobile}>
           <div className="w-full">
             <h2>Set availability</h2>
-            <p className="mt-4 mb-6 text-sm">{availabilityModalMessage}</p>
+            <p className="mt-4 mb-6 text-sm bg-orange-100 p-2 rounded">{availabilityModalMessage}</p>
             <Link href="/app/account/my-shop/availability">
-              <ButtonThird name="Set store hours" type="button" />
+              <ButtonThird name="Go" type="button" />
             </Link>
           </div>
         </Box>
